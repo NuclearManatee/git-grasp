@@ -1,7 +1,16 @@
 {
-  "source": "embedded-doc-derived-list",
-  "count": 222,
-  "critiqueRounds": 0,
-  "hash": "06ea0fa0650bdb2b9f33d568c129bbd71e5de0cf20c598e95a9c40fadaf0071f",
-  "createdAt": "2026-07-24T20:23:07.669Z"
+  "step": 3,
+  "pipeline": [
+    "docs+extract+are-you-sure",
+    "per-command-intents",
+    "normalize"
+  ],
+  "source": "git-scm.com+gpt-oss-120b",
+  "docMirrorHash": null,
+  "commandCount": 335,
+  "extractedCommandCount": 335,
+  "intentCount": 1710,
+  "dropCount": 0,
+  "hash": "fa51d3bdacc34e23edd290b5458e55b0c60427f57f81e50ffdc3a0e824c379ca",
+  "createdAt": "2026-07-25T09:01:30.665Z"
 }

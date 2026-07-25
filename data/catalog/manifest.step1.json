@@ -1,0 +1,33 @@
+{
+  "step": 1,
+  "source": "local-docs+deepseek-are-you-sure",
+  "provider": "deepseek",
+  "model": "deepseek-v4-pro",
+  "count": 304,
+  "sure": true,
+  "rounds": [
+    {
+      "round": 1,
+      "sure": false,
+      "rationale": "Missing topics sparse, security, gui. Added sparse-checkout subcommands, GPG signing and verification commands, and GUI tools like git gui, gitk, and git instaweb.",
+      "added": 26,
+      "count": 307,
+      "missing_topics": []
+    },
+    {
+      "round": 2,
+      "sure": true,
+      "rationale": "All topics covered with 307 commands, exceeding minimum 200.",
+      "added": 0,
+      "count": 307,
+      "missing_topics": []
+    }
+  ],
+  "coverage": {
+    "complete": true,
+    "missing": [],
+    "count": 304
+  },
+  "hash": "01f25e29a2761620bc1755e50fd03fe896ecface174a0867e63e9770b603096e",
+  "createdAt": "2026-07-25T08:49:23.873Z"
+}

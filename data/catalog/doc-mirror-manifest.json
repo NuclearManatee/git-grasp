@@ -1,7 +1,212 @@
 {
-  "note": "Pinned logical mirror of git-scm porcelain topics",
-  "hash": "06ea0fa0650bdb2b9f33d568c129bbd71e5de0cf20c598e95a9c40fadaf0071f",
-  "urls": [
-    "https://git-scm.com/docs"
-  ]
+  "pinnedAt": "2026-07-25T06:18:49.554Z",
+  "host": "git-scm.com",
+  "pages": [
+    {
+      "url": "https://git-scm.com/docs",
+      "sha256": "2863ca6d74c8432b03aecc322e666d7fcfefc518ae5dc8270d1da805262e4567",
+      "bytes": 15994
+    },
+    {
+      "url": "https://git-scm.com/docs/git",
+      "sha256": "5cfdc4633463e70c8ad016c026caf96cb8ca9204ea0d4a7adb18563d890eeebf",
+      "bytes": 242660
+    },
+    {
+      "url": "https://git-scm.com/docs/gittutorial",
+      "sha256": "d8cf02e85b0a43d1b3d39719b568523e70810fad65e2f8ac47dcb8d51d221a64",
+      "bytes": 61008
+    },
+    {
+      "url": "https://git-scm.com/docs/giteveryday",
+      "sha256": "8958f462ee7ef195c402a9cfa4ac79909bb3e4da04ef5cd718f02721b6902179",
+      "bytes": 49577
+    },
+    {
+      "url": "https://git-scm.com/docs/gitworkflows",
+      "sha256": "2e1e8130b1164a8053a73944808f5839ba0ceced1a77793b8374d325fb880f70",
+      "bytes": 50299
+    },
+    {
+      "url": "https://git-scm.com/docs/git-init",
+      "sha256": "1699edf19b9313b5334a6134b413f596d3bd3216c223f7a12566521fe71c117b",
+      "bytes": 60023
+    },
+    {
+      "url": "https://git-scm.com/docs/git-clone",
+      "sha256": "8fa857c1d5a13b3eea2d751bc2c24df544aaebb0390e416645616af86331c181",
+      "bytes": 107743
+    },
+    {
+      "url": "https://git-scm.com/docs/git-status",
+      "sha256": "5c8416b731fdc68e1ac5906609aa92c913d22020f8076e41b63d6e8960cd196d",
+      "bytes": 99817
+    },
+    {
+      "url": "https://git-scm.com/docs/git-diff",
+      "sha256": "4616c36351875636c7990dea18618db5f73fc873dcd5e9b2cf49a3d4b4575a8b",
+      "bytes": 228155
+    },
+    {
+      "url": "https://git-scm.com/docs/git-add",
+      "sha256": "519208b0e93d2a0f43e757aaa328203b6ab24d896ac97d7d83c7442a2570b6dd",
+      "bytes": 77520
+    },
+    {
+      "url": "https://git-scm.com/docs/git-commit",
+      "sha256": "065ae259f41a86a5db14cb08427a21aaece9390c19ff5a67cbddddaacaaa9f7c",
+      "bytes": 122767
+    },
+    {
+      "url": "https://git-scm.com/docs/git-log",
+      "sha256": "0004440e547d30366d437b9a99f573a83704ca745daa9d5f0c714d53405787d2",
+      "bytes": 373292
+    },
+    {
+      "url": "https://git-scm.com/docs/git-branch",
+      "sha256": "13e4864abdc8cebd1d8291de803cc85faed738c7ff143468039cadae5477bcdb",
+      "bytes": 111934
+    },
+    {
+      "url": "https://git-scm.com/docs/git-checkout",
+      "sha256": "f5c279aece3cb19adfe36cab3ef855c1746ce8e2ab328e2f5d853c7fb2e3426e",
+      "bytes": 115054
+    },
+    {
+      "url": "https://git-scm.com/docs/git-switch",
+      "sha256": "d7a9188f4b6e59f4987e6f3e87317ee14c4c59b8d64737af6afbb7f9733db03c",
+      "bytes": 56373
+    },
+    {
+      "url": "https://git-scm.com/docs/git-merge",
+      "sha256": "e2819c62b6814547e1618d640bdb160a50379158756a2db19f3d5dfb75d72fdd",
+      "bytes": 142105
+    },
+    {
+      "url": "https://git-scm.com/docs/git-rebase",
+      "sha256": "1fbdd432e049a13f05d7deb858a57eb2e42d1358144e22cebf6fd883650f43c2",
+      "bytes": 178648
+    },
+    {
+      "url": "https://git-scm.com/docs/git-reset",
+      "sha256": "2381a963e6c9d84b60cb05cf825057d7ffb85ba4e52b9c09de53729177a67952",
+      "bytes": 77202
+    },
+    {
+      "url": "https://git-scm.com/docs/git-restore",
+      "sha256": "ad7cdb61e5674fe9f684be1c41fa8f7cad88be71197190309c528e6bd32ced6e",
+      "bytes": 51086
+    },
+    {
+      "url": "https://git-scm.com/docs/git-revert",
+      "sha256": "b9784d07e844bc2a1746133aa0b968c5b59e83db1fe4cda59add6f69046194ff",
+      "bytes": 48502
+    },
+    {
+      "url": "https://git-scm.com/docs/git-stash",
+      "sha256": "efec8772ef462bb3237cb9bfd28514c26ddd3bfee349b47574bd0dbf4bcf4aec",
+      "bytes": 87482
+    },
+    {
+      "url": "https://git-scm.com/docs/git-pull",
+      "sha256": "f509299b56accda60de0232fc5e7a7e053e8fdab26816e19b66e52d291d83a45",
+      "bytes": 174260
+    },
+    {
+      "url": "https://git-scm.com/docs/git-push",
+      "sha256": "293d13f7ea3f68188dfd4af9aa382d89af5725b27176e06efc1f8f59e0623819",
+      "bytes": 158400
+    },
+    {
+      "url": "https://git-scm.com/docs/git-fetch",
+      "sha256": "a4164d0f907d8fa5d47ee2928baa3ab0bd5a5f7d135105328a8834703fe7719a",
+      "bytes": 162228
+    },
+    {
+      "url": "https://git-scm.com/docs/git-remote",
+      "sha256": "c603e1c6335bc3f128a28fe6662466e025ecc441055ab33d86ac7592ccde593f",
+      "bytes": 57227
+    },
+    {
+      "url": "https://git-scm.com/docs/git-tag",
+      "sha256": "d4b9bacf60380c9cde58c497260dcf26d03b8f406b36510fafae88fb4053c527",
+      "bytes": 91724
+    },
+    {
+      "url": "https://git-scm.com/docs/git-config",
+      "sha256": "da1220e850c88f072cdd8e95a8353342847556bbc1dc254d852b240ef27c2fd6",
+      "bytes": 804459
+    },
+    {
+      "url": "https://git-scm.com/docs/git-clean",
+      "sha256": "aafe52269c6fef207651f7bee6c4e07e361ba2b0b1be9e7c932e032f45d8350b",
+      "bytes": 41970
+    },
+    {
+      "url": "https://git-scm.com/docs/git-reflog",
+      "sha256": "f0956538ebefc0dd5e695763e847b9374a0aa4ffcbb0636186cb121f9eeabf1d",
+      "bytes": 44019
+    },
+    {
+      "url": "https://git-scm.com/docs/git-cherry-pick",
+      "sha256": "d7500003241e4efafd1591654be5f7629a30deb672398a877f61059a28b1644b",
+      "bytes": 58375
+    },
+    {
+      "url": "https://git-scm.com/docs/git-bisect",
+      "sha256": "e0c7aa1133479096635dd4e4acf221536cf1b336c1fa75b21aa082858ae8d6dc",
+      "bytes": 69767
+    },
+    {
+      "url": "https://git-scm.com/docs/git-submodule",
+      "sha256": "f133465ce5b28f341c5a55d32efdb79d1a71d596c691fdbf13b72a5785abc6d2",
+      "bytes": 100395
+    },
+    {
+      "url": "https://git-scm.com/docs/git-worktree",
+      "sha256": "9a4efb72352587db396b2368bdf9ca686b05f3eefc6c2d7452df5ce6985b61f7",
+      "bytes": 97742
+    },
+    {
+      "url": "https://git-scm.com/docs/git-sparse-checkout",
+      "sha256": "6c678ec6da4f15838500344e551e52844d8bb03fd31720d97b57f255043654b1",
+      "bytes": 69920
+    },
+    {
+      "url": "https://git-scm.com/docs/git-grep",
+      "sha256": "e54e083d92698ddf8a2d8f443572e0f34c43fe600fce405ff10b5f09fa07ec9a",
+      "bytes": 87414
+    },
+    {
+      "url": "https://git-scm.com/docs/git-blame",
+      "sha256": "8c014c0c874a02c996b480fe7b91b0bfc84d2e518ec865ce1bcf6877010824fd",
+      "bytes": 81664
+    },
+    {
+      "url": "https://git-scm.com/docs/git-show",
+      "sha256": "ca22649cc38037fb005af88e22d0e13c87acc97c59cfac1339ea500ed42c01c5",
+      "bytes": 245608
+    },
+    {
+      "url": "https://git-scm.com/docs/git-rm",
+      "sha256": "e128fca50304afa960166340dd657d71eb7fade80fa3989074d147be4b2d8bb7",
+      "bytes": 44621
+    },
+    {
+      "url": "https://git-scm.com/docs/git-mv",
+      "sha256": "fa7eaf0da2e99e2c63792f50690a5a2f7daf1a0b9fdcd167b0c10368fd54c346",
+      "bytes": 30309
+    },
+    {
+      "url": "https://git-scm.com/docs/git-gc",
+      "sha256": "4a21bd8afb010174511eb08504957e3ac7a93a8c2cfbd3bc4456c3e57f1d6b78",
+      "bytes": 67531
+    },
+    {
+      "url": "https://git-scm.com/docs/git-help",
+      "sha256": "a7919151ed9a26a87da5fc464c7d3d2fdf9ce9ebd348e598ab24edc578798120",
+      "bytes": 47420
+    }
+  ],
+  "hash": "59d7596662f55a3742a43a7fd8e16a741ce621fa69e85abcbb611d72dc637a41"
 }

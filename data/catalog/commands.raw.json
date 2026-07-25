@@ -1,0 +1,1844 @@
+[
+  {
+    "command": "git config",
+    "topic": "config",
+    "risk_class": "none",
+    "source_hint": "Setup and Config section"
+  },
+  {
+    "command": "git help",
+    "topic": "help",
+    "risk_class": "none",
+    "source_hint": "Setup and Config section"
+  },
+  {
+    "command": "git bugreport",
+    "topic": "help",
+    "risk_class": "none",
+    "source_hint": "Setup and Config section"
+  },
+  {
+    "command": "git init",
+    "topic": "create",
+    "risk_class": "none",
+    "source_hint": "Getting and Creating Projects section"
+  },
+  {
+    "command": "git clone",
+    "topic": "create",
+    "risk_class": "none",
+    "source_hint": "Getting and Creating Projects section"
+  },
+  {
+    "command": "git add",
+    "topic": "stage",
+    "risk_class": "none",
+    "source_hint": "Basic Snapshotting section"
+  },
+  {
+    "command": "git status",
+    "topic": "status",
+    "risk_class": "none",
+    "source_hint": "Basic Snapshotting section"
+  },
+  {
+    "command": "git diff",
+    "topic": "diff",
+    "risk_class": "none",
+    "source_hint": "Basic Snapshotting section"
+  },
+  {
+    "command": "git commit",
+    "topic": "commit",
+    "risk_class": "none",
+    "source_hint": "Basic Snapshotting section"
+  },
+  {
+    "command": "git notes",
+    "topic": "notes",
+    "risk_class": "none",
+    "source_hint": "Basic Snapshotting section"
+  },
+  {
+    "command": "git restore",
+    "topic": "undo",
+    "risk_class": "low",
+    "source_hint": "Basic Snapshotting section"
+  },
+  {
+    "command": "git reset",
+    "topic": "undo",
+    "risk_class": "high",
+    "source_hint": "Basic Snapshotting section"
+  },
+  {
+    "command": "git rm",
+    "topic": "clean",
+    "risk_class": "low",
+    "source_hint": "Basic Snapshotting section"
+  },
+  {
+    "command": "git mv",
+    "topic": "files",
+    "risk_class": "none",
+    "source_hint": "Basic Snapshotting section"
+  },
+  {
+    "command": "git branch",
+    "topic": "branch",
+    "risk_class": "none",
+    "source_hint": "Branching and Merging section"
+  },
+  {
+    "command": "git checkout",
+    "topic": "branch",
+    "risk_class": "low",
+    "source_hint": "Branching and Merging section"
+  },
+  {
+    "command": "git switch",
+    "topic": "branch",
+    "risk_class": "low",
+    "source_hint": "Branching and Merging section"
+  },
+  {
+    "command": "git merge",
+    "topic": "merge",
+    "risk_class": "low",
+    "source_hint": "Branching and Merging section"
+  },
+  {
+    "command": "git mergetool",
+    "topic": "merge",
+    "risk_class": "none",
+    "source_hint": "Branching and Merging section"
+  },
+  {
+    "command": "git log",
+    "topic": "history",
+    "risk_class": "none",
+    "source_hint": "Branching and Merging section"
+  },
+  {
+    "command": "git stash",
+    "topic": "stash",
+    "risk_class": "none",
+    "source_hint": "Branching and Merging section"
+  },
+  {
+    "command": "git tag",
+    "topic": "tag",
+    "risk_class": "none",
+    "source_hint": "Branching and Merging section"
+  },
+  {
+    "command": "git worktree",
+    "topic": "worktree",
+    "risk_class": "none",
+    "source_hint": "Branching and Merging section"
+  },
+  {
+    "command": "git fetch",
+    "topic": "remote",
+    "risk_class": "none",
+    "source_hint": "Sharing and Updating Projects section"
+  },
+  {
+    "command": "git pull",
+    "topic": "remote",
+    "risk_class": "low",
+    "source_hint": "Sharing and Updating Projects section"
+  },
+  {
+    "command": "git push",
+    "topic": "remote",
+    "risk_class": "low",
+    "source_hint": "Sharing and Updating Projects section"
+  },
+  {
+    "command": "git remote",
+    "topic": "remote",
+    "risk_class": "none",
+    "source_hint": "Sharing and Updating Projects section"
+  },
+  {
+    "command": "git submodule",
+    "topic": "submodule",
+    "risk_class": "none",
+    "source_hint": "Sharing and Updating Projects section"
+  },
+  {
+    "command": "git show",
+    "topic": "history",
+    "risk_class": "none",
+    "source_hint": "Inspection and Comparison section"
+  },
+  {
+    "command": "git difftool",
+    "topic": "diff",
+    "risk_class": "none",
+    "source_hint": "Inspection and Comparison section"
+  },
+  {
+    "command": "git range-diff",
+    "topic": "diff",
+    "risk_class": "none",
+    "source_hint": "Inspection and Comparison section"
+  },
+  {
+    "command": "git shortlog",
+    "topic": "history",
+    "risk_class": "none",
+    "source_hint": "Inspection and Comparison section"
+  },
+  {
+    "command": "git describe",
+    "topic": "history",
+    "risk_class": "none",
+    "source_hint": "Inspection and Comparison section"
+  },
+  {
+    "command": "git apply",
+    "topic": "patch",
+    "risk_class": "low",
+    "source_hint": "Patching section"
+  },
+  {
+    "command": "git cherry-pick",
+    "topic": "rebase",
+    "risk_class": "low",
+    "source_hint": "Patching section"
+  },
+  {
+    "command": "git rebase",
+    "topic": "rebase",
+    "risk_class": "high",
+    "source_hint": "Patching section"
+  },
+  {
+    "command": "git revert",
+    "topic": "undo",
+    "risk_class": "low",
+    "source_hint": "Patching section"
+  },
+  {
+    "command": "git bisect",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "Debugging section"
+  },
+  {
+    "command": "git blame",
+    "topic": "history",
+    "risk_class": "none",
+    "source_hint": "Debugging section"
+  },
+  {
+    "command": "git grep",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "Debugging section"
+  },
+  {
+    "command": "git am",
+    "topic": "patch",
+    "risk_class": "low",
+    "source_hint": "Email section"
+  },
+  {
+    "command": "git imap-send",
+    "topic": "advanced",
+    "risk_class": "none",
+    "source_hint": "Email section"
+  },
+  {
+    "command": "git format-patch",
+    "topic": "patch",
+    "risk_class": "none",
+    "source_hint": "Email section"
+  },
+  {
+    "command": "git send-email",
+    "topic": "advanced",
+    "risk_class": "none",
+    "source_hint": "Email section"
+  },
+  {
+    "command": "git request-pull",
+    "topic": "remote",
+    "risk_class": "none",
+    "source_hint": "Email section"
+  },
+  {
+    "command": "git svn",
+    "topic": "advanced",
+    "risk_class": "low",
+    "source_hint": "External Systems section"
+  },
+  {
+    "command": "git fast-import",
+    "topic": "advanced",
+    "risk_class": "low",
+    "source_hint": "External Systems section"
+  },
+  {
+    "command": "git clean",
+    "topic": "clean",
+    "risk_class": "destructive",
+    "source_hint": "Administration section"
+  },
+  {
+    "command": "git gc",
+    "topic": "maintenance",
+    "risk_class": "none",
+    "source_hint": "Administration section"
+  },
+  {
+    "command": "git fsck",
+    "topic": "maintenance",
+    "risk_class": "none",
+    "source_hint": "Administration section"
+  },
+  {
+    "command": "git reflog",
+    "topic": "undo",
+    "risk_class": "none",
+    "source_hint": "Administration section"
+  },
+  {
+    "command": "git filter-branch",
+    "topic": "advanced",
+    "risk_class": "destructive",
+    "source_hint": "Administration section"
+  },
+  {
+    "command": "git instaweb",
+    "topic": "advanced",
+    "risk_class": "none",
+    "source_hint": "Administration section"
+  },
+  {
+    "command": "git archive",
+    "topic": "archive",
+    "risk_class": "none",
+    "source_hint": "Administration section"
+  },
+  {
+    "command": "git bundle",
+    "topic": "bundle",
+    "risk_class": "none",
+    "source_hint": "Administration section"
+  },
+  {
+    "command": "git daemon",
+    "topic": "advanced",
+    "risk_class": "none",
+    "source_hint": "Server Admin section"
+  },
+  {
+    "command": "git update-server-info",
+    "topic": "advanced",
+    "risk_class": "none",
+    "source_hint": "Server Admin section"
+  },
+  {
+    "command": "git cat-file",
+    "topic": "advanced",
+    "risk_class": "none",
+    "source_hint": "Plumbing Commands section"
+  },
+  {
+    "command": "git check-ignore",
+    "topic": "files",
+    "risk_class": "none",
+    "source_hint": "Plumbing Commands section"
+  },
+  {
+    "command": "git checkout-index",
+    "topic": "advanced",
+    "risk_class": "low",
+    "source_hint": "Plumbing Commands section"
+  },
+  {
+    "command": "git commit-tree",
+    "topic": "advanced",
+    "risk_class": "low",
+    "source_hint": "Plumbing Commands section"
+  },
+  {
+    "command": "git count-objects",
+    "topic": "maintenance",
+    "risk_class": "none",
+    "source_hint": "Plumbing Commands section"
+  },
+  {
+    "command": "git diff-index",
+    "topic": "diff",
+    "risk_class": "none",
+    "source_hint": "Plumbing Commands section"
+  },
+  {
+    "command": "git for-each-ref",
+    "topic": "advanced",
+    "risk_class": "none",
+    "source_hint": "Plumbing Commands section"
+  },
+  {
+    "command": "git hash-object",
+    "topic": "advanced",
+    "risk_class": "none",
+    "source_hint": "Plumbing Commands section"
+  },
+  {
+    "command": "git ls-files",
+    "topic": "files",
+    "risk_class": "none",
+    "source_hint": "Plumbing Commands section"
+  },
+  {
+    "command": "git ls-tree",
+    "topic": "advanced",
+    "risk_class": "none",
+    "source_hint": "Plumbing Commands section"
+  },
+  {
+    "command": "git merge-base",
+    "topic": "merge",
+    "risk_class": "none",
+    "source_hint": "Plumbing Commands section"
+  },
+  {
+    "command": "git read-tree",
+    "topic": "advanced",
+    "risk_class": "low",
+    "source_hint": "Plumbing Commands section"
+  },
+  {
+    "command": "git rev-list",
+    "topic": "history",
+    "risk_class": "none",
+    "source_hint": "Plumbing Commands section"
+  },
+  {
+    "command": "git rev-parse",
+    "topic": "advanced",
+    "risk_class": "none",
+    "source_hint": "Plumbing Commands section"
+  },
+  {
+    "command": "git show-ref",
+    "topic": "advanced",
+    "risk_class": "none",
+    "source_hint": "Plumbing Commands section"
+  },
+  {
+    "command": "git symbolic-ref",
+    "topic": "advanced",
+    "risk_class": "none",
+    "source_hint": "Plumbing Commands section"
+  },
+  {
+    "command": "git update-index",
+    "topic": "advanced",
+    "risk_class": "low",
+    "source_hint": "Plumbing Commands section"
+  },
+  {
+    "command": "git update-ref",
+    "topic": "advanced",
+    "risk_class": "low",
+    "source_hint": "Plumbing Commands section"
+  },
+  {
+    "command": "git verify-pack",
+    "topic": "maintenance",
+    "risk_class": "none",
+    "source_hint": "Plumbing Commands section"
+  },
+  {
+    "command": "git write-tree",
+    "topic": "advanced",
+    "risk_class": "none",
+    "source_hint": "Plumbing Commands section"
+  },
+  {
+    "command": "git add file.c",
+    "topic": "stage",
+    "risk_class": "none",
+    "source_hint": "git-add documentation"
+  },
+  {
+    "command": "git bisect start",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-bisect documentation"
+  },
+  {
+    "command": "git bisect bad <rev>",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-bisect documentation"
+  },
+  {
+    "command": "git bisect good <rev>",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-bisect documentation"
+  },
+  {
+    "command": "git bisect skip <rev>",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-bisect documentation"
+  },
+  {
+    "command": "git bisect reset",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-bisect documentation"
+  },
+  {
+    "command": "git bisect visualize",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-bisect documentation"
+  },
+  {
+    "command": "git bisect replay <logfile>",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-bisect documentation"
+  },
+  {
+    "command": "git bisect log",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-bisect documentation"
+  },
+  {
+    "command": "git bisect run <cmd>",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-bisect documentation"
+  },
+  {
+    "command": "git blame <file>",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-blame documentation"
+  },
+  {
+    "command": "git blame -L <range> <file>",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-blame documentation"
+  },
+  {
+    "command": "git blame --since=<date> <file>",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-blame documentation"
+  },
+  {
+    "command": "git blame --ignore-rev <rev> <file>",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-blame documentation"
+  },
+  {
+    "command": "git blame --ignore-revs-file <file> <file>",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-blame documentation"
+  },
+  {
+    "command": "git blame --color-lines <file>",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-blame documentation"
+  },
+  {
+    "command": "git blame --color-by-age <file>",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-blame documentation"
+  },
+  {
+    "command": "git blame --progress <file>",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-blame documentation"
+  },
+  {
+    "command": "git blame --abbrev=<n> <file>",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-blame documentation"
+  },
+  {
+    "command": "git blame --contents <file> <file>",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-blame documentation"
+  },
+  {
+    "command": "git blame --reverse <rev>..<rev> <file>",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-blame documentation"
+  },
+  {
+    "command": "git blame -c <file>",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-blame documentation"
+  },
+  {
+    "command": "git blame -b <file>",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-blame documentation"
+  },
+  {
+    "command": "git blame -l <file>",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-blame documentation"
+  },
+  {
+    "command": "git blame --root <file>",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-blame documentation"
+  },
+  {
+    "command": "git blame -t <file>",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-blame documentation"
+  },
+  {
+    "command": "git blame -f <file>",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-blame documentation"
+  },
+  {
+    "command": "git blame -n <file>",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-blame documentation"
+  },
+  {
+    "command": "git blame -s <file>",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-blame documentation"
+  },
+  {
+    "command": "git blame -e <file>",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-blame documentation"
+  },
+  {
+    "command": "git blame -p <file>",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-blame documentation"
+  },
+  {
+    "command": "git blame -w <file>",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-blame documentation"
+  },
+  {
+    "command": "git blame --incremental <file>",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-blame documentation"
+  },
+  {
+    "command": "git blame -S <revs-file> <file>",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-blame documentation"
+  },
+  {
+    "command": "git blame -M <file>",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-blame documentation"
+  },
+  {
+    "command": "git blame -C <file>",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-blame documentation"
+  },
+  {
+    "command": "git blame -C -C <file>",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-blame documentation"
+  },
+  {
+    "command": "git blame -C -C -C <file>",
+    "topic": "debug",
+    "risk_class": "none",
+    "source_hint": "git-blame documentation"
+  },
+  {
+    "command": "git branch --color=always",
+    "topic": "branch",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git branch --no-color",
+    "topic": "branch",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git branch --show-current",
+    "topic": "branch",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git branch -v",
+    "topic": "branch",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git branch -v --abbrev=7",
+    "topic": "branch",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git branch -v --no-abbrev",
+    "topic": "branch",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git branch --column",
+    "topic": "branch",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git branch --column=row",
+    "topic": "branch",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git branch --no-column",
+    "topic": "branch",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git branch --sort=-committerdate",
+    "topic": "branch",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git branch --merged",
+    "topic": "branch",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git branch --merged HEAD",
+    "topic": "branch",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git branch --no-merged",
+    "topic": "branch",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git branch --no-merged main",
+    "topic": "branch",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git branch --contains",
+    "topic": "branch",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git branch --contains abc123",
+    "topic": "branch",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git branch --no-contains",
+    "topic": "branch",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git branch --no-contains abc123",
+    "topic": "branch",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git branch --points-at HEAD",
+    "topic": "branch",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git branch --format='%(refname:short)'",
+    "topic": "branch",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git branch -r",
+    "topic": "branch",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git branch -a",
+    "topic": "branch",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git branch --list",
+    "topic": "branch",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git branch --list 'feature/*'",
+    "topic": "branch",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git checkout <branch>",
+    "topic": "branch",
+    "risk_class": "low",
+    "source_hint": "Switch branches"
+  },
+  {
+    "command": "git checkout -b <new-branch>",
+    "topic": "branch",
+    "risk_class": "low",
+    "source_hint": "Create and switch to a new branch"
+  },
+  {
+    "command": "git checkout -B <new-branch>",
+    "topic": "branch",
+    "risk_class": "low",
+    "source_hint": "Reset branch and switch"
+  },
+  {
+    "command": "git checkout --orphan <new-branch>",
+    "topic": "branch",
+    "risk_class": "low",
+    "source_hint": "Create a new orphan branch"
+  },
+  {
+    "command": "git checkout --detach <branch>",
+    "topic": "branch",
+    "risk_class": "low",
+    "source_hint": "Detach HEAD at branch"
+  },
+  {
+    "command": "git checkout <commit>",
+    "topic": "history",
+    "risk_class": "low",
+    "source_hint": "Checkout a specific commit (detached HEAD)"
+  },
+  {
+    "command": "git checkout <tree-ish> -- <pathspec>",
+    "topic": "undo",
+    "risk_class": "low",
+    "source_hint": "Restore files from a tree-ish"
+  },
+  {
+    "command": "git checkout -- <pathspec>",
+    "topic": "undo",
+    "risk_class": "low",
+    "source_hint": "Restore working tree files"
+  },
+  {
+    "command": "git checkout --pathspec-from-file=<file>",
+    "topic": "undo",
+    "risk_class": "low",
+    "source_hint": "Restore files listed in a file"
+  },
+  {
+    "command": "git checkout -f <branch>",
+    "topic": "branch",
+    "risk_class": "low",
+    "source_hint": "Force checkout"
+  },
+  {
+    "command": "git checkout -m <branch>",
+    "topic": "branch",
+    "risk_class": "low",
+    "source_hint": "Merge checkout"
+  },
+  {
+    "command": "git checkout -q <branch>",
+    "topic": "branch",
+    "risk_class": "low",
+    "source_hint": "Quiet checkout"
+  },
+  {
+    "command": "git cherry-pick <commit>",
+    "topic": "patch",
+    "risk_class": "low",
+    "source_hint": "Apply changes from a single commit"
+  },
+  {
+    "command": "git cherry-pick --edit <commit>",
+    "topic": "patch",
+    "risk_class": "low",
+    "source_hint": "Cherry-pick and edit the commit message"
+  },
+  {
+    "command": "git cherry-pick -n <commit>",
+    "topic": "patch",
+    "risk_class": "low",
+    "source_hint": "Cherry-pick without committing"
+  },
+  {
+    "command": "git cherry-pick -m <parent-number> <commit>",
+    "topic": "patch",
+    "risk_class": "low",
+    "source_hint": "Cherry-pick a merge commit by specifying mainline parent"
+  },
+  {
+    "command": "git cherry-pick -s <commit>",
+    "topic": "patch",
+    "risk_class": "low",
+    "source_hint": "Add Signed-off-by line"
+  },
+  {
+    "command": "git cherry-pick -x <commit>",
+    "topic": "patch",
+    "risk_class": "low",
+    "source_hint": "Append source commit reference to message"
+  },
+  {
+    "command": "git cherry-pick --ff <commit>",
+    "topic": "patch",
+    "risk_class": "low",
+    "source_hint": "Fast-forward if possible"
+  },
+  {
+    "command": "git cherry-pick -S[<keyid>] <commit>",
+    "topic": "patch",
+    "risk_class": "low",
+    "source_hint": "GPG-sign the cherry-picked commit"
+  },
+  {
+    "command": "git cherry-pick --continue",
+    "topic": "patch",
+    "risk_class": "low",
+    "source_hint": "Continue after resolving conflicts"
+  },
+  {
+    "command": "git cherry-pick --skip",
+    "topic": "patch",
+    "risk_class": "low",
+    "source_hint": "Skip the current commit during a sequence"
+  },
+  {
+    "command": "git cherry-pick --abort",
+    "topic": "patch",
+    "risk_class": "destructive",
+    "source_hint": "Abort the cherry-pick operation and revert changes"
+  },
+  {
+    "command": "git cherry-pick --quit",
+    "topic": "patch",
+    "risk_class": "low",
+    "source_hint": "Quit the cherry-pick sequence without reverting"
+  },
+  {
+    "command": "git clean -n",
+    "topic": "clean",
+    "risk_class": "none",
+    "source_hint": "dry-run to show what would be removed"
+  },
+  {
+    "command": "git clean -f",
+    "topic": "clean",
+    "risk_class": "destructive",
+    "source_hint": "force removal of untracked files"
+  },
+  {
+    "command": "git clean -d -f",
+    "topic": "clean",
+    "risk_class": "destructive",
+    "source_hint": "remove untracked files and directories"
+  },
+  {
+    "command": "git clean -x -f",
+    "topic": "clean",
+    "risk_class": "destructive",
+    "source_hint": "remove ignored files as well"
+  },
+  {
+    "command": "git clean -X -f",
+    "topic": "clean",
+    "risk_class": "destructive",
+    "source_hint": "remove only ignored files"
+  },
+  {
+    "command": "git clean -i",
+    "topic": "clean",
+    "risk_class": "low",
+    "source_hint": "interactive mode"
+  },
+  {
+    "command": "git clean -e <pattern>",
+    "topic": "clean",
+    "risk_class": "low",
+    "source_hint": "exclude pattern from cleaning"
+  },
+  {
+    "command": "git clone <repository>",
+    "topic": "create",
+    "risk_class": "none",
+    "source_hint": "git-clone documentation"
+  },
+  {
+    "command": "git clone <repository> <directory>",
+    "topic": "create",
+    "risk_class": "none",
+    "source_hint": "git-clone documentation"
+  },
+  {
+    "command": "git clone --template=<template-directory> <repository>",
+    "topic": "create",
+    "risk_class": "none",
+    "source_hint": "git-clone documentation"
+  },
+  {
+    "command": "git clone -l <repository>",
+    "topic": "create",
+    "risk_class": "none",
+    "source_hint": "git-clone documentation"
+  },
+  {
+    "command": "git clone -s <repository>",
+    "topic": "create",
+    "risk_class": "none",
+    "source_hint": "git-clone documentation"
+  },
+  {
+    "command": "git clone --no-hardlinks <repository>",
+    "topic": "create",
+    "risk_class": "none",
+    "source_hint": "git-clone documentation"
+  },
+  {
+    "command": "git clone -q <repository>",
+    "topic": "create",
+    "risk_class": "none",
+    "source_hint": "git-clone documentation"
+  },
+  {
+    "command": "git clone -n <repository>",
+    "topic": "create",
+    "risk_class": "none",
+    "source_hint": "git-clone documentation"
+  },
+  {
+    "command": "git clone --bare <repository>",
+    "topic": "create",
+    "risk_class": "none",
+    "source_hint": "git-clone documentation"
+  },
+  {
+    "command": "git clone --mirror <repository>",
+    "topic": "create",
+    "risk_class": "none",
+    "source_hint": "git-clone documentation"
+  },
+  {
+    "command": "git clone -o <name> <repository>",
+    "topic": "create",
+    "risk_class": "none",
+    "source_hint": "git-clone documentation"
+  },
+  {
+    "command": "git clone -b <name> <repository>",
+    "topic": "create",
+    "risk_class": "none",
+    "source_hint": "git-clone documentation"
+  },
+  {
+    "command": "git clone -u <upload-pack> <repository>",
+    "topic": "create",
+    "risk_class": "none",
+    "source_hint": "git-clone documentation"
+  },
+  {
+    "command": "git clone --reference <repository> <repository>",
+    "topic": "create",
+    "risk_class": "none",
+    "source_hint": "git-clone documentation"
+  },
+  {
+    "command": "git clone --dissociate <repository>",
+    "topic": "create",
+    "risk_class": "none",
+    "source_hint": "git-clone documentation"
+  },
+  {
+    "command": "git clone --separate-git-dir <git-dir> <repository>",
+    "topic": "create",
+    "risk_class": "none",
+    "source_hint": "git-clone documentation"
+  },
+  {
+    "command": "git clone --depth <depth> <repository>",
+    "topic": "create",
+    "risk_class": "none",
+    "source_hint": "git-clone documentation"
+  },
+  {
+    "command": "git clone --single-branch <repository>",
+    "topic": "create",
+    "risk_class": "none",
+    "source_hint": "git-clone documentation"
+  },
+  {
+    "command": "git clone --no-single-branch <repository>",
+    "topic": "create",
+    "risk_class": "none",
+    "source_hint": "git-clone documentation"
+  },
+  {
+    "command": "git clone --tags <repository>",
+    "topic": "create",
+    "risk_class": "none",
+    "source_hint": "git-clone documentation"
+  },
+  {
+    "command": "git clone --no-tags <repository>",
+    "topic": "create",
+    "risk_class": "none",
+    "source_hint": "git-clone documentation"
+  },
+  {
+    "command": "git clone --recurse-submodules <repository>",
+    "topic": "create",
+    "risk_class": "none",
+    "source_hint": "git-clone documentation"
+  },
+  {
+    "command": "git clone --recurse-submodules=<pathspec> <repository>",
+    "topic": "create",
+    "risk_class": "none",
+    "source_hint": "git-clone documentation"
+  },
+  {
+    "command": "git clone --shallow-submodules <repository>",
+    "topic": "create",
+    "risk_class": "none",
+    "source_hint": "git-clone documentation"
+  },
+  {
+    "command": "git clone --no-shallow-submodules <repository>",
+    "topic": "create",
+    "risk_class": "none",
+    "source_hint": "git-clone documentation"
+  },
+  {
+    "command": "git commit -m \"commit message\"",
+    "topic": "commit",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git commit -a -m \"commit message\"",
+    "topic": "commit",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git commit --amend",
+    "topic": "commit",
+    "risk_class": "low",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git commit --dry-run",
+    "topic": "commit",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git commit -c <commit>",
+    "topic": "commit",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git commit -C <commit>",
+    "topic": "commit",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git commit --squash <commit>",
+    "topic": "commit",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git commit --fixup <commit>",
+    "topic": "commit",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git commit -F <file>",
+    "topic": "commit",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git commit --reset-author",
+    "topic": "commit",
+    "risk_class": "low",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git commit --allow-empty",
+    "topic": "commit",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git commit --allow-empty-message",
+    "topic": "commit",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git commit --no-verify",
+    "topic": "commit",
+    "risk_class": "low",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git commit -e",
+    "topic": "commit",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git commit --author=<author>",
+    "topic": "commit",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git commit --date=<date>",
+    "topic": "commit",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git commit --cleanup=<mode>",
+    "topic": "commit",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git commit --status",
+    "topic": "commit",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git commit --no-status",
+    "topic": "commit",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git commit -i",
+    "topic": "commit",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git commit -o",
+    "topic": "commit",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git commit --pathspec-from-file=<file>",
+    "topic": "commit",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git commit --pathspec-file-nul",
+    "topic": "commit",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git commit --trailer <token>=<value>",
+    "topic": "commit",
+    "risk_class": "none",
+    "source_hint": "SYNOPSIS"
+  },
+  {
+    "command": "git config --global user.name \"Your Name\"",
+    "topic": "config",
+    "risk_class": "none",
+    "source_hint": "EXAMPLES section"
+  },
+  {
+    "command": "git config --global user.email \"you@example.com\"",
+    "topic": "config",
+    "risk_class": "none",
+    "source_hint": "EXAMPLES section"
+  },
+  {
+    "command": "git config --global core.editor emacs",
+    "topic": "config",
+    "risk_class": "none",
+    "source_hint": "EXAMPLES section"
+  },
+  {
+    "command": "git config --global merge.tool vimdiff",
+    "topic": "config",
+    "risk_class": "none",
+    "source_hint": "EXAMPLES section"
+  },
+  {
+    "command": "git config --list",
+    "topic": "config",
+    "risk_class": "none",
+    "source_hint": "EXAMPLES section"
+  },
+  {
+    "command": "git config user.name",
+    "topic": "config",
+    "risk_class": "none",
+    "source_hint": "EXAMPLES section"
+  },
+  {
+    "command": "git config --show-origin rerere.autoUpdate",
+    "topic": "config",
+    "risk_class": "none",
+    "source_hint": "EXAMPLES section"
+  },
+  {
+    "command": "git config --unset diff.renameLimit",
+    "topic": "config",
+    "risk_class": "low",
+    "source_hint": "EXAMPLES section"
+  },
+  {
+    "command": "git config --unset-all remote.origin.url",
+    "topic": "config",
+    "risk_class": "low",
+    "source_hint": "EXAMPLES section"
+  },
+  {
+    "command": "git config --global core.excludesfile ~/.gitignore_global",
+    "topic": "config",
+    "risk_class": "none",
+    "source_hint": "EXAMPLES section"
+  },
+  {
+    "command": "git fetch origin",
+    "topic": "remote",
+    "risk_class": "none",
+    "source_hint": "git-fetch documentation"
+  },
+  {
+    "command": "git fetch origin main",
+    "topic": "remote",
+    "risk_class": "none",
+    "source_hint": "git-fetch documentation"
+  },
+  {
+    "command": "git fetch --all",
+    "topic": "remote",
+    "risk_class": "none",
+    "source_hint": "git-fetch documentation"
+  },
+  {
+    "command": "git fetch --prune",
+    "topic": "remote",
+    "risk_class": "none",
+    "source_hint": "git-fetch documentation"
+  },
+  {
+    "command": "git gc --aggressive",
+    "topic": "maintenance",
+    "risk_class": "low",
+    "source_hint": "More aggressively optimize the repository"
+  },
+  {
+    "command": "git gc --auto",
+    "topic": "maintenance",
+    "risk_class": "low",
+    "source_hint": "Only run if needed based on repository state"
+  },
+  {
+    "command": "git gc --no-detach",
+    "topic": "maintenance",
+    "risk_class": "low",
+    "source_hint": "Run in foreground without detaching"
+  },
+  {
+    "command": "git gc --quiet",
+    "topic": "maintenance",
+    "risk_class": "low",
+    "source_hint": "Suppress progress output"
+  },
+  {
+    "command": "git gc --prune=<date>",
+    "topic": "maintenance",
+    "risk_class": "low",
+    "source_hint": "Prune loose objects older than date"
+  },
+  {
+    "command": "git gc --no-prune",
+    "topic": "maintenance",
+    "risk_class": "low",
+    "source_hint": "Do not prune any loose objects"
+  },
+  {
+    "command": "git gc --force",
+    "topic": "maintenance",
+    "risk_class": "low",
+    "source_hint": "Force gc even if another gc is running"
+  },
+  {
+    "command": "git gc --keep-largest-pack",
+    "topic": "maintenance",
+    "risk_class": "low",
+    "source_hint": "Keep the largest pack to avoid rewriting it"
+  },
+  {
+    "command": "git grep -i 'pattern'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep -w 'word'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep -v 'pattern'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep -l 'pattern'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep -L 'pattern'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep -c 'pattern'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep -n 'pattern'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep -o 'pattern'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep -e 'pattern1' --and -e 'pattern2'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep -e 'pattern1' --or -e 'pattern2'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep -e 'pattern1' --not -e 'pattern2'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep -E 'extended-regexp'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep -G 'basic-regexp'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep -P 'perl-regexp'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep -F 'fixed-string'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep -A 3 'pattern'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep -B 3 'pattern'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep -C 3 'pattern'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep -W 'pattern'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep -p 'pattern'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep --heading 'pattern'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep --break 'pattern'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep --max-depth 2 'pattern'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep --no-recursive 'pattern'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep -m 5 'pattern'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep -f patterns.txt",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep -O 'pattern'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep -O less 'pattern'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep --all-match -e 'pattern1' -e 'pattern2'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep -q 'pattern'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep --color 'pattern'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep --no-color 'pattern'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep --text 'pattern'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep -I 'pattern'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep --textconv 'pattern'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep -h 'pattern'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep -H 'pattern'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep --full-name 'pattern'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep --column 'pattern'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep -z 'pattern'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git grep --threads 4 'pattern'",
+    "topic": "search",
+    "risk_class": "none",
+    "source_hint": "git-grep documentation"
+  },
+  {
+    "command": "git sparse-checkout init",
+    "topic": "sparse",
+    "risk_class": "medium",
+    "source_hint": "gap"
+  },
+  {
+    "command": "git sparse-checkout set <pattern>",
+    "topic": "sparse",
+    "risk_class": "medium",
+    "source_hint": "gap"
+  },
+  {
+    "command": "git sparse-checkout add <pattern>",
+    "topic": "sparse",
+    "risk_class": "medium",
+    "source_hint": "gap"
+  },
+  {
+    "command": "git sparse-checkout list",
+    "topic": "sparse",
+    "risk_class": "low",
+    "source_hint": "gap"
+  },
+  {
+    "command": "git sparse-checkout disable",
+    "topic": "sparse",
+    "risk_class": "medium",
+    "source_hint": "gap"
+  },
+  {
+    "command": "git sparse-checkout reapply",
+    "topic": "sparse",
+    "risk_class": "medium",
+    "source_hint": "gap"
+  },
+  {
+    "command": "git verify-commit <commit>",
+    "topic": "security",
+    "risk_class": "low",
+    "source_hint": "gap"
+  },
+  {
+    "command": "git verify-tag <tag>",
+    "topic": "security",
+    "risk_class": "low",
+    "source_hint": "gap"
+  },
+  {
+    "command": "git tag -s <tagname>",
+    "topic": "security",
+    "risk_class": "medium",
+    "source_hint": "gap"
+  },
+  {
+    "command": "git commit -S",
+    "topic": "security",
+    "risk_class": "medium",
+    "source_hint": "gap"
+  },
+  {
+    "command": "git config user.signingkey <key>",
+    "topic": "security",
+    "risk_class": "medium",
+    "source_hint": "gap"
+  },
+  {
+    "command": "git config gpg.program <program>",
+    "topic": "security",
+    "risk_class": "medium",
+    "source_hint": "gap"
+  },
+  {
+    "command": "git config commit.gpgsign true",
+    "topic": "security",
+    "risk_class": "medium",
+    "source_hint": "gap"
+  },
+  {
+    "command": "git config tag.gpgsign true",
+    "topic": "security",
+    "risk_class": "medium",
+    "source_hint": "gap"
+  },
+  {
+    "command": "git gui",
+    "topic": "gui",
+    "risk_class": "low",
+    "source_hint": "gap"
+  },
+  {
+    "command": "git gui blame",
+    "topic": "gui",
+    "risk_class": "low",
+    "source_hint": "gap"
+  },
+  {
+    "command": "git gui browser",
+    "topic": "gui",
+    "risk_class": "low",
+    "source_hint": "gap"
+  },
+  {
+    "command": "git gui citool",
+    "topic": "gui",
+    "risk_class": "low",
+    "source_hint": "gap"
+  },
+  {
+    "command": "git gui version",
+    "topic": "gui",
+    "risk_class": "low",
+    "source_hint": "gap"
+  },
+  {
+    "command": "gitk",
+    "topic": "gui",
+    "risk_class": "low",
+    "source_hint": "gap"
+  },
+  {
+    "command": "gitk --all",
+    "topic": "gui",
+    "risk_class": "low",
+    "source_hint": "gap"
+  },
+  {
+    "command": "gitk <file>",
+    "topic": "gui",
+    "risk_class": "low",
+    "source_hint": "gap"
+  },
+  {
+    "command": "git instaweb --httpd=webrick",
+    "topic": "gui",
+    "risk_class": "low",
+    "source_hint": "gap"
+  },
+  {
+    "command": "git instaweb --stop",
+    "topic": "gui",
+    "risk_class": "low",
+    "source_hint": "gap"
+  },
+  {
+    "command": "git instaweb --restart",
+    "topic": "gui",
+    "risk_class": "low",
+    "source_hint": "gap"
+  }
+]

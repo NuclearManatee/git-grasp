@@ -1,0 +1,3 @@
+{"command":"gitk","reason":"allowlist","stage":"commands"}
+{"command":"gitk --all","reason":"allowlist","stage":"commands"}
+{"command":"gitk <file>","reason":"allowlist","stage":"commands"}
