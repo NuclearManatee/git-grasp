@@ -1,0 +1,114 @@
+---
+const tabs = [
+  {
+    id: 'search',
+    label: 'Search',
+    body: `git-help "<query>"
+git-help search "<query>" -v -c
+
+Flags
+  -v, --verbose   skill label, explanation, score
+  -c, --copy      copy winning example to clipboard
+
+The CLI never runs Git for you — it only suggests pasteable commands.`,
+  },
+  {
+    id: 'set-level',
+    label: 'set-level',
+    body: `git-help set-level <level>
+
+Levels (at-most filter)
+  non-technical | beginner | intermediate | expert
+  1 | 2 | 3 | 4
+  clear | off
+
+Restricts results to commands at or below that skill.`,
+  },
+  {
+    id: 'doctor',
+    label: 'doctor',
+    body: `git-help doctor
+
+Checks
+  Runtime    Bun version
+  sqlite-vec extension load
+  DB         checksum / presence
+  Model      embedding cache
+  Config     skillLevel
+  Thresholds config file
+
+Exit 2 on failure.`,
+  },
+];
+---
+<section id="use" class="gh-container py-16 sm:py-20" aria-labelledby="use-heading">
+  <div class="mb-8 max-w-xl">
+    <h2 id="use-heading" class="font-mono text-2xl font-semibold sm:text-3xl">
+      Use
+    </h2>
+  </div>
+
+  <div class="gh-panel" data-tabs="use">
+    <div role="tablist" aria-label="Usage reference" class="flex flex-wrap border-b border-gh-border">
+      {tabs.map((tab, i) => (
+        <button
+          type="button"
+          role="tab"
+          id={`use-tab-${tab.id}`}
+          aria-controls={`use-panel-${tab.id}`}
+          aria-selected={i === 0 ? 'true' : 'false'}
+          data-tab={tab.id}
+          class:list={[
+            'docs-tab border-b-2 px-4 py-3 text-sm font-medium',
+            i === 0
+              ? 'border-gh-accent text-gh-fg'
+              : 'border-transparent text-gh-muted hover:text-gh-fg',
+          ]}
+        >
+          {tab.label}
+        </button>
+      ))}
+    </div>
+
+    {tabs.map((tab, i) => (
+      <div
+        id={`use-panel-${tab.id}`}
+        role="tabpanel"
+        aria-labelledby={`use-tab-${tab.id}`}
+        data-panel={tab.id}
+        class:list={['p-4', i !== 0 && 'hidden']}
+        hidden={i !== 0}
+      >
+        <pre class="overflow-x-auto whitespace-pre-wrap font-mono text-sm text-gh-fg">{tab.body}</pre>
+      </div>
+    ))}
+  </div>
+</section>
+
+<script>
+  const root = document.querySelector('[data-tabs="use"]');
+  if (root) {
+    const tabs = root.querySelectorAll('[role="tab"]');
+    const panels = root.querySelectorAll('[role="tabpanel"]');
+
+    function activate(name) {
+      tabs.forEach((tab) => {
+        const on = tab.getAttribute('data-tab') === name;
+        tab.setAttribute('aria-selected', on ? 'true' : 'false');
+        tab.classList.toggle('border-gh-accent', on);
+        tab.classList.toggle('text-gh-fg', on);
+        tab.classList.toggle('border-transparent', !on);
+        tab.classList.toggle('text-gh-muted', !on);
+      });
+      panels.forEach((panel) => {
+        const on = panel.getAttribute('data-panel') === name;
+        panel.classList.toggle('hidden', !on);
+        panel.hidden = !on;
+      });
+    }
+
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => activate(tab.getAttribute('data-tab')));
+    });
+  }
+</script>

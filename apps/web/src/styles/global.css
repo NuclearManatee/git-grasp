@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-gh-bg text-gh-fg font-sans antialiased;
+    background-image:
+      radial-gradient(1200px 600px at 20% -10%, #1a2836, transparent),
+      radial-gradient(900px 500px at 90% 10%, rgba(61, 154, 106, 0.08), transparent);
+    background-attachment: fixed;
+  }
+
+  :focus-visible {
+    @apply outline outline-2 outline-offset-2 outline-gh-accent;
+  }
+}
+
+@layer components {
+  .gh-container {
+    @apply mx-auto w-full max-w-5xl px-4 sm:px-6;
+  }
+
+  .gh-badge {
+    @apply inline-flex items-center gap-1.5 rounded border border-gh-border bg-gh-panel/80 px-2.5 py-1 text-xs text-gh-muted;
+  }
+
+  .gh-btn {
+    @apply inline-flex items-center justify-center rounded px-4 py-2.5 text-sm font-medium transition;
+  }
+
+  .gh-btn-primary {
+    @apply gh-btn bg-gh-accent text-white hover:bg-gh-accentDim;
+  }
+
+  .gh-btn-secondary {
+    @apply gh-btn border border-gh-border bg-gh-panel text-gh-fg hover:border-gh-accent;
+  }
+
+  .gh-code {
+    @apply font-mono text-sm text-gh-accent;
+  }
+
+  .gh-panel {
+    @apply rounded-lg border border-gh-border bg-gh-panel/90 shadow-glow;
+  }
+}

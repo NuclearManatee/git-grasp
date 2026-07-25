@@ -34,6 +34,11 @@ export {
 
 export { search, loadThresholds } from './search/index.js';
 export {
+  openWebPack,
+  searchBrowser,
+  resetWebPackForTests,
+} from './search/browser.js';
+export {
   getEmbedder,
   mockEmbed,
   isEmbeddingModelCached,

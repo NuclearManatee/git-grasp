@@ -5,12 +5,14 @@
   "private": true,
   "exports": {
     ".": "./src/index.js",
+    "./browser": "./src/browser.js",
     "./cli": "./src/cli-api.js",
     "./db": "./src/db/schema.js",
     "./db/schema.js": "./src/db/schema.js",
     "./search": "./src/search/index.js",
     "./search/rank": "./src/search/rank.js",
     "./search/embed": "./src/search/embed.js",
+    "./search/browser": "./src/search/browser.js",
     "./adapter": "./src/db/adapter.js",
     "./lib/env.js": "./src/lib/env.js",
     "./lib/llm.js": "./src/lib/llm.js",
@@ -40,6 +42,7 @@
   },
   "dependencies": {
     "@huggingface/transformers": "^3.4.2",
+    "chalk": "^5.4.1",
     "dotenv": "^16.4.7",
     "sqlite-vec": "^0.1.6"
   }

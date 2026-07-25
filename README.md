@@ -12,7 +12,7 @@ Bun workspaces:
 | `@git-help/cli` | CLI UX |
 | `@git-help/seeding` | Catalog → DB |
 | `@git-help/eval` | Golden / loop eval |
-| `@git-help/web` | Astro stub (browser search adapter later) |
+| `@git-help/web` | Astro marketing site + in-browser Xterm playground |
 
 Shared seeds and search live in `packages/core`. CLI and web are views only.
 
@@ -56,7 +56,10 @@ Offline after install + seed. Maintainer features need `DEEPSEEK_API_KEY` in `.e
 | `bun test` | Unit (Vitest) + integration (Bun) |
 | `bun run eval` | Golden eval |
 | `bun run eval:loop` | 5 cycles then final gate |
-| `bun run web:dev` | Astro stub |
+| `bun run web:dev` | Astro site (landing + playground) |
+| `bun run web:build` | Static build → `apps/web/dist` |
+| `bun run web:pack` | Export `apps/web/public/catalog/web-pack.bin` from seeded DB |
+| `bun run web:e2e` | Playwright a11y + tracking (preview server) |
 | `bun run bench` | Search latency harness (see [docs/perf.md](docs/perf.md)) |
 | `bun run bench:install` | Slow-network install timing |
 | `bun run build:cli` | `bun build --compile` → `bench/git-help` |
@@ -65,8 +68,29 @@ Perf budget / Docker profiles: **[docs/perf.md](docs/perf.md)**.
 ## Architecture notes
 
 - Search: sqlite-vec cosine KNN recall → existing JS rank (family / simplicity / specificity).
-- Web uses `BrowserStubAdapter` for now; Bun path uses `BunSqliteAdapter`.
-- Standalone `bun build --compile` shipping is a follow-up (load vec beside the binary).
+- Web playground: static **web vector pack** + Transformers.js MiniLM (`@git-help/core/browser`) — no `bun:sqlite` in the browser bundle.
+- Bun path uses `BunSqliteAdapter`. Standalone `bun build --compile` shipping is a follow-up.
+
+### Web playground / e2e
+
+```bash
+bun run seed          # if DB missing
+bun run web:pack      # regenerate catalog pack + overlay size constant
+bun run web:dev
+
+# e2e (a11y + tracking via window.__ghTrackQueue)
+bun run web:build
+bunx --filter @git-help/web playwright install chromium
+bun run web:e2e
+
+# optional local Umami for manual script checks
+docker compose -f apps/web/docker-compose.umami.yml up -d
+# then set PUBLIC_UMAMI_SCRIPT_URL / PUBLIC_UMAMI_WEBSITE_ID in apps/web/.env
+```
+
+Playground query params: `?mock=1` (mock embeddings), `?optin=1` (force download overlay).
+
+Umami events: `web_cli_load`, `web_cli_search` (cookieless). CI runs Playwright on **main** only (`.github/workflows/web-e2e.yml`).
 
 ## Git flow
 

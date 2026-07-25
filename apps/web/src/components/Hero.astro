@@ -1,0 +1,149 @@
+---
+---
+<header class="gh-container pt-10 pb-16 sm:pt-16 sm:pb-24">
+  <nav class="mb-12 flex items-center justify-between gap-4" aria-label="Primary">
+    <a href="/" class="font-mono text-lg font-semibold tracking-tight text-gh-fg">
+      git-help
+    </a>
+    <div class="flex items-center gap-4 text-sm">
+      <a href="#install" class="text-gh-muted hover:text-gh-fg">Install</a>
+      <a href="#use" class="text-gh-muted hover:text-gh-fg">Use</a>
+      <a
+        href="https://github.com/cremaschi/git-help"
+        class="inline-flex items-center gap-1.5 text-gh-muted hover:text-gh-fg"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        <svg
+          class="h-4 w-4 shrink-0"
+          viewBox="0 0 16 16"
+          fill="currentColor"
+          aria-hidden="true"
+        >
+          <path
+            d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"
+          ></path>
+        </svg>
+        GitHub
+        <span class="sr-only">(opens in a new tab)</span>
+      </a>
+    </div>
+  </nav>
+
+  <div class="max-w-2xl">
+    <p class="mb-4 font-mono text-sm text-gh-accent">Local-first · On-device embeddings</p>
+    <h1
+      id="hero-cli"
+      class="font-mono text-4xl font-semibold tracking-tight sm:text-5xl md:text-6xl text-gh-fg"
+      aria-label="git-help"
+    >
+      <span class="text-gh-accent select-none" aria-hidden="true">$</span><span
+        class="select-none"
+        aria-hidden="true"
+      >&nbsp;</span><span id="hero-typed" aria-hidden="true"></span><span
+        class="hero-cursor"
+        aria-hidden="true"
+      ></span>
+      <noscript>git-help</noscript>
+    </h1>
+    <p class="mt-5 space-y-1 text-lg leading-relaxed text-gh-muted sm:text-xl">
+      <span class="block">Semantic Search for Git Commands.</span>
+      <span class="block">Ask with your knowledge level, get the right example.</span>
+      <span class="block">Fully local, sub second responses.</span>
+    </p>
+
+    <div class="mt-8 flex flex-wrap gap-3">
+      <a href="#playground" class="gh-btn-primary gap-2">
+        Try the playground
+        <svg
+          class="h-4 w-4 shrink-0"
+          viewBox="0 0 16 16"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M3 6l5 5 5-5"></path>
+        </svg>
+      </a>
+      <a href="#install" class="gh-btn-secondary">Install</a>
+    </div>
+
+    <ul class="mt-8 flex flex-wrap gap-2" aria-label="Trust indicators">
+      <li class="gh-badge">
+        <span class="h-1.5 w-1.5 rounded-full bg-gh-accent" aria-hidden="true"></span>
+        Local First CLI
+      </li>
+      <li class="gh-badge">
+        <span class="h-1.5 w-1.5 rounded-full bg-gh-accent" aria-hidden="true"></span>
+        Fully Offline
+      </li>
+      <li>
+        <a
+          href="https://github.com/cremaschi/git-help"
+          class="gh-badge hover:border-gh-accent hover:text-gh-fg"
+          rel="noopener noreferrer"
+          target="_blank"
+        >
+          <svg
+            class="h-3.5 w-3.5 shrink-0 text-gh-fg"
+            viewBox="0 0 16 16"
+            fill="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"
+            ></path>
+          </svg>
+          Open Source
+          <span class="sr-only">(opens on GitHub)</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</header>
+
+<style>
+  .hero-cursor {
+    display: inline-block;
+    width: 0.55em;
+    height: 0.95em;
+    margin-left: 0.06em;
+    vertical-align: -0.08em;
+    background: #3d9a6a;
+    animation: hero-blink 1.05s step-end infinite;
+  }
+
+  @keyframes hero-blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-cursor {
+      animation: none;
+    }
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    var text = 'git-help';
+    var el = document.getElementById('hero-typed');
+    if (!el) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      el.textContent = text;
+      return;
+    }
+    var i = 0;
+    function tick() {
+      i += 1;
+      el.textContent = text.slice(0, i);
+      if (i < text.length) setTimeout(tick, 85);
+    }
+    setTimeout(tick, 320);
+  })();
+</script>

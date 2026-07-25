@@ -1,0 +1,391 @@
+---
+/**
+ * Features carousel: three claims × three rotating before/after examples.
+ * Claim boxes are the section title; blurb sits directly under them.
+ */
+---
+<section id="features" class="gh-container py-16 sm:py-20" aria-label="Features">
+  <div
+    class="grid gap-3 sm:grid-cols-3"
+    role="tablist"
+    aria-label="Feature claims"
+    data-claim-tabs
+  >
+    <button
+      type="button"
+      role="tab"
+      id="claim-tab-flags"
+      aria-controls="claim-panels"
+      aria-selected="true"
+      data-claim="0"
+      class="claim-tab gh-panel px-4 py-5 text-left font-mono text-base font-semibold tracking-tight text-gh-fg ring-2 ring-gh-accent sm:text-lg"
+    >
+      Flag vs intent
+    </button>
+    <button
+      type="button"
+      role="tab"
+      id="claim-tab-skill"
+      aria-controls="claim-panels"
+      aria-selected="false"
+      data-claim="1"
+      class="claim-tab gh-panel px-4 py-5 text-left font-mono text-base font-semibold tracking-tight text-gh-muted hover:text-gh-fg sm:text-lg"
+    >
+      Beginner → Expert
+    </button>
+    <button
+      type="button"
+      role="tab"
+      id="claim-tab-examples"
+      aria-controls="claim-panels"
+      aria-selected="false"
+      data-claim="2"
+      class="claim-tab gh-panel px-4 py-5 text-left font-mono text-base font-semibold tracking-tight text-gh-muted hover:text-gh-fg sm:text-lg"
+    >
+      Examples, not syntax
+    </button>
+  </div>
+
+  <p class="mt-5 max-w-2xl text-gh-muted" data-claim-blurb>
+    Soft undo and hard undo look alike until you get them wrong.
+    Ask what you mean — get the right example.
+  </p>
+
+  <div id="claim-panels" class="mt-8 grid gap-6 lg:grid-cols-2" data-claim-panels>
+    <div class="gh-panel overflow-hidden">
+      <div
+        class="border-b border-gh-border px-4 py-2 font-mono text-xs text-gh-muted"
+        data-contrast-label="pain"
+      >
+        remembering flags
+      </div>
+      <pre
+        class="contrast-term min-h-[14rem] overflow-hidden p-4 font-mono text-sm leading-relaxed text-gh-fg"
+        data-contrast="pain"
+        aria-hidden="true"
+      ></pre>
+      <p class="sr-only" data-contrast-sr="pain"></p>
+    </div>
+
+    <div class="gh-panel overflow-hidden">
+      <div
+        class="border-b border-gh-border px-4 py-2 font-mono text-xs text-gh-muted"
+        data-contrast-label="ease"
+      >
+        git-help
+      </div>
+      <pre
+        class="contrast-term min-h-[14rem] overflow-hidden p-4 font-mono text-sm leading-relaxed text-gh-fg"
+        data-contrast="ease"
+        aria-hidden="true"
+      ></pre>
+      <p class="sr-only" data-contrast-sr="ease"></p>
+    </div>
+  </div>
+
+  <div class="mt-4 flex items-center justify-center gap-2" aria-hidden="true" data-dots>
+    <span class="claim-dot h-1.5 w-1.5 rounded-full bg-gh-accent"></span>
+    <span class="claim-dot h-1.5 w-1.5 rounded-full bg-gh-border"></span>
+    <span class="claim-dot h-1.5 w-1.5 rounded-full bg-gh-border"></span>
+  </div>
+</section>
+
+<script is:inline>
+  (function () {
+    var claims = [
+      {
+        title: 'Flag vs intent',
+        blurb:
+          'Soft undo and hard undo look alike until you get them wrong. Ask what you mean — get the right example.',
+        painLabel: 'remembering flags',
+        easeLabel: 'git-help',
+        scenes: [
+          {
+            srPain: 'You must remember whether soft, mixed, or hard reset is correct.',
+            srEase: 'Ask to undo the last commit while keeping changes staged; get git reset --soft HEAD~1.',
+            pain: [
+              { t: '$ git reset --??? HEAD~1', c: 'text-gh-danger' },
+              { t: '# soft? mixed? hard?', c: 'text-gh-muted' },
+              { t: 'fatal: wrong flag = lost work', c: 'text-gh-warn' },
+            ],
+            ease: [
+              { t: '$ git-help "undo last commit keep changes staged"', c: '' },
+              { t: 'git reset', c: 'text-gh-accent' },
+              { t: '  ────────────────────────────', c: 'text-gh-muted' },
+              { t: '  git reset --soft HEAD~1', c: 'text-gh-accent' },
+              { t: '  Rewinds HEAD; keeps your files.', c: 'text-gh-muted' },
+              { t: '  ────────────────────────────', c: 'text-gh-muted' },
+            ],
+          },
+          {
+            srPain: 'Force push can overwrite collaborators work if you use the wrong flag.',
+            srEase: 'Ask for a safer force push and get --force-with-lease.',
+            pain: [
+              { t: '$ git push --force', c: 'text-gh-danger' },
+              { t: '# or --force-with-lease?', c: 'text-gh-muted' },
+              { t: 'remote history may be overwritten', c: 'text-gh-warn' },
+            ],
+            ease: [
+              { t: '$ git-help "force push without clobbering others"', c: '' },
+              { t: 'git push', c: 'text-gh-accent' },
+              { t: '  ────────────────────────────', c: 'text-gh-muted' },
+              { t: '  git push --force-with-lease', c: 'text-gh-accent' },
+              { t: '  Refuses if remote moved under you.', c: 'text-gh-muted' },
+              { t: '  ────────────────────────────', c: 'text-gh-muted' },
+            ],
+          },
+          {
+            srPain: 'checkout -b versus switch -c is easy to mix up.',
+            srEase: 'Ask to create and switch to a branch; get git switch -c.',
+            pain: [
+              { t: '$ git checkout -b ???', c: 'text-gh-danger' },
+              { t: '# or git switch -c?', c: 'text-gh-muted' },
+              { t: 'two commands, same intent', c: 'text-gh-warn' },
+            ],
+            ease: [
+              { t: '$ git-help "create and switch to a new branch"', c: '' },
+              { t: 'git switch', c: 'text-gh-accent' },
+              { t: '  ────────────────────────────', c: 'text-gh-muted' },
+              { t: '  git switch -c feature', c: 'text-gh-accent' },
+              { t: '  Create branch and check it out.', c: 'text-gh-muted' },
+              { t: '  ────────────────────────────', c: 'text-gh-muted' },
+            ],
+          },
+        ],
+      },
+      {
+        title: 'Beginner → Expert',
+        blurb:
+          'Skill-aware results: plain language for newcomers, precise porcelain when you are ready.',
+        painLabel: 'one-size-fits-all docs',
+        easeLabel: 'git-help · skill filter',
+        scenes: [
+          {
+            srPain: 'Man pages assume you already know Git vocabulary.',
+            srEase: 'Non-technical phrasing still finds a simple status command.',
+            pain: [
+              { t: '$ man git-status', c: 'text-gh-danger' },
+              { t: 'NAME', c: 'text-gh-muted' },
+              { t: '  git-status - Show the working tree status', c: 'text-gh-muted' },
+              { t: '# pages of options…', c: 'text-gh-warn' },
+            ],
+            ease: [
+              { t: '$ git-help "what files did I change"', c: '' },
+              { t: 'git status', c: 'text-gh-accent' },
+              { t: '  ────────────────────────────', c: 'text-gh-muted' },
+              { t: '  git status', c: 'text-gh-accent' },
+              { t: '  Show changed and untracked files.', c: 'text-gh-muted' },
+              { t: '  ────────────────────────────', c: 'text-gh-muted' },
+            ],
+          },
+          {
+            srPain: 'Beginners reach for checkout for everything.',
+            srEase: 'Ask to shelve work temporarily; get stash.',
+            pain: [
+              { t: '$ git checkout .', c: 'text-gh-danger' },
+              { t: '# just need a clean tree for a moment…', c: 'text-gh-muted' },
+              { t: 'local edits discarded', c: 'text-gh-warn' },
+            ],
+            ease: [
+              { t: '$ git-help "temporarily shelve my uncommitted work"', c: '' },
+              { t: 'git stash', c: 'text-gh-accent' },
+              { t: '  ────────────────────────────', c: 'text-gh-muted' },
+              { t: '  git stash push -m "wip"', c: 'text-gh-accent' },
+              { t: '  Save and clean the working tree.', c: 'text-gh-muted' },
+              { t: '  ────────────────────────────', c: 'text-gh-muted' },
+            ],
+          },
+          {
+            srPain: 'Expert recovery is buried in reflog jargon.',
+            srEase: 'Ask to recover a deleted branch tip; get reflog.',
+            pain: [
+              { t: '$ git reflog ???', c: 'text-gh-danger' },
+              { t: '# HEAD@{n}? branch tip?', c: 'text-gh-muted' },
+              { t: 'easy to recover the wrong commit', c: 'text-gh-warn' },
+            ],
+            ease: [
+              { t: '$ git-help "recover a branch I deleted by mistake"', c: '' },
+              { t: 'git reflog', c: 'text-gh-accent' },
+              { t: '  ────────────────────────────', c: 'text-gh-muted' },
+              { t: '  git reflog', c: 'text-gh-accent' },
+              { t: '  Find the tip, then branch from it.', c: 'text-gh-muted' },
+              { t: '  ────────────────────────────', c: 'text-gh-muted' },
+            ],
+          },
+        ],
+      },
+      {
+        title: 'Examples, not syntax',
+        blurb:
+          'git help teaches the manual. git-help returns a pasteable example with a short usage frame.',
+        painLabel: 'git help',
+        easeLabel: 'git-help',
+        scenes: [
+          {
+            srPain: 'git help commit dumps synopsis and option lists.',
+            srEase: 'Ask to amend the last commit; get a concrete example.',
+            pain: [
+              { t: '$ git help commit', c: 'text-gh-danger' },
+              { t: 'SYNOPSIS', c: 'text-gh-muted' },
+              { t: '  git commit [-a] [-m] [--amend] …', c: 'text-gh-muted' },
+              { t: '  # wall of OPTIONS', c: 'text-gh-warn' },
+            ],
+            ease: [
+              { t: '$ git-help "amend last commit keep same message"', c: '' },
+              { t: 'git commit', c: 'text-gh-accent' },
+              { t: '  ────────────────────────────', c: 'text-gh-muted' },
+              { t: '  git commit --amend --no-edit', c: 'text-gh-accent' },
+              { t: '  Rewrite HEAD; keep the message.', c: 'text-gh-muted' },
+              { t: '  ────────────────────────────', c: 'text-gh-muted' },
+            ],
+          },
+          {
+            srPain: 'git help rebase is dense interactive machinery.',
+            srEase: 'Ask to replay commits onto main; get a clear rebase line.',
+            pain: [
+              { t: '$ git help rebase', c: 'text-gh-danger' },
+              { t: 'SYNOPSIS', c: 'text-gh-muted' },
+              { t: '  git rebase [-i] [--onto] …', c: 'text-gh-muted' },
+              { t: '  # which flags for my case?', c: 'text-gh-warn' },
+            ],
+            ease: [
+              { t: '$ git-help "replay my branch commits onto main"', c: '' },
+              { t: 'git rebase', c: 'text-gh-accent' },
+              { t: '  ────────────────────────────', c: 'text-gh-muted' },
+              { t: '  git rebase main', c: 'text-gh-accent' },
+              { t: '  Replay current branch onto main.', c: 'text-gh-muted' },
+              { t: '  ────────────────────────────', c: 'text-gh-muted' },
+            ],
+          },
+          {
+            srPain: 'git help stash lists many subcommands without a scenario.',
+            srEase: 'Ask in plain language; get stash push with a message.',
+            pain: [
+              { t: '$ git help stash', c: 'text-gh-danger' },
+              { t: 'SYNOPSIS', c: 'text-gh-muted' },
+              { t: '  git stash list | show | drop | pop …', c: 'text-gh-muted' },
+              { t: '  # which subcommand first?', c: 'text-gh-warn' },
+            ],
+            ease: [
+              { t: '$ git-help "save my WIP and clean the tree"', c: '' },
+              { t: 'git stash', c: 'text-gh-accent' },
+              { t: '  ────────────────────────────', c: 'text-gh-muted' },
+              { t: '  git stash push -m "wip"', c: 'text-gh-accent' },
+              { t: '  Snapshot work; restore later with pop.', c: 'text-gh-muted' },
+              { t: '  ────────────────────────────', c: 'text-gh-muted' },
+            ],
+          },
+        ],
+      },
+    ];
+
+    var claimIdx = 0;
+    var sceneIdx = 0;
+    var timer = null;
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function escapeHtml(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function renderLines(lines) {
+      return lines
+        .map(function (l, i) {
+          return (
+            '<span class="contrast-line block opacity-0 transition-opacity duration-500 ' +
+            (l.c || '') +
+            '" style="transition-delay:' +
+            i * 100 +
+            'ms">' +
+            escapeHtml(l.t) +
+            '</span>'
+          );
+        })
+        .join('\n');
+    }
+
+    function setTabs() {
+      document.querySelectorAll('[data-claim-tabs] [role="tab"]').forEach(function (tab) {
+        var on = Number(tab.getAttribute('data-claim')) === claimIdx;
+        tab.setAttribute('aria-selected', on ? 'true' : 'false');
+        tab.classList.toggle('ring-2', on);
+        tab.classList.toggle('ring-gh-accent', on);
+        tab.classList.toggle('text-gh-fg', on);
+        tab.classList.toggle('text-gh-muted', !on);
+      });
+    }
+
+    function setDots() {
+      document.querySelectorAll('[data-dots] .claim-dot').forEach(function (dot, i) {
+        dot.classList.toggle('bg-gh-accent', i === sceneIdx);
+        dot.classList.toggle('bg-gh-border', i !== sceneIdx);
+      });
+    }
+
+    function play() {
+      var claim = claims[claimIdx];
+      var scene = claim.scenes[sceneIdx % claim.scenes.length];
+      var blurb = document.querySelector('[data-claim-blurb]');
+      var painLabel = document.querySelector('[data-contrast-label="pain"]');
+      var easeLabel = document.querySelector('[data-contrast-label="ease"]');
+      var pain = document.querySelector('[data-contrast="pain"]');
+      var ease = document.querySelector('[data-contrast="ease"]');
+      var srPain = document.querySelector('[data-contrast-sr="pain"]');
+      var srEase = document.querySelector('[data-contrast-sr="ease"]');
+      if (!pain || !ease) return;
+
+      if (blurb) blurb.textContent = claim.blurb;
+      if (painLabel) painLabel.textContent = claim.painLabel;
+      if (easeLabel) easeLabel.textContent = claim.easeLabel;
+      if (srPain) srPain.textContent = scene.srPain;
+      if (srEase) srEase.textContent = scene.srEase;
+
+      pain.innerHTML = renderLines(scene.pain);
+      ease.innerHTML = renderLines(scene.ease);
+      setTabs();
+      setDots();
+
+      requestAnimationFrame(function () {
+        pain.querySelectorAll('.contrast-line').forEach(function (el) {
+          el.classList.add('opacity-100');
+        });
+        ease.querySelectorAll('.contrast-line').forEach(function (el) {
+          el.classList.add('opacity-100');
+        });
+      });
+    }
+
+    function nextScene() {
+      sceneIdx = (sceneIdx + 1) % claims[claimIdx].scenes.length;
+      // After a full loop of scenes, advance claim
+      if (sceneIdx === 0) {
+        claimIdx = (claimIdx + 1) % claims.length;
+      }
+      play();
+    }
+
+    function selectClaim(idx) {
+      claimIdx = idx;
+      sceneIdx = 0;
+      play();
+      restartTimer();
+    }
+
+    function restartTimer() {
+      if (timer) clearInterval(timer);
+      timer = null;
+      if (!reduce) {
+        timer = setInterval(nextScene, 5200);
+      }
+    }
+
+    document.querySelectorAll('[data-claim-tabs] [role="tab"]').forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        selectClaim(Number(tab.getAttribute('data-claim')));
+      });
+    });
+
+    play();
+    restartTimer();
+  })();
+</script>

@@ -10,6 +10,9 @@ data/models/
 test/tmp-checksum/
 apps/web/dist/
 apps/web/.astro/
+apps/web/test-results/
+apps/web/playwright-report/
+apps/web/.env
 *.db-wal
 *.db-shm
 bench/results*.json

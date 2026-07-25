@@ -1,0 +1,22 @@
+---
+const year = new Date().getFullYear();
+---
+<footer class="mt-auto border-t border-gh-border py-10">
+  <div class="gh-container flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <p class="font-mono text-sm text-gh-muted">
+      © {year} git-help · MIT
+    </p>
+    <nav class="flex flex-wrap gap-4 text-sm" aria-label="Footer">
+      <a href="/privacy" class="text-gh-muted hover:text-gh-fg">Privacy &amp; legal</a>
+      <a
+        href="https://github.com/cremaschi/git-help"
+        class="text-gh-muted hover:text-gh-fg"
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        GitHub
+      </a>
+      <a href="#install" class="text-gh-muted hover:text-gh-fg">Install</a>
+    </nav>
+  </div>
+</footer>

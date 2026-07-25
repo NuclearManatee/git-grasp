@@ -46,6 +46,8 @@
     "rebuild": "bun scripts/build-catalog.js && bun --filter @git-help/seeding seed",
     "web:dev": "bun --filter @git-help/web dev",
     "web:build": "bun --filter @git-help/web build",
+    "web:pack": "bun scripts/export-web-pack.js",
+    "web:e2e": "bun --filter @git-help/web e2e",
     "bench": "bun scripts/bench-search.js",
     "bench:install": "bun scripts/bench-install.js",
     "build:cli": "bun build --compile ./apps/cli/bin/index.js --outfile ./bench/git-help",

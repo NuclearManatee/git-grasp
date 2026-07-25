@@ -1,0 +1,48 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'git-help',
+  description = 'Local-first semantic search for Git commands. Ask in natural language — get pasteable answers on your machine.',
+} = Astro.props;
+
+const umamiScript = import.meta.env.PUBLIC_UMAMI_SCRIPT_URL;
+const umamiWebsiteId = import.meta.env.PUBLIC_UMAMI_WEBSITE_ID;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    {umamiScript && umamiWebsiteId && (
+      <script
+        defer
+        src={umamiScript}
+        data-website-id={umamiWebsiteId}
+        data-auto-track="true"
+      />
+    )}
+  </head>
+  <body class="min-h-screen flex flex-col">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-gh-accent focus:px-3 focus:py-2 focus:text-white"
+    >
+      Skip to content
+    </a>
+    <slot />
+  </body>
+</html>

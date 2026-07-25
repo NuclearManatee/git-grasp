@@ -1,6 +1,7 @@
 /**
  * Storage adapters keep Bun-native SQLite out of browser bundles.
- * CLI / seeding / eval use BunSqliteAdapter; web uses BrowserStubAdapter this PR.
+ * CLI / seeding / eval use BunSqliteAdapter.
+ * Browser search uses BrowserVecPackAdapter via `@git-help/core/browser` (no bun:sqlite).
  */
 
 import { openDb, knnRecall, insertCommandRow, SCHEMA_VERSION } from './schema.js';
@@ -32,12 +33,15 @@ export const BunSqliteAdapter = {
   },
 };
 
-/** @type {StorageAdapter} */
+/**
+ * @deprecated Use `@git-help/core/browser` (`openWebPack` / `BrowserVecPackAdapter`).
+ * @type {StorageAdapter}
+ */
 export const BrowserStubAdapter = {
   name: 'browser-stub',
   open() {
     const err = new Error(
-      'Browser storage adapter not implemented yet. Use BunSqliteAdapter on the CLI, or ship a WASM follow-up.',
+      'BrowserStubAdapter is deprecated. Use openWebPack / searchBrowser from @git-help/core/browser.',
     );
     err.code = 'NOT_IMPLEMENTED';
     throw err;
