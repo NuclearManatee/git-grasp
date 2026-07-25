@@ -7,6 +7,8 @@ export function rankResults(rows, queryEmbedding, thresholds, { skillLevel = nul
   const maxSecondGap = thresholds.maxSecondGap ?? 0.05;
   const lowConfidenceScore = thresholds.lowConfidenceScore ?? 0.45;
   const requireSkillConsistency = thresholds.requireSkillConsistency !== false;
+  const specificityWindow = thresholds.specificityWindow ?? 0.12;
+  const promoteMargin = thresholds.specificityPromoteMargin ?? 0.05;
 
   let candidates = rows;
   if (skillLevel != null) {
@@ -17,7 +19,11 @@ export function rankResults(rows, queryEmbedding, thresholds, { skillLevel = nul
     ...r,
     score: cosineLike(queryEmbedding, r.embedding),
   }));
-  scored.sort((a, b) => b.score - a.score);
+  scored.sort((a, b) => b.score - a.score || specificityKey(b.command) - specificityKey(a.command));
+
+  // Prefer a more specific command when nearly as similar as a bare prefix.
+  preferSpecificCommands(scored, specificityWindow, promoteMargin);
+
   const top = scored.slice(0, topK);
 
   if (top.length === 0) {
@@ -49,6 +55,43 @@ export function rankResults(rows, queryEmbedding, thresholds, { skillLevel = nul
     ambiguous,
     gap,
   };
+}
+
+function specificityKey(command) {
+  return String(command || '').trim().split(/\s+/).filter(Boolean).length;
+}
+
+function isCommandPrefix(shorter, longer) {
+  const a = String(shorter || '').trim().split(/\s+/);
+  const b = String(longer || '').trim().split(/\s+/);
+  if (a.length >= b.length) return false;
+  return a.every((tok, i) => tok === b[i]);
+}
+
+/**
+ * If a short command leads and a longer command that extends it sits within
+ * `promoteMargin` score points, promote the best-scoring longer form.
+ */
+export function preferSpecificCommands(scored, window = 0.08, promoteMargin = 0.035) {
+  if (!Array.isArray(scored) || scored.length < 2) return scored;
+  const head = scored[0];
+  let bestIdx = -1;
+  let bestScore = -Infinity;
+  for (let i = 1; i < Math.min(scored.length, 25); i += 1) {
+    const cand = scored[i];
+    if (head.score - cand.score > window) break;
+    if (head.score - cand.score > promoteMargin) continue;
+    if (!isCommandPrefix(head.command, cand.command)) continue;
+    if (cand.score > bestScore) {
+      bestScore = cand.score;
+      bestIdx = i;
+    }
+  }
+  if (bestIdx > 0) {
+    const [picked] = scored.splice(bestIdx, 1);
+    scored.unshift(picked);
+  }
+  return scored;
 }
 
 function cosineLike(a, b) {

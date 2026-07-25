@@ -2,6 +2,7 @@ import { config as loadDotenv } from 'dotenv';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { PACKAGE_ROOT } from './paths.js';
+import { getProvider, resolveProviderId } from './providers.js';
 
 let loaded = false;
 
@@ -15,11 +16,26 @@ export function loadEnv() {
   loaded = true;
 }
 
-export function requireGroqKey() {
+export function requireProviderKey(providerId = null) {
   loadEnv();
-  const key = process.env.GROQ_API_KEY;
+  const provider = getProvider(providerId);
+  const key = process.env[provider.envKey];
   if (!key) {
-    throw new Error('GROQ_API_KEY missing (set in environment or .env)');
+    throw new Error(`${provider.envKey} missing (set in environment or .env)`);
   }
   return key;
+}
+
+/** Prefer DeepSeek; falls back only if explicitly using groq provider. */
+export function requireLlmKey(providerId = null) {
+  return requireProviderKey(providerId ?? resolveProviderId());
+}
+
+/** @deprecated Prefer requireLlmKey / requireProviderKey('deepseek') */
+export function requireGroqKey() {
+  return requireProviderKey('groq');
+}
+
+export function requireDeepSeekKey() {
+  return requireProviderKey('deepseek');
 }

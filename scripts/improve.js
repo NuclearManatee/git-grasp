@@ -15,6 +15,7 @@ const args = process.argv.slice(2);
 const maxIter = Number(args.find((a) => a.startsWith('--max-iterations='))?.split('=')[1] ?? 10);
 const dryRun = args.includes('--dry-run');
 const allowReseed = args.includes('--allow-full-reseed');
+const useMockEval = args.includes('--mock') || process.env.GIT_HELP_MOCK_JUDGE === '1';
 
 function sh(cmd) {
   return execSync(cmd, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
@@ -54,11 +55,23 @@ function runTests() {
 }
 
 function runEval() {
-  execSync('node scripts/eval.js --mock-judge --mock-embed', {
-    stdio: 'inherit',
-    env: { ...process.env, GIT_HELP_MOCK_EMBEDDINGS: '1', GIT_HELP_MOCK_JUDGE: '1' },
-    cwd: PACKAGE_ROOT,
-  });
+  if (useMockEval) {
+    execSync('node scripts/eval.js --mock-judge --mock-embed', {
+      stdio: 'inherit',
+      env: { ...process.env, GIT_HELP_MOCK_EMBEDDINGS: '1', GIT_HELP_MOCK_JUDGE: '1' },
+      cwd: PACKAGE_ROOT,
+    });
+  } else {
+    console.log('Running real Groq eval (no mock embeddings)…');
+    const env = { ...process.env };
+    delete env.GIT_HELP_MOCK_EMBEDDINGS;
+    delete env.GIT_HELP_MOCK_JUDGE;
+    execSync('node scripts/eval.js --min-pass-rate=0', {
+      stdio: 'inherit',
+      env,
+      cwd: PACKAGE_ROOT,
+    });
+  }
   const report = JSON.parse(readFileSync(path.join(PACKAGE_ROOT, 'local', 'eval', 'eval-report.json'), 'utf8'));
   return report;
 }

@@ -1,0 +1,95 @@
+#!/usr/bin/env node
+/**
+ * Enrich commands.json with golden + essential forms, then generate intents
+ * only for commands that still lack intent rows (no multi-command batching).
+ */
+import { mkdirSync, writeFileSync, readFileSync, existsSync, appendFileSync } from 'node:fs';
+import path from 'node:path';
+import { PACKAGE_ROOT } from '../src/lib/paths.js';
+import { loadEnv, requireLlmKey } from '../src/lib/env.js';
+import { llmJsonObject } from '../src/lib/llm.js';
+import { createRateLimiter } from '../src/lib/rateLimit.js';
+import { generateIntentsForCommand } from '../src/catalog/step2Intents.js';
+import {
+  enrichCommandsFromEssentials,
+  enrichCommandsFromGolden,
+  commandsMissingIntents,
+} from '../src/catalog/enrich.js';
+import { normalizeCommands } from '../src/catalog/step3Normalize.js';
+
+loadEnv();
+requireLlmKey();
+
+const outDir = path.join(PACKAGE_ROOT, 'data', 'catalog');
+const localDir = path.join(PACKAGE_ROOT, 'local', 'catalog');
+mkdirSync(localDir, { recursive: true });
+
+const commandsPath = path.join(outDir, 'commands.json');
+const intentsRawPath = path.join(outDir, 'intents.raw.jsonl');
+const goldenPath = path.join(PACKAGE_ROOT, 'eval', 'golden', 'cases.json');
+
+if (!existsSync(commandsPath)) {
+  console.error('Missing commands.json');
+  process.exit(1);
+}
+
+let commands = JSON.parse(readFileSync(commandsPath, 'utf8'));
+const golden = existsSync(goldenPath) ? JSON.parse(readFileSync(goldenPath, 'utf8')) : [];
+const before = commands.length;
+commands = enrichCommandsFromEssentials(commands);
+commands = enrichCommandsFromGolden(commands, golden);
+const { commands: normalized, allowlist } = normalizeCommands(commands);
+commands = normalized;
+writeFileSync(commandsPath, `${JSON.stringify(commands, null, 2)}\n`);
+writeFileSync(path.join(outDir, 'command-allowlist.json'), `${JSON.stringify(allowlist, null, 2)}\n`);
+console.log(`Enriched commands ${before} → ${commands.length}`);
+
+const existing = existsSync(intentsRawPath)
+  ? readFileSync(intentsRawPath, 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l))
+  : [];
+const missing = commandsMissingIntents(commands, existing);
+console.log(`Missing intents for ${missing.length} commands`);
+
+if (missing.length === 0) {
+  console.log('Nothing to generate');
+  process.exit(0);
+}
+
+const lim = createRateLimiter({
+  statePath: path.join(localDir, 'llm-day.json'),
+  checkpointPath: path.join(localDir, 'enrich-intents-checkpoint.json'),
+});
+
+if (!existsSync(intentsRawPath)) writeFileSync(intentsRawPath, '');
+
+let writeChain = Promise.resolve();
+function appendRows(rows) {
+  writeChain = writeChain.then(() => {
+    for (const row of rows) appendFileSync(intentsRawPath, `${JSON.stringify(row)}\n`);
+  });
+  return writeChain;
+}
+
+let done = 0;
+const tasks = missing.map((entry, idx) => async () => {
+  let rows = [];
+  try {
+    rows = await generateIntentsForCommand(entry, {
+      llmJson: llmJsonObject,
+      schedule: (fn, opts) => lim.schedule(fn, opts),
+    });
+  } catch (err) {
+    if (err.code === 'RATE_LIMIT_PAUSE') throw err;
+    console.error(`enrich fail ${entry.command}: ${err.message}`);
+  }
+  await appendRows(rows);
+  done += 1;
+  if (done % 5 === 0 || done === missing.length) {
+    console.log(`enrich intents ${done}/${missing.length}`);
+  }
+  return rows.length;
+});
+
+await lim.mapPool(tasks);
+await writeChain;
+console.log('Enrich intents done');

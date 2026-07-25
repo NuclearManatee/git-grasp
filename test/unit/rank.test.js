@@ -37,6 +37,23 @@ describe('rankResults', () => {
     const r = rankResults(rows, mockEmbed('totally different'), { ...thresholds, lowConfidenceScore: 0.99, minScore: 0.99 });
     expect(r.lowConfidence).toBe(true);
   });
+
+  it('prefers specific command over bare prefix when close', () => {
+    const intent = 'undo last commit keep files';
+    const emb = mockEmbed(intent);
+    const rows = [
+      { command: 'git reset', skill_level: 1, intent_description: intent, embedding: emb, risk_class: 'high' },
+      {
+        command: 'git reset --soft HEAD~1',
+        skill_level: 2,
+        intent_description: intent,
+        embedding: emb,
+        risk_class: 'high',
+      },
+    ];
+    const r = rankResults(rows, emb, { ...thresholds, specificityWindow: 0.5, specificityPromoteMargin: 0.05, maxSecondGap: 0.01 });
+    expect(r.results[0].command).toBe('git reset --soft HEAD~1');
+  });
 });
 
 describe('normalizeQuery', () => {

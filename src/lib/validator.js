@@ -29,9 +29,11 @@ export function makeRowId(command, skillLevel) {
 
 /**
  * Validate a git command string for catalog insertion.
+ * @param {string} command
+ * @param {{ extraAllowlist?: Iterable<string> }} [opts]
  * @returns {{ ok: true } | { ok: false, reason: string }}
  */
-export function validateCommand(command) {
+export function validateCommand(command, opts = {}) {
   if (typeof command !== 'string' || !command.trim()) {
     return { ok: false, reason: 'schema' };
   }
@@ -43,12 +45,15 @@ export function validateCommand(command) {
   if (parts.length === 1) return { ok: true }; // bare `git`
   const sub = parts[1];
   if (sub.startsWith('-')) return { ok: true }; // git --version etc.
-  if (!ALLOWED_SUBCOMMANDS.has(sub)) return { ok: false, reason: 'allowlist' };
+  const extra = opts.extraAllowlist ? new Set(opts.extraAllowlist) : null;
+  if (!ALLOWED_SUBCOMMANDS.has(sub) && !(extra && extra.has(sub))) {
+    return { ok: false, reason: 'allowlist' };
+  }
   return { ok: true };
 }
 
-export function validateIntentRow(row) {
-  const base = validateCommand(row.command);
+export function validateIntentRow(row, opts = {}) {
+  const base = validateCommand(row.command, opts);
   if (!base.ok) return base;
   if (!row.intent_description || typeof row.intent_description !== 'string') {
     return { ok: false, reason: 'schema' };
