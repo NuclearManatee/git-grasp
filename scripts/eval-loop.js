@@ -64,14 +64,22 @@ async function judgeFn(c, actual) {
   }
   requireLlmKey();
   const messages = [
-    { role: 'system', content: `You are a strict grader for git-help. ${criteria}\nReturn JSON {score:1-5, pass:boolean, rationale:string}.` },
+    {
+      role: 'system',
+      content: `You are a strict grader for git-help. ${criteria}\nReturn JSON {score:1-5, pass:boolean, passAt3:boolean, passAt5:boolean, rationale:string}.`,
+    },
     {
       role: 'user',
       content: JSON.stringify({
         query: c.query,
         expectedCommand: c.expectedCommand,
+        expectedExample: c.expectedExample,
         acceptableCommands: c.acceptableCommands || [],
+        acceptableExamples: c.acceptableExamples || [],
+        preferSimplest: c.preferSimplest,
+        expectedSimplestExample: c.expectedSimplestExample,
         actualCommand: actual.command,
+        actualExample: actual.example,
         expectedSkillBand: c.expectedSkillBand,
         actualSkillLevel: actual.skill_level,
         judgeNotes: c.judgeNotes,
@@ -79,9 +87,16 @@ async function judgeFn(c, actual) {
       }),
     },
   ];
-  return lim.schedule(() => llmJsonObject({ messages }), {
-    estimatedTokens: estimateTokensFromMessages(messages),
+  const out = await lim.schedule(() => llmJsonObject({ messages }), {
+    estimatedTokens: estimateTokensFromMessages(messages) + 400,
   });
+  return {
+    score: Number(out.score) || 1,
+    pass: Boolean(out.pass),
+    passAt3: out.passAt3 != null ? Boolean(out.passAt3) : Boolean(out.pass) || Number(out.score) >= 3,
+    passAt5: out.passAt5 != null ? Boolean(out.passAt5) : Boolean(out.pass) && Number(out.score) >= 5,
+    rationale: out.rationale || '',
+  };
 }
 
 async function searchFn(query) {
