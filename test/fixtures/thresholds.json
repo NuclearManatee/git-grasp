@@ -1,1 +1,1 @@
-{"topK":5,"minScore":0.1,"maxSecondGap":0.05,"lowConfidenceScore":0.3,"requireSkillConsistency":true,"normalizeQuery":true,"simplicityWindow":0.08,"advancedWindow":0.12}
+{"topK":5,"minScore":0.1,"maxSecondGap":0.05,"lowConfidenceScore":0.3,"confidenceYellowScore":0.45,"confidenceRedScore":0.3,"requireSkillConsistency":true,"normalizeQuery":true,"simplicityWindow":0.08,"advancedWindow":0.12}

@@ -12,7 +12,7 @@ Return JSON only:
     {
       "command": "git symbolic-ref",
       "examples": [
-        { "example": "git symbolic-ref HEAD", "topic": "branch", "risk_class": "none", "source_hint": "note" }
+        { "example": "git symbolic-ref HEAD", "topic": "branch", "source_hint": "note" }
       ]
     }
   ]
@@ -25,8 +25,8 @@ Rules:
 - Use ONLY tokens from this glossary when you need names/files/urls/messages:
 ${JSON.stringify(glossary || DEFAULT_GLOSSARY)}
 - topic must be one of: ${TOPIC_CHECKLIST.join(', ')}
-- risk_class one of: none, low, high, destructive
-- Prefer porcelain / everyday usage from the docs.`;
+- Prefer porcelain / everyday usage from the docs.
+- Do NOT output risk_class.`;
 }
 
 export function buildAreYouSureSystem(glossary) {
@@ -39,7 +39,7 @@ Return JSON only:
     {
       "command": "git reset",
       "examples": [
-        { "example": "git reset --soft HEAD~1", "topic": "undo", "risk_class": "high", "source_hint": "gap" }
+        { "example": "git reset --soft HEAD~1", "topic": "undo", "source_hint": "gap" }
       ]
     }
   ],
@@ -49,7 +49,8 @@ Rules:
 - If sure=true, additional_commands MUST be [].
 - Each additional command needs 3–5 pasteable examples (glossary tokens only, no placeholders).
 - Glossary: ${JSON.stringify(glossary || DEFAULT_GLOSSARY)}
-- Never invent shell pipelines or non-git tools.`;
+- Never invent shell pipelines or non-git tools.
+- Do NOT output risk_class.`;
 }
 
 /**
@@ -66,17 +67,16 @@ export function flattenCommandExamples(entries = [], glossary = DEFAULT_GLOSSARY
       examples = [{
         example: entry.example,
         topic: entry.topic,
-        risk_class: entry.risk_class,
         source_hint: entry.source_hint,
         intent_family: entry.intent_family,
         simplicity_rank: entry.simplicity_rank,
+        usage: entry.usage,
       }];
     } else if (examples.length === 0 && entry.command) {
       // Legacy: treat entry.command as the only example
       examples = [{
         example: entry.command,
         topic: entry.topic,
-        risk_class: entry.risk_class,
         source_hint: entry.source_hint,
       }];
     }
@@ -88,10 +88,10 @@ export function flattenCommandExamples(entries = [], glossary = DEFAULT_GLOSSARY
         command: deriveCommandKey(command || example, example),
         example,
         topic: sanitizeField(ex.topic || entry.topic || 'advanced', 64),
-        risk_class: ex.risk_class || entry.risk_class || 'none',
         source_hint: sanitizeField(ex.source_hint || entry.source_hint || '', 200),
         intent_family: ex.intent_family || entry.intent_family || '',
         simplicity_rank: ex.simplicity_rank ?? entry.simplicity_rank,
+        usage: ex.usage || entry.usage || '',
       });
     }
   }
@@ -133,12 +133,12 @@ export function mergeCommands(existing = [], incoming = [], glossary = DEFAULT_G
       command: prev.command || row.command,
       example: key,
       topic: prev.topic !== 'advanced' ? prev.topic : row.topic,
-      risk_class: prev.risk_class !== 'none' ? prev.risk_class : row.risk_class,
       source_hint: (prev.source_hint?.length || 0) >= (row.source_hint?.length || 0)
         ? prev.source_hint
         : row.source_hint,
       intent_family: prev.intent_family || row.intent_family || '',
       simplicity_rank: prev.simplicity_rank ?? row.simplicity_rank,
+      usage: prev.usage || row.usage || '',
     });
   }
   return [...map.values()];
@@ -155,10 +155,10 @@ export function groupByCommand(flatExamples = []) {
     map.get(cmd).push({
       example: row.example,
       topic: row.topic,
-      risk_class: row.risk_class,
       source_hint: row.source_hint,
       intent_family: row.intent_family,
       simplicity_rank: row.simplicity_rank,
+      usage: row.usage,
     });
   }
   return [...map.entries()]

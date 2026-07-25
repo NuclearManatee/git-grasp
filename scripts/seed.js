@@ -36,6 +36,7 @@ for await (const line of rl) {
   const row = {
     ...raw,
     example: raw.example || raw.examples || raw.command,
+    usage: raw.usage || raw.example || raw.examples || raw.command,
     intent_family: raw.intent_family || '',
     simplicity_rank: Number(raw.simplicity_rank) || 1,
     skill_level: Number(raw.skill_level) === 5 ? 4 : Number(raw.skill_level),

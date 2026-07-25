@@ -19,6 +19,8 @@ async function buildFixture() {
     minScore: 0.1,
     maxSecondGap: 0.05,
     lowConfidenceScore: 0.3,
+    confidenceYellowScore: 0.45,
+    confidenceRedScore: 0.30,
     requireSkillConsistency: true,
     normalizeQuery: true,
     simplicityWindow: 0.08,
@@ -32,29 +34,25 @@ async function buildFixture() {
       id: 'git-reset-soft-head-1:2:0',
       command: 'git reset',
       example: 'git reset --soft HEAD~1',
+      usage: 'git reset --soft HEAD~1\nMoves HEAD back one commit and keeps changes staged.',
       intent_family: 'soft-undo',
       simplicity_rank: 1,
       skill_level: 2,
       intent_description: 'undo my last commit but keep the changes',
       embedding: mockEmbed('undo my last commit but keep the changes'),
       explanation: 'Moves HEAD back one commit, keeps index and worktree',
-      risks: 'Rewrites branch tip locally',
-      examples: 'git reset --soft HEAD~1',
-      risk_class: 'high',
     },
     {
       id: 'git-status:1:0',
       command: 'git status',
       example: 'git status',
+      usage: 'git status\nShow working tree status.',
       intent_family: 'status',
       simplicity_rank: 1,
       skill_level: 1,
       intent_description: 'what files did I change',
       embedding: mockEmbed('what files did I change'),
       explanation: 'Shows working tree status',
-      risks: '',
-      examples: 'git status',
-      risk_class: 'none',
     },
   ];
   for (const r of rows) await insertCommandRow(client, r);
@@ -72,6 +70,7 @@ describe('search integration', () => {
       skillLevelOverride: null,
     });
     expect(result.results[0].example).toContain('reset --soft');
+    expect(result.confidence).toBeTruthy();
   });
 
   it('fails on checksum mismatch', async () => {

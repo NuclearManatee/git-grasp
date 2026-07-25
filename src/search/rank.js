@@ -7,9 +7,9 @@ import { normalizeExample } from '../lib/validator.js';
  */
 export function rankResults(rows, queryEmbedding, thresholds, { skillLevel = null } = {}) {
   const topK = thresholds.topK ?? 5;
-  const minScore = thresholds.minScore ?? 0.35;
   const maxSecondGap = thresholds.maxSecondGap ?? 0.05;
-  const lowConfidenceScore = thresholds.lowConfidenceScore ?? 0.45;
+  const yellowScore = thresholds.confidenceYellowScore ?? thresholds.lowConfidenceScore ?? 0.45;
+  const redScore = thresholds.confidenceRedScore ?? 0.30;
   const requireSkillConsistency = thresholds.requireSkillConsistency !== false;
   const specificityWindow = thresholds.specificityWindow ?? 0.12;
   const promoteMargin = thresholds.specificityPromoteMargin ?? 0.05;
@@ -24,6 +24,7 @@ export function rankResults(rows, queryEmbedding, thresholds, { skillLevel = nul
   const scored = candidates.map((r) => ({
     ...r,
     example: r.example ?? r.command,
+    usage: r.usage ?? '',
     intent_family: r.intent_family ?? '',
     simplicity_rank: Number(r.simplicity_rank ?? 1),
     score: cosineLike(queryEmbedding, r.embedding),
@@ -44,7 +45,8 @@ export function rankResults(rows, queryEmbedding, thresholds, { skillLevel = nul
       status: 'empty',
       results: [],
       advanced: null,
-      lowConfidence: false,
+      confidence: 'very_low',
+      lowConfidence: true,
       ambiguous: false,
     };
   }
@@ -68,15 +70,16 @@ export function rankResults(rows, queryEmbedding, thresholds, { skillLevel = nul
     ambiguous = true;
   }
 
-  const lowConfidence = first.score < lowConfidenceScore;
-  const belowFloor = first.score < minScore;
+  const confidence = confidenceTier(first.score, yellowScore, redScore);
+  const lowConfidence = confidence !== 'ok';
 
   if (ambiguous && secondOtherFamily) {
     return {
       status: 'ambiguous',
       results: [first, secondOtherFamily],
       advanced: null,
-      lowConfidence: lowConfidence || belowFloor,
+      confidence,
+      lowConfidence,
       ambiguous: true,
       gap,
     };
@@ -86,12 +89,24 @@ export function rankResults(rows, queryEmbedding, thresholds, { skillLevel = nul
     status: 'ok',
     results: [first],
     advanced,
-    lowConfidence: lowConfidence || belowFloor,
+    confidence,
+    lowConfidence,
     ambiguous: false,
     gap,
   };
 }
 
+/**
+ * @param {number} score
+ * @param {number} yellow
+ * @param {number} red
+ * @returns {'ok' | 'low' | 'very_low'}
+ */
+export function confidenceTier(score, yellow = 0.45, red = 0.30) {
+  if (score < red) return 'very_low';
+  if (score < yellow) return 'low';
+  return 'ok';
+}
 function familyKey(r) {
   return String(r.intent_family || '').trim() || `cmd:${r.command}`;
 }

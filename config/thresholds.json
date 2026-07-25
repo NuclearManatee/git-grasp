@@ -1,9 +1,11 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 3,
   "topK": 5,
   "minScore": 0.25,
   "maxSecondGap": 0.04,
   "lowConfidenceScore": 0.4,
+  "confidenceYellowScore": 0.45,
+  "confidenceRedScore": 0.30,
   "requireSkillConsistency": true,
   "normalizeQuery": true,
   "simplicityWindow": 0.08,

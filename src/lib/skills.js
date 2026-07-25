@@ -23,9 +23,6 @@ export const SKILL_BY_LEVEL = Object.freeze({
 
 export const SKILL_NAMES = Object.freeze(Object.keys(SKILL_BY_NAME));
 
-/** Levels that get the scary risk UX (non-technical + beginner). */
-export const RISK_WARN_MAX_LEVEL = 2;
-
 /**
  * @param {unknown} input
  * @returns {number | null} null means clear/off; throws on invalid

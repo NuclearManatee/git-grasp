@@ -1,73 +1,121 @@
 import { describe, it, expect } from 'vitest';
-import { formatSearchResult, primaryCommand } from '../../src/ux/format.js';
+import {
+  formatSearchResult,
+  primaryCommand,
+  formatUsageFrame,
+  parseUsage,
+  formatConfidenceLine,
+} from '../../src/ux/format.js';
 
 describe('formatSearchResult', () => {
-  it('prints command and example with skill name', () => {
+  const baseRow = {
+    command: 'git commit',
+    example: 'git commit --amend --no-edit',
+    usage: 'git commit --amend\nRewrites the previous commit to include staged changes.',
+    skill_level: 2,
+    intent_description: 'add files to the last commit',
+    explanation: 'Amends HEAD with staged changes.',
+    score: 0.82,
+  };
+
+  it('prints framed usage and intent without skill on default', () => {
     const text = formatSearchResult({
       status: 'ok',
-      results: [{
-        command: 'git branch',
-        example: 'git branch --show-current',
-        skill_level: 2,
-        intent_description: 'what branch am I on',
-        risk_class: 'none',
-      }],
-      advanced: {
-        command: 'git symbolic-ref',
-        example: 'git symbolic-ref --short HEAD',
-        skill_level: 4,
-        intent_description: 'symbolic ref short',
-        risk_class: 'none',
-      },
-      lowConfidence: false,
+      results: [baseRow],
+      confidence: 'ok',
+      advanced: null,
     });
-    expect(text).toMatch(/git branch/);
-    expect(text).toMatch(/show-current/);
-    expect(text).toMatch(/beginner/);
-    expect(text).not.toMatch(/Also \(advanced\)/);
+    expect(text).toMatch(/git commit/);
+    expect(text).toMatch(/──/);
+    expect(text).toMatch(/Rewrites the previous commit/);
+    expect(text).toMatch(/add files to the last commit/);
+    expect(text).not.toMatch(/beginner-level/);
+    expect(text).not.toMatch(/\[RISK\]/);
+    expect(text).not.toMatch(/solid match/);
   });
 
-  it('shows advanced only when verbose', () => {
+  it('adds skill suffix and score on verbose', () => {
     const text = formatSearchResult({
       status: 'ok',
-      results: [{
-        command: 'git branch',
-        example: 'git branch --show-current',
-        skill_level: 1,
-        intent_description: 'branch',
-        risk_class: 'none',
-        explanation: 'e',
-        risks: 'r',
-      }],
+      results: [baseRow],
+      confidence: 'ok',
       advanced: {
-        command: 'git symbolic-ref',
-        example: 'git symbolic-ref --short HEAD',
+        command: 'git commit',
+        example: 'git commit --amend',
+        usage: 'git commit --amend\nOpens editor.',
         skill_level: 4,
-        intent_description: 'plumbing',
-        risk_class: 'none',
+        intent_description: 'amend with editor',
       },
     }, { verbose: true });
+    expect(text).toMatch(/beginner-level command/);
+    expect(text).toMatch(/Explanation/);
     expect(text).toMatch(/Also \(advanced\)/);
-    expect(text).toMatch(/symbolic-ref/);
+    expect(text).toMatch(/score:/);
+    expect(text).not.toMatch(/Risks/);
   });
 
-  it('warns risk for non-technical and beginner', () => {
+  it('shows yellow low confidence', () => {
     const text = formatSearchResult({
       status: 'ok',
-      results: [{
-        command: 'git reset',
-        example: 'git reset --hard HEAD~1',
-        skill_level: 2,
-        intent_description: 'hard reset',
-        risk_class: 'destructive',
-      }],
+      results: [{ ...baseRow, score: 0.40 }],
+      confidence: 'low',
+      lowConfidence: true,
     });
-    expect(text).toMatch(/\[RISK\]/);
+    expect(text).toMatch(/low confidence — rephrase/);
+  });
+
+  it('shows red very low confidence', () => {
+    const text = formatSearchResult({
+      status: 'ok',
+      results: [{ ...baseRow, score: 0.20 }],
+      confidence: 'very_low',
+      lowConfidence: true,
+    });
+    expect(text).toMatch(/very low confidence/);
+  });
+
+  it('shows green on ambiguous when confident', () => {
+    const text = formatSearchResult({
+      status: 'ambiguous',
+      ambiguous: true,
+      confidence: 'ok',
+      results: [baseRow, { ...baseRow, example: 'git commit -am "Fix typo"' }],
+    });
+    expect(text).toMatch(/looks like a solid match/);
+    expect(text).toMatch(/rephrase with more detail/);
   });
 
   it('primaryCommand returns example', () => {
-    expect(primaryCommand({
-      results: [{ command: 'git branch', example: 'git branch --show-current' }],
-    })).toBe('git branch --show-current');
+    expect(primaryCommand({ results: [baseRow] })).toBe('git commit --amend --no-edit');
+  });
+});
+
+describe('parseUsage / formatUsageFrame', () => {
+  it('splits command_line and blurb', () => {
+    const p = parseUsage({
+      example: 'git status',
+      usage: 'git status -sb\nShort branch and dirty files.',
+    });
+    expect(p.commandLine).toBe('git status -sb');
+    expect(p.blurb).toMatch(/Short branch/);
+  });
+
+  it('frames with dim rules', () => {
+    const lines = formatUsageFrame({
+      example: 'git status',
+      usage: 'git status\nShow working tree status.',
+    });
+    expect(lines[0]).toMatch(/─/);
+    expect(lines.join('\n')).toMatch(/Show working tree/);
+  });
+});
+
+describe('formatConfidenceLine', () => {
+  it('silent for ok single result without verbose', () => {
+    expect(formatConfidenceLine({
+      status: 'ok',
+      confidence: 'ok',
+      results: [{ score: 0.9 }],
+    })).toBe('');
   });
 });

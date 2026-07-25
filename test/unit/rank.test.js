@@ -4,6 +4,7 @@ import {
   normalizeQuery,
   preferSimplestInFamily,
   preferSpecificExamples,
+  confidenceTier,
 } from '../../src/search/rank.js';
 import { mockEmbed } from '../../src/search/embed.js';
 
@@ -12,10 +13,20 @@ const thresholds = {
   minScore: 0.2,
   maxSecondGap: 0.05,
   lowConfidenceScore: 0.9,
+  confidenceYellowScore: 0.45,
+  confidenceRedScore: 0.30,
   requireSkillConsistency: true,
   simplicityWindow: 0.15,
   advancedWindow: 0.2,
 };
+
+describe('confidenceTier', () => {
+  it('classifies ok/low/very_low', () => {
+    expect(confidenceTier(0.5, 0.45, 0.30)).toBe('ok');
+    expect(confidenceTier(0.40, 0.45, 0.30)).toBe('low');
+    expect(confidenceTier(0.20, 0.45, 0.30)).toBe('very_low');
+  });
+});
 
 describe('rankResults', () => {
   it('returns best match', () => {
@@ -27,7 +38,6 @@ describe('rankResults', () => {
         skill_level: 3,
         intent_description: intent,
         embedding: mockEmbed(intent),
-        risk_class: 'low',
         intent_family: 'soft-undo',
         simplicity_rank: 1,
       },
@@ -37,7 +47,6 @@ describe('rankResults', () => {
         skill_level: 1,
         intent_description: 'show status',
         embedding: mockEmbed('show status'),
-        risk_class: 'none',
         intent_family: 'status',
         simplicity_rank: 1,
       },
@@ -54,7 +63,6 @@ describe('rankResults', () => {
         skill_level: 1,
         intent_description: 'a',
         embedding: mockEmbed('a'),
-        risk_class: 'none',
         intent_family: 'a',
         simplicity_rank: 1,
       },
@@ -64,7 +72,6 @@ describe('rankResults', () => {
         skill_level: 4,
         intent_description: 'a',
         embedding: mockEmbed('a'),
-        risk_class: 'none',
         intent_family: 'b',
         simplicity_rank: 1,
       },
@@ -82,17 +89,18 @@ describe('rankResults', () => {
         skill_level: 1,
         intent_description: 'zzz',
         embedding: mockEmbed('zzz'),
-        risk_class: 'none',
         intent_family: 'x',
         simplicity_rank: 1,
       },
     ];
     const r = rankResults(rows, mockEmbed('totally different'), {
       ...thresholds,
-      lowConfidenceScore: 0.99,
+      confidenceYellowScore: 0.99,
+      confidenceRedScore: 0.5,
       minScore: 0.99,
     });
     expect(r.lowConfidence).toBe(true);
+    expect(r.confidence).not.toBe('ok');
   });
 
   it('prefers specific example over bare prefix when close', () => {
@@ -105,7 +113,6 @@ describe('rankResults', () => {
         skill_level: 1,
         intent_description: intent,
         embedding: emb,
-        risk_class: 'high',
         intent_family: 'undo-soft',
         simplicity_rank: 2,
       },
@@ -115,7 +122,6 @@ describe('rankResults', () => {
         skill_level: 2,
         intent_description: intent,
         embedding: emb,
-        risk_class: 'high',
         intent_family: 'undo-soft',
         simplicity_rank: 1,
       },
@@ -139,7 +145,6 @@ describe('rankResults', () => {
         skill_level: 4,
         intent_description: intent,
         embedding: emb,
-        risk_class: 'none',
         intent_family: 'show-current-branch',
         simplicity_rank: 3,
       },
@@ -149,7 +154,6 @@ describe('rankResults', () => {
         skill_level: 1,
         intent_description: intent,
         embedding: emb,
-        risk_class: 'none',
         intent_family: 'show-current-branch',
         simplicity_rank: 1,
       },

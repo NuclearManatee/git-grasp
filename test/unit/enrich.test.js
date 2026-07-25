@@ -11,7 +11,7 @@ import { normalizeExample } from '../../src/lib/validator.js';
 describe('enrich catalog', () => {
   it('happy: merges golden expected examples', () => {
     const out = enrichCommandsFromGolden(
-      [{ command: 'git status', example: 'git status', topic: 'status', risk_class: 'none' }],
+      [{ command: 'git status', example: 'git status', topic: 'status' }],
       [{
         id: 'x',
         expectedCommand: 'git reset',
@@ -31,7 +31,7 @@ describe('enrich catalog', () => {
   });
 
   it('negative: empty golden changes nothing beyond input', () => {
-    const base = [{ command: 'git status', example: 'git status', topic: 'status', risk_class: 'none' }];
+    const base = [{ command: 'git status', example: 'git status', topic: 'status' }];
     expect(enrichCommandsFromGolden(base, []).map((c) => c.example)).toEqual(['git status']);
   });
 

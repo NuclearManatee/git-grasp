@@ -10,8 +10,7 @@ import { sanitizeField } from '../lib/ansi.js';
 import { isValidSkillLevel, SKILL_MAX } from '../lib/skills.js';
 import { materializePlaceholders, DEFAULT_GLOSSARY } from './step0Glossary.js';
 import { deriveCommandKey } from './step1Commands.js';
-
-const RISK = new Set(['none', 'low', 'high', 'destructive']);
+import { normalizeUsage } from '../db/schema.js';
 
 /**
  * Expand allowlist from observed command subcommands.
@@ -68,10 +67,10 @@ export function normalizeCommands(rawCommands, {
         command,
         example: key,
         topic: sanitizeField(raw.topic || 'advanced', 64),
-        risk_class: RISK.has(raw.risk_class) ? raw.risk_class : 'none',
         source_hint: sanitizeField(raw.source_hint || '', 200),
         intent_family: sanitizeField(raw.intent_family || '', 128),
         simplicity_rank: Math.max(1, Number(raw.simplicity_rank) || 1),
+        usage: normalizeUsage(raw.usage, key),
         id_slug: commandSlug(key),
       });
     }
@@ -105,14 +104,12 @@ export function normalizeIntents(rawRows) {
       id: raw.id || makeRowId(example, skill_level, intentIndex),
       command,
       example,
+      usage: normalizeUsage(raw.usage, example),
       intent_family: sanitizeField(raw.intent_family || '', 128),
       simplicity_rank: Math.max(1, Number(raw.simplicity_rank) || 1),
       skill_level,
       intent_description: sanitizeField(raw.intent_description || '', 2000),
       explanation: sanitizeField(raw.explanation || '', 4000),
-      risks: sanitizeField(raw.risks || '', 4000),
-      examples: sanitizeField(raw.examples || example, 4000),
-      risk_class: RISK.has(raw.risk_class) ? raw.risk_class : 'none',
       topic: sanitizeField(raw.topic || '', 64),
     };
     const v = validateIntentRow(row);

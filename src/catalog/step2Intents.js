@@ -2,6 +2,7 @@ import { makeRowId, normalizeExample } from '../lib/validator.js';
 import { estimateTokensFromMessages } from '../lib/rateLimit.js';
 import { skillPromptList, SKILL_BY_NAME, SKILL_NAMES, isValidSkillLevel } from '../lib/skills.js';
 import { DEFAULT_GLOSSARY } from './step0Glossary.js';
+import { normalizeUsage } from '../db/schema.js';
 
 /**
  * @param {object} entry example row with command, example, family, simplicity
@@ -21,18 +22,19 @@ Given ONE pasteable git example, produce skill-level intent variants and help fi
 Skill levels (use names in output): ${skillPromptList()}.
 Return JSON only:
 {
-  "command": "git branch",
-  "example": "git branch --show-current",
-  "risk_class": "none|low|high|destructive",
-  "explanation": "how it works",
-  "risks": "side effects",
+  "command": "git commit",
+  "example": "git commit --amend --no-edit",
+  "explanation": "how it works; mention important caveats in prose when relevant (no separate risk field)",
+  "usage": {
+    "command_line": "git commit --amend",
+    "blurb": "Rewrites the previous commit to include staged changes."
+  },
   "intents": [
     {
       "skill_level": "beginner",
       "intent_descriptions": [
-        "what branch am I on",
-        "show my current branch name",
-        "print the branch I checked out"
+        "add files to my last commit",
+        "fix the previous commit without changing the message"
       ]
     }
   ]
@@ -42,7 +44,10 @@ Rules:
 - Per skill: provide intent_descriptions array (natural language; no shell operators).
 - Diversity: D1 paraphrases + D2 colloquial/non-git wording required; D4 misconception phrasings sparse (at most one per skill).
 - Tone matches skill name (non-technical colloquial → expert technical).
+- usage.command_line: short doc-style form (glossary concretes, slightly shorter than full example when sensible).
+- usage.blurb: ONE short sentence explaining what that usage does (git-docs style).
 - Do not invent a different example; stay faithful to the given example.
+- Do NOT output risk_class or risks fields.
 - Glossary (context only): ${JSON.stringify(glossary || DEFAULT_GLOSSARY)}`;
 }
 
@@ -56,11 +61,10 @@ function coerceSkill(level) {
 }
 
 function rowsFromItem(entry, item, { intentTarget = 3 } = {}) {
-  const risk_class = item.risk_class || entry.risk_class || 'none';
   const explanation = item.explanation || `${entry.example} (${entry.topic || 'git'})`;
-  const risks = item.risks || '';
   const example = normalizeExample(item.example || entry.example || entry.command);
   const command = entry.command || item.command || example;
+  const usage = normalizeUsage(item.usage || entry.usage, example);
   const intents = Array.isArray(item.intents) ? item.intents : [];
   const rows = [];
   for (const intent of intents) {
@@ -78,14 +82,12 @@ function rowsFromItem(entry, item, { intentTarget = 3 } = {}) {
         id: makeRowId(example, level, idx),
         command,
         example,
+        usage,
         intent_family: entry.intent_family || '',
         simplicity_rank: Number(entry.simplicity_rank ?? 1),
         skill_level: level,
         intent_description: String(desc).trim(),
         explanation,
-        risks,
-        examples: example,
-        risk_class,
         topic: entry.topic || 'advanced',
       });
       idx += 1;
@@ -117,7 +119,6 @@ export async function generateIntentsForExample(entry, {
         topic: entry.topic,
         intent_family: entry.intent_family,
         simplicity_rank: entry.simplicity_rank,
-        risk_class_hint: entry.risk_class,
         intent_count_per_skill: intentTarget,
         diversity: {
           required: ['D1_paraphrase', 'D2_colloquial'],

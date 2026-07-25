@@ -60,7 +60,7 @@ export function buildProgram() {
     .command('search')
     .description('Search for a Git command')
     .argument('[query...]', 'natural language query')
-    .option('-v, --verbose', 'show explanation, risks, advanced alternate')
+    .option('-v, --verbose', 'show explanation, skill label, score, advanced alternate')
     .option('-c, --copy', 'copy winning example to clipboard')
     .action(runSearchCommand(program));
 
@@ -100,7 +100,7 @@ export function buildProgram() {
   // Default: bare query args → search
   program
     .argument('[query...]', 'natural language query')
-    .option('-v, --verbose', 'show explanation, risks, advanced alternate')
+    .option('-v, --verbose', 'show explanation, skill label, score, advanced alternate')
     .option('-c, --copy', 'copy winning example to clipboard')
     .action(async (queryParts, opts, cmd) => {
       // If a subcommand was used, commander won't hit this with leftover wrongly —

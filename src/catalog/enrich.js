@@ -24,7 +24,6 @@ export function enrichCommandsFromGolden(commands, goldenCases = [], glossary = 
         examples: [{
           example,
           topic: inferTopic(example),
-          risk_class: inferRisk(example),
           source_hint: `golden:${g.id || 'case'}`,
         }],
       });
@@ -38,124 +37,124 @@ export function enrichCommandsFromGolden(commands, goldenCases = [], glossary = 
  */
 export const ESSENTIAL_COMMANDS = Object.freeze([
   { command: 'git status', examples: [
-    { example: 'git status', topic: 'status', risk_class: 'none' },
-    { example: 'git status -sb', topic: 'status', risk_class: 'none' },
-    { example: 'git status --ignored', topic: 'status', risk_class: 'none' },
+    { example: 'git status', topic: 'status' },
+    { example: 'git status -sb', topic: 'status' },
+    { example: 'git status --ignored', topic: 'status' },
   ] },
   { command: 'git add', examples: [
-    { example: 'git add app.js', topic: 'stage', risk_class: 'low' },
-    { example: 'git add -p', topic: 'stage', risk_class: 'low' },
-    { example: 'git add .', topic: 'stage', risk_class: 'low' },
+    { example: 'git add app.js', topic: 'stage' },
+    { example: 'git add -p', topic: 'stage' },
+    { example: 'git add .', topic: 'stage' },
   ] },
   { command: 'git commit', examples: [
-    { example: 'git commit -m "Fix typo"', topic: 'commit', risk_class: 'low' },
-    { example: 'git commit --amend --no-edit', topic: 'commit', risk_class: 'high' },
-    { example: 'git commit -am "Fix typo"', topic: 'commit', risk_class: 'low' },
+    { example: 'git commit -m "Fix typo"', topic: 'commit' },
+    { example: 'git commit --amend --no-edit', topic: 'commit' },
+    { example: 'git commit -am "Fix typo"', topic: 'commit' },
   ] },
   { command: 'git clone', examples: [
-    { example: 'git clone https://github.com/example/repo.git', topic: 'create', risk_class: 'low' },
-    { example: 'git clone --depth 1 https://github.com/example/repo.git', topic: 'create', risk_class: 'low' },
-    { example: 'git clone --branch main https://github.com/example/repo.git', topic: 'create', risk_class: 'low' },
+    { example: 'git clone https://github.com/example/repo.git', topic: 'create' },
+    { example: 'git clone --depth 1 https://github.com/example/repo.git', topic: 'create' },
+    { example: 'git clone --branch main https://github.com/example/repo.git', topic: 'create' },
   ] },
   { command: 'git switch', examples: [
-    { example: 'git switch -c feature/login', topic: 'branch', risk_class: 'low' },
-    { example: 'git switch -', topic: 'branch', risk_class: 'low' },
-    { example: 'git switch main', topic: 'branch', risk_class: 'low' },
+    { example: 'git switch -c feature/login', topic: 'branch' },
+    { example: 'git switch -', topic: 'branch' },
+    { example: 'git switch main', topic: 'branch' },
   ] },
   { command: 'git branch', examples: [
-    { example: 'git branch', topic: 'branch', risk_class: 'none' },
-    { example: 'git branch --show-current', topic: 'branch', risk_class: 'none' },
-    { example: 'git branch -d feature/login', topic: 'branch', risk_class: 'high' },
+    { example: 'git branch', topic: 'branch' },
+    { example: 'git branch --show-current', topic: 'branch' },
+    { example: 'git branch -d feature/login', topic: 'branch' },
   ] },
   { command: 'git log', examples: [
-    { example: 'git log --oneline', topic: 'history', risk_class: 'none' },
-    { example: 'git log --graph --oneline --all', topic: 'history', risk_class: 'none' },
-    { example: 'git log -p', topic: 'history', risk_class: 'none' },
+    { example: 'git log --oneline', topic: 'history' },
+    { example: 'git log --graph --oneline --all', topic: 'history' },
+    { example: 'git log -p', topic: 'history' },
   ] },
   { command: 'git diff', examples: [
-    { example: 'git diff', topic: 'diff', risk_class: 'none' },
-    { example: 'git diff --staged', topic: 'diff', risk_class: 'none' },
-    { example: 'git diff HEAD', topic: 'diff', risk_class: 'none' },
+    { example: 'git diff', topic: 'diff' },
+    { example: 'git diff --staged', topic: 'diff' },
+    { example: 'git diff HEAD', topic: 'diff' },
   ] },
   { command: 'git reset', examples: [
-    { example: 'git reset --soft HEAD~1', topic: 'undo', risk_class: 'high' },
-    { example: 'git reset --hard HEAD~1', topic: 'undo', risk_class: 'destructive' },
-    { example: 'git reset HEAD app.js', topic: 'undo', risk_class: 'high' },
+    { example: 'git reset --soft HEAD~1', topic: 'undo' },
+    { example: 'git reset --hard HEAD~1', topic: 'undo' },
+    { example: 'git reset HEAD app.js', topic: 'undo' },
   ] },
   { command: 'git restore', examples: [
-    { example: 'git restore --staged app.js', topic: 'undo', risk_class: 'low' },
-    { example: 'git restore app.js', topic: 'undo', risk_class: 'high' },
-    { example: 'git restore --source=HEAD~1 app.js', topic: 'undo', risk_class: 'high' },
+    { example: 'git restore --staged app.js', topic: 'undo' },
+    { example: 'git restore app.js', topic: 'undo' },
+    { example: 'git restore --source=HEAD~1 app.js', topic: 'undo' },
   ] },
   { command: 'git stash', examples: [
-    { example: 'git stash', topic: 'stash', risk_class: 'low' },
-    { example: 'git stash pop', topic: 'stash', risk_class: 'high' },
-    { example: 'git stash -u', topic: 'stash', risk_class: 'low' },
+    { example: 'git stash', topic: 'stash' },
+    { example: 'git stash pop', topic: 'stash' },
+    { example: 'git stash -u', topic: 'stash' },
   ] },
   { command: 'git rebase', examples: [
-    { example: 'git rebase --abort', topic: 'rebase', risk_class: 'high' },
-    { example: 'git rebase main', topic: 'rebase', risk_class: 'high' },
-    { example: 'git rebase -i HEAD~3', topic: 'rebase', risk_class: 'destructive' },
+    { example: 'git rebase --abort', topic: 'rebase' },
+    { example: 'git rebase main', topic: 'rebase' },
+    { example: 'git rebase -i HEAD~3', topic: 'rebase' },
   ] },
   { command: 'git merge', examples: [
-    { example: 'git merge --abort', topic: 'merge', risk_class: 'high' },
-    { example: 'git merge main', topic: 'merge', risk_class: 'high' },
-    { example: 'git merge --no-ff feature/login', topic: 'merge', risk_class: 'high' },
+    { example: 'git merge --abort', topic: 'merge' },
+    { example: 'git merge main', topic: 'merge' },
+    { example: 'git merge --no-ff feature/login', topic: 'merge' },
   ] },
   { command: 'git push', examples: [
-    { example: 'git push -u origin HEAD', topic: 'remote', risk_class: 'high' },
-    { example: 'git push --force-with-lease', topic: 'remote', risk_class: 'destructive' },
-    { example: 'git push', topic: 'remote', risk_class: 'high' },
+    { example: 'git push -u origin HEAD', topic: 'remote' },
+    { example: 'git push --force-with-lease', topic: 'remote' },
+    { example: 'git push', topic: 'remote' },
   ] },
   { command: 'git pull', examples: [
-    { example: 'git pull', topic: 'remote', risk_class: 'high' },
-    { example: 'git pull --rebase', topic: 'remote', risk_class: 'high' },
-    { example: 'git pull origin main', topic: 'remote', risk_class: 'high' },
+    { example: 'git pull', topic: 'remote' },
+    { example: 'git pull --rebase', topic: 'remote' },
+    { example: 'git pull origin main', topic: 'remote' },
   ] },
   { command: 'git fetch', examples: [
-    { example: 'git fetch --all --prune', topic: 'remote', risk_class: 'low' },
-    { example: 'git fetch', topic: 'remote', risk_class: 'low' },
-    { example: 'git fetch origin', topic: 'remote', risk_class: 'low' },
+    { example: 'git fetch --all --prune', topic: 'remote' },
+    { example: 'git fetch', topic: 'remote' },
+    { example: 'git fetch origin', topic: 'remote' },
   ] },
   { command: 'git remote', examples: [
-    { example: 'git remote -v', topic: 'remote', risk_class: 'none' },
-    { example: 'git remote add origin https://github.com/example/repo.git', topic: 'remote', risk_class: 'low' },
-    { example: 'git remote remove origin', topic: 'remote', risk_class: 'high' },
+    { example: 'git remote -v', topic: 'remote' },
+    { example: 'git remote add origin https://github.com/example/repo.git', topic: 'remote' },
+    { example: 'git remote remove origin', topic: 'remote' },
   ] },
   { command: 'git tag', examples: [
-    { example: 'git tag -a v1.0.0 -m "Fix typo"', topic: 'tag', risk_class: 'low' },
-    { example: 'git tag v1.0.0', topic: 'tag', risk_class: 'low' },
-    { example: 'git tag -l', topic: 'tag', risk_class: 'none' },
+    { example: 'git tag -a v1.0.0 -m "Fix typo"', topic: 'tag' },
+    { example: 'git tag v1.0.0', topic: 'tag' },
+    { example: 'git tag -l', topic: 'tag' },
   ] },
   { command: 'git revert', examples: [
-    { example: 'git revert HEAD', topic: 'undo', risk_class: 'high' },
-    { example: 'git revert abc1234', topic: 'undo', risk_class: 'high' },
-    { example: 'git revert --no-edit HEAD', topic: 'undo', risk_class: 'high' },
+    { example: 'git revert HEAD', topic: 'undo' },
+    { example: 'git revert abc1234', topic: 'undo' },
+    { example: 'git revert --no-edit HEAD', topic: 'undo' },
   ] },
   { command: 'git rm', examples: [
-    { example: 'git rm --cached app.js', topic: 'stage', risk_class: 'high' },
-    { example: 'git rm app.js', topic: 'stage', risk_class: 'high' },
-    { example: 'git rm -r src', topic: 'stage', risk_class: 'destructive' },
+    { example: 'git rm --cached app.js', topic: 'stage' },
+    { example: 'git rm app.js', topic: 'stage' },
+    { example: 'git rm -r src', topic: 'stage' },
   ] },
   { command: 'git grep', examples: [
-    { example: 'git grep "TODO"', topic: 'search', risk_class: 'none' },
-    { example: 'git grep -n "FIXME"', topic: 'search', risk_class: 'none' },
-    { example: 'git grep -i "todo"', topic: 'search', risk_class: 'none' },
+    { example: 'git grep "TODO"', topic: 'search' },
+    { example: 'git grep -n "FIXME"', topic: 'search' },
+    { example: 'git grep -i "todo"', topic: 'search' },
   ] },
   { command: 'git config', examples: [
-    { example: 'git config --global user.email "dev@example.com"', topic: 'config', risk_class: 'low' },
-    { example: 'git config user.name "alice"', topic: 'config', risk_class: 'low' },
-    { example: 'git config --list', topic: 'config', risk_class: 'none' },
+    { example: 'git config --global user.email "dev@example.com"', topic: 'config' },
+    { example: 'git config user.name "alice"', topic: 'config' },
+    { example: 'git config --list', topic: 'config' },
   ] },
   { command: 'git worktree', examples: [
-    { example: 'git worktree add ../hotfix feature/login', topic: 'worktree', risk_class: 'low' },
-    { example: 'git worktree list', topic: 'worktree', risk_class: 'none' },
-    { example: 'git worktree remove ../hotfix', topic: 'worktree', risk_class: 'high' },
+    { example: 'git worktree add ../hotfix feature/login', topic: 'worktree' },
+    { example: 'git worktree list', topic: 'worktree' },
+    { example: 'git worktree remove ../hotfix', topic: 'worktree' },
   ] },
   { command: 'git submodule', examples: [
-    { example: 'git submodule update --init --recursive', topic: 'submodule', risk_class: 'low' },
-    { example: 'git submodule status', topic: 'submodule', risk_class: 'none' },
-    { example: 'git submodule add https://github.com/example/repo.git', topic: 'submodule', risk_class: 'low' },
+    { example: 'git submodule update --init --recursive', topic: 'submodule' },
+    { example: 'git submodule status', topic: 'submodule' },
+    { example: 'git submodule add https://github.com/example/repo.git', topic: 'submodule' },
   ] },
 ].map((c) => ({
   ...c,
@@ -179,14 +178,6 @@ function inferTopic(command) {
   if (/\blog\b|\bblame\b/.test(c)) return 'history';
   if (/\bdiff\b/.test(c)) return 'diff';
   return 'advanced';
-}
-
-function inferRisk(command) {
-  const c = String(command);
-  if (/--hard|--force(?!-with-lease)|force-with-lease|reset --hard/.test(c)) return 'destructive';
-  if (/--soft|amend|rebase|merge --abort|stash pop|push -u|rm --cached/.test(c)) return 'high';
-  if (/commit|add|switch -c|tag|clone|stash\b/.test(c)) return 'low';
-  return 'none';
 }
 
 /**
@@ -226,18 +217,16 @@ export function injectGoldenIntentRows(intentRows, goldenCases = [], commandMeta
       id: `golden-${g.id || 'case'}:${level}`,
       command,
       example,
+      usage: meta.usage || example,
       intent_family: meta.intent_family || '',
-      simplicity_rank: meta.simplicity_rank ?? (g.preferSimplest ? 1 : 1),
+      simplicity_rank: meta.simplicity_rank ?? 1,
       skill_level: level,
       intent_description: String(g.query).trim(),
       explanation: meta.explanation || `${example} (golden eval grounding)`,
-      risks: meta.risks || '',
-      examples: example,
-      risk_class: meta.risk_class || inferRisk(example),
       topic: meta.topic || inferTopic(example),
     });
   }
   return out;
 }
 
-export { inferTopic, inferRisk, makeRowId };
+export { inferTopic, makeRowId };

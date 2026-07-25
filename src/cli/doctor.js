@@ -15,7 +15,7 @@ export function doctor() {
     lines.push('  Fix: run npm run build-catalog && npm run seed');
   } else {
     lines.push(`DB: OK (${dbCheck.hash.slice(0, 12)}…)`);
-    lines.push('  Schema v2 required (example/intent_family/simplicity_rank). If search fails: npm run seed');
+    lines.push('  Schema v3 required (usage; no risk fields). If search fails: npm run rebuild');
   }
 
   const modelDir = path.join(userPaths().cache, 'models');

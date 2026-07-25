@@ -1,6 +1,6 @@
 # git-help
 
-Local-first CLI for **semantic search** of Git commands. Intents are keyed by pasteable **examples**, tagged with skill levels (`non-technical` → `expert`) and matched with on-device embeddings. The CLI never runs Git for you.
+Local-first CLI for **semantic search** of Git commands. Intents are keyed by pasteable **examples**, tagged with skill levels (`non-technical` → `expert`) and matched with on-device embeddings. Answers show a short doc-style **usage** frame. The CLI never runs Git for you.
 
 ## Install
 
@@ -22,7 +22,9 @@ git-help set-level clear
 git-help doctor
 ```
 
-`set-level` restricts results to **at most** that skill. Flags: `--verbose` (explanation + optional advanced alternate), `--copy` (copies the pasteable example).
+`set-level` restricts results to **at most** that skill. Flags: `--verbose` (explanation, skill label, score, optional advanced alternate), `--copy` (copies the pasteable example).
+
+Confidence: yellow when the match is weak, red when very weak; green “solid match” only when the result is ambiguous but the top option scores well. Strong single matches stay silent.
 
 Offline after install. Maintainer features need `DEEPSEEK_API_KEY` in `.env` (DeepSeek V4 Pro). Optional: `GIT_HELP_LLM_PROVIDER=groq` + `GROQ_API_KEY`.
 
@@ -30,12 +32,13 @@ Offline after install. Maintainer features need `DEEPSEEK_API_KEY` in `.env` (De
 
 | Script | Purpose |
 |--------|---------|
-| `npm run build-catalog` | Full catalog (glossary→docs→examples→families→intents→normalize) |
+| `npm run rebuild` | Full catalog build + seed DB |
+| `npm run build-catalog` | glossary→docs→examples→families→intents→normalize |
 | `npm run download-docs` | Mirror allowlisted git-scm.com docs locally |
 | `npm run build-catalog:glossary` | Concrete token glossary for examples |
 | `npm run build-catalog:commands` | Extract command + pasteable examples |
 | `npm run build-catalog:families` | Assign intent families + simplicity ranks |
-| `npm run build-catalog:intents` | Per-example intents (3–5 × 4 skills) |
+| `npm run build-catalog:intents` | Per-example intents + usage blurbs |
 | `npm run build-catalog:normalize` | Normalize + golden inject |
 | `npm run seed` | Embed intents → `data/git-commands.db` (+ checksum) |
 | `npm test` | Unit + integration (Vitest) |

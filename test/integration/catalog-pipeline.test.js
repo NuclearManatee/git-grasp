@@ -13,17 +13,17 @@ describe('extractCommandsWithAreYouSure (mocked LLM)', () => {
             {
               command: 'git init',
               examples: [
-                { example: 'git init', topic: 'create', risk_class: 'low' },
-                { example: 'git init --bare', topic: 'create', risk_class: 'low' },
-                { example: 'git init --quiet', topic: 'create', risk_class: 'low' },
+                { example: 'git init', topic: 'create' },
+                { example: 'git init --bare', topic: 'create' },
+                { example: 'git init --quiet', topic: 'create' },
               ],
             },
             {
               command: 'git status',
               examples: [
-                { example: 'git status', topic: 'status', risk_class: 'none' },
-                { example: 'git status -sb', topic: 'status', risk_class: 'none' },
-                { example: 'git status --ignored', topic: 'status', risk_class: 'none' },
+                { example: 'git status', topic: 'status' },
+                { example: 'git status -sb', topic: 'status' },
+                { example: 'git status --ignored', topic: 'status' },
               ],
             },
           ],
@@ -34,9 +34,9 @@ describe('extractCommandsWithAreYouSure (mocked LLM)', () => {
         additional_commands: Array.from({ length: 15 }, (_, i) => ({
           command: 'git log',
           examples: [
-            { example: `git log --oneline -n ${i + 1}`, topic: 'history', risk_class: 'none' },
-            { example: `git log -n ${i + 1}`, topic: 'history', risk_class: 'none' },
-            { example: `git log --stat -n ${i + 1}`, topic: 'history', risk_class: 'none' },
+            { example: `git log --oneline -n ${i + 1}`, topic: 'history' },
+            { example: `git log -n ${i + 1}`, topic: 'history' },
+            { example: `git log --stat -n ${i + 1}`, topic: 'history' },
           ],
         })),
         rationale: 'need more',

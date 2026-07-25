@@ -19,10 +19,10 @@ describe('docs helpers', () => {
 describe('mergeCommands', () => {
   it('dedupes by E4 normalized example', () => {
     const m = mergeCommands(
-      [{ command: 'git status', topic: 'status', risk_class: 'none' }],
+      [{ command: 'git status', topic: 'status' }],
       [
-        { command: 'git status', topic: 'status', risk_class: 'low' },
-        { command: 'git add .', topic: 'stage', risk_class: 'low' },
+        { command: 'git status', topic: 'status' },
+        { command: 'git add .', topic: 'stage' },
       ],
     );
     expect(m).toHaveLength(2);
@@ -33,8 +33,8 @@ describe('mergeCommands', () => {
 describe('normalize', () => {
   it('drops shell metacharacters', () => {
     const { commands, drops } = normalizeCommands([
-      { command: 'git status', topic: 'status', risk_class: 'none' },
-      { command: 'git status && rm -rf /', topic: 'status', risk_class: 'destructive' },
+      { command: 'git status', topic: 'status' },
+      { command: 'git status && rm -rf /', topic: 'status' },
     ]);
     expect(commands.map((c) => c.example)).toEqual(['git status']);
     expect(drops.some((d) => d.reason === 'shell_meta')).toBe(true);
@@ -50,31 +50,29 @@ describe('normalize', () => {
       {
         command: 'git status',
         example: 'git status',
+        usage: 'git status\nShow status.',
         skill_level: 1,
         intent_description: 'what changed',
         explanation: 'x',
-        risks: '',
-        examples: 'git status',
-        risk_class: 'none',
       },
     ]);
     expect(drops).toHaveLength(0);
     expect(intents[0].id).toBe('git-status:1:0');
+    expect(intents[0].usage).toMatch(/git status/);
   });
 });
 
 describe('generateIntentsForCommand', () => {
-  it('maps llm json to rows (single example, skill names)', async () => {
+  it('maps llm json to rows with usage', async () => {
     const rows = await generateIntentsForCommand(
-      { command: 'git stash', example: 'git stash', topic: 'stash', risk_class: 'low' },
+      { command: 'git stash', example: 'git stash', topic: 'stash' },
       {
         schedule: async (fn) => fn(),
         groqJson: async () => ({
           command: 'git stash',
           example: 'git stash',
-          risk_class: 'low',
           explanation: 'stash changes',
-          risks: 'may conflict',
+          usage: { command_line: 'git stash', blurb: 'Shelve uncommitted work.' },
           intents: [
             { skill_level: 'non-technical', intent_descriptions: ['shelve my work'] },
             { skill_level: 'expert', intent_descriptions: ['stash working tree'] },
@@ -84,6 +82,8 @@ describe('generateIntentsForCommand', () => {
     );
     expect(rows).toHaveLength(2);
     expect(rows[0].id).toBe('git-stash:1:0');
+    expect(rows[0].usage).toMatch(/Shelve/);
     expect(rows[1].skill_level).toBe(4);
+    expect(rows[0].risk_class).toBeUndefined();
   });
 });

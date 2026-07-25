@@ -272,36 +272,27 @@ function phrasesFor(command, topic) {
   };
 }
 
-const RISK_TEXT = {
-  none: 'Safe read-only / informational.',
-  low: 'Low risk; review before running in shared repos.',
-  high: 'Can rewrite local history or change remote state. Double-check.',
-  destructive: 'May discard commits or files permanently. Prefer safer alternatives when unsure.',
-};
-
 /**
  * Deterministic multi-level intents (used for seed; LLM can refine later).
  */
 export function generateIntentRows(entry) {
   const example = normalizeExample(entry.example || entry.command);
   const command = normalizeExample(entry.command || example);
-  const risk_class = entry.risk_class || 'none';
   const topic = entry.topic || 'git';
   const phrases = phrasesFor(example, topic);
+  const usage = entry.usage || `${example}\nUsed for ${topic} operations in Git.`;
   const rows = [];
   for (let level = SKILL_MIN; level <= SKILL_MAX; level += 1) {
     rows.push({
       id: makeRowId(example, level, 0),
       command,
       example,
+      usage,
       intent_family: entry.intent_family || '',
       simplicity_rank: Number(entry.simplicity_rank ?? 1),
       skill_level: level,
       intent_description: LEVEL_TONE[level](example, topic, phrases),
       explanation: `${example} is used for ${topic} operations in Git.`,
-      risks: RISK_TEXT[risk_class] || RISK_TEXT.none,
-      examples: example,
-      risk_class,
       topic,
     });
   }
