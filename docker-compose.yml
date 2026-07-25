@@ -1,0 +1,107 @@
+# Perf budget profiles. Cheap VPS scenario = same caps as `gate` (see docs/perf.md).
+services:
+  gate:
+    profiles: ["gate"]
+    build:
+      context: .
+      target: search
+    cpus: 1.0
+    mem_limit: 1g
+    network_mode: none
+    volumes:
+      - ./bench:/app/bench-out
+    environment:
+      - GIT_HELP_MOCK_EMBEDDINGS=0
+      - GIT_HELP_ROOT=/app
+      - GIT_HELP_BENCH_COMPILE=1
+      - LD_LIBRARY_PATH=/app/node_modules/onnxruntime-node/bin/napi-v3/linux/x64
+    command:
+      [
+        "bun",
+        "run",
+        "bench",
+        "--",
+        "--compile",
+        "--mode",
+        "both",
+        "--skill",
+        "both",
+        "--synthetic",
+        "--sticky",
+        "--json",
+        "--out",
+        "bench-out/results-gate.json",
+      ]
+
+  mid:
+    profiles: ["mid"]
+    build:
+      context: .
+      target: search
+    cpus: 2.0
+    mem_limit: 4g
+    network_mode: none
+    volumes:
+      - ./bench:/app/bench-out
+    environment:
+      - GIT_HELP_MOCK_EMBEDDINGS=0
+      - GIT_HELP_ROOT=/app
+      - GIT_HELP_BENCH_COMPILE=1
+      - LD_LIBRARY_PATH=/app/node_modules/onnxruntime-node/bin/napi-v3/linux/x64
+    command:
+      [
+        "bun",
+        "run",
+        "bench",
+        "--",
+        "--compile",
+        "--mode",
+        "both",
+        "--skill",
+        "both",
+        "--json",
+        "--out",
+        "bench-out/results-mid.json",
+      ]
+
+  tiny:
+    profiles: ["tiny"]
+    build:
+      context: .
+      target: search
+    cpus: 1.0
+    mem_limit: 512m
+    network_mode: none
+    volumes:
+      - ./bench:/app/bench-out
+    environment:
+      - GIT_HELP_MOCK_EMBEDDINGS=0
+      - GIT_HELP_ROOT=/app
+      - GIT_HELP_BENCH_COMPILE=1
+      - LD_LIBRARY_PATH=/app/node_modules/onnxruntime-node/bin/napi-v3/linux/x64
+    command:
+      [
+        "bun",
+        "run",
+        "bench",
+        "--",
+        "--compile",
+        "--mode",
+        "both",
+        "--skill",
+        "both",
+        "--json",
+        "--out",
+        "bench-out/results-tiny.json",
+      ]
+
+  install:
+    profiles: ["install"]
+    build:
+      context: .
+      target: install
+    cpus: 1.0
+    mem_limit: 1g
+    cap_add:
+      - NET_ADMIN
+    command: ["bun", "run", "bench:install", "--", "--require-tc", "--rate", "5mbit"]

@@ -46,6 +46,9 @@
     "rebuild": "bun scripts/build-catalog.js && bun --filter @git-help/seeding seed",
     "web:dev": "bun --filter @git-help/web dev",
     "web:build": "bun --filter @git-help/web build",
+    "bench": "bun scripts/bench-search.js",
+    "bench:install": "bun scripts/bench-install.js",
+    "build:cli": "bun build --compile ./apps/cli/bin/index.js --outfile ./bench/git-help",
     "postinstall": "bun scripts/postinstall.js"
   },
   "devDependencies": {

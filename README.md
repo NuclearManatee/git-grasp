@@ -53,7 +53,11 @@ Offline after install + seed. Maintainer features need `DEEPSEEK_API_KEY` in `.e
 | `bun run eval` | Golden eval |
 | `bun run eval:loop` | 5 cycles then final gate |
 | `bun run web:dev` | Astro stub |
+| `bun run bench` | Search latency harness (see [docs/perf.md](docs/perf.md)) |
+| `bun run bench:install` | Slow-network install timing |
+| `bun run build:cli` | `bun build --compile` → `bench/git-help` |
 
+Perf budget / Docker profiles: **[docs/perf.md](docs/perf.md)**.
 ## Architecture notes
 
 - Search: sqlite-vec cosine KNN recall → existing JS rank (family / simplicity / specificity).

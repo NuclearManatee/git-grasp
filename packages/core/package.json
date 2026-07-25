@@ -5,6 +5,7 @@
   "private": true,
   "exports": {
     ".": "./src/index.js",
+    "./cli": "./src/cli-api.js",
     "./db": "./src/db/schema.js",
     "./db/schema.js": "./src/db/schema.js",
     "./search": "./src/search/index.js",

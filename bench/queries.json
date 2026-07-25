@@ -1,0 +1,371 @@
+{
+  "version": 1,
+  "provenance": {
+    "primary": "30 from eval/golden/cases.json (tag round-robin)",
+    "extras": "15 stratified from remaining golden (no eval artifact in repo)"
+  },
+  "queries": [
+    {
+      "id": "archive-01",
+      "query": "export a zip archive of HEAD",
+      "source": "golden-primary",
+      "tags": [
+        "archive"
+      ]
+    },
+    {
+      "id": "branch-create-01",
+      "query": "create and switch to a new branch",
+      "source": "golden-primary",
+      "tags": [
+        "branch"
+      ]
+    },
+    {
+      "id": "bundle-01",
+      "query": "create a bundle of the whole repo",
+      "source": "golden-primary",
+      "tags": [
+        "bundle"
+      ]
+    },
+    {
+      "id": "clean-01",
+      "query": "preview which untracked files would be deleted",
+      "source": "golden-primary",
+      "tags": [
+        "clean"
+      ]
+    },
+    {
+      "id": "commit-01",
+      "query": "save my staged changes with a message",
+      "source": "golden-primary",
+      "tags": [
+        "commit"
+      ]
+    },
+    {
+      "id": "config-user-01",
+      "query": "set my git email address globally",
+      "source": "golden-primary",
+      "tags": [
+        "config"
+      ]
+    },
+    {
+      "id": "clone-01",
+      "query": "clone a repo shallow",
+      "source": "golden-primary",
+      "tags": [
+        "create"
+      ]
+    },
+    {
+      "id": "bisect-01",
+      "query": "start finding which commit introduced a bug",
+      "source": "golden-primary",
+      "tags": [
+        "debug"
+      ]
+    },
+    {
+      "id": "diff-staged-01",
+      "query": "see what I have staged for commit",
+      "source": "golden-primary",
+      "tags": [
+        "diff"
+      ]
+    },
+    {
+      "id": "ls-files-01",
+      "query": "list tracked files in the index",
+      "source": "golden-primary",
+      "tags": [
+        "files"
+      ]
+    },
+    {
+      "id": "help-01",
+      "query": "open help for the commit command",
+      "source": "golden-primary",
+      "tags": [
+        "help"
+      ]
+    },
+    {
+      "id": "log-01",
+      "query": "show commit history one line each",
+      "source": "golden-primary",
+      "tags": [
+        "history"
+      ]
+    },
+    {
+      "id": "gc-01",
+      "query": "run garbage collection to clean the repo",
+      "source": "golden-primary",
+      "tags": [
+        "maintenance"
+      ]
+    },
+    {
+      "id": "merge-abort-01",
+      "query": "cancel an in-progress merge",
+      "source": "golden-primary",
+      "tags": [
+        "merge"
+      ]
+    },
+    {
+      "id": "notes-01",
+      "query": "add a note to HEAD",
+      "source": "golden-primary",
+      "tags": [
+        "notes"
+      ]
+    },
+    {
+      "id": "rebase-abort-01",
+      "query": "cancel an in-progress rebase",
+      "source": "golden-primary",
+      "tags": [
+        "rebase"
+      ]
+    },
+    {
+      "id": "pull-01",
+      "query": "download and integrate remote changes",
+      "source": "golden-primary",
+      "tags": [
+        "remote"
+      ]
+    },
+    {
+      "id": "grep-01",
+      "query": "search the repo for TODO comments",
+      "source": "golden-primary",
+      "tags": [
+        "search"
+      ]
+    },
+    {
+      "id": "simplest-vs-plumbing-01",
+      "query": "current branch name please",
+      "source": "golden-primary",
+      "tags": [
+        "simplest"
+      ]
+    },
+    {
+      "id": "sparse-01",
+      "query": "enable sparse checkout cone mode",
+      "source": "golden-primary",
+      "tags": [
+        "sparse"
+      ]
+    },
+    {
+      "id": "add-patch-01",
+      "query": "interactively stage hunks of a file",
+      "source": "golden-primary",
+      "tags": [
+        "stage"
+      ]
+    },
+    {
+      "id": "stash-01",
+      "query": "temporarily shelve my uncommitted work",
+      "source": "golden-primary",
+      "tags": [
+        "stash"
+      ]
+    },
+    {
+      "id": "status-01",
+      "query": "what files did I change",
+      "source": "golden-primary",
+      "tags": [
+        "status"
+      ]
+    },
+    {
+      "id": "submodule-01",
+      "query": "initialize and update all submodules recursively",
+      "source": "golden-primary",
+      "tags": [
+        "submodule"
+      ]
+    },
+    {
+      "id": "tag-01",
+      "query": "create an annotated release tag",
+      "source": "golden-primary",
+      "tags": [
+        "tag"
+      ]
+    },
+    {
+      "id": "undo-soft-01",
+      "query": "undo last commit keep changes staged",
+      "source": "golden-primary",
+      "tags": [
+        "undo"
+      ]
+    },
+    {
+      "id": "worktree-01",
+      "query": "add a linked worktree for a feature branch",
+      "source": "golden-primary",
+      "tags": [
+        "worktree"
+      ]
+    },
+    {
+      "id": "switch-prev-01",
+      "query": "go back to the previous branch I was on",
+      "source": "golden-primary",
+      "tags": [
+        "branch"
+      ]
+    },
+    {
+      "id": "amend-01",
+      "query": "add more changes into the previous commit without editing message",
+      "source": "golden-primary",
+      "tags": [
+        "commit"
+      ]
+    },
+    {
+      "id": "config-01",
+      "query": "set my global email address",
+      "source": "golden-primary",
+      "tags": [
+        "config"
+      ]
+    },
+    {
+      "id": "undo-hard-01",
+      "query": "throw away last commit and all changes permanently",
+      "source": "golden-extra",
+      "tags": [
+        "undo"
+      ]
+    },
+    {
+      "id": "remote-v-01",
+      "query": "list remotes with their URLs",
+      "source": "golden-extra",
+      "tags": [
+        "remote"
+      ]
+    },
+    {
+      "id": "restore-staged-01",
+      "query": "unstage a file but keep my working tree edits",
+      "source": "golden-extra",
+      "tags": [
+        "stage"
+      ]
+    },
+    {
+      "id": "rm-cached-01",
+      "query": "stop tracking a file but keep it on disk",
+      "source": "golden-extra",
+      "tags": [
+        "stage"
+      ]
+    },
+    {
+      "id": "status-02",
+      "query": "am I clean or do I have uncommitted changes",
+      "source": "golden-extra",
+      "tags": [
+        "status"
+      ]
+    },
+    {
+      "id": "add-01",
+      "query": "stage one file for commit",
+      "source": "golden-extra",
+      "tags": [
+        "stage"
+      ]
+    },
+    {
+      "id": "log-02",
+      "query": "pretty graph of all branches",
+      "source": "golden-extra",
+      "tags": [
+        "history"
+      ]
+    },
+    {
+      "id": "fetch-01",
+      "query": "update remote tracking branches and prune deleted ones",
+      "source": "golden-extra",
+      "tags": [
+        "remote"
+      ]
+    },
+    {
+      "id": "stash-02",
+      "query": "bring back my stash and drop it",
+      "source": "golden-extra",
+      "tags": [
+        "stash"
+      ]
+    },
+    {
+      "id": "undo-revert-01",
+      "query": "make a new commit that undoes the last one",
+      "source": "golden-extra",
+      "tags": [
+        "undo"
+      ]
+    },
+    {
+      "id": "nt-01",
+      "query": "i messed up my last save how do i unsaved but keep files",
+      "source": "golden-extra",
+      "tags": [
+        "undo",
+        "non-technical"
+      ]
+    },
+    {
+      "id": "expert-02",
+      "query": "abbrev-ref HEAD via rev-parse",
+      "source": "golden-extra",
+      "tags": [
+        "branch",
+        "expert"
+      ]
+    },
+    {
+      "id": "add-03",
+      "query": "stage everything in this folder",
+      "source": "golden-extra",
+      "tags": [
+        "stage"
+      ]
+    },
+    {
+      "id": "version-01",
+      "query": "what git version am i running",
+      "source": "golden-extra",
+      "tags": [
+        "help"
+      ]
+    },
+    {
+      "id": "stash-list-01",
+      "query": "list my stashes",
+      "source": "golden-extra",
+      "tags": [
+        "stash"
+      ]
+    }
+  ]
+}

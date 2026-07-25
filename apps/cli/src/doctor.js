@@ -11,7 +11,7 @@ import {
   smokeTestSqliteVec,
   SCHEMA_VERSION,
   PACKAGE_ROOT,
-} from '@git-help/core';
+} from '@git-help/core/cli';
 
 export function doctor() {
   const lines = [];

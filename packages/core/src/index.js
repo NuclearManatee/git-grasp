@@ -33,7 +33,17 @@ export {
 } from './db/adapter.js';
 
 export { search, loadThresholds } from './search/index.js';
-export { getEmbedder, mockEmbed } from './search/embed.js';
+export {
+  getEmbedder,
+  mockEmbed,
+  isEmbeddingModelCached,
+  embeddingModelId,
+  resetEmbedderForTests,
+} from './search/embed.js';
+export {
+  benchEnabled,
+  benchTakeLast,
+} from './search/benchTiming.js';
 export {
   rankResults,
   normalizeQuery,

@@ -12,8 +12,7 @@ import {
   SKILL_NAMES,
   SKILL_MIN,
   SKILL_MAX,
-} from '@git-help/core';
-import { doctor } from './doctor.js';
+} from '@git-help/core/cli';
 
 async function maybeCopy(text) {
   const clipboardy = await import('clipboardy');
@@ -27,13 +26,26 @@ function runSearchCommand(program) {
       program.help();
       return;
     }
-    const spinner = ora('Searching…').start();
+    const useSpinner = Boolean(process.stderr.isTTY) && process.env.GIT_HELP_BENCH !== '1';
+    const spinner = useSpinner ? ora('Searching…').start() : null;
     try {
       const result = await search(query, {
         forceMockEmbeddings: process.env.GIT_HELP_MOCK_EMBEDDINGS === '1',
+        onEmbedStatus: (msg) => {
+          if (spinner) spinner.text = msg;
+          else if (process.stderr.isTTY) console.error(msg);
+        },
       });
-      spinner.stop();
+      spinner?.stop();
       console.log(formatSearchResult(result, { verbose: Boolean(opts.verbose) }));
+      if (process.env.GIT_HELP_BENCH === '1' && result._bench) {
+        const { total, phases } = result._bench;
+        const parts = Object.entries(phases)
+          .filter(([k]) => !k.startsWith('_'))
+          .map(([k, v]) => `${k}=${v.toFixed(1)}ms`)
+          .join(' ');
+        console.error(chalk.dim(`[bench] total=${total.toFixed(1)}ms ${parts}`));
+      }
       if (opts.copy) {
         const cmd = primaryCommand(result);
         if (cmd) {
@@ -46,7 +58,7 @@ function runSearchCommand(program) {
         }
       }
     } catch (err) {
-      spinner.stop();
+      spinner?.stop();
       const code = err.code;
       console.error(chalk.red(err.message));
       if (code === 'INTEGRITY') process.exitCode = 2;
@@ -94,7 +106,8 @@ export function buildProgram() {
   program
     .command('doctor')
     .description('Diagnose DB, model, sqlite-vec, and config')
-    .action(() => {
+    .action(async () => {
+      const { doctor } = await import('./doctor.js');
       const d = doctor();
       for (const line of d.lines) console.log(line);
       process.exitCode = d.ok ? 0 : 2;

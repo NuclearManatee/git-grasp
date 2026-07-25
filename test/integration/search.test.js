@@ -73,6 +73,18 @@ describe('search integration', () => {
     expect(result.confidence).toBeTruthy();
   });
 
+  it('skill filter at most level 1 excludes higher-skill reset', async () => {
+    await buildFixture();
+    const result = await search('undo my last commit but keep the changes', {
+      dbPath,
+      thresholdsPath,
+      forceMockEmbeddings: true,
+      skillLevelOverride: 1,
+    });
+    // Only skill≤1 rows survive hydrate; reset is skill 2 → empty or status-only
+    expect(result.status === 'empty' || result.results.every((r) => r.skill_level <= 1)).toBe(true);
+  });
+
   it('fails on checksum mismatch', async () => {
     await buildFixture();
     writeFileSync(dbPath, 'tampered');

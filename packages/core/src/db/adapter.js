@@ -21,8 +21,8 @@ export const BunSqliteAdapter = {
     const db = openDb(dbPath);
     return { _db: db, path: dbPath, schemaVersion: SCHEMA_VERSION };
   },
-  knn(handle, queryEmbedding, k) {
-    return knnRecall(handle, queryEmbedding, k);
+  knn(handle, queryEmbedding, k, opts) {
+    return knnRecall(handle, queryEmbedding, k, opts);
   },
   insert(handle, row) {
     insertCommandRow(handle, row);

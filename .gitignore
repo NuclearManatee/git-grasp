@@ -12,6 +12,9 @@ apps/web/dist/
 apps/web/.astro/
 *.db-wal
 *.db-shm
-local-seed*.log
-local-eval*.log
+bench/results*.json
+bench/install-last.json
+bench/git-help
+bench/git-help-compile.exe
+bench/git-help.exe
 

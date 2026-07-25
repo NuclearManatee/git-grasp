@@ -188,16 +188,23 @@ export function insertCommandRow(clientOrCatalog, row) {
 
 /**
  * KNN recall via sqlite-vec, then hydrate metadata.
+ * When maxSkillLevel is set, over-fetches from vec0 and hydrates with
+ * `skill_level <= maxSkillLevel` so JS re-rank still sees enough candidates.
+ *
  * @param {import('bun:sqlite').Database | { _db: import('bun:sqlite').Database }} clientOrCatalog
  * @param {Float32Array|number[]} queryEmbedding
  * @param {number} k
+ * @param {{ maxSkillLevel?: number | null }} [opts]
  */
-export function knnRecall(clientOrCatalog, queryEmbedding, k = DEFAULT_RECALL_K) {
+export function knnRecall(clientOrCatalog, queryEmbedding, k = DEFAULT_RECALL_K, opts = {}) {
   const db = clientOrCatalog._db ?? clientOrCatalog;
   const embedding = queryEmbedding instanceof Float32Array
     ? queryEmbedding
     : new Float32Array(queryEmbedding);
-  const limit = Math.max(1, Math.floor(k));
+  const want = Math.max(1, Math.floor(k));
+  const maxSkill = opts.maxSkillLevel == null ? null : Number(opts.maxSkillLevel);
+  // Over-fetch when skill-filtering so post-filter still has ~want rows.
+  const fetchK = maxSkill != null ? Math.min(Math.max(want * 4, want), 400) : want;
 
   const hits = db
     .prepare(
@@ -209,12 +216,14 @@ export function knnRecall(clientOrCatalog, queryEmbedding, k = DEFAULT_RECALL_K)
       ORDER BY distance
       `,
     )
-    .all(embedding, limit);
+    .all(embedding, fetchK);
 
   if (hits.length === 0) return [];
 
   const ids = hits.map((h) => h.id);
   const placeholders = ids.map(() => '?').join(',');
+  const skillClause = maxSkill != null ? 'AND skill_level <= ?' : '';
+  const params = maxSkill != null ? [...ids, maxSkill] : ids;
   const metaRows = db
     .prepare(
       `
@@ -222,9 +231,10 @@ export function knnRecall(clientOrCatalog, queryEmbedding, k = DEFAULT_RECALL_K)
              skill_level, intent_description, explanation, schema_version
       FROM git_commands
       WHERE id IN (${placeholders})
+      ${skillClause}
       `,
     )
-    .all(...ids);
+    .all(...params);
 
   const byId = new Map(metaRows.map((r) => [r.id, r]));
   return hits
