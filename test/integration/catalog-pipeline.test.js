@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { extractCommandsWithAreYouSure, mergeCommands } from '../../src/catalog/step1Commands.js';
+import { describe, it, expect } from 'bun:test';
+import { extractCommandsWithAreYouSure, mergeCommands } from '../../packages/core/src/catalog/step1Commands.js';
 
 describe('extractCommandsWithAreYouSure (mocked LLM)', () => {
   it('extracts then completes Are You Sure loop', async () => {

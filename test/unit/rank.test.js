@@ -5,8 +5,8 @@ import {
   preferSimplestInFamily,
   preferSpecificExamples,
   confidenceTier,
-} from '../../src/search/rank.js';
-import { mockEmbed } from '../../src/search/embed.js';
+} from '../../packages/core/src/search/rank.js';
+import { mockEmbed } from '../../packages/core/src/search/embed.js';
 
 const thresholds = {
   topK: 5,

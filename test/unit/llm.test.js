@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach } from 'vitest';
-import { PROVIDERS, getProvider, resolveProviderId, chatCompletionsUrl } from '../../src/lib/providers.js';
-import { llmChat, llmJsonObject, LlmError } from '../../src/lib/llm.js';
+import { PROVIDERS, getProvider, resolveProviderId, chatCompletionsUrl } from '../../packages/core/src/lib/providers.js';
+import { llmChat, llmJsonObject, LlmError } from '../../packages/core/src/lib/llm.js';
 
 describe('providers', () => {
   const prev = { ...process.env };

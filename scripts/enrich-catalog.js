@@ -1,22 +1,22 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 /**
  * Enrich examples with golden + essentials, then generate intents for gaps.
  */
 import { mkdirSync, writeFileSync, readFileSync, existsSync, appendFileSync } from 'node:fs';
 import path from 'node:path';
-import { PACKAGE_ROOT } from '../src/lib/paths.js';
-import { loadEnv, requireLlmKey } from '../src/lib/env.js';
-import { llmJsonObject } from '../src/lib/llm.js';
-import { createRateLimiter } from '../src/lib/rateLimit.js';
-import { generateIntentsForExample } from '../src/catalog/step2Intents.js';
+import { PACKAGE_ROOT } from '@git-help/core';
+import { loadEnv, requireLlmKey } from '@git-help/core/lib/env.js';
+import { llmJsonObject } from '@git-help/core/lib/llm.js';
+import { createRateLimiter } from '@git-help/core/lib/rateLimit.js';
+import { generateIntentsForExample } from '@git-help/core/catalog/step2Intents.js';
 import {
   enrichCommandsFromEssentials,
   enrichCommandsFromGolden,
   commandsMissingIntents,
-} from '../src/catalog/enrich.js';
-import { normalizeCommands } from '../src/catalog/step3Normalize.js';
-import { assignFamiliesHeuristic } from '../src/catalog/step1bFamilies.js';
-import { DEFAULT_GLOSSARY } from '../src/catalog/step0Glossary.js';
+} from '@git-help/core/catalog/enrich.js';
+import { normalizeCommands } from '@git-help/core/catalog/step3Normalize.js';
+import { assignFamiliesHeuristic } from '@git-help/core/catalog/step1bFamilies.js';
+import { DEFAULT_GLOSSARY } from '@git-help/core/catalog/step0Glossary.js';
 
 loadEnv();
 requireLlmKey();

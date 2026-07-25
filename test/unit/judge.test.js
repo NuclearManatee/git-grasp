@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { gradeCase, migrateGoldenCase, normalizeSkillBand } from '../../src/eval/judge.js';
+import { gradeCase, migrateGoldenCase, normalizeSkillBand } from '../../packages/core/src/eval/judge.js';
 
 describe('gradeCase', () => {
   const base = {

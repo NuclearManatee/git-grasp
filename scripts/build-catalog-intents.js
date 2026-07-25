@@ -1,16 +1,16 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 /**
  * Step 2: ONE example → ONE LLM call for intents (no multi-example batching).
  */
 import { mkdirSync, writeFileSync, readFileSync, existsSync, appendFileSync } from 'node:fs';
 import path from 'node:path';
-import { PACKAGE_ROOT } from '../src/lib/paths.js';
-import { loadEnv, requireLlmKey } from '../src/lib/env.js';
-import { llmJsonObject } from '../src/lib/llm.js';
-import { createRateLimiter } from '../src/lib/rateLimit.js';
-import { getProvider } from '../src/lib/providers.js';
-import { generateIntentsForExample } from '../src/catalog/step2Intents.js';
-import { DEFAULT_GLOSSARY } from '../src/catalog/step0Glossary.js';
+import { PACKAGE_ROOT } from '@git-help/core';
+import { loadEnv, requireLlmKey } from '@git-help/core/lib/env.js';
+import { llmJsonObject } from '@git-help/core/lib/llm.js';
+import { createRateLimiter } from '@git-help/core/lib/rateLimit.js';
+import { getProvider } from '@git-help/core/lib/providers.js';
+import { generateIntentsForExample } from '@git-help/core/catalog/step2Intents.js';
+import { DEFAULT_GLOSSARY } from '@git-help/core/catalog/step0Glossary.js';
 
 loadEnv();
 requireLlmKey();

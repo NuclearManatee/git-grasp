@@ -2,6 +2,12 @@
 
 Project guidance for AI assistants working in this repo.
 
+## Stack
+
+- **Runtime:** Bun (`bun:sqlite` + `sqlite-vec`).
+- **Monorepo:** `packages/core` (DB, embeddings, search), `apps/cli`, `apps/seeding`, `apps/eval`, `apps/web` (Astro stub).
+- **Search:** sqlite-vec KNN recall → JS re-rank in `@git-help/core`. Schema v4 (`git_commands` + `vec_commands`).
+
 ## Git flow (required)
 
 Use **git-flow**. Do not commit product/code changes straight to `main` or mix concerns on the wrong branch type.

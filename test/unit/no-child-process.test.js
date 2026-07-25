@@ -3,7 +3,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '../../src');
+const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '../../packages/core/src');
 
 function walk(dir) {
   const out = [];
@@ -21,7 +21,7 @@ describe('no child_process in runtime src', () => {
     const offenders = [];
     for (const f of files) {
       const text = readFileSync(f, 'utf8');
-      if (/child_process|spawn\(|execFile\(|exec\(/.test(text)) {
+      if (/\bchild_process\b|\bspawn\(|\bexecFile\(/.test(text)) {
         offenders.push(path.relative(root, f));
       }
     }

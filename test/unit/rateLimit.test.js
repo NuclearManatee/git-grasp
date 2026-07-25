@@ -8,7 +8,7 @@ import {
   estimateTokensFromMessages,
   SerialRateLimiter,
   createRateLimiter,
-} from '../../src/lib/rateLimit.js';
+} from '../../packages/core/src/lib/rateLimit.js';
 import { mkdtempSync, rmSync } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';

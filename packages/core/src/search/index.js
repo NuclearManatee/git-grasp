@@ -3,7 +3,12 @@ import { verifyFileChecksum } from '../lib/checksum.js';
 import { defaultDbPath, defaultThresholdsPath } from '../lib/paths.js';
 import { readConfig } from '../lib/config.js';
 import { skillName } from '../lib/skills.js';
-import { openDb, loadAllRows, dbExists } from '../db/schema.js';
+import {
+  openDb,
+  knnRecall,
+  dbExists,
+  DEFAULT_RECALL_K,
+} from '../db/schema.js';
 import { getEmbedder } from './embed.js';
 import { rankResults, normalizeQuery } from './rank.js';
 
@@ -13,12 +18,14 @@ export function loadThresholds(path = defaultThresholdsPath()) {
 
 /**
  * Offline semantic search. Must not use network when embeddings are cached/mock.
+ * Uses sqlite-vec KNN recall, then JS re-rank (family / simplicity / specificity).
  */
 export async function search(query, {
   dbPath = defaultDbPath(),
   thresholdsPath = defaultThresholdsPath(),
   forceMockEmbeddings = process.env.GIT_HELP_MOCK_EMBEDDINGS === '1',
   skillLevelOverride = undefined,
+  recallK = undefined,
 } = {}) {
   const integrity = verifyFileChecksum(dbPath);
   if (!integrity.ok) {
@@ -48,10 +55,6 @@ export async function search(query, {
     }
   }
 
-  const client = await openDb(dbPath);
-  const rows = await loadAllRows(client);
-  client.close?.();
-
   const embedder = await getEmbedder({ forceMock: forceMockEmbeddings });
   const q = normalizeQuery(query, thresholds.normalizeQuery !== false);
   if (!q) {
@@ -60,7 +63,19 @@ export async function search(query, {
     throw err;
   }
   const embedding = await embedder.embed(q);
-  const ranked = rankResults(rows, embedding, thresholds, { skillLevel });
+
+  const topK = thresholds.topK ?? 5;
+  const k = recallK ?? Math.max(DEFAULT_RECALL_K, topK * 10);
+
+  const db = openDb(dbPath, { readonly: true });
+  let candidates;
+  try {
+    candidates = knnRecall(db, embedding, k);
+  } finally {
+    db.close();
+  }
+
+  const ranked = rankResults(candidates, embedding, thresholds, { skillLevel });
 
   if (ranked.status === 'empty' && skillLevel != null) {
     const err = new Error(
@@ -79,6 +94,5 @@ export async function search(query, {
 }
 
 export function assertOfflineSearchModule() {
-  // Used by tests — search.js must not import groq/env loaders that force network
-  return !existsSync; // noop marker
+  return !existsSync;
 }

@@ -1,9 +1,32 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { existsSync } from 'node:fs';
 import { homedir } from 'node:os';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-export const PACKAGE_ROOT = path.resolve(__dirname, '../..');
+
+/**
+ * Resolve monorepo / package root (directory that contains `data/` and `config/`).
+ * Walks up from packages/core/src/lib toward the filesystem root.
+ */
+function findPackageRoot() {
+  let dir = path.resolve(__dirname, '../../..'); // packages/core
+  for (let i = 0; i < 6; i += 1) {
+    if (
+      existsSync(path.join(dir, 'data'))
+      && existsSync(path.join(dir, 'config', 'thresholds.json'))
+    ) {
+      return dir;
+    }
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  // Fallback: packages/core → repo root (../../..)
+  return path.resolve(__dirname, '../../../..');
+}
+
+export const PACKAGE_ROOT = findPackageRoot();
 
 export function packageDataDir() {
   return path.join(PACKAGE_ROOT, 'data');

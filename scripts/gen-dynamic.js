@@ -1,7 +1,7 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 import { mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
-import { PACKAGE_ROOT } from '../src/lib/paths.js';
+import { PACKAGE_ROOT } from '@git-help/core';
 
 const out = path.join(PACKAGE_ROOT, 'local', 'eval', 'dynamic');
 mkdirSync(out, { recursive: true });

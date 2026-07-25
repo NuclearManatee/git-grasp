@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 /**
  * Full catalog pipeline (resilient):
  *  0) download-docs (if missing or --refetch-docs)
@@ -12,8 +12,8 @@ import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { PACKAGE_ROOT } from '../src/lib/paths.js';
-import { docsDir } from '../src/catalog/downloadDocs.js';
+import { PACKAGE_ROOT } from '@git-help/core';
+import { docsDir } from '@git-help/core/catalog/downloadDocs.js';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const only = process.argv.find((a) => a.startsWith('--only='))?.split('=')[1];

@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { buildProgram } from '../../src/cli/program.js';
+import { describe, it, expect } from 'bun:test';
+import { buildProgram } from '../../apps/cli/src/program.js';
 
 describe('CLI program', () => {
   it('builds without throw', () => {

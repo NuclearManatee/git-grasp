@@ -1,16 +1,16 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 /**
  * Step 1b: Assign intent_family + simplicity_rank to examples.
  */
 import { mkdirSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
-import { PACKAGE_ROOT } from '../src/lib/paths.js';
-import { loadEnv, requireLlmKey } from '../src/lib/env.js';
-import { llmJsonObject } from '../src/lib/llm.js';
-import { createRateLimiter } from '../src/lib/rateLimit.js';
-import { assignFamiliesAll, assignFamiliesHeuristic } from '../src/catalog/step1bFamilies.js';
-import { normalizeCommands } from '../src/catalog/step3Normalize.js';
-import { DEFAULT_GLOSSARY } from '../src/catalog/step0Glossary.js';
+import { PACKAGE_ROOT } from '@git-help/core';
+import { loadEnv, requireLlmKey } from '@git-help/core/lib/env.js';
+import { llmJsonObject } from '@git-help/core/lib/llm.js';
+import { createRateLimiter } from '@git-help/core/lib/rateLimit.js';
+import { assignFamiliesAll, assignFamiliesHeuristic } from '@git-help/core/catalog/step1bFamilies.js';
+import { normalizeCommands } from '@git-help/core/catalog/step3Normalize.js';
+import { DEFAULT_GLOSSARY } from '@git-help/core/catalog/step0Glossary.js';
 
 loadEnv();
 

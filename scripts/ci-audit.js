@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 /**
  * CI audit gate: fail on high+ except known transitive sharp via transformers (no fix yet).
  */

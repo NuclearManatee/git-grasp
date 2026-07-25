@@ -10,7 +10,7 @@ import { sanitizeField } from '../lib/ansi.js';
 import { isValidSkillLevel, SKILL_MAX } from '../lib/skills.js';
 import { materializePlaceholders, DEFAULT_GLOSSARY } from './step0Glossary.js';
 import { deriveCommandKey } from './step1Commands.js';
-import { normalizeUsage } from '../db/schema.js';
+import { normalizeUsage } from '../db/utils.js';
 
 /**
  * Expand allowlist from observed command subcommands.

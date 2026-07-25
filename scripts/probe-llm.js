@@ -1,5 +1,5 @@
-import { loadEnv, requireLlmKey } from '../src/lib/env.js';
-import { llmJsonObject } from '../src/lib/llm.js';
+import { loadEnv, requireLlmKey } from '@git-help/core/lib/env.js';
+import { llmJsonObject } from '@git-help/core/lib/llm.js';
 
 loadEnv();
 requireLlmKey();

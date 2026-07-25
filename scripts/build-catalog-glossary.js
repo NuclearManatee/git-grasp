@@ -1,14 +1,14 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 /**
  * Step 0: Generate concrete token glossary for catalog examples.
  */
 import { mkdirSync, writeFileSync, existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
-import { PACKAGE_ROOT } from '../src/lib/paths.js';
-import { loadEnv, requireLlmKey } from '../src/lib/env.js';
-import { llmJsonObject } from '../src/lib/llm.js';
-import { createRateLimiter, estimateTokensFromMessages } from '../src/lib/rateLimit.js';
-import { generateGlossary, DEFAULT_GLOSSARY, mergeGlossary } from '../src/catalog/step0Glossary.js';
+import { PACKAGE_ROOT } from '@git-help/core';
+import { loadEnv, requireLlmKey } from '@git-help/core/lib/env.js';
+import { llmJsonObject } from '@git-help/core/lib/llm.js';
+import { createRateLimiter, estimateTokensFromMessages } from '@git-help/core/lib/rateLimit.js';
+import { generateGlossary, DEFAULT_GLOSSARY, mergeGlossary } from '@git-help/core/catalog/step0Glossary.js';
 
 loadEnv();
 

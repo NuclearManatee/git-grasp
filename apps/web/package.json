@@ -1,0 +1,15 @@
+{
+  "name": "@git-help/web",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "@git-help/core": "workspace:*",
+    "astro": "^5.1.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  }
+}

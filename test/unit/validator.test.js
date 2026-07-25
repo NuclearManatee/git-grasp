@@ -5,13 +5,13 @@ import {
   validateExample,
   makeRowId,
   normalizeExample,
-} from '../../src/lib/validator.js';
+} from '../../packages/core/src/lib/validator.js';
 import {
   parseSkillLevel,
   skillName,
   skillAtMost,
   SKILL_MAX,
-} from '../../src/lib/skills.js';
+} from '../../packages/core/src/lib/skills.js';
 
 describe('validateCommand', () => {
   it('accepts porcelain', () => {

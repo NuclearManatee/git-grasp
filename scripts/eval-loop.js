@@ -1,15 +1,15 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 /**
  * Eval loop: 5 cycles (golden + ≥30 new each) then final gate (golden + all generated).
  * Final failure restarts the entire 5+final sequence.
  */
 import { mkdirSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
-import { PACKAGE_ROOT } from '../src/lib/paths.js';
-import { loadEnv, requireLlmKey } from '../src/lib/env.js';
-import { llmJsonObject } from '../src/lib/llm.js';
-import { createRateLimiter, estimateTokensFromMessages } from '../src/lib/rateLimit.js';
-import { search } from '../src/search/index.js';
+import { PACKAGE_ROOT } from '@git-help/core';
+import { loadEnv, requireLlmKey } from '@git-help/core/lib/env.js';
+import { llmJsonObject } from '@git-help/core/lib/llm.js';
+import { createRateLimiter, estimateTokensFromMessages } from '@git-help/core/lib/rateLimit.js';
+import { search } from '@git-help/core';
 import {
   EVAL_LOOP_DEFAULTS,
   loadGoldenCases,
@@ -19,7 +19,7 @@ import {
   nextCyclePlan,
   applyEvalResult,
   runCaseSuite,
-} from '../src/eval/loop.js';
+} from '@git-help/core/eval/loop.js';
 
 loadEnv();
 

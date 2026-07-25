@@ -1,25 +1,25 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 /**
  * Step 1: Local docs → LLM extract command+examples → Are You Sure? loops.
  */
 import { mkdirSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
-import { PACKAGE_ROOT } from '../src/lib/paths.js';
-import { loadEnv, requireLlmKey } from '../src/lib/env.js';
-import { llmJsonObject } from '../src/lib/llm.js';
-import { createRateLimiter, estimateTokensFromMessages } from '../src/lib/rateLimit.js';
-import { getProvider } from '../src/lib/providers.js';
-import { loadLocalDocs } from '../src/catalog/downloadDocs.js';
+import { PACKAGE_ROOT } from '@git-help/core';
+import { loadEnv, requireLlmKey } from '@git-help/core/lib/env.js';
+import { llmJsonObject } from '@git-help/core/lib/llm.js';
+import { createRateLimiter, estimateTokensFromMessages } from '@git-help/core/lib/rateLimit.js';
+import { getProvider } from '@git-help/core/lib/providers.js';
+import { loadLocalDocs } from '@git-help/core/catalog/downloadDocs.js';
 import {
   mergeCommands,
   buildExtractorSystem,
   buildAreYouSureSystem,
   groupByCommand,
-} from '../src/catalog/step1Commands.js';
-import { TOPIC_CHECKLIST, critiqueCoverage } from '../src/catalog/critique.js';
-import { normalizeCommands } from '../src/catalog/step3Normalize.js';
-import { DEFAULT_GLOSSARY } from '../src/catalog/step0Glossary.js';
+} from '@git-help/core/catalog/step1Commands.js';
+import { TOPIC_CHECKLIST, critiqueCoverage } from '@git-help/core/catalog/critique.js';
+import { normalizeCommands } from '@git-help/core/catalog/step3Normalize.js';
+import { DEFAULT_GLOSSARY } from '@git-help/core/catalog/step0Glossary.js';
 
 loadEnv();
 requireLlmKey();

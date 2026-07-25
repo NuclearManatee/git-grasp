@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync } from 'node:fs';
-import { migrateGoldenCase } from '../src/eval/judge.js';
-import { DEFAULT_GLOSSARY } from '../src/catalog/step0Glossary.js';
+import { migrateGoldenCase } from '@git-help/core/eval/judge.js';
+import { DEFAULT_GLOSSARY } from '@git-help/core/catalog/step0Glossary.js';
 
 const existing = JSON.parse(readFileSync('eval/golden/cases.json', 'utf8'));
 const migrated = existing.map((c) => migrateGoldenCase(c, DEFAULT_GLOSSARY));

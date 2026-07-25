@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { EMBEDDING_DIM } from '../db/schema.js';
+import { EMBEDDING_DIM } from '../db/constants.js';
 
 /**
  * Bag-of-words style mock embedding so overlapping tokens rank closer (CI without HF).

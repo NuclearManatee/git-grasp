@@ -5,8 +5,8 @@ import {
   commandsMissingIntents,
   ESSENTIAL_COMMANDS,
   injectGoldenIntentRows,
-} from '../../src/catalog/enrich.js';
-import { normalizeExample } from '../../src/lib/validator.js';
+} from '../../packages/core/src/catalog/enrich.js';
+import { normalizeExample } from '../../packages/core/src/lib/validator.js';
 
 describe('enrich catalog', () => {
   it('happy: merges golden expected examples', () => {

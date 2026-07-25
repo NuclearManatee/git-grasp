@@ -1,0 +1,54 @@
+---
+import { BrowserStubAdapter } from '@git-help/core/adapter';
+const adapterName = BrowserStubAdapter.name;
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>git-help</title>
+    <style>
+      :root {
+        --bg: #0f1419;
+        --fg: #e7ecf1;
+        --muted: #8b9aab;
+        --accent: #3d9a6a;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+        background: radial-gradient(1200px 600px at 20% -10%, #1a2836, var(--bg));
+        color: var(--fg);
+        display: grid;
+        place-items: center;
+        padding: 2rem;
+      }
+      main { max-width: 40rem; }
+      h1 {
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
+        font-weight: 600;
+        font-size: clamp(2rem, 6vw, 3rem);
+        letter-spacing: -0.03em;
+        margin: 0 0 0.75rem;
+      }
+      p { color: var(--muted); line-height: 1.55; margin: 0 0 1rem; }
+      code {
+        font-family: "IBM Plex Mono", ui-monospace, monospace;
+        color: var(--accent);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>git-help</h1>
+      <p>
+        Local-first semantic search for Git commands. The CLI and this site share
+        <code>@git-help/core</code> (seeds + search). Interactive WASM terminal search
+        lands in a follow-up — storage adapter is <code>{adapterName}</code> for now.
+      </p>
+      <p>Install the CLI: <code>bun install && bun run seed && bun run cli -- "undo last commit"</code></p>
+    </main>
+  </body>
+</html>

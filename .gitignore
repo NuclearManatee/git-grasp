@@ -8,3 +8,10 @@ coverage/
 *.bak
 data/models/
 test/tmp-checksum/
+apps/web/dist/
+apps/web/.astro/
+*.db-wal
+*.db-shm
+local-seed*.log
+local-eval*.log
+

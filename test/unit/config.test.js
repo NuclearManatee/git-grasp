@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { mkdirSync, writeFileSync, rmSync, chmodSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { writeConfig, readConfig, configFilePath } from '../../src/lib/config.js';
+import { writeConfig, readConfig, configFilePath } from '../../packages/core/src/lib/config.js';
 
 describe('config', () => {
   it('writes and reads skill level', () => {

@@ -1,0 +1,14 @@
+{
+  "name": "@git-help/eval",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "@git-help/core": "workspace:*"
+  },
+  "scripts": {
+    "start": "bun ./src/index.js",
+    "eval": "bun ./src/index.js",
+    "loop": "bun ./src/loop.js"
+  }
+}

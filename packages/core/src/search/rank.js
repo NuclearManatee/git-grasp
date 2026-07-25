@@ -27,7 +27,9 @@ export function rankResults(rows, queryEmbedding, thresholds, { skillLevel = nul
     usage: r.usage ?? '',
     intent_family: r.intent_family ?? '',
     simplicity_rank: Number(r.simplicity_rank ?? 1),
-    score: cosineLike(queryEmbedding, r.embedding),
+    score: typeof r._forcedScore === 'number'
+      ? r._forcedScore
+      : cosineLike(queryEmbedding, r.embedding),
   }));
 
   scored.sort((a, b) => compareRank(a, b));

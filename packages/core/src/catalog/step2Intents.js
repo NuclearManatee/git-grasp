@@ -2,7 +2,7 @@ import { makeRowId, normalizeExample } from '../lib/validator.js';
 import { estimateTokensFromMessages } from '../lib/rateLimit.js';
 import { skillPromptList, SKILL_BY_NAME, SKILL_NAMES, isValidSkillLevel } from '../lib/skills.js';
 import { DEFAULT_GLOSSARY } from './step0Glossary.js';
-import { normalizeUsage } from '../db/schema.js';
+import { normalizeUsage } from '../db/utils.js';
 
 /**
  * @param {object} entry example row with command, example, family, simplicity

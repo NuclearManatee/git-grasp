@@ -1,0 +1,13 @@
+{
+  "name": "@git-help/seeding",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "@git-help/core": "workspace:*"
+  },
+  "scripts": {
+    "start": "bun ./src/index.js",
+    "seed": "bun ./src/index.js"
+  }
+}

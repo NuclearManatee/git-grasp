@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { mkdtempSync, rmSync, writeFileSync, mkdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
-import { downloadAllDocs, loadLocalDocs, pageSlug } from '../../src/catalog/downloadDocs.js';
-import { stripHtmlToText, assertAllowlistedUrl } from '../../src/catalog/docs.js';
+import { downloadAllDocs, loadLocalDocs, pageSlug } from '../../packages/core/src/catalog/downloadDocs.js';
+import { stripHtmlToText, assertAllowlistedUrl } from '../../packages/core/src/catalog/docs.js';
 
 describe('downloadDocs / local docs', () => {
   it('happy: downloads via mocked fetch and loads offline', async () => {

@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { stripHtmlToText, assertAllowlistedUrl } from '../../src/catalog/docs.js';
-import { mergeCommands } from '../../src/catalog/step1Commands.js';
-import { normalizeCommands, normalizeIntents, subcommandsFromCommands } from '../../src/catalog/step3Normalize.js';
-import { generateIntentsForCommand } from '../../src/catalog/step2Intents.js';
+import { stripHtmlToText, assertAllowlistedUrl } from '../../packages/core/src/catalog/docs.js';
+import { mergeCommands } from '../../packages/core/src/catalog/step1Commands.js';
+import { normalizeCommands, normalizeIntents, subcommandsFromCommands } from '../../packages/core/src/catalog/step3Normalize.js';
+import { generateIntentsForCommand } from '../../packages/core/src/catalog/step2Intents.js';
 
 describe('docs helpers', () => {
   it('strips scripts and tags', () => {

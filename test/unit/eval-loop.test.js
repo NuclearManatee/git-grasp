@@ -6,7 +6,7 @@ import {
   applyEvalResult,
   runCaseSuite,
   EVAL_LOOP_DEFAULTS,
-} from '../../src/eval/loop.js';
+} from '../../packages/core/src/eval/loop.js';
 
 const intents = Array.from({ length: 80 }, (_, i) => ({
   command: `git cmd-${i}`,

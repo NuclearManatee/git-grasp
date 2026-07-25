@@ -1,14 +1,14 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 /**
  * Step 3: Normalize examples + intents, write final catalog artifacts.
  */
 import { mkdirSync, writeFileSync, readFileSync, existsSync, appendFileSync } from 'node:fs';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
-import { PACKAGE_ROOT } from '../src/lib/paths.js';
-import { normalizeCommands, normalizeIntents } from '../src/catalog/step3Normalize.js';
-import { injectGoldenIntentRows } from '../src/catalog/enrich.js';
-import { DEFAULT_GLOSSARY } from '../src/catalog/step0Glossary.js';
+import { PACKAGE_ROOT } from '@git-help/core';
+import { normalizeCommands, normalizeIntents } from '@git-help/core/catalog/step3Normalize.js';
+import { injectGoldenIntentRows } from '@git-help/core/catalog/enrich.js';
+import { DEFAULT_GLOSSARY } from '@git-help/core/catalog/step0Glossary.js';
 
 const outDir = path.join(PACKAGE_ROOT, 'data', 'catalog');
 mkdirSync(outDir, { recursive: true });

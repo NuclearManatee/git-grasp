@@ -1,10 +1,18 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
 import ora from 'ora';
-import { search } from '../search/index.js';
-import { formatSearchResult, primaryCommand } from '../ux/format.js';
-import { writeConfig, readConfig } from '../lib/config.js';
-import { parseSkillLevel, skillName, SKILL_NAMES, SKILL_MIN, SKILL_MAX } from '../lib/skills.js';
+import {
+  search,
+  formatSearchResult,
+  primaryCommand,
+  writeConfig,
+  readConfig,
+  parseSkillLevel,
+  skillName,
+  SKILL_NAMES,
+  SKILL_MIN,
+  SKILL_MAX,
+} from '@git-help/core';
 import { doctor } from './doctor.js';
 
 async function maybeCopy(text) {
@@ -85,7 +93,7 @@ export function buildProgram() {
 
   program
     .command('doctor')
-    .description('Diagnose DB, model, and config')
+    .description('Diagnose DB, model, sqlite-vec, and config')
     .action(() => {
       const d = doctor();
       for (const line of d.lines) console.log(line);
@@ -97,20 +105,16 @@ export function buildProgram() {
     .description('Show help')
     .action(() => program.help());
 
-  // Default: bare query args → search
   program
     .argument('[query...]', 'natural language query')
     .option('-v, --verbose', 'show explanation, skill label, score, advanced alternate')
     .option('-c, --copy', 'copy winning example to clipboard')
-    .action(async (queryParts, opts, cmd) => {
-      // If a subcommand was used, commander won't hit this with leftover wrongly —
-      // when user runs `git-help undo commit`, queryParts is the args.
+    .action(async (queryParts, opts) => {
       const raw = queryParts || [];
       if (raw.length === 0) {
         program.outputHelp();
         return;
       }
-      // Avoid treating known subcommands as queries when mis-parsed
       const first = raw[0];
       if (['search', 'set-level', 'doctor', 'help'].includes(first)) {
         return;

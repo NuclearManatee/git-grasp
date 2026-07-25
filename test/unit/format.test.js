@@ -5,7 +5,7 @@ import {
   formatUsageFrame,
   parseUsage,
   formatConfidenceLine,
-} from '../../src/ux/format.js';
+} from '../../packages/core/src/ux/format.js';
 
 describe('formatSearchResult', () => {
   const baseRow = {

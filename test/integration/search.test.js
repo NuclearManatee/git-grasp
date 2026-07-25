@@ -1,12 +1,12 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'bun:test';
 import { mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { openDb, insertCommandRow } from '../../src/db/schema.js';
-import { mockEmbed } from '../../src/search/embed.js';
-import { writeChecksumFile } from '../../src/lib/checksum.js';
-import { search } from '../../src/search/index.js';
-import { rankResults } from '../../src/search/rank.js';
+import { openDb, insertCommandRow } from '../../packages/core/src/db/schema.js';
+import { mockEmbed } from '../../packages/core/src/search/embed.js';
+import { writeChecksumFile } from '../../packages/core/src/lib/checksum.js';
+import { search } from '../../packages/core/src/search/index.js';
+import { rankResults } from '../../packages/core/src/search/rank.js';
 
 const dir = path.join(path.dirname(fileURLToPath(import.meta.url)), '../fixtures');
 const dbPath = path.join(dir, 'test.db');
@@ -28,7 +28,7 @@ async function buildFixture() {
   }));
   try { rmSync(dbPath); } catch { /* */ }
   try { rmSync(`${dbPath}.sha256`); } catch { /* */ }
-  const client = await openDb(dbPath);
+  const client = openDb(dbPath);
   const rows = [
     {
       id: 'git-reset-soft-head-1:2:0',
@@ -55,8 +55,8 @@ async function buildFixture() {
       explanation: 'Shows working tree status',
     },
   ];
-  for (const r of rows) await insertCommandRow(client, r);
-  client.close?.();
+  for (const r of rows) insertCommandRow(client, r);
+  client.close();
   writeChecksumFile(dbPath);
 }
 
@@ -76,19 +76,21 @@ describe('search integration', () => {
   it('fails on checksum mismatch', async () => {
     await buildFixture();
     writeFileSync(dbPath, 'tampered');
-    await expect(search('x', {
-      dbPath,
-      thresholdsPath,
-      forceMockEmbeddings: true,
-      skillLevelOverride: null,
-    })).rejects.toMatchObject({ code: 'INTEGRITY' });
+    expect(
+      search('x', {
+        dbPath,
+        thresholdsPath,
+        forceMockEmbeddings: true,
+        skillLevelOverride: null,
+      }),
+    ).rejects.toMatchObject({ code: 'INTEGRITY' });
   });
 });
 
 describe('no child_process in search modules', () => {
   it('rank does not import child_process', async () => {
-    const src = await import('../../src/search/rank.js');
+    const src = await import('../../packages/core/src/search/rank.js');
     expect(typeof src.rankResults).toBe('function');
-    expect(rankResults).toBeTypeOf('function');
+    expect(typeof rankResults).toBe('function');
   });
 });

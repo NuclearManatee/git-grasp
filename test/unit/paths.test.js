@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import path from 'node:path';
-import { resolveUnderRoot, PACKAGE_ROOT } from '../../src/lib/paths.js';
+import { resolveUnderRoot, PACKAGE_ROOT } from '../../packages/core/src/lib/paths.js';
 
 describe('resolveUnderRoot', () => {
   it('allows nested paths', () => {

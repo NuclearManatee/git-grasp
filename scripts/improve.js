@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 /**
  * Scripted improve loop (no LLM code edits).
  * Must run on improve/* branch, not main.
@@ -6,8 +6,8 @@
 import { execSync } from 'node:child_process';
 import { mkdirSync, writeFileSync, readFileSync, existsSync, copyFileSync } from 'node:fs';
 import path from 'node:path';
-import { PACKAGE_ROOT, defaultThresholdsPath } from '../src/lib/paths.js';
-import { loadEnv } from '../src/lib/env.js';
+import { PACKAGE_ROOT, defaultThresholdsPath } from '@git-help/core';
+import { loadEnv } from '@git-help/core/lib/env.js';
 
 loadEnv();
 

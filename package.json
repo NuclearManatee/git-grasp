@@ -4,15 +4,18 @@
   "description": "Semantic search CLI for Git commands",
   "license": "MIT",
   "type": "module",
+  "private": true,
+  "workspaces": ["apps/*", "packages/*"],
+  "packageManager": "bun@1.3.14",
   "engines": {
-    "node": ">=22"
+    "bun": ">=1.1.0"
   },
   "bin": {
-    "git-help": "./bin/index.js"
+    "git-help": "./apps/cli/bin/index.js"
   },
   "files": [
-    "bin/",
-    "src/",
+    "apps/cli/",
+    "packages/core/",
     "data/",
     "config/",
     "prompts/",
@@ -21,34 +24,29 @@
     "package.json"
   ],
   "scripts": {
-    "test": "vitest run",
-    "test:unit": "vitest run test/unit",
-    "test:integration": "vitest run test/integration",
-    "test:watch": "vitest",
-    "build-catalog": "node scripts/build-catalog.js",
-    "download-docs": "node scripts/download-docs.js",
-    "build-catalog:glossary": "node scripts/build-catalog-glossary.js",
-    "build-catalog:commands": "node scripts/build-catalog-commands.js",
-    "build-catalog:families": "node scripts/build-catalog-families.js",
-    "build-catalog:intents": "node scripts/build-catalog-intents.js",
-    "build-catalog:normalize": "node scripts/build-catalog-normalize.js",
-    "enrich-catalog": "node scripts/enrich-catalog.js",
-    "rebuild": "node scripts/build-catalog.js && node scripts/seed.js",
-    "seed": "node scripts/seed.js",
-    "eval": "node scripts/eval.js",
-    "eval:loop": "node scripts/eval-loop.js",
-    "eval:gen-dynamic": "node scripts/gen-dynamic.js",
-    "improve": "node scripts/improve.js",
-    "postinstall": "node scripts/postinstall.js"
-  },
-  "dependencies": {
-    "@huggingface/transformers": "^3.4.2",
-    "@libsql/client": "^0.14.0",
-    "chalk": "^5.4.1",
-    "clipboardy": "^4.0.0",
-    "commander": "^13.1.0",
-    "dotenv": "^16.4.7",
-    "ora": "^8.2.0"
+    "test": "bunx vitest run test/unit && bun test ./test/integration",
+    "test:unit": "bunx vitest run test/unit",
+    "test:integration": "bun test ./test/integration",
+    "test:watch": "bunx vitest",
+    "cli": "bun --filter @git-help/cli start",
+    "doctor": "bun --filter @git-help/cli doctor",
+    "seed": "bun --filter @git-help/seeding seed",
+    "eval": "bun --filter @git-help/eval eval",
+    "eval:loop": "bun --filter @git-help/eval loop",
+    "eval:gen-dynamic": "bun scripts/gen-dynamic.js",
+    "improve": "bun scripts/improve.js",
+    "build-catalog": "bun scripts/build-catalog.js",
+    "download-docs": "bun scripts/download-docs.js",
+    "build-catalog:glossary": "bun scripts/build-catalog-glossary.js",
+    "build-catalog:commands": "bun scripts/build-catalog-commands.js",
+    "build-catalog:families": "bun scripts/build-catalog-families.js",
+    "build-catalog:intents": "bun scripts/build-catalog-intents.js",
+    "build-catalog:normalize": "bun scripts/build-catalog-normalize.js",
+    "enrich-catalog": "bun scripts/enrich-catalog.js",
+    "rebuild": "bun scripts/build-catalog.js && bun --filter @git-help/seeding seed",
+    "web:dev": "bun --filter @git-help/web dev",
+    "web:build": "bun --filter @git-help/web build",
+    "postinstall": "bun scripts/postinstall.js"
   },
   "devDependencies": {
     "vitest": "^3.0.5"
