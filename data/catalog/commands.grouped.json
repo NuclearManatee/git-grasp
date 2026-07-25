@@ -1,0 +1,2280 @@
+[
+  {
+    "command": "git add",
+    "examples": [
+      {
+        "example": "git add --all",
+        "topic": "stage",
+        "risk_class": "none",
+        "source_hint": "git-add manual",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git add --patch app.js",
+        "topic": "stage",
+        "risk_class": "none",
+        "source_hint": "git-add manual",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git add --update",
+        "topic": "stage",
+        "risk_class": "none",
+        "source_hint": "git-add manual",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git add app.js",
+        "topic": "stage",
+        "risk_class": "none",
+        "source_hint": "Individual Developer (Standalone)",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git add README.md",
+        "topic": "stage",
+        "risk_class": "none",
+        "source_hint": "Individual Developer (Standalone)",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git add README.md src/index.ts",
+        "topic": "stage",
+        "risk_class": "none",
+        "source_hint": "git-add manual",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git add src/index.ts",
+        "topic": "stage",
+        "risk_class": "none",
+        "source_hint": "Individual Developer (Standalone)",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git am",
+    "examples": [
+      {
+        "example": "git am --3way < patch.patch",
+        "topic": "patch",
+        "risk_class": "none",
+        "source_hint": "gap",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git am --abort",
+        "topic": "patch",
+        "risk_class": "none",
+        "source_hint": "gap",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git am --continue",
+        "topic": "patch",
+        "risk_class": "none",
+        "source_hint": "gap",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git am --skip",
+        "topic": "patch",
+        "risk_class": "none",
+        "source_hint": "gap",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git am < patch.patch",
+        "topic": "patch",
+        "risk_class": "none",
+        "source_hint": "gap",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git apply",
+    "examples": [
+      {
+        "example": "git apply --3way patch.patch",
+        "topic": "patch",
+        "risk_class": "none",
+        "source_hint": "gap",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git apply --check patch.patch",
+        "topic": "patch",
+        "risk_class": "low",
+        "source_hint": "gap",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git apply --reverse patch.patch",
+        "topic": "patch",
+        "risk_class": "high",
+        "source_hint": "gap",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git apply --stat patch.patch",
+        "topic": "patch",
+        "risk_class": "low",
+        "source_hint": "gap",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git apply patch.patch",
+        "topic": "patch",
+        "risk_class": "none",
+        "source_hint": "gap",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git archive",
+    "examples": [
+      {
+        "example": "git archive --format=tar HEAD",
+        "topic": "archive",
+        "risk_class": "low",
+        "source_hint": "gap",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git archive --format=zip --output=archive.zip HEAD",
+        "topic": "archive",
+        "risk_class": "low",
+        "source_hint": "gap",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git archive --format=zip HEAD > archive.zip",
+        "topic": "archive",
+        "risk_class": "low",
+        "source_hint": "gap",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git bisect",
+    "examples": [
+      {
+        "example": "git bisect bad HEAD",
+        "topic": "debug",
+        "risk_class": "low",
+        "source_hint": "git-bisect manual",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git bisect good HEAD~1",
+        "topic": "debug",
+        "risk_class": "low",
+        "source_hint": "git-bisect manual",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git bisect good v1.0.0",
+        "topic": "debug",
+        "risk_class": "low",
+        "source_hint": "gitworkflows",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git bisect reset",
+        "topic": "debug",
+        "risk_class": "low",
+        "source_hint": "git-bisect manual",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git bisect run app.js",
+        "topic": "debug",
+        "risk_class": "low",
+        "source_hint": "git-bisect manual",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git bisect start",
+        "topic": "debug",
+        "risk_class": "low",
+        "source_hint": "git-bisect manual",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git blame",
+    "examples": [
+      {
+        "example": "git blame --ignore-rev abc1234 app.js",
+        "topic": "history",
+        "risk_class": "none",
+        "source_hint": "git-blame manual",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git blame --since=2.weeks app.js",
+        "topic": "history",
+        "risk_class": "none",
+        "source_hint": "git-blame manual",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git blame -L 10,20 --since=2.weeks app.js",
+        "topic": "history",
+        "risk_class": "none",
+        "source_hint": "gitworkflows",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git blame -L 10,20 app.js",
+        "topic": "history",
+        "risk_class": "none",
+        "source_hint": "git-blame manual",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git blame -w -C -C -C app.js",
+        "topic": "history",
+        "risk_class": "none",
+        "source_hint": "git-blame manual",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git blame app.js",
+        "topic": "history",
+        "risk_class": "none",
+        "source_hint": "git-blame manual",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git branch",
+    "examples": [
+      {
+        "example": "git branch",
+        "topic": "branch",
+        "risk_class": "none",
+        "source_hint": "list local branches",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git branch --all",
+        "topic": "branch",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git branch -a",
+        "topic": "branch",
+        "risk_class": "none",
+        "source_hint": "list all branches",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git branch -d feature/login",
+        "topic": "branch",
+        "risk_class": "low",
+        "source_hint": "delete branch feature/login",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git branch -m main develop",
+        "topic": "branch",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git branch -r",
+        "topic": "branch",
+        "risk_class": "none",
+        "source_hint": "list remote-tracking branches",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git branch feature/login",
+        "topic": "branch",
+        "risk_class": "none",
+        "source_hint": "Individual Developer (Standalone)",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git bundle",
+    "examples": [
+      {
+        "example": "git bundle create repo.bundle --all",
+        "topic": "bundle",
+        "risk_class": "low",
+        "source_hint": "gap",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git bundle create repo.bundle main develop",
+        "topic": "bundle",
+        "risk_class": "low",
+        "source_hint": "gap",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git bundle list-heads repo.bundle",
+        "topic": "bundle",
+        "risk_class": "low",
+        "source_hint": "gap",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git bundle verify repo.bundle",
+        "topic": "bundle",
+        "risk_class": "low",
+        "source_hint": "gap",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git clone repo.bundle",
+        "topic": "bundle",
+        "risk_class": "low",
+        "source_hint": "gap",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git checkout",
+    "examples": [
+      {
+        "example": "git checkout -- app.js",
+        "topic": "undo",
+        "risk_class": "high",
+        "source_hint": "git checkout <tree-ish> -- <pathspec>",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git checkout --detach main",
+        "topic": "advanced",
+        "risk_class": "low",
+        "source_hint": "git checkout --detach <branch>",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git checkout -b feature/login",
+        "topic": "branch",
+        "risk_class": "low",
+        "source_hint": "git checkout -b <new-branch>",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git checkout feature/login",
+        "topic": "branch",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git checkout HEAD~1",
+        "topic": "history",
+        "risk_class": "low",
+        "source_hint": "git checkout <commit>",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git checkout main",
+        "topic": "branch",
+        "risk_class": "low",
+        "source_hint": "git checkout <branch>",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git cherry-pick",
+    "examples": [
+      {
+        "example": "git cherry-pick --abort",
+        "topic": "merge",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git cherry-pick --continue",
+        "topic": "merge",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git cherry-pick -m 1 abc1234",
+        "topic": "merge",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git cherry-pick abc1234",
+        "topic": "merge",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git cherry-pick abc1234 HEAD~1",
+        "topic": "merge",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git clean",
+    "examples": [
+      {
+        "example": "git clean -f",
+        "topic": "clean",
+        "risk_class": "destructive",
+        "source_hint": "git-clean manual: -f force removal of untracked files",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git clean -fd",
+        "topic": "clean",
+        "risk_class": "destructive",
+        "source_hint": "git-clean manual: -d remove untracked directories",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git clean -fx",
+        "topic": "clean",
+        "risk_class": "destructive",
+        "source_hint": "git-clean manual: -x remove ignored files",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git clean -i",
+        "topic": "clean",
+        "risk_class": "low",
+        "source_hint": "git-clean manual: -i interactive mode",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git clean -n",
+        "topic": "clean",
+        "risk_class": "none",
+        "source_hint": "git-clean manual: -n dry run",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git clone",
+    "examples": [
+      {
+        "example": "git clone --bare https://github.com/example/repo.git",
+        "topic": "create",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git clone --branch develop https://github.com/example/repo.git",
+        "topic": "create",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git clone --depth 1 https://github.com/example/repo.git",
+        "topic": "create",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git clone -b develop https://github.com/example/repo.git",
+        "topic": "create",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git clone https://github.com/example/repo.git",
+        "topic": "create",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git clone https://github.com/example/repo.git myproject",
+        "topic": "create",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git clone https://github.com/example/repo.git myrepo",
+        "topic": "create",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git commit",
+    "examples": [
+      {
+        "example": "git commit --all -m \"fix typo\"",
+        "topic": "commit",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git commit --allow-empty -m \"Add login form\"",
+        "topic": "commit",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git commit --allow-empty -m \"fix typo\"",
+        "topic": "commit",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git commit --amend -m \"Add login form\"",
+        "topic": "commit",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git commit --dry-run",
+        "topic": "commit",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git commit --no-verify -m \"fix typo\"",
+        "topic": "commit",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git commit -a -m \"fix typo\"",
+        "topic": "commit",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git commit -m \"Add login form\"",
+        "topic": "commit",
+        "risk_class": "low",
+        "source_hint": "Individual Developer (Standalone)",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git commit -m \"fix typo\"",
+        "topic": "commit",
+        "risk_class": "low",
+        "source_hint": "Individual Developer (Standalone)",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git config",
+    "examples": [
+      {
+        "example": "git config --global alias.co checkout",
+        "topic": "config",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git config --global core.editor vim",
+        "topic": "config",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git config --global user.email dev@example.com",
+        "topic": "config",
+        "risk_class": "none",
+        "source_hint": "gittutorial",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git config --global user.name alice",
+        "topic": "config",
+        "risk_class": "none",
+        "source_hint": "gittutorial",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git config --list",
+        "topic": "config",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git diff",
+    "examples": [
+      {
+        "example": "git diff",
+        "topic": "diff",
+        "risk_class": "none",
+        "source_hint": "Individual Developer (Standalone)",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git diff --cached",
+        "topic": "diff",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git diff --name-only",
+        "topic": "diff",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git diff --staged",
+        "topic": "diff",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git diff HEAD",
+        "topic": "diff",
+        "risk_class": "none",
+        "source_hint": "Individual Developer (Standalone)",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git diff HEAD~1",
+        "topic": "diff",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git diff HEAD~1 HEAD",
+        "topic": "diff",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git diff main develop",
+        "topic": "diff",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git fetch",
+    "examples": [
+      {
+        "example": "git fetch --all",
+        "topic": "remote",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git fetch --prune",
+        "topic": "remote",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git fetch --tags",
+        "topic": "remote",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git fetch origin",
+        "topic": "remote",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git fetch origin main",
+        "topic": "remote",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git format-patch",
+    "examples": [
+      {
+        "example": "git format-patch --cover-letter -3 HEAD",
+        "topic": "patch",
+        "risk_class": "low",
+        "source_hint": "gap",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git format-patch --stdout main..develop > changes.patch",
+        "topic": "patch",
+        "risk_class": "low",
+        "source_hint": "gap",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git format-patch -1 HEAD",
+        "topic": "patch",
+        "risk_class": "low",
+        "source_hint": "gap",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git format-patch -3 HEAD",
+        "topic": "patch",
+        "risk_class": "low",
+        "source_hint": "gap",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git format-patch main..develop",
+        "topic": "patch",
+        "risk_class": "low",
+        "source_hint": "gap",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git gc",
+    "examples": [
+      {
+        "example": "git gc",
+        "topic": "maintenance",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git gc --aggressive",
+        "topic": "maintenance",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git gc --auto",
+        "topic": "maintenance",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git gc --keep-largest-pack",
+        "topic": "maintenance",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git gc --prune=now",
+        "topic": "maintenance",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git grep",
+    "examples": [
+      {
+        "example": "git grep -i fixme",
+        "topic": "search",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git grep -l TODO",
+        "topic": "search",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git grep -n TODO",
+        "topic": "search",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git grep -w TODO app.js",
+        "topic": "search",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git grep TODO",
+        "topic": "search",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git gui",
+    "examples": [
+      {
+        "example": "git gui",
+        "topic": "gui",
+        "risk_class": "low",
+        "source_hint": "gap",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git gui blame app.js",
+        "topic": "gui",
+        "risk_class": "low",
+        "source_hint": "gap",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git gui browser",
+        "topic": "gui",
+        "risk_class": "low",
+        "source_hint": "gap",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git gui citool",
+        "topic": "gui",
+        "risk_class": "low",
+        "source_hint": "gap",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git help",
+    "examples": [
+      {
+        "example": "git help",
+        "topic": "help",
+        "risk_class": "none",
+        "source_hint": "git-help documentation",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git help --web log",
+        "topic": "help",
+        "risk_class": "none",
+        "source_hint": "git-help documentation",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git help -a",
+        "topic": "help",
+        "risk_class": "none",
+        "source_hint": "git-help documentation",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git help -g",
+        "topic": "help",
+        "risk_class": "none",
+        "source_hint": "git-help documentation",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git help log",
+        "topic": "help",
+        "risk_class": "none",
+        "source_hint": "gittutorial",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git help status",
+        "topic": "help",
+        "risk_class": "none",
+        "source_hint": "git-help documentation",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git init",
+    "examples": [
+      {
+        "example": "git init",
+        "topic": "create",
+        "risk_class": "none",
+        "source_hint": "Individual Developer (Standalone)",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git init --bare",
+        "topic": "create",
+        "risk_class": "none",
+        "source_hint": "git-init documentation",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git init --initial-branch=main",
+        "topic": "create",
+        "risk_class": "none",
+        "source_hint": "git-init documentation",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git init --shared",
+        "topic": "create",
+        "risk_class": "none",
+        "source_hint": "git-init documentation",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git init --template=../hotfix",
+        "topic": "create",
+        "risk_class": "none",
+        "source_hint": "git-init documentation",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git log",
+    "examples": [
+      {
+        "example": "git log",
+        "topic": "history",
+        "risk_class": "none",
+        "source_hint": "Individual Developer (Standalone)",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git log --author=alice",
+        "topic": "history",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git log --graph --oneline --all",
+        "topic": "history",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git log --oneline",
+        "topic": "history",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git log --since=\"2 weeks ago\" --author=alice",
+        "topic": "history",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git log -p app.js",
+        "topic": "history",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git merge",
+    "examples": [
+      {
+        "example": "git merge --abort",
+        "topic": "merge",
+        "risk_class": "low",
+        "source_hint": "HOW TO RESOLVE CONFLICTS",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git merge --allow-unrelated-histories feature/login",
+        "topic": "merge",
+        "risk_class": "low",
+        "source_hint": "OPTIONS",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git merge --no-ff feature/login",
+        "topic": "merge",
+        "risk_class": "low",
+        "source_hint": "EXAMPLES section",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git merge --squash feature/login",
+        "topic": "merge",
+        "risk_class": "low",
+        "source_hint": "EXAMPLES section",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git merge feature/login",
+        "topic": "merge",
+        "risk_class": "low",
+        "source_hint": "Individual Developer (Standalone)",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git mergetool",
+    "examples": [
+      {
+        "example": "git mergetool",
+        "topic": "merge",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git mergetool --tool=vimdiff",
+        "topic": "merge",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git mv",
+    "examples": [
+      {
+        "example": "git mv -f app.js src/index.ts",
+        "topic": "files",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git mv -n app.js src/index.ts",
+        "topic": "files",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git mv -v app.js src/index.ts",
+        "topic": "files",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git mv app.js src/index.ts",
+        "topic": "stage",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git mv README.md docs/",
+        "topic": "stage",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git notes",
+    "examples": [
+      {
+        "example": "git notes add -m \"fix typo\"",
+        "topic": "notes",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git notes list",
+        "topic": "notes",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git notes show HEAD",
+        "topic": "notes",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git pull",
+    "examples": [
+      {
+        "example": "git pull --ff-only origin main",
+        "topic": "remote",
+        "risk_class": "low",
+        "source_hint": "OPTIONS section",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git pull --no-commit origin main",
+        "topic": "remote",
+        "risk_class": "low",
+        "source_hint": "OPTIONS section",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git pull --rebase origin main",
+        "topic": "remote",
+        "risk_class": "low",
+        "source_hint": "EXAMPLES section",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git pull --squash origin main",
+        "topic": "remote",
+        "risk_class": "low",
+        "source_hint": "OPTIONS section",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git pull origin main",
+        "topic": "remote",
+        "risk_class": "low",
+        "source_hint": "EXAMPLES section",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git push",
+    "examples": [
+      {
+        "example": "git push --all origin",
+        "topic": "remote",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git push --delete origin feature/login",
+        "topic": "remote",
+        "risk_class": "destructive",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git push --force origin main",
+        "topic": "remote",
+        "risk_class": "destructive",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git push --tags origin",
+        "topic": "remote",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git push origin --all",
+        "topic": "remote",
+        "risk_class": "low",
+        "source_hint": "EXAMPLES section",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git push origin --delete feature/login",
+        "topic": "remote",
+        "risk_class": "destructive",
+        "source_hint": "EXAMPLES section",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git push origin --tags",
+        "topic": "remote",
+        "risk_class": "low",
+        "source_hint": "EXAMPLES section",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git push origin main",
+        "topic": "remote",
+        "risk_class": "low",
+        "source_hint": "EXAMPLES section",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git push origin v1.0.0",
+        "topic": "remote",
+        "risk_class": "low",
+        "source_hint": "EXAMPLES section",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git rebase",
+    "examples": [
+      {
+        "example": "git rebase --abort",
+        "topic": "rebase",
+        "risk_class": "high",
+        "source_hint": "gitworkflows",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git rebase --continue",
+        "topic": "rebase",
+        "risk_class": "high",
+        "source_hint": "gitworkflows",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git rebase --interactive HEAD~3",
+        "topic": "rebase",
+        "risk_class": "high",
+        "source_hint": "gitworkflows",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git rebase --onto main develop feature/login",
+        "topic": "rebase",
+        "risk_class": "high",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git rebase -i HEAD~3",
+        "topic": "rebase",
+        "risk_class": "high",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git rebase main",
+        "topic": "rebase",
+        "risk_class": "high",
+        "source_hint": "Individual Developer (Standalone)",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git reflog",
+    "examples": [
+      {
+        "example": "git reflog delete HEAD@{1}",
+        "topic": "maintenance",
+        "risk_class": "destructive",
+        "source_hint": "git-reflog documentation",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git reflog exists refs/heads/main",
+        "topic": "debug",
+        "risk_class": "none",
+        "source_hint": "git-reflog documentation",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git reflog expire --expire=now --all",
+        "topic": "maintenance",
+        "risk_class": "destructive",
+        "source_hint": "git-reflog documentation",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git reflog show HEAD",
+        "topic": "history",
+        "risk_class": "none",
+        "source_hint": "git-reflog documentation",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git reflog show main",
+        "topic": "history",
+        "risk_class": "none",
+        "source_hint": "git-reflog documentation",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git remote",
+    "examples": [
+      {
+        "example": "git remote",
+        "topic": "remote",
+        "risk_class": "none",
+        "source_hint": "git-remote documentation",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git remote -v",
+        "topic": "remote",
+        "risk_class": "none",
+        "source_hint": "git-remote documentation",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git remote add origin https://github.com/example/repo.git",
+        "topic": "remote",
+        "risk_class": "low",
+        "source_hint": "git-remote documentation",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git remote remove upstream",
+        "topic": "remote",
+        "risk_class": "destructive",
+        "source_hint": "git-remote documentation",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git remote rename origin upstream",
+        "topic": "remote",
+        "risk_class": "low",
+        "source_hint": "git-remote documentation",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git reset",
+    "examples": [
+      {
+        "example": "git reset --hard HEAD~1",
+        "topic": "undo",
+        "risk_class": "destructive",
+        "source_hint": "git-reset documentation",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git reset --merge HEAD",
+        "topic": "undo",
+        "risk_class": "high",
+        "source_hint": "git-reset documentation",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git reset --mixed HEAD~1",
+        "topic": "undo",
+        "risk_class": "low",
+        "source_hint": "git-reset documentation",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git reset --soft HEAD~1",
+        "topic": "undo",
+        "risk_class": "high",
+        "source_hint": "git-reset documentation",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git reset HEAD app.js",
+        "topic": "undo",
+        "risk_class": "low",
+        "source_hint": "git-reset documentation",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git restore",
+    "examples": [
+      {
+        "example": "git restore --source HEAD~1 app.js",
+        "topic": "undo",
+        "risk_class": "low",
+        "source_hint": "git-restore documentation",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git restore --source=HEAD --staged --worktree app.js",
+        "topic": "undo",
+        "risk_class": "low",
+        "source_hint": "git-restore documentation",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git restore --source=HEAD~1 app.js",
+        "topic": "undo",
+        "risk_class": "high",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git restore --staged --worktree app.js",
+        "topic": "undo",
+        "risk_class": "low",
+        "source_hint": "git-restore documentation",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git restore --staged app.js",
+        "topic": "undo",
+        "risk_class": "low",
+        "source_hint": "git-restore documentation",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git restore app.js",
+        "topic": "undo",
+        "risk_class": "high",
+        "source_hint": "Individual Developer (Standalone)",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git restore README.md",
+        "topic": "undo",
+        "risk_class": "high",
+        "source_hint": "Individual Developer (Standalone)",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git revert",
+    "examples": [
+      {
+        "example": "git revert --abort",
+        "topic": "undo",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git revert --no-edit HEAD",
+        "topic": "undo",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git revert abc1234",
+        "topic": "undo",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git revert HEAD",
+        "topic": "undo",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git revert HEAD~1",
+        "topic": "undo",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git rm",
+    "examples": [
+      {
+        "example": "git rm --cached app.js",
+        "topic": "stage",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git rm --cached README.md",
+        "topic": "files",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git rm --ignore-unmatch app.js",
+        "topic": "files",
+        "risk_class": "destructive",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git rm -f app.js",
+        "topic": "files",
+        "risk_class": "destructive",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git rm -r src/index.ts",
+        "topic": "stage",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git rm app.js",
+        "topic": "stage",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git show",
+    "examples": [
+      {
+        "example": "git show abc1234",
+        "topic": "history",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git show HEAD",
+        "topic": "history",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git show HEAD~1",
+        "topic": "history",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git show main",
+        "topic": "history",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git show v1.0.0",
+        "topic": "history",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git sparse-checkout",
+    "examples": [
+      {
+        "example": "git sparse-checkout add src/index.ts",
+        "topic": "sparse",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git sparse-checkout disable",
+        "topic": "sparse",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git sparse-checkout init --cone",
+        "topic": "sparse",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git sparse-checkout list",
+        "topic": "sparse",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git sparse-checkout set README.md",
+        "topic": "sparse",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git stash",
+    "examples": [
+      {
+        "example": "git stash",
+        "topic": "stash",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git stash apply",
+        "topic": "stash",
+        "risk_class": "low",
+        "source_hint": "gitworkflows",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git stash drop",
+        "topic": "stash",
+        "risk_class": "low",
+        "source_hint": "gitworkflows",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git stash drop stash@{0}",
+        "topic": "stash",
+        "risk_class": "destructive",
+        "source_hint": "git-stash manual",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git stash list",
+        "topic": "stash",
+        "risk_class": "none",
+        "source_hint": "git-stash manual",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git stash pop",
+        "topic": "stash",
+        "risk_class": "low",
+        "source_hint": "gitworkflows",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git stash pop stash@{0}",
+        "topic": "stash",
+        "risk_class": "low",
+        "source_hint": "git-stash manual",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git stash push --keep-index",
+        "topic": "stash",
+        "risk_class": "low",
+        "source_hint": "gitworkflows",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git stash push -m \"fix typo\"",
+        "topic": "stash",
+        "risk_class": "none",
+        "source_hint": "git-stash manual",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git stash show stash@{0}",
+        "topic": "stash",
+        "risk_class": "none",
+        "source_hint": "git-stash manual",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git status",
+    "examples": [
+      {
+        "example": "git status",
+        "topic": "status",
+        "risk_class": "none",
+        "source_hint": "Individual Developer (Standalone)",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git status --branch",
+        "topic": "status",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git status --ignored",
+        "topic": "status",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git status --porcelain",
+        "topic": "status",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git status --short",
+        "topic": "status",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git status --show-stash",
+        "topic": "status",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git status --untracked-files=no",
+        "topic": "status",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git status -b",
+        "topic": "status",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git status -s",
+        "topic": "status",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git submodule",
+    "examples": [
+      {
+        "example": "git submodule add https://github.com/example/repo.git",
+        "topic": "submodule",
+        "risk_class": "low",
+        "source_hint": "git submodule add",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git submodule foreach git pull origin main",
+        "topic": "submodule",
+        "risk_class": "low",
+        "source_hint": "git submodule foreach",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git submodule init",
+        "topic": "submodule",
+        "risk_class": "low",
+        "source_hint": "git submodule init",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git submodule status",
+        "topic": "submodule",
+        "risk_class": "none",
+        "source_hint": "git submodule status",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git submodule update",
+        "topic": "submodule",
+        "risk_class": "low",
+        "source_hint": "git submodule update",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git switch",
+    "examples": [
+      {
+        "example": "git switch -",
+        "topic": "branch",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git switch --detach HEAD~1",
+        "topic": "branch",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git switch --orphan feature",
+        "topic": "branch",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git switch -c feature/login",
+        "topic": "branch",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git switch -c feature/login main",
+        "topic": "branch",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git switch feature/login",
+        "topic": "branch",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git switch main",
+        "topic": "branch",
+        "risk_class": "low",
+        "source_hint": "Individual Developer (Standalone)",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git tag",
+    "examples": [
+      {
+        "example": "git tag --list",
+        "topic": "tag",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git tag -a v1.0.0 -m \"Add login form\"",
+        "topic": "tag",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git tag -d v1.0.0",
+        "topic": "tag",
+        "risk_class": "low",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git tag -l",
+        "topic": "tag",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git tag -v v1.0.0",
+        "topic": "tag",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git tag v1.0.0",
+        "topic": "tag",
+        "risk_class": "none",
+        "source_hint": "Individual Developer (Standalone)",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git verify-commit",
+    "examples": [
+      {
+        "example": "git verify-commit --raw HEAD",
+        "topic": "security",
+        "risk_class": "low",
+        "source_hint": "gap",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git verify-commit abc1234",
+        "topic": "security",
+        "risk_class": "low",
+        "source_hint": "gap",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git verify-commit HEAD",
+        "topic": "security",
+        "risk_class": "low",
+        "source_hint": "gap",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git verify-tag",
+    "examples": [
+      {
+        "example": "git verify-tag --raw v1.0.0",
+        "topic": "security",
+        "risk_class": "low",
+        "source_hint": "gap",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git verify-tag v1.0.0",
+        "topic": "security",
+        "risk_class": "low",
+        "source_hint": "gap",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  },
+  {
+    "command": "git worktree",
+    "examples": [
+      {
+        "example": "git worktree add -b feature/login ../hotfix develop",
+        "topic": "worktree",
+        "risk_class": "none",
+        "source_hint": "git-worktree manual",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git worktree add ../hotfix feature/login",
+        "topic": "worktree",
+        "risk_class": "none",
+        "source_hint": "note",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git worktree add ../hotfix main",
+        "topic": "worktree",
+        "risk_class": "none",
+        "source_hint": "git-worktree manual",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git worktree list",
+        "topic": "worktree",
+        "risk_class": "none",
+        "source_hint": "git-worktree manual",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git worktree prune",
+        "topic": "worktree",
+        "risk_class": "low",
+        "source_hint": "git-worktree manual",
+        "intent_family": "",
+        "simplicity_rank": 1
+      },
+      {
+        "example": "git worktree remove ../hotfix",
+        "topic": "worktree",
+        "risk_class": "low",
+        "source_hint": "git-worktree manual",
+        "intent_family": "",
+        "simplicity_rank": 1
+      }
+    ]
+  }
+]

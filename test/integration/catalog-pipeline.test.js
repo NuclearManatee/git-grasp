@@ -1,49 +1,62 @@
 import { describe, it, expect } from 'vitest';
 import { extractCommandsWithAreYouSure, mergeCommands } from '../../src/catalog/step1Commands.js';
 
-describe('extractCommandsWithAreYouSure (mocked Groq)', () => {
+describe('extractCommandsWithAreYouSure (mocked LLM)', () => {
   it('extracts then completes Are You Sure loop', async () => {
-    let calls = 0;
+    let phase = 'extract';
     const groqJson = async ({ messages }) => {
-      calls += 1;
       const sys = messages[0].content;
-      if (sys.includes('EXTRACTOR')) {
+      if (sys.includes('EXTRACTOR') || phase === 'extract') {
+        phase = 'ays';
         return {
           commands: [
-            { command: 'git init', topic: 'create', risk_class: 'low' },
-            { command: 'git status', topic: 'status', risk_class: 'none' },
+            {
+              command: 'git init',
+              examples: [
+                { example: 'git init', topic: 'create', risk_class: 'low' },
+                { example: 'git init --bare', topic: 'create', risk_class: 'low' },
+                { example: 'git init --quiet', topic: 'create', risk_class: 'low' },
+              ],
+            },
+            {
+              command: 'git status',
+              examples: [
+                { example: 'git status', topic: 'status', risk_class: 'none' },
+                { example: 'git status -sb', topic: 'status', risk_class: 'none' },
+                { example: 'git status --ignored', topic: 'status', risk_class: 'none' },
+              ],
+            },
           ],
         };
       }
-      // Are you sure — first round add many, second sure
-      if (calls < 5) {
-        return {
-          sure: false,
-          additional_commands: Array.from({ length: 50 }, (_, i) => ({
-            command: `git log --oneline ${i}`,
-            topic: 'history',
-            risk_class: 'none',
-          })),
-          rationale: 'need more',
-        };
-      }
-      return { sure: true, additional_commands: [], rationale: 'complete enough for mock', missing_topics: [] };
+      return {
+        sure: false,
+        additional_commands: Array.from({ length: 15 }, (_, i) => ({
+          command: 'git log',
+          examples: [
+            { example: `git log --oneline -n ${i + 1}`, topic: 'history', risk_class: 'none' },
+            { example: `git log -n ${i + 1}`, topic: 'history', risk_class: 'none' },
+            { example: `git log --stat -n ${i + 1}`, topic: 'history', risk_class: 'none' },
+          ],
+        })),
+        rationale: 'need more',
+        missing_topics: [],
+      };
     };
 
-    // Provide enough synthetic pages to get volume via AYS
     const pages = [{ url: 'https://git-scm.com/docs/git-status', text: 'git status shows the working tree' }];
 
-    // Force minCommands low for unit test speed
     const result = await extractCommandsWithAreYouSure({
       pages,
       groqJson,
       schedule: async (fn) => fn(),
-      maxRounds: 3,
+      maxRounds: 2,
       minCommands: 10,
     });
 
     expect(result.commands.length).toBeGreaterThanOrEqual(10);
     expect(result.rounds.length).toBeGreaterThan(0);
+    expect(result.commands.every((c) => c.example?.startsWith('git '))).toBe(true);
     expect(mergeCommands(result.commands, []).length).toBe(result.commands.length);
   });
 });

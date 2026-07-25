@@ -2,9 +2,11 @@
 /**
  * Full catalog pipeline (resilient):
  *  0) download-docs (if missing or --refetch-docs)
- *  1) commands + Are You Sure?
- *  2) per-command intents (no batch)
- *  3) normalize
+ *  0b) glossary
+ *  1) commands + examples + Are You Sure?
+ *  1b) families + simplicity
+ *  2) per-example intents
+ *  3) enrich + normalize
  */
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
@@ -34,7 +36,9 @@ if ((!only || only === 'docs' || only === 'commands') && needDocs) {
   run('download-docs.js');
 }
 
+if (!only || only === 'glossary') run('build-catalog-glossary.js');
 if (!only || only === 'commands') run('build-catalog-commands.js');
+if (!only || only === 'families') run('build-catalog-families.js');
 if (!only || only === 'intents') run('build-catalog-intents.js');
 if (!only || only === 'enrich') run('enrich-catalog.js');
 if (!only || only === 'normalize') run('build-catalog-normalize.js');

@@ -1,3 +1,5 @@
+import { isValidSkillLevel, SKILL_MAX, SKILL_MIN } from './skills.js';
+
 const SHELL_META = /(&&|\|\||[|;`]|\$\(|\$\{|\n|\r)/;
 
 const ALLOWED_SUBCOMMANDS = new Set([
@@ -15,6 +17,18 @@ const ALLOWED_SUBCOMMANDS = new Set([
   'stage', 'prune',
 ]);
 
+/**
+ * E4: normalize example for dedup — trim, collapse whitespace, unify quotes.
+ * @param {string} example
+ */
+export function normalizeExample(example) {
+  return String(example || '')
+    .trim()
+    .replace(/[“”]/g, '"')
+    .replace(/[‘’]/g, "'")
+    .replace(/\s+/g, ' ');
+}
+
 export function commandSlug(command) {
   return String(command)
     .toLowerCase()
@@ -23,12 +37,18 @@ export function commandSlug(command) {
     .slice(0, 80);
 }
 
-export function makeRowId(command, skillLevel) {
-  return `${commandSlug(command)}:${skillLevel}`;
+/**
+ * Row id: slug(example):skill:intentIndex
+ * @param {string} example
+ * @param {number} skillLevel
+ * @param {number} [intentIndex=0]
+ */
+export function makeRowId(example, skillLevel, intentIndex = 0) {
+  return `${commandSlug(example)}:${skillLevel}:${intentIndex}`;
 }
 
 /**
- * Validate a git command string for catalog insertion.
+ * Validate a git command or example string for catalog insertion.
  * @param {string} command
  * @param {{ extraAllowlist?: Iterable<string> }} [opts]
  * @returns {{ ok: true } | { ok: false, reason: string }}
@@ -52,16 +72,32 @@ export function validateCommand(command, opts = {}) {
   return { ok: true };
 }
 
-export function validateIntentRow(row, opts = {}) {
-  const base = validateCommand(row.command, opts);
+/**
+ * Examples must be pasteable: no angle-bracket placeholders.
+ * @param {string} example
+ */
+export function validateExample(example, opts = {}) {
+  const base = validateCommand(example, opts);
   if (!base.ok) return base;
+  const e = normalizeExample(example);
+  if (/<[^>]+>/.test(e)) return { ok: false, reason: 'placeholder' };
+  return { ok: true };
+}
+
+export function validateIntentRow(row, opts = {}) {
+  const cmd = validateCommand(row.command, opts);
+  if (!cmd.ok) return cmd;
+  const example = row.example != null ? row.example : row.command;
+  const ex = validateExample(example, opts);
+  if (!ex.ok) return ex;
   if (!row.intent_description || typeof row.intent_description !== 'string') {
     return { ok: false, reason: 'schema' };
   }
   if (row.intent_description.length > 2000) return { ok: false, reason: 'length' };
-  const level = Number(row.skill_level);
-  if (!Number.isInteger(level) || level < 1 || level > 5) {
+  if (!isValidSkillLevel(row.skill_level)) {
     return { ok: false, reason: 'schema' };
   }
   return { ok: true };
 }
+
+export { SKILL_MIN, SKILL_MAX, ALLOWED_SUBCOMMANDS };

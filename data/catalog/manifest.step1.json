@@ -3,31 +3,32 @@
   "source": "local-docs+deepseek-are-you-sure",
   "provider": "deepseek",
   "model": "deepseek-v4-pro",
-  "count": 304,
+  "exampleCount": 256,
+  "count": 256,
   "sure": true,
   "rounds": [
     {
       "round": 1,
       "sure": false,
-      "rationale": "Missing topics sparse, security, gui. Added sparse-checkout subcommands, GPG signing and verification commands, and GUI tools like git gui, gitk, and git instaweb.",
-      "added": 26,
-      "count": 307,
+      "rationale": "Missing topics archive, bundle, patch, security, gui. Added essential commands with pasteable examples using glossary tokens.",
+      "added": 37,
+      "count": 261,
       "missing_topics": []
     },
     {
       "round": 2,
       "sure": true,
-      "rationale": "All topics covered with 307 commands, exceeding minimum 200.",
+      "rationale": "All topics covered with sufficient examples.",
       "added": 0,
-      "count": 307,
+      "count": 261,
       "missing_topics": []
     }
   ],
   "coverage": {
     "complete": true,
     "missing": [],
-    "count": 304
+    "count": 256
   },
-  "hash": "01f25e29a2761620bc1755e50fd03fe896ecface174a0867e63e9770b603096e",
-  "createdAt": "2026-07-25T08:49:23.873Z"
+  "hash": "3be5b1389d847cda2a36a4338105b065011bfc8b20b1d43600f28a393ef35391",
+  "createdAt": "2026-07-25T11:07:55.998Z"
 }

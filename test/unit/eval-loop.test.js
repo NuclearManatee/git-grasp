@@ -10,9 +10,11 @@ import {
 
 const intents = Array.from({ length: 80 }, (_, i) => ({
   command: `git cmd-${i}`,
-  skill_level: (i % 5) + 1,
+  example: `git cmd-${i}`,
+  skill_level: (i % 4) + 1,
   intent_description: `unique query number ${i} for testing eval generation`,
   topic: 'test',
+  simplicity_rank: 1,
 }));
 
 const golden = [

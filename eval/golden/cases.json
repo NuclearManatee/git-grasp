@@ -3,315 +3,2215 @@
     "id": "status-01",
     "query": "what files did I change",
     "expectedCommand": "git status",
-    "acceptableCommands": ["git status", "git status -sb"],
-    "expectedSkillBand": [1, 3],
+    "acceptableCommands": [
+      "git status",
+      "git status"
+    ],
+    "expectedSkillBand": [
+      1,
+      3
+    ],
     "judgeNotes": "Status overview",
-    "tags": ["status"]
+    "tags": [
+      "status"
+    ],
+    "expectedExample": "git status",
+    "acceptableExamples": [
+      "git status",
+      "git status -sb"
+    ],
+    "expectedSimplestExample": "git status",
+    "preferSimplest": true
   },
   {
     "id": "undo-soft-01",
     "query": "undo last commit keep changes staged",
-    "expectedCommand": "git reset --soft HEAD~1",
-    "acceptableCommands": ["git reset --soft HEAD~1"],
-    "expectedSkillBand": [2, 5],
+    "expectedCommand": "git reset",
+    "acceptableCommands": [
+      "git reset"
+    ],
+    "expectedSkillBand": [
+      2,
+      4
+    ],
     "judgeNotes": "Must be soft reset not hard",
-    "tags": ["undo"]
+    "tags": [
+      "undo"
+    ],
+    "expectedExample": "git reset --soft HEAD~1",
+    "acceptableExamples": [
+      "git reset --soft HEAD~1",
+      "git reset"
+    ],
+    "expectedSimplestExample": "git reset --soft HEAD~1",
+    "preferSimplest": true
   },
   {
     "id": "undo-hard-01",
     "query": "throw away last commit and all changes permanently",
-    "expectedCommand": "git reset --hard HEAD~1",
-    "acceptableCommands": ["git reset --hard HEAD~1"],
-    "expectedSkillBand": [3, 5],
+    "expectedCommand": "git reset",
+    "acceptableCommands": [
+      "git reset"
+    ],
+    "expectedSkillBand": [
+      3,
+      4
+    ],
     "judgeNotes": "Destructive hard reset",
-    "tags": ["undo"]
+    "tags": [
+      "undo"
+    ],
+    "expectedExample": "git reset --hard HEAD~1",
+    "acceptableExamples": [
+      "git reset --hard HEAD~1",
+      "git reset"
+    ],
+    "expectedSimplestExample": "git reset --hard HEAD~1",
+    "preferSimplest": true
   },
   {
     "id": "stash-01",
     "query": "temporarily shelve my uncommitted work",
     "expectedCommand": "git stash",
-    "acceptableCommands": ["git stash", "git stash push -m \"<message>\""],
-    "expectedSkillBand": [1, 4],
+    "acceptableCommands": [
+      "git stash",
+      "git stash"
+    ],
+    "expectedSkillBand": [
+      1,
+      4
+    ],
     "judgeNotes": "Stash",
-    "tags": ["stash"]
+    "tags": [
+      "stash"
+    ],
+    "expectedExample": "git stash",
+    "acceptableExamples": [
+      "git stash",
+      "git stash push -m \"fix typo\""
+    ],
+    "expectedSimplestExample": "git stash",
+    "preferSimplest": true
   },
   {
     "id": "branch-create-01",
     "query": "create and switch to a new branch",
-    "expectedCommand": "git switch -c <name>",
-    "acceptableCommands": ["git switch -c <name>", "git checkout -b <name>"],
-    "expectedSkillBand": [2, 5],
+    "expectedCommand": "git switch",
+    "acceptableCommands": [
+      "git switch",
+      "git checkout"
+    ],
+    "expectedSkillBand": [
+      2,
+      4
+    ],
     "judgeNotes": "New branch",
-    "tags": ["branch"]
+    "tags": [
+      "branch"
+    ],
+    "expectedExample": "git switch -c feature",
+    "acceptableExamples": [
+      "git switch -c feature",
+      "git checkout -b feature",
+      "git switch",
+      "git checkout"
+    ],
+    "expectedSimplestExample": "git switch -c feature",
+    "preferSimplest": true
   },
   {
     "id": "commit-01",
     "query": "save my staged changes with a message",
-    "expectedCommand": "git commit -m \"<message>\"",
-    "acceptableCommands": ["git commit -m \"<message>\"", "git commit -am \"<message>\""],
-    "expectedSkillBand": [1, 3],
+    "expectedCommand": "git commit",
+    "acceptableCommands": [
+      "git commit",
+      "git commit"
+    ],
+    "expectedSkillBand": [
+      1,
+      3
+    ],
     "judgeNotes": "Commit",
-    "tags": ["commit"]
+    "tags": [
+      "commit"
+    ],
+    "expectedExample": "git commit -m \"fix typo\"",
+    "acceptableExamples": [
+      "git commit -m \"fix typo\"",
+      "git commit -am \"fix typo\"",
+      "git commit"
+    ],
+    "expectedSimplestExample": "git commit -m \"fix typo\"",
+    "preferSimplest": true
   },
   {
     "id": "log-01",
     "query": "show commit history one line each",
-    "expectedCommand": "git log --oneline",
-    "acceptableCommands": ["git log --oneline", "git log --graph --oneline --all"],
-    "expectedSkillBand": [1, 4],
+    "expectedCommand": "git log",
+    "acceptableCommands": [
+      "git log",
+      "git log"
+    ],
+    "expectedSkillBand": [
+      1,
+      4
+    ],
     "judgeNotes": "Log",
-    "tags": ["history"]
+    "tags": [
+      "history"
+    ],
+    "expectedExample": "git log --oneline",
+    "acceptableExamples": [
+      "git log --oneline",
+      "git log --graph --oneline --all",
+      "git log"
+    ],
+    "expectedSimplestExample": "git log --oneline",
+    "preferSimplest": true
   },
   {
     "id": "pull-01",
     "query": "download and integrate remote changes",
     "expectedCommand": "git pull",
-    "acceptableCommands": ["git pull", "git pull --rebase", "git fetch"],
-    "expectedSkillBand": [1, 4],
+    "acceptableCommands": [
+      "git pull",
+      "git pull",
+      "git fetch"
+    ],
+    "expectedSkillBand": [
+      1,
+      4
+    ],
     "judgeNotes": "Pull/fetch family ok if judged equivalent",
-    "tags": ["remote"]
+    "tags": [
+      "remote"
+    ],
+    "expectedExample": "git pull",
+    "acceptableExamples": [
+      "git pull",
+      "git pull --rebase",
+      "git fetch"
+    ],
+    "expectedSimplestExample": "git pull",
+    "preferSimplest": true
   },
   {
     "id": "push-01",
     "query": "upload my commits to origin and set upstream",
-    "expectedCommand": "git push -u origin HEAD",
-    "acceptableCommands": ["git push -u origin HEAD", "git push"],
-    "expectedSkillBand": [2, 5],
+    "expectedCommand": "git push",
+    "acceptableCommands": [
+      "git push",
+      "git push"
+    ],
+    "expectedSkillBand": [
+      2,
+      4
+    ],
     "judgeNotes": "Push",
-    "tags": ["remote"]
+    "tags": [
+      "remote"
+    ],
+    "expectedExample": "git push -u origin HEAD",
+    "acceptableExamples": [
+      "git push -u origin HEAD",
+      "git push"
+    ],
+    "expectedSimplestExample": "git push -u origin HEAD",
+    "preferSimplest": true
   },
   {
     "id": "diff-staged-01",
     "query": "see what I have staged for commit",
-    "expectedCommand": "git diff --staged",
-    "acceptableCommands": ["git diff --staged"],
-    "expectedSkillBand": [2, 5],
+    "expectedCommand": "git diff",
+    "acceptableCommands": [
+      "git diff"
+    ],
+    "expectedSkillBand": [
+      2,
+      4
+    ],
     "judgeNotes": "Staged diff",
-    "tags": ["diff"]
+    "tags": [
+      "diff"
+    ],
+    "expectedExample": "git diff --staged",
+    "acceptableExamples": [
+      "git diff --staged",
+      "git diff"
+    ],
+    "expectedSimplestExample": "git diff --staged",
+    "preferSimplest": true
   },
   {
     "id": "clone-01",
-    "query": "copy a remote repository to my machine",
-    "expectedCommand": "git clone <url>",
-    "acceptableCommands": ["git clone <url>", "git clone --depth 1 <url>"],
-    "expectedSkillBand": [1, 3],
-    "judgeNotes": "Clone",
-    "tags": ["create"]
+    "query": "clone a repo shallow",
+    "expectedCommand": "git clone",
+    "expectedExample": "git clone --depth 1 https://github.com/example/repo.git",
+    "acceptableExamples": [
+      "git clone --depth 1 https://github.com/example/repo.git",
+      "git clone https://github.com/example/repo.git"
+    ],
+    "preferSimplest": false,
+    "expectedSkillBand": [
+      2,
+      4
+    ],
+    "tags": [
+      "create"
+    ],
+    "acceptableCommands": [
+      "git clone"
+    ],
+    "expectedSimplestExample": "git clone --depth 1 https://github.com/example/repo.git"
   },
   {
     "id": "rebase-abort-01",
     "query": "cancel an in-progress rebase",
-    "expectedCommand": "git rebase --abort",
-    "acceptableCommands": ["git rebase --abort"],
-    "expectedSkillBand": [2, 5],
-    "judgeNotes": "Abort rebase",
-    "tags": ["rebase"]
+    "expectedCommand": "git rebase",
+    "expectedExample": "git rebase --abort",
+    "acceptableExamples": [
+      "git rebase --abort"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      2,
+      4
+    ],
+    "tags": [
+      "rebase"
+    ],
+    "acceptableCommands": [
+      "git rebase"
+    ],
+    "expectedSimplestExample": "git rebase --abort"
   },
   {
     "id": "cherry-pick-01",
     "query": "apply a single commit from another branch onto mine",
-    "expectedCommand": "git cherry-pick <commit>",
-    "acceptableCommands": ["git cherry-pick <commit>"],
-    "expectedSkillBand": [3, 5],
+    "expectedCommand": "git cherry-pick",
+    "acceptableCommands": [
+      "git cherry-pick"
+    ],
+    "expectedSkillBand": [
+      3,
+      4
+    ],
     "judgeNotes": "Cherry-pick",
-    "tags": ["history"]
+    "tags": [
+      "history"
+    ],
+    "expectedExample": "git cherry-pick HEAD",
+    "acceptableExamples": [
+      "git cherry-pick HEAD",
+      "git cherry-pick"
+    ],
+    "expectedSimplestExample": "git cherry-pick HEAD",
+    "preferSimplest": true
   },
   {
     "id": "reflog-01",
-    "query": "see where my HEAD has been to recover a lost commit",
+    "query": "show where HEAD has pointed recently",
     "expectedCommand": "git reflog",
-    "acceptableCommands": ["git reflog"],
-    "expectedSkillBand": [3, 5],
-    "judgeNotes": "Reflog",
-    "tags": ["undo"]
+    "expectedExample": "git reflog",
+    "acceptableExamples": [
+      "git reflog"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      3,
+      4
+    ],
+    "tags": [
+      "history"
+    ],
+    "acceptableCommands": [
+      "git reflog"
+    ],
+    "expectedSimplestExample": "git reflog"
   },
   {
     "id": "tag-01",
     "query": "create an annotated release tag",
-    "expectedCommand": "git tag -a <name> -m \"<message>\"",
-    "acceptableCommands": ["git tag -a <name> -m \"<message>\"", "git tag <name>"],
-    "expectedSkillBand": [2, 5],
-    "judgeNotes": "Tag",
-    "tags": ["tag"]
+    "expectedCommand": "git tag",
+    "expectedExample": "git tag -a v1.0.0 -m \"Fix typo\"",
+    "acceptableExamples": [
+      "git tag -a v1.0.0 -m \"Fix typo\"",
+      "git tag v1.0.0"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      2,
+      4
+    ],
+    "tags": [
+      "tag"
+    ],
+    "acceptableCommands": [
+      "git tag"
+    ],
+    "expectedSimplestExample": "git tag -a v1.0.0 -m \"Fix typo\""
   },
   {
     "id": "clean-01",
-    "query": "preview untracked files that would be deleted",
-    "expectedCommand": "git clean -n",
-    "acceptableCommands": ["git clean -n"],
-    "expectedSkillBand": [2, 5],
-    "judgeNotes": "Dry-run clean",
-    "tags": ["clean"]
+    "query": "preview which untracked files would be deleted",
+    "expectedCommand": "git clean",
+    "expectedExample": "git clean -n",
+    "acceptableExamples": [
+      "git clean -n",
+      "git clean --dry-run"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      2,
+      4
+    ],
+    "tags": [
+      "clean"
+    ],
+    "acceptableCommands": [
+      "git clean"
+    ],
+    "expectedSimplestExample": "git clean -n"
   },
   {
     "id": "merge-abort-01",
-    "query": "abort a merge with conflicts",
-    "expectedCommand": "git merge --abort",
-    "acceptableCommands": ["git merge --abort"],
-    "expectedSkillBand": [2, 5],
-    "judgeNotes": "Merge abort",
-    "tags": ["merge"]
+    "query": "cancel an in-progress merge",
+    "expectedCommand": "git merge",
+    "expectedExample": "git merge --abort",
+    "acceptableExamples": [
+      "git merge --abort"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      2,
+      4
+    ],
+    "tags": [
+      "merge"
+    ],
+    "acceptableCommands": [
+      "git merge"
+    ],
+    "expectedSimplestExample": "git merge --abort"
   },
   {
     "id": "add-patch-01",
     "query": "interactively stage hunks of a file",
-    "expectedCommand": "git add -p",
-    "acceptableCommands": ["git add -p"],
-    "expectedSkillBand": [3, 5],
+    "expectedCommand": "git add",
+    "acceptableCommands": [
+      "git add"
+    ],
+    "expectedSkillBand": [
+      3,
+      4
+    ],
     "judgeNotes": "Patch add",
-    "tags": ["stage"]
+    "tags": [
+      "stage"
+    ],
+    "expectedExample": "git add -p",
+    "acceptableExamples": [
+      "git add -p",
+      "git add"
+    ],
+    "expectedSimplestExample": "git add -p",
+    "preferSimplest": true
   },
   {
     "id": "remote-v-01",
     "query": "list remotes with their URLs",
-    "expectedCommand": "git remote -v",
-    "acceptableCommands": ["git remote -v"],
-    "expectedSkillBand": [1, 4],
+    "expectedCommand": "git remote",
+    "acceptableCommands": [
+      "git remote"
+    ],
+    "expectedSkillBand": [
+      1,
+      4
+    ],
     "judgeNotes": "Remotes",
-    "tags": ["remote"]
+    "tags": [
+      "remote"
+    ],
+    "expectedExample": "git remote -v",
+    "acceptableExamples": [
+      "git remote -v",
+      "git remote"
+    ],
+    "expectedSimplestExample": "git remote -v",
+    "preferSimplest": true
   },
   {
     "id": "blame-01",
     "query": "who last changed each line of this file",
-    "expectedCommand": "git blame <file>",
-    "acceptableCommands": ["git blame <file>", "git annotate <file>"],
-    "expectedSkillBand": [2, 5],
+    "expectedCommand": "git blame",
+    "acceptableCommands": [
+      "git blame",
+      "git annotate"
+    ],
+    "expectedSkillBand": [
+      2,
+      4
+    ],
     "judgeNotes": "Blame",
-    "tags": ["history"]
+    "tags": [
+      "history"
+    ],
+    "expectedExample": "git blame app.js",
+    "acceptableExamples": [
+      "git blame app.js",
+      "git annotate app.js",
+      "git blame",
+      "git annotate"
+    ],
+    "expectedSimplestExample": "git blame app.js",
+    "preferSimplest": true
   },
   {
     "id": "worktree-01",
-    "query": "check out another branch in a linked working directory",
-    "expectedCommand": "git worktree add <path> <branch>",
-    "acceptableCommands": ["git worktree add <path> <branch>"],
-    "expectedSkillBand": [4, 5],
-    "judgeNotes": "Worktree",
-    "tags": ["worktree"]
+    "query": "add a linked worktree for a feature branch",
+    "expectedCommand": "git worktree",
+    "expectedExample": "git worktree add ../hotfix feature/login",
+    "acceptableExamples": [
+      "git worktree add ../hotfix feature/login"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      3,
+      4
+    ],
+    "tags": [
+      "worktree"
+    ],
+    "acceptableCommands": [
+      "git worktree"
+    ],
+    "expectedSimplestExample": "git worktree add ../hotfix feature/login"
   },
   {
     "id": "submodule-01",
-    "query": "initialize and update nested submodules",
-    "expectedCommand": "git submodule update --init --recursive",
-    "acceptableCommands": ["git submodule update --init --recursive"],
-    "expectedSkillBand": [3, 5],
-    "judgeNotes": "Submodules",
-    "tags": ["submodule"]
+    "query": "initialize and update all submodules recursively",
+    "expectedCommand": "git submodule",
+    "expectedExample": "git submodule update --init --recursive",
+    "acceptableExamples": [
+      "git submodule update --init --recursive"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      3,
+      4
+    ],
+    "tags": [
+      "submodule"
+    ],
+    "acceptableCommands": [
+      "git submodule"
+    ],
+    "expectedSimplestExample": "git submodule update --init --recursive"
   },
   {
     "id": "amend-01",
     "query": "add more changes into the previous commit without editing message",
-    "expectedCommand": "git commit --amend --no-edit",
-    "acceptableCommands": ["git commit --amend --no-edit", "git commit --amend"],
-    "expectedSkillBand": [3, 5],
+    "expectedCommand": "git commit",
+    "acceptableCommands": [
+      "git commit",
+      "git commit"
+    ],
+    "expectedSkillBand": [
+      3,
+      4
+    ],
     "judgeNotes": "Amend",
-    "tags": ["commit"]
+    "tags": [
+      "commit"
+    ],
+    "expectedExample": "git commit --amend --no-edit",
+    "acceptableExamples": [
+      "git commit --amend --no-edit",
+      "git commit --amend",
+      "git commit"
+    ],
+    "expectedSimplestExample": "git commit --amend --no-edit",
+    "preferSimplest": true
   },
   {
     "id": "force-lease-01",
     "query": "force push safely without clobbering others work",
-    "expectedCommand": "git push --force-with-lease",
-    "acceptableCommands": ["git push --force-with-lease"],
-    "expectedSkillBand": [4, 5],
+    "expectedCommand": "git push",
+    "acceptableCommands": [
+      "git push"
+    ],
+    "expectedSkillBand": [
+      4,
+      4
+    ],
     "judgeNotes": "Prefer lease over --force",
-    "tags": ["remote"]
+    "tags": [
+      "remote"
+    ],
+    "expectedExample": "git push --force-with-lease",
+    "acceptableExamples": [
+      "git push --force-with-lease",
+      "git push"
+    ],
+    "expectedSimplestExample": "git push --force-with-lease",
+    "preferSimplest": true
   },
   {
     "id": "revert-01",
     "query": "create a new commit that undoes a previous commit",
-    "expectedCommand": "git revert <commit>",
-    "acceptableCommands": ["git revert <commit>", "git revert HEAD"],
-    "expectedSkillBand": [2, 5],
+    "expectedCommand": "git revert",
+    "acceptableCommands": [
+      "git revert",
+      "git revert"
+    ],
+    "expectedSkillBand": [
+      2,
+      4
+    ],
     "judgeNotes": "Revert not reset",
-    "tags": ["undo"]
+    "tags": [
+      "undo"
+    ],
+    "expectedExample": "git revert HEAD",
+    "acceptableExamples": [
+      "git revert HEAD",
+      "git revert"
+    ],
+    "expectedSimplestExample": "git revert HEAD",
+    "preferSimplest": true
   },
   {
     "id": "config-user-01",
     "query": "set my git email address globally",
-    "expectedCommand": "git config --global user.email \"<email>\"",
-    "acceptableCommands": ["git config --global user.email \"<email>\""],
-    "expectedSkillBand": [1, 3],
+    "expectedCommand": "git config",
+    "acceptableCommands": [
+      "git config"
+    ],
+    "expectedSkillBand": [
+      1,
+      3
+    ],
     "judgeNotes": "Config email",
-    "tags": ["config"]
+    "tags": [
+      "config"
+    ],
+    "expectedExample": "git config --global user.email \"dev@example.com\"",
+    "acceptableExamples": [
+      "git config --global user.email \"dev@example.com\"",
+      "git config"
+    ],
+    "expectedSimplestExample": "git config --global user.email \"dev@example.com\"",
+    "preferSimplest": true
   },
   {
     "id": "grep-01",
-    "query": "search repository contents for a string",
-    "expectedCommand": "git grep \"<pattern>\"",
-    "acceptableCommands": ["git grep \"<pattern>\"", "git grep -n \"<pattern>\""],
-    "expectedSkillBand": [2, 5],
-    "judgeNotes": "Grep",
-    "tags": ["search"]
+    "query": "search the repo for TODO comments",
+    "expectedCommand": "git grep",
+    "expectedExample": "git grep \"TODO\"",
+    "acceptableExamples": [
+      "git grep \"TODO\"",
+      "git grep -n \"TODO\""
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      1,
+      3
+    ],
+    "tags": [
+      "search"
+    ],
+    "acceptableCommands": [
+      "git grep"
+    ],
+    "expectedSimplestExample": "git grep \"TODO\""
   },
   {
     "id": "bisect-01",
-    "query": "start binary search for the commit that introduced a bug",
-    "expectedCommand": "git bisect start",
-    "acceptableCommands": ["git bisect start"],
-    "expectedSkillBand": [3, 5],
-    "judgeNotes": "Bisect",
-    "tags": ["debug"]
+    "query": "start finding which commit introduced a bug",
+    "expectedCommand": "git bisect",
+    "expectedExample": "git bisect start",
+    "acceptableExamples": [
+      "git bisect start"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      3,
+      4
+    ],
+    "tags": [
+      "debug"
+    ],
+    "acceptableCommands": [
+      "git bisect"
+    ],
+    "expectedSimplestExample": "git bisect start"
   },
   {
     "id": "restore-staged-01",
     "query": "unstage a file but keep my working tree edits",
-    "expectedCommand": "git restore --staged <file>",
-    "acceptableCommands": ["git restore --staged <file>", "git reset HEAD <file>"],
-    "expectedSkillBand": [2, 5],
+    "expectedCommand": "git restore",
+    "acceptableCommands": [
+      "git restore",
+      "git reset"
+    ],
+    "expectedSkillBand": [
+      2,
+      4
+    ],
     "judgeNotes": "Unstage",
-    "tags": ["stage"]
+    "tags": [
+      "stage"
+    ],
+    "expectedExample": "git restore --staged app.js",
+    "acceptableExamples": [
+      "git restore --staged app.js",
+      "git reset HEAD app.js",
+      "git restore",
+      "git reset"
+    ],
+    "expectedSimplestExample": "git restore --staged app.js",
+    "preferSimplest": true
   },
   {
     "id": "switch-prev-01",
     "query": "go back to the previous branch I was on",
-    "expectedCommand": "git switch -",
-    "acceptableCommands": ["git switch -", "git checkout -"],
-    "expectedSkillBand": [2, 5],
+    "expectedCommand": "git switch",
+    "acceptableCommands": [
+      "git switch",
+      "git checkout"
+    ],
+    "expectedSkillBand": [
+      2,
+      4
+    ],
     "judgeNotes": "Previous branch",
-    "tags": ["branch"]
+    "tags": [
+      "branch"
+    ],
+    "expectedExample": "git switch -",
+    "acceptableExamples": [
+      "git switch -",
+      "git checkout -",
+      "git switch",
+      "git checkout"
+    ],
+    "expectedSimplestExample": "git switch -",
+    "preferSimplest": true
   },
   {
     "id": "fetch-prune-01",
     "query": "update remote refs and delete gone remote-tracking branches",
-    "expectedCommand": "git fetch --all --prune",
-    "acceptableCommands": ["git fetch --all --prune", "git fetch"],
-    "expectedSkillBand": [3, 5],
+    "expectedCommand": "git fetch",
+    "acceptableCommands": [
+      "git fetch",
+      "git fetch"
+    ],
+    "expectedSkillBand": [
+      3,
+      4
+    ],
     "judgeNotes": "Fetch prune",
-    "tags": ["remote"]
+    "tags": [
+      "remote"
+    ],
+    "expectedExample": "git fetch --all --prune",
+    "acceptableExamples": [
+      "git fetch --all --prune",
+      "git fetch"
+    ],
+    "expectedSimplestExample": "git fetch --all --prune",
+    "preferSimplest": true
   },
   {
     "id": "init-01",
-    "query": "create a new empty git repository here",
+    "query": "start a new git repository here",
     "expectedCommand": "git init",
-    "acceptableCommands": ["git init"],
-    "expectedSkillBand": [1, 2],
-    "judgeNotes": "Init",
-    "tags": ["create"]
+    "expectedExample": "git init",
+    "acceptableExamples": [
+      "git init"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      1,
+      2
+    ],
+    "tags": [
+      "create"
+    ],
+    "acceptableCommands": [
+      "git init"
+    ],
+    "expectedSimplestExample": "git init"
   },
   {
     "id": "show-01",
-    "query": "inspect the latest commit contents",
+    "query": "show the latest commit contents",
     "expectedCommand": "git show",
-    "acceptableCommands": ["git show", "git show HEAD"],
-    "expectedSkillBand": [1, 4],
-    "judgeNotes": "Show",
-    "tags": ["history"]
+    "expectedExample": "git show",
+    "acceptableExamples": [
+      "git show",
+      "git show HEAD"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      1,
+      3
+    ],
+    "tags": [
+      "history"
+    ],
+    "acceptableCommands": [
+      "git show"
+    ],
+    "expectedSimplestExample": "git show"
   },
   {
     "id": "rm-cached-01",
-    "query": "stop tracking a file but leave it on disk",
-    "expectedCommand": "git rm --cached <file>",
-    "acceptableCommands": ["git rm --cached <file>"],
-    "expectedSkillBand": [2, 5],
-    "judgeNotes": "Untrack",
-    "tags": ["files"]
+    "query": "stop tracking a file but keep it on disk",
+    "expectedCommand": "git rm",
+    "expectedExample": "git rm --cached app.js",
+    "acceptableExamples": [
+      "git rm --cached app.js"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      2,
+      4
+    ],
+    "tags": [
+      "stage"
+    ],
+    "acceptableCommands": [
+      "git rm"
+    ],
+    "expectedSimplestExample": "git rm --cached app.js"
   },
   {
     "id": "stash-pop-01",
     "query": "reapply my most recent stash and remove it from the stash list",
-    "expectedCommand": "git stash pop",
-    "acceptableCommands": ["git stash pop"],
-    "expectedSkillBand": [2, 4],
+    "expectedCommand": "git stash",
+    "acceptableCommands": [
+      "git stash"
+    ],
+    "expectedSkillBand": [
+      2,
+      4
+    ],
     "judgeNotes": "Stash pop",
-    "tags": ["stash"]
+    "tags": [
+      "stash"
+    ],
+    "expectedExample": "git stash pop",
+    "acceptableExamples": [
+      "git stash pop",
+      "git stash"
+    ],
+    "expectedSimplestExample": "git stash pop",
+    "preferSimplest": true
+  },
+  {
+    "id": "branch-current-01",
+    "query": "what branch am I on",
+    "expectedCommand": "git branch",
+    "expectedExample": "git branch --show-current",
+    "acceptableCommands": [
+      "git branch"
+    ],
+    "acceptableExamples": [
+      "git branch --show-current",
+      "git rev-parse --abbrev-ref HEAD",
+      "git symbolic-ref --short HEAD",
+      "git branch"
+    ],
+    "expectedSimplestExample": "git branch --show-current",
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      1,
+      3
+    ],
+    "judgeNotes": "Prefer porcelain simplest",
+    "tags": [
+      "branch",
+      "simplest"
+    ]
+  },
+  {
+    "id": "branch-current-02",
+    "query": "print the name of my current branch",
+    "expectedCommand": "git branch",
+    "expectedExample": "git branch --show-current",
+    "acceptableExamples": [
+      "git branch --show-current"
+    ],
+    "expectedSimplestExample": "git branch --show-current",
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      1,
+      2
+    ],
+    "tags": [
+      "branch",
+      "simplest"
+    ],
+    "acceptableCommands": [
+      "git branch"
+    ]
+  },
+  {
+    "id": "status-02",
+    "query": "am I clean or do I have uncommitted changes",
+    "expectedCommand": "git status",
+    "expectedExample": "git status",
+    "acceptableExamples": [
+      "git status",
+      "git status -sb"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      1,
+      2
+    ],
+    "tags": [
+      "status"
+    ],
+    "acceptableCommands": [
+      "git status"
+    ],
+    "expectedSimplestExample": "git status"
+  },
+  {
+    "id": "status-03",
+    "query": "short status branch and dirty files",
+    "expectedCommand": "git status",
+    "expectedExample": "git status -sb",
+    "acceptableExamples": [
+      "git status -sb",
+      "git status"
+    ],
+    "preferSimplest": false,
+    "expectedSkillBand": [
+      2,
+      4
+    ],
+    "tags": [
+      "status"
+    ],
+    "acceptableCommands": [
+      "git status"
+    ],
+    "expectedSimplestExample": "git status -sb"
+  },
+  {
+    "id": "diff-02",
+    "query": "what will be in my next commit",
+    "expectedCommand": "git diff",
+    "expectedExample": "git diff --staged",
+    "acceptableExamples": [
+      "git diff --staged"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      1,
+      3
+    ],
+    "tags": [
+      "diff"
+    ],
+    "acceptableCommands": [
+      "git diff"
+    ],
+    "expectedSimplestExample": "git diff --staged"
+  },
+  {
+    "id": "diff-03",
+    "query": "show unstaged changes only",
+    "expectedCommand": "git diff",
+    "expectedExample": "git diff",
+    "acceptableExamples": [
+      "git diff"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      1,
+      3
+    ],
+    "tags": [
+      "diff"
+    ],
+    "acceptableCommands": [
+      "git diff"
+    ],
+    "expectedSimplestExample": "git diff"
+  },
+  {
+    "id": "add-01",
+    "query": "stage one file for commit",
+    "expectedCommand": "git add",
+    "expectedExample": "git add app.js",
+    "acceptableExamples": [
+      "git add app.js",
+      "git add ."
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      1,
+      3
+    ],
+    "tags": [
+      "stage"
+    ],
+    "acceptableCommands": [
+      "git add"
+    ],
+    "expectedSimplestExample": "git add app.js"
+  },
+  {
+    "id": "add-02",
+    "query": "interactively pick hunks to stage",
+    "expectedCommand": "git add",
+    "expectedExample": "git add -p",
+    "acceptableExamples": [
+      "git add -p"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      2,
+      4
+    ],
+    "tags": [
+      "stage"
+    ],
+    "acceptableCommands": [
+      "git add"
+    ],
+    "expectedSimplestExample": "git add -p"
+  },
+  {
+    "id": "commit-02",
+    "query": "amend last commit keep same message",
+    "expectedCommand": "git commit",
+    "expectedExample": "git commit --amend --no-edit",
+    "acceptableExamples": [
+      "git commit --amend --no-edit",
+      "git commit --amend"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      2,
+      4
+    ],
+    "tags": [
+      "commit"
+    ],
+    "acceptableCommands": [
+      "git commit"
+    ],
+    "expectedSimplestExample": "git commit --amend --no-edit"
+  },
+  {
+    "id": "commit-03",
+    "query": "stage all tracked changes and commit",
+    "expectedCommand": "git commit",
+    "expectedExample": "git commit -am \"Fix typo\"",
+    "acceptableExamples": [
+      "git commit -am \"Fix typo\""
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      2,
+      3
+    ],
+    "tags": [
+      "commit"
+    ],
+    "acceptableCommands": [
+      "git commit"
+    ],
+    "expectedSimplestExample": "git commit -am \"Fix typo\""
+  },
+  {
+    "id": "log-02",
+    "query": "pretty graph of all branches",
+    "expectedCommand": "git log",
+    "expectedExample": "git log --graph --oneline --all",
+    "acceptableExamples": [
+      "git log --graph --oneline --all"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      2,
+      4
+    ],
+    "tags": [
+      "history"
+    ],
+    "acceptableCommands": [
+      "git log"
+    ],
+    "expectedSimplestExample": "git log --graph --oneline --all"
+  },
+  {
+    "id": "log-03",
+    "query": "who last touched this line",
+    "expectedCommand": "git blame",
+    "expectedExample": "git blame app.js",
+    "acceptableExamples": [
+      "git blame app.js",
+      "git annotate app.js"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      2,
+      4
+    ],
+    "tags": [
+      "history"
+    ],
+    "acceptableCommands": [
+      "git blame"
+    ],
+    "expectedSimplestExample": "git blame app.js"
+  },
+  {
+    "id": "switch-01",
+    "query": "go back to previous branch",
+    "expectedCommand": "git switch",
+    "expectedExample": "git switch -",
+    "acceptableExamples": [
+      "git switch -",
+      "git checkout -"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      1,
+      3
+    ],
+    "tags": [
+      "branch"
+    ],
+    "acceptableCommands": [
+      "git switch"
+    ],
+    "expectedSimplestExample": "git switch -"
+  },
+  {
+    "id": "switch-02",
+    "query": "check out main branch",
+    "expectedCommand": "git switch",
+    "expectedExample": "git switch main",
+    "acceptableExamples": [
+      "git switch main",
+      "git checkout main"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      1,
+      3
+    ],
+    "tags": [
+      "branch"
+    ],
+    "acceptableCommands": [
+      "git switch"
+    ],
+    "expectedSimplestExample": "git switch main"
+  },
+  {
+    "id": "fetch-01",
+    "query": "update remote tracking branches and prune deleted ones",
+    "expectedCommand": "git fetch",
+    "expectedExample": "git fetch --all --prune",
+    "acceptableExamples": [
+      "git fetch --all --prune",
+      "git fetch"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      2,
+      4
+    ],
+    "tags": [
+      "remote"
+    ],
+    "acceptableCommands": [
+      "git fetch"
+    ],
+    "expectedSimplestExample": "git fetch --all --prune"
+  },
+  {
+    "id": "pull-02",
+    "query": "pull with rebase instead of merge",
+    "expectedCommand": "git pull",
+    "expectedExample": "git pull --rebase",
+    "acceptableExamples": [
+      "git pull --rebase"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      2,
+      4
+    ],
+    "tags": [
+      "remote"
+    ],
+    "acceptableCommands": [
+      "git pull"
+    ],
+    "expectedSimplestExample": "git pull --rebase"
+  },
+  {
+    "id": "push-02",
+    "query": "force push safely without clobbering others",
+    "expectedCommand": "git push",
+    "expectedExample": "git push --force-with-lease",
+    "acceptableExamples": [
+      "git push --force-with-lease"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      3,
+      4
+    ],
+    "tags": [
+      "remote"
+    ],
+    "acceptableCommands": [
+      "git push"
+    ],
+    "expectedSimplestExample": "git push --force-with-lease"
+  },
+  {
+    "id": "remote-01",
+    "query": "list remotes with urls",
+    "expectedCommand": "git remote",
+    "expectedExample": "git remote -v",
+    "acceptableExamples": [
+      "git remote -v"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      1,
+      3
+    ],
+    "tags": [
+      "remote"
+    ],
+    "acceptableCommands": [
+      "git remote"
+    ],
+    "expectedSimplestExample": "git remote -v"
+  },
+  {
+    "id": "stash-02",
+    "query": "bring back my stash and drop it",
+    "expectedCommand": "git stash",
+    "expectedExample": "git stash pop",
+    "acceptableExamples": [
+      "git stash pop"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      2,
+      4
+    ],
+    "tags": [
+      "stash"
+    ],
+    "acceptableCommands": [
+      "git stash"
+    ],
+    "expectedSimplestExample": "git stash pop"
+  },
+  {
+    "id": "stash-03",
+    "query": "stash including untracked files",
+    "expectedCommand": "git stash",
+    "expectedExample": "git stash -u",
+    "acceptableExamples": [
+      "git stash -u",
+      "git stash --include-untracked"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      2,
+      4
+    ],
+    "tags": [
+      "stash"
+    ],
+    "acceptableCommands": [
+      "git stash"
+    ],
+    "expectedSimplestExample": "git stash -u"
+  },
+  {
+    "id": "undo-soft-02",
+    "query": "uncommit but keep my work staged soft",
+    "expectedCommand": "git reset",
+    "expectedExample": "git reset --soft HEAD~1",
+    "acceptableExamples": [
+      "git reset --soft HEAD~1"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      2,
+      4
+    ],
+    "tags": [
+      "undo"
+    ],
+    "acceptableCommands": [
+      "git reset"
+    ],
+    "expectedSimplestExample": "git reset --soft HEAD~1"
+  },
+  {
+    "id": "undo-restore-01",
+    "query": "unstage a file keep changes in working tree",
+    "expectedCommand": "git restore",
+    "expectedExample": "git restore --staged app.js",
+    "acceptableExamples": [
+      "git restore --staged app.js",
+      "git reset HEAD app.js"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      2,
+      4
+    ],
+    "tags": [
+      "undo"
+    ],
+    "acceptableCommands": [
+      "git restore"
+    ],
+    "expectedSimplestExample": "git restore --staged app.js"
+  },
+  {
+    "id": "undo-revert-01",
+    "query": "make a new commit that undoes the last one",
+    "expectedCommand": "git revert",
+    "expectedExample": "git revert HEAD",
+    "acceptableExamples": [
+      "git revert HEAD",
+      "git revert abc1234"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      2,
+      4
+    ],
+    "tags": [
+      "undo"
+    ],
+    "acceptableCommands": [
+      "git revert"
+    ],
+    "expectedSimplestExample": "git revert HEAD"
+  },
+  {
+    "id": "config-01",
+    "query": "set my global email address",
+    "expectedCommand": "git config",
+    "expectedExample": "git config --global user.email \"dev@example.com\"",
+    "acceptableExamples": [
+      "git config --global user.email \"dev@example.com\""
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      1,
+      3
+    ],
+    "tags": [
+      "config"
+    ],
+    "acceptableCommands": [
+      "git config"
+    ],
+    "expectedSimplestExample": "git config --global user.email \"dev@example.com\""
+  },
+  {
+    "id": "cherry-01",
+    "query": "apply a single commit onto this branch",
+    "expectedCommand": "git cherry-pick",
+    "expectedExample": "git cherry-pick abc1234",
+    "acceptableExamples": [
+      "git cherry-pick abc1234"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      3,
+      4
+    ],
+    "tags": [
+      "history"
+    ],
+    "acceptableCommands": [
+      "git cherry-pick"
+    ],
+    "expectedSimplestExample": "git cherry-pick abc1234"
+  },
+  {
+    "id": "merge-01",
+    "query": "merge main into my branch",
+    "expectedCommand": "git merge",
+    "expectedExample": "git merge main",
+    "acceptableExamples": [
+      "git merge main"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      2,
+      4
+    ],
+    "tags": [
+      "merge"
+    ],
+    "acceptableCommands": [
+      "git merge"
+    ],
+    "expectedSimplestExample": "git merge main"
+  },
+  {
+    "id": "rebase-01",
+    "query": "rebase my branch onto main",
+    "expectedCommand": "git rebase",
+    "expectedExample": "git rebase main",
+    "acceptableExamples": [
+      "git rebase main"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      3,
+      4
+    ],
+    "tags": [
+      "rebase"
+    ],
+    "acceptableCommands": [
+      "git rebase"
+    ],
+    "expectedSimplestExample": "git rebase main"
+  },
+  {
+    "id": "nt-01",
+    "query": "i messed up my last save how do i unsaved but keep files",
+    "expectedCommand": "git reset",
+    "expectedExample": "git reset --soft HEAD~1",
+    "acceptableExamples": [
+      "git reset --soft HEAD~1"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      1,
+      2
+    ],
+    "tags": [
+      "undo",
+      "non-technical"
+    ],
+    "acceptableCommands": [
+      "git reset"
+    ],
+    "expectedSimplestExample": "git reset --soft HEAD~1"
+  },
+  {
+    "id": "nt-02",
+    "query": "which line of work am i on right now",
+    "expectedCommand": "git branch",
+    "expectedExample": "git branch --show-current",
+    "acceptableExamples": [
+      "git branch --show-current"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      1,
+      2
+    ],
+    "tags": [
+      "branch",
+      "non-technical"
+    ],
+    "acceptableCommands": [
+      "git branch"
+    ],
+    "expectedSimplestExample": "git branch --show-current"
+  },
+  {
+    "id": "nt-03",
+    "query": "hide my unfinished work for a minute",
+    "expectedCommand": "git stash",
+    "expectedExample": "git stash",
+    "acceptableExamples": [
+      "git stash"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      1,
+      2
+    ],
+    "tags": [
+      "stash",
+      "non-technical"
+    ],
+    "acceptableCommands": [
+      "git stash"
+    ],
+    "expectedSimplestExample": "git stash"
+  },
+  {
+    "id": "expert-01",
+    "query": "read the symbolic ref for HEAD short name",
+    "expectedCommand": "git symbolic-ref",
+    "expectedExample": "git symbolic-ref --short HEAD",
+    "acceptableExamples": [
+      "git symbolic-ref --short HEAD",
+      "git symbolic-ref HEAD"
+    ],
+    "preferSimplest": false,
+    "expectedSkillBand": [
+      4,
+      4
+    ],
+    "tags": [
+      "branch",
+      "expert"
+    ],
+    "acceptableCommands": [
+      "git symbolic-ref"
+    ],
+    "expectedSimplestExample": "git symbolic-ref --short HEAD"
+  },
+  {
+    "id": "expert-02",
+    "query": "abbrev-ref HEAD via rev-parse",
+    "expectedCommand": "git rev-parse",
+    "expectedExample": "git rev-parse --abbrev-ref HEAD",
+    "acceptableExamples": [
+      "git rev-parse --abbrev-ref HEAD"
+    ],
+    "preferSimplest": false,
+    "expectedSkillBand": [
+      4,
+      4
+    ],
+    "tags": [
+      "branch",
+      "expert"
+    ],
+    "acceptableCommands": [
+      "git rev-parse"
+    ],
+    "expectedSimplestExample": "git rev-parse --abbrev-ref HEAD"
+  },
+  {
+    "id": "simplest-vs-plumbing-01",
+    "query": "current branch name please",
+    "expectedCommand": "git branch",
+    "expectedExample": "git branch --show-current",
+    "acceptableExamples": [
+      "git branch --show-current",
+      "git rev-parse --abbrev-ref HEAD",
+      "git symbolic-ref --short HEAD"
+    ],
+    "expectedSimplestExample": "git branch --show-current",
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      1,
+      3
+    ],
+    "tags": [
+      "simplest"
+    ],
+    "acceptableCommands": [
+      "git branch"
+    ]
+  },
+  {
+    "id": "push-03",
+    "query": "just push my commits",
+    "expectedCommand": "git push",
+    "expectedExample": "git push",
+    "acceptableExamples": [
+      "git push",
+      "git push -u origin HEAD"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      1,
+      3
+    ],
+    "tags": [
+      "remote"
+    ],
+    "acceptableCommands": [
+      "git push"
+    ],
+    "expectedSimplestExample": "git push"
+  },
+  {
+    "id": "pull-03",
+    "query": "get latest from the remote",
+    "expectedCommand": "git pull",
+    "expectedExample": "git pull",
+    "acceptableExamples": [
+      "git pull",
+      "git fetch"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      1,
+      3
+    ],
+    "tags": [
+      "remote"
+    ],
+    "acceptableCommands": [
+      "git pull"
+    ],
+    "expectedSimplestExample": "git pull"
+  },
+  {
+    "id": "diff-04",
+    "query": "compare working tree to last commit",
+    "expectedCommand": "git diff",
+    "expectedExample": "git diff HEAD",
+    "acceptableExamples": [
+      "git diff HEAD",
+      "git diff"
+    ],
+    "preferSimplest": false,
+    "expectedSkillBand": [
+      2,
+      4
+    ],
+    "tags": [
+      "diff"
+    ],
+    "acceptableCommands": [
+      "git diff"
+    ],
+    "expectedSimplestExample": "git diff HEAD"
+  },
+  {
+    "id": "add-03",
+    "query": "stage everything in this folder",
+    "expectedCommand": "git add",
+    "expectedExample": "git add .",
+    "acceptableExamples": [
+      "git add .",
+      "git add -A"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      1,
+      3
+    ],
+    "tags": [
+      "stage"
+    ],
+    "acceptableCommands": [
+      "git add"
+    ],
+    "expectedSimplestExample": "git add ."
+  },
+  {
+    "id": "commit-04",
+    "query": "write a commit message for staged files",
+    "expectedCommand": "git commit",
+    "expectedExample": "git commit -m \"Fix typo\"",
+    "acceptableExamples": [
+      "git commit -m \"Fix typo\""
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      1,
+      2
+    ],
+    "tags": [
+      "commit"
+    ],
+    "acceptableCommands": [
+      "git commit"
+    ],
+    "expectedSimplestExample": "git commit -m \"Fix typo\""
+  },
+  {
+    "id": "branch-list-01",
+    "query": "list my local branches",
+    "expectedCommand": "git branch",
+    "expectedExample": "git branch",
+    "acceptableExamples": [
+      "git branch",
+      "git branch -a"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      1,
+      3
+    ],
+    "tags": [
+      "branch"
+    ],
+    "acceptableCommands": [
+      "git branch"
+    ],
+    "expectedSimplestExample": "git branch"
+  },
+  {
+    "id": "branch-delete-01",
+    "query": "delete a merged feature branch",
+    "expectedCommand": "git branch",
+    "expectedExample": "git branch -d feature/login",
+    "acceptableExamples": [
+      "git branch -d feature/login"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      2,
+      4
+    ],
+    "tags": [
+      "branch"
+    ],
+    "acceptableCommands": [
+      "git branch"
+    ],
+    "expectedSimplestExample": "git branch -d feature/login"
+  },
+  {
+    "id": "help-01",
+    "query": "open help for the commit command",
+    "expectedCommand": "git help",
+    "expectedExample": "git help commit",
+    "acceptableExamples": [
+      "git help commit",
+      "git commit --help"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      1,
+      3
+    ],
+    "tags": [
+      "help"
+    ],
+    "acceptableCommands": [
+      "git help"
+    ],
+    "expectedSimplestExample": "git help commit"
+  },
+  {
+    "id": "version-01",
+    "query": "what git version am i running",
+    "expectedCommand": "git --version",
+    "expectedExample": "git --version",
+    "acceptableExamples": [
+      "git --version",
+      "git version"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      1,
+      2
+    ],
+    "tags": [
+      "help"
+    ],
+    "acceptableCommands": [
+      "git --version"
+    ],
+    "expectedSimplestExample": "git --version"
+  },
+  {
+    "id": "fetch-02",
+    "query": "fetch from origin only",
+    "expectedCommand": "git fetch",
+    "expectedExample": "git fetch origin",
+    "acceptableExamples": [
+      "git fetch origin",
+      "git fetch"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      2,
+      3
+    ],
+    "tags": [
+      "remote"
+    ],
+    "acceptableCommands": [
+      "git fetch"
+    ],
+    "expectedSimplestExample": "git fetch origin"
+  },
+  {
+    "id": "merge-ff-01",
+    "query": "merge feature without fast-forward",
+    "expectedCommand": "git merge",
+    "expectedExample": "git merge --no-ff feature/login",
+    "acceptableExamples": [
+      "git merge --no-ff feature/login"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      3,
+      4
+    ],
+    "tags": [
+      "merge"
+    ],
+    "acceptableCommands": [
+      "git merge"
+    ],
+    "expectedSimplestExample": "git merge --no-ff feature/login"
+  },
+  {
+    "id": "rebase-i-01",
+    "query": "interactively rewrite last three commits",
+    "expectedCommand": "git rebase",
+    "expectedExample": "git rebase -i HEAD~3",
+    "acceptableExamples": [
+      "git rebase -i HEAD~3"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      4,
+      4
+    ],
+    "tags": [
+      "rebase"
+    ],
+    "acceptableCommands": [
+      "git rebase"
+    ],
+    "expectedSimplestExample": "git rebase -i HEAD~3"
+  },
+  {
+    "id": "stash-list-01",
+    "query": "list my stashes",
+    "expectedCommand": "git stash",
+    "expectedExample": "git stash list",
+    "acceptableExamples": [
+      "git stash list"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      2,
+      3
+    ],
+    "tags": [
+      "stash"
+    ],
+    "acceptableCommands": [
+      "git stash"
+    ],
+    "expectedSimplestExample": "git stash list"
+  },
+  {
+    "id": "show-02",
+    "query": "inspect commit abc1234",
+    "expectedCommand": "git show",
+    "expectedExample": "git show abc1234",
+    "acceptableExamples": [
+      "git show abc1234"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      2,
+      4
+    ],
+    "tags": [
+      "history"
+    ],
+    "acceptableCommands": [
+      "git show"
+    ],
+    "expectedSimplestExample": "git show abc1234"
+  },
+  {
+    "id": "restore-02",
+    "query": "discard local edits to a file",
+    "expectedCommand": "git restore",
+    "expectedExample": "git restore app.js",
+    "acceptableExamples": [
+      "git restore app.js",
+      "git checkout -- app.js"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      2,
+      4
+    ],
+    "tags": [
+      "undo"
+    ],
+    "acceptableCommands": [
+      "git restore"
+    ],
+    "expectedSimplestExample": "git restore app.js"
+  },
+  {
+    "id": "clone-02",
+    "query": "clone the example github repo",
+    "expectedCommand": "git clone",
+    "expectedExample": "git clone https://github.com/example/repo.git",
+    "acceptableExamples": [
+      "git clone https://github.com/example/repo.git"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      1,
+      3
+    ],
+    "tags": [
+      "create"
+    ],
+    "acceptableCommands": [
+      "git clone"
+    ],
+    "expectedSimplestExample": "git clone https://github.com/example/repo.git"
+  },
+  {
+    "id": "config-02",
+    "query": "set my git username",
+    "expectedCommand": "git config",
+    "expectedExample": "git config user.name \"alice\"",
+    "acceptableExamples": [
+      "git config user.name \"alice\"",
+      "git config --global user.name \"alice\""
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      1,
+      3
+    ],
+    "tags": [
+      "config"
+    ],
+    "acceptableCommands": [
+      "git config"
+    ],
+    "expectedSimplestExample": "git config user.name \"alice\""
+  },
+  {
+    "id": "tag-list-01",
+    "query": "list all tags",
+    "expectedCommand": "git tag",
+    "expectedExample": "git tag -l",
+    "acceptableExamples": [
+      "git tag -l",
+      "git tag"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      1,
+      3
+    ],
+    "tags": [
+      "tag"
+    ],
+    "acceptableCommands": [
+      "git tag"
+    ],
+    "expectedSimplestExample": "git tag -l"
+  },
+  {
+    "id": "worktree-list-01",
+    "query": "list linked worktrees",
+    "expectedCommand": "git worktree",
+    "expectedExample": "git worktree list",
+    "acceptableExamples": [
+      "git worktree list"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      3,
+      4
+    ],
+    "tags": [
+      "worktree"
+    ],
+    "acceptableCommands": [
+      "git worktree"
+    ],
+    "expectedSimplestExample": "git worktree list"
+  },
+  {
+    "id": "submodule-status-01",
+    "query": "show submodule status",
+    "expectedCommand": "git submodule",
+    "expectedExample": "git submodule status",
+    "acceptableExamples": [
+      "git submodule status"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      3,
+      4
+    ],
+    "tags": [
+      "submodule"
+    ],
+    "acceptableCommands": [
+      "git submodule"
+    ],
+    "expectedSimplestExample": "git submodule status"
+  },
+  {
+    "id": "notes-01",
+    "query": "add a note to HEAD",
+    "expectedCommand": "git notes",
+    "expectedExample": "git notes add -m \"Fix typo\"",
+    "acceptableExamples": [
+      "git notes add -m \"Fix typo\""
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      3,
+      4
+    ],
+    "tags": [
+      "notes"
+    ],
+    "acceptableCommands": [
+      "git notes"
+    ],
+    "expectedSimplestExample": "git notes add -m \"Fix typo\""
+  },
+  {
+    "id": "shortlog-01",
+    "query": "summary of commits by author",
+    "expectedCommand": "git shortlog",
+    "expectedExample": "git shortlog -sn",
+    "acceptableExamples": [
+      "git shortlog -sn",
+      "git shortlog"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      2,
+      4
+    ],
+    "tags": [
+      "history"
+    ],
+    "acceptableCommands": [
+      "git shortlog"
+    ],
+    "expectedSimplestExample": "git shortlog -sn"
+  },
+  {
+    "id": "describe-01",
+    "query": "describe current commit with nearest tag",
+    "expectedCommand": "git describe",
+    "expectedExample": "git describe --tags",
+    "acceptableExamples": [
+      "git describe --tags",
+      "git describe"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      3,
+      4
+    ],
+    "tags": [
+      "history"
+    ],
+    "acceptableCommands": [
+      "git describe"
+    ],
+    "expectedSimplestExample": "git describe --tags"
+  },
+  {
+    "id": "ls-files-01",
+    "query": "list tracked files in the index",
+    "expectedCommand": "git ls-files",
+    "expectedExample": "git ls-files",
+    "acceptableExamples": [
+      "git ls-files"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      3,
+      4
+    ],
+    "tags": [
+      "files"
+    ],
+    "acceptableCommands": [
+      "git ls-files"
+    ],
+    "expectedSimplestExample": "git ls-files"
+  },
+  {
+    "id": "check-ignore-01",
+    "query": "check if a path is ignored",
+    "expectedCommand": "git check-ignore",
+    "expectedExample": "git check-ignore -v app.js",
+    "acceptableExamples": [
+      "git check-ignore -v app.js",
+      "git check-ignore app.js"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      3,
+      4
+    ],
+    "tags": [
+      "files"
+    ],
+    "acceptableCommands": [
+      "git check-ignore"
+    ],
+    "expectedSimplestExample": "git check-ignore -v app.js"
+  },
+  {
+    "id": "sparse-01",
+    "query": "enable sparse checkout cone mode",
+    "expectedCommand": "git sparse-checkout",
+    "expectedExample": "git sparse-checkout init --cone",
+    "acceptableExamples": [
+      "git sparse-checkout init --cone"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      4,
+      4
+    ],
+    "tags": [
+      "sparse"
+    ],
+    "acceptableCommands": [
+      "git sparse-checkout"
+    ],
+    "expectedSimplestExample": "git sparse-checkout init --cone"
+  },
+  {
+    "id": "bundle-01",
+    "query": "create a bundle of the whole repo",
+    "expectedCommand": "git bundle",
+    "expectedExample": "git bundle create repo.bundle --all",
+    "acceptableExamples": [
+      "git bundle create repo.bundle --all"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      4,
+      4
+    ],
+    "tags": [
+      "bundle"
+    ],
+    "acceptableCommands": [
+      "git bundle"
+    ],
+    "expectedSimplestExample": "git bundle create repo.bundle --all"
+  },
+  {
+    "id": "archive-01",
+    "query": "export a zip archive of HEAD",
+    "expectedCommand": "git archive",
+    "expectedExample": "git archive --format=zip HEAD -o repo.zip",
+    "acceptableExamples": [
+      "git archive --format=zip HEAD -o repo.zip"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      3,
+      4
+    ],
+    "tags": [
+      "archive"
+    ],
+    "acceptableCommands": [
+      "git archive"
+    ],
+    "expectedSimplestExample": "git archive --format=zip HEAD -o repo.zip"
+  },
+  {
+    "id": "gc-01",
+    "query": "run garbage collection to clean the repo",
+    "expectedCommand": "git gc",
+    "expectedExample": "git gc",
+    "acceptableExamples": [
+      "git gc",
+      "git gc --prune=now"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      3,
+      4
+    ],
+    "tags": [
+      "maintenance"
+    ],
+    "acceptableCommands": [
+      "git gc"
+    ],
+    "expectedSimplestExample": "git gc"
+  },
+  {
+    "id": "fsck-01",
+    "query": "verify connectivity and validity of objects",
+    "expectedCommand": "git fsck",
+    "expectedExample": "git fsck",
+    "acceptableExamples": [
+      "git fsck"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      4,
+      4
+    ],
+    "tags": [
+      "maintenance"
+    ],
+    "acceptableCommands": [
+      "git fsck"
+    ],
+    "expectedSimplestExample": "git fsck"
+  },
+  {
+    "id": "mv-01",
+    "query": "rename a tracked file with git",
+    "expectedCommand": "git mv",
+    "expectedExample": "git mv app.js src/index.ts",
+    "acceptableExamples": [
+      "git mv app.js src/index.ts"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      2,
+      3
+    ],
+    "tags": [
+      "files"
+    ],
+    "acceptableCommands": [
+      "git mv"
+    ],
+    "expectedSimplestExample": "git mv app.js src/index.ts"
+  },
+  {
+    "id": "status-04",
+    "query": "show ignored files in status",
+    "expectedCommand": "git status",
+    "expectedExample": "git status --ignored",
+    "acceptableExamples": [
+      "git status --ignored"
+    ],
+    "preferSimplest": true,
+    "expectedSkillBand": [
+      2,
+      4
+    ],
+    "tags": [
+      "status"
+    ],
+    "acceptableCommands": [
+      "git status"
+    ],
+    "expectedSimplestExample": "git status --ignored"
   }
 ]

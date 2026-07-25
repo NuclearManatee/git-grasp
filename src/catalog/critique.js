@@ -8,12 +8,16 @@ export const TOPIC_CHECKLIST = [
   'archive', 'bundle', 'notes', 'patch', 'advanced', 'security', 'gui',
 ];
 
-export function critiqueCoverage(commands) {
-  const topics = new Set(commands.map((c) => c.topic));
+/**
+ * @param {Array<{ topic?: string, example?: string, command?: string }>} rows
+ */
+export function critiqueCoverage(rows) {
+  const topics = new Set((rows || []).map((c) => c.topic));
   const missing = TOPIC_CHECKLIST.filter((t) => !topics.has(t));
+  const count = (rows || []).length;
   return {
-    complete: missing.length === 0 && commands.length >= 200,
+    complete: missing.length === 0 && count >= 200,
     missing,
-    count: commands.length,
+    count,
   };
 }

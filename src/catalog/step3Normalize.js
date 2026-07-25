@@ -1,5 +1,15 @@
-import { validateCommand, validateIntentRow, makeRowId, commandSlug } from '../lib/validator.js';
+import {
+  validateCommand,
+  validateIntentRow,
+  validateExample,
+  makeRowId,
+  commandSlug,
+  normalizeExample,
+} from '../lib/validator.js';
 import { sanitizeField } from '../lib/ansi.js';
+import { isValidSkillLevel, SKILL_MAX } from '../lib/skills.js';
+import { materializePlaceholders, DEFAULT_GLOSSARY } from './step0Glossary.js';
+import { deriveCommandKey } from './step1Commands.js';
 
 const RISK = new Set(['none', 'low', 'high', 'destructive']);
 
@@ -9,7 +19,8 @@ const RISK = new Set(['none', 'low', 'high', 'destructive']);
 export function subcommandsFromCommands(commands) {
   const set = new Set();
   for (const c of commands) {
-    const parts = String(c.command || c).trim().split(/\s+/);
+    const text = c.command || c.example || c;
+    const parts = String(text).trim().split(/\s+/);
     if (parts[0] === 'git' && parts[1] && !parts[1].startsWith('-')) {
       set.add(parts[1]);
     }
@@ -18,38 +29,54 @@ export function subcommandsFromCommands(commands) {
 }
 
 /**
- * Normalize command list: trim, dedupe, validate, stable sort.
+ * Normalize flat example list (or legacy command list): E4 dedupe, validate.
  */
-export function normalizeCommands(rawCommands, { allowlistExtra = [] } = {}) {
+export function normalizeCommands(rawCommands, {
+  allowlistExtra = [],
+  glossary = DEFAULT_GLOSSARY,
+} = {}) {
   const drops = [];
   const map = new Map();
   for (const raw of rawCommands) {
-    const command = sanitizeField(raw.command || '', 512);
-    const v = validateCommand(command);
-    // Temporarily accept if only allowlist fail but looks like git subcommand — expand later
-    if (!v.ok && v.reason !== 'allowlist') {
-      drops.push({ command, reason: v.reason, stage: 'commands' });
+    let example = sanitizeField(raw.example || raw.command || '', 512);
+    example = normalizeExample(materializePlaceholders(example, glossary));
+    let command = sanitizeField(raw.command || '', 512);
+    if (!command) command = deriveCommandKey(example, example);
+    command = normalizeExample(materializePlaceholders(command, glossary));
+
+    const vEx = validateExample(example);
+    const vCmd = validateCommand(command);
+    if (!vEx.ok && vEx.reason !== 'allowlist') {
+      drops.push({ example, command, reason: vEx.reason, stage: 'commands' });
       continue;
     }
-    if (!v.ok && v.reason === 'allowlist') {
-      const sub = command.split(/\s+/)[1];
+    if (!vCmd.ok && vCmd.reason !== 'allowlist') {
+      drops.push({ example, command, reason: vCmd.reason, stage: 'commands' });
+      continue;
+    }
+    if (!vEx.ok && vEx.reason === 'allowlist') {
+      const sub = example.split(/\s+/)[1];
       if (!sub || !/^[a-z][a-z0-9-]*$/i.test(sub)) {
-        drops.push({ command, reason: 'allowlist', stage: 'commands' });
+        drops.push({ example, command, reason: 'allowlist', stage: 'commands' });
         continue;
       }
     }
-    const key = command;
+
+    const key = normalizeExample(example);
     if (!map.has(key)) {
       map.set(key, {
         command,
+        example: key,
         topic: sanitizeField(raw.topic || 'advanced', 64),
         risk_class: RISK.has(raw.risk_class) ? raw.risk_class : 'none',
         source_hint: sanitizeField(raw.source_hint || '', 200),
-        id_slug: commandSlug(command),
+        intent_family: sanitizeField(raw.intent_family || '', 128),
+        simplicity_rank: Math.max(1, Number(raw.simplicity_rank) || 1),
+        id_slug: commandSlug(key),
       });
     }
   }
-  const commands = [...map.values()].sort((a, b) => a.command.localeCompare(b.command));
+  const commands = [...map.values()].sort((a, b) => a.example.localeCompare(b.example));
   const allowlist = [...new Set([
     ...allowlistExtra,
     ...subcommandsFromCommands(commands),
@@ -63,27 +90,41 @@ export function normalizeCommands(rawCommands, { allowlistExtra = [] } = {}) {
 export function normalizeIntents(rawRows) {
   const drops = [];
   const map = new Map();
+  const intentIndexByKey = new Map();
   for (const raw of rawRows) {
+    const example = normalizeExample(raw.example || raw.command || '');
+    const command = normalizeExample(raw.command || example);
+    const skill_level = Number(raw.skill_level);
+    const indexKey = `${example}:${skill_level}`;
+    let intentIndex = Number(raw.intent_index);
+    if (!Number.isInteger(intentIndex)) {
+      intentIndex = intentIndexByKey.get(indexKey) || 0;
+      intentIndexByKey.set(indexKey, intentIndex + 1);
+    }
     const row = {
-      id: raw.id || makeRowId(raw.command, raw.skill_level),
-      command: sanitizeField(raw.command || '', 512),
-      skill_level: Number(raw.skill_level),
+      id: raw.id || makeRowId(example, skill_level, intentIndex),
+      command,
+      example,
+      intent_family: sanitizeField(raw.intent_family || '', 128),
+      simplicity_rank: Math.max(1, Number(raw.simplicity_rank) || 1),
+      skill_level,
       intent_description: sanitizeField(raw.intent_description || '', 2000),
       explanation: sanitizeField(raw.explanation || '', 4000),
       risks: sanitizeField(raw.risks || '', 4000),
-      examples: sanitizeField(raw.examples || '', 4000),
+      examples: sanitizeField(raw.examples || example, 4000),
       risk_class: RISK.has(raw.risk_class) ? raw.risk_class : 'none',
       topic: sanitizeField(raw.topic || '', 64),
     };
     const v = validateIntentRow(row);
     if (!v.ok) {
-      // allowlist-only: keep if command starts with git and no shell meta (subcommand newly discovered)
       const c = validateCommand(row.command);
-      if (!(c.reason === 'allowlist' && row.intent_description && row.skill_level >= 1 && row.skill_level <= 5)) {
+      const okAllow = c.reason === 'allowlist'
+        && row.intent_description
+        && isValidSkillLevel(row.skill_level);
+      if (!okAllow) {
         drops.push({ row, reason: v.reason, stage: 'intents' });
         continue;
       }
-      // still reject shell_meta etc via validateCommand full check without allowlist
       if (c.reason && c.reason !== 'allowlist') {
         drops.push({ row, reason: c.reason, stage: 'intents' });
         continue;
@@ -96,3 +137,5 @@ export function normalizeIntents(rawRows) {
     drops,
   };
 }
+
+export { SKILL_MAX };

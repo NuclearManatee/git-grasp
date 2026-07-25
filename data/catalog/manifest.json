@@ -1,16 +1,20 @@
 {
   "step": 3,
   "pipeline": [
+    "glossary",
     "docs+extract+are-you-sure",
-    "per-command-intents",
+    "families",
+    "per-example-intents",
     "normalize"
   ],
-  "source": "git-scm.com+gpt-oss-120b",
+  "source": "git-scm.com+llm",
   "docMirrorHash": null,
+  "exampleCount": 335,
   "commandCount": 335,
-  "extractedCommandCount": 335,
-  "intentCount": 1710,
+  "extractedCommandCount": 343,
+  "intentCount": 6404,
+  "familyCount": 228,
   "dropCount": 0,
-  "hash": "fa51d3bdacc34e23edd290b5458e55b0c60427f57f81e50ffdc3a0e824c379ca",
-  "createdAt": "2026-07-25T09:01:30.665Z"
+  "hash": "ad4bfcb23cc13ccca9662164c803a45f233cf467a73dcc88f91ffdf31dc153b6",
+  "createdAt": "2026-07-25T11:18:06.343Z"
 }

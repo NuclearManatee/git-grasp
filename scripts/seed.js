@@ -29,12 +29,21 @@ const client = await openDb(dbPath);
 const rl = createInterface({ input: createReadStream(intentsPath), crlfDelay: Infinity });
 
 let n = 0;
+let skipped = 0;
 for await (const line of rl) {
   if (!line.trim()) continue;
-  const row = JSON.parse(line);
+  const raw = JSON.parse(line);
+  const row = {
+    ...raw,
+    example: raw.example || raw.examples || raw.command,
+    intent_family: raw.intent_family || '',
+    simplicity_rank: Number(raw.simplicity_rank) || 1,
+    skill_level: Number(raw.skill_level) === 5 ? 4 : Number(raw.skill_level),
+  };
   const v = validateIntentRow(row);
   if (!v.ok) {
     console.warn('skip', row.id, v.reason);
+    skipped += 1;
     continue;
   }
   const embedding = await embedder.embed(row.intent_description);
@@ -44,6 +53,6 @@ for await (const line of rl) {
 }
 client.close?.();
 const hash = writeChecksumFile(dbPath);
-console.log(`Seeded ${n} rows → ${dbPath}`);
+console.log(`Seeded ${n} rows (skipped ${skipped}) → ${dbPath}`);
 console.log(`sha256 ${hash}`);
 console.log(`embeddings: ${embedder.mock ? 'mock' : 'all-MiniLM-L6-v2'}`);

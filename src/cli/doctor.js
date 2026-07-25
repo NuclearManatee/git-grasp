@@ -12,9 +12,10 @@ export function doctor() {
   if (!dbCheck.ok) {
     ok = false;
     lines.push(`DB: FAIL (${dbCheck.reason}) at ${dbPath}`);
-    lines.push('  Fix: run npm run seed (maintainer) or reinstall package');
+    lines.push('  Fix: run npm run build-catalog && npm run seed');
   } else {
     lines.push(`DB: OK (${dbCheck.hash.slice(0, 12)}…)`);
+    lines.push('  Schema v2 required (example/intent_family/simplicity_rank). If search fails: npm run seed');
   }
 
   const modelDir = path.join(userPaths().cache, 'models');
@@ -29,7 +30,7 @@ export function doctor() {
 
   try {
     const cfg = readConfig();
-    lines.push(`Config: OK (skillLevel=${cfg.skillLevel}) at ${configFilePath()}`);
+    lines.push(`Config: OK (skillLevel=${cfg.skillLevel == null ? 'off' : cfg.skillLevel}) at ${configFilePath()}`);
   } catch (e) {
     ok = false;
     lines.push(`Config: FAIL — ${e.message}`);

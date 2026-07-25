@@ -1,77 +1,144 @@
-import { makeRowId } from '../lib/validator.js';
+import { makeRowId, normalizeExample } from '../lib/validator.js';
 import { estimateTokensFromMessages } from '../lib/rateLimit.js';
+import { skillPromptList, SKILL_BY_NAME, SKILL_NAMES, isValidSkillLevel } from '../lib/skills.js';
+import { DEFAULT_GLOSSARY } from './step0Glossary.js';
 
-const INTENT_WRITER_SYSTEM = `You are the git-help INTENT WRITER (not the extractor).
-Given ONE git command, produce skill-level intent variants and verbose help fields.
+/**
+ * @param {object} entry example row with command, example, family, simplicity
+ * @param {{ common?: boolean }} opts
+ */
+export function intentCountForExample(entry, opts = {}) {
+  const common = opts.common
+    || Number(entry.simplicity_rank) === 1
+    || entry.source_hint === 'essential'
+    || /^(git status|git commit|git branch|git push|git pull|git stash|git log|git diff|git add)\b/.test(entry.command || '');
+  return common ? 5 : 3;
+}
+
+export function buildIntentWriterSystem(glossary) {
+  return `You are the git-help INTENT WRITER.
+Given ONE pasteable git example, produce skill-level intent variants and help fields.
+Skill levels (use names in output): ${skillPromptList()}.
 Return JSON only:
 {
-  "command": "git status",
+  "command": "git branch",
+  "example": "git branch --show-current",
   "risk_class": "none|low|high|destructive",
   "explanation": "how it works",
   "risks": "side effects",
-  "examples": "example usage",
   "intents": [
-    { "skill_level": 1, "intent_description": "beginner phrasing", "skill_level_na": false },
-    { "skill_level": 2, "intent_description": "..." },
-    { "skill_level": 3, "intent_description": "..." },
-    { "skill_level": 4, "intent_description": "..." },
-    { "skill_level": 5, "intent_description": "expert phrasing" }
+    {
+      "skill_level": "beginner",
+      "intent_descriptions": [
+        "what branch am I on",
+        "show my current branch name",
+        "print the branch I checked out"
+      ]
+    }
   ]
 }
 Rules:
-- Prefer all 5 levels. Set skill_level_na true only when a level truly does not apply.
-- intent_description must be natural language; no shell operators.
-- Match tone: 1=noob colloquial, 5=pro/technical.`;
+- Cover ALL four skills: ${SKILL_NAMES.join(', ')}.
+- Per skill: provide intent_descriptions array (natural language; no shell operators).
+- Diversity: D1 paraphrases + D2 colloquial/non-git wording required; D4 misconception phrasings sparse (at most one per skill).
+- Tone matches skill name (non-technical colloquial → expert technical).
+- Do not invent a different example; stay faithful to the given example.
+- Glossary (context only): ${JSON.stringify(glossary || DEFAULT_GLOSSARY)}`;
+}
 
-function rowsFromItem(entry, item) {
+function coerceSkill(level) {
+  if (typeof level === 'string') {
+    const key = level.trim().toLowerCase();
+    if (Object.prototype.hasOwnProperty.call(SKILL_BY_NAME, key)) return SKILL_BY_NAME[key];
+  }
+  const n = Number(level);
+  return isValidSkillLevel(n) ? n : null;
+}
+
+function rowsFromItem(entry, item, { intentTarget = 3 } = {}) {
   const risk_class = item.risk_class || entry.risk_class || 'none';
-  const explanation = item.explanation || `${entry.command} (${entry.topic || 'git'})`;
+  const explanation = item.explanation || `${entry.example} (${entry.topic || 'git'})`;
   const risks = item.risks || '';
-  const examples = item.examples || entry.command;
+  const example = normalizeExample(item.example || entry.example || entry.command);
+  const command = entry.command || item.command || example;
   const intents = Array.isArray(item.intents) ? item.intents : [];
   const rows = [];
   for (const intent of intents) {
-    const level = Number(intent.skill_level);
     if (intent.skill_level_na) continue;
-    if (!Number.isInteger(level) || level < 1 || level > 5) continue;
-    if (!intent.intent_description) continue;
-    rows.push({
-      id: makeRowId(entry.command, level),
-      command: entry.command,
-      skill_level: level,
-      intent_description: String(intent.intent_description).trim(),
-      explanation,
-      risks,
-      examples,
-      risk_class,
-      topic: entry.topic || 'advanced',
-    });
+    const level = coerceSkill(intent.skill_level);
+    if (level == null) continue;
+    const descs = Array.isArray(intent.intent_descriptions)
+      ? intent.intent_descriptions
+      : (intent.intent_description ? [intent.intent_description] : []);
+    let idx = 0;
+    for (const desc of descs) {
+      if (!desc) continue;
+      if (idx >= Math.max(intentTarget, 5)) break;
+      rows.push({
+        id: makeRowId(example, level, idx),
+        command,
+        example,
+        intent_family: entry.intent_family || '',
+        simplicity_rank: Number(entry.simplicity_rank ?? 1),
+        skill_level: level,
+        intent_description: String(desc).trim(),
+        explanation,
+        risks,
+        examples: example,
+        risk_class,
+        topic: entry.topic || 'advanced',
+      });
+      idx += 1;
+    }
   }
   return rows;
 }
 
 /**
- * ONE command → ONE LLM call (no batching of multiple commands).
- * @param {object} entry
- * @param {{ llmJson?: Function, groqJson?: Function, schedule: Function }} deps
+ * ONE example → ONE LLM call.
  */
-export async function generateIntentsForCommand(entry, { llmJson, groqJson, schedule }) {
+export async function generateIntentsForExample(entry, {
+  llmJson,
+  groqJson,
+  schedule,
+  glossary = DEFAULT_GLOSSARY,
+  common = false,
+} = {}) {
   const jsonFn = llmJson || groqJson;
   if (!jsonFn) throw new Error('llmJson (or groqJson) required');
+  const intentTarget = intentCountForExample(entry, { common });
   const messages = [
-    { role: 'system', content: INTENT_WRITER_SYSTEM },
+    { role: 'system', content: buildIntentWriterSystem(glossary) },
     {
       role: 'user',
       content: JSON.stringify({
         command: entry.command,
+        example: entry.example,
         topic: entry.topic,
+        intent_family: entry.intent_family,
+        simplicity_rank: entry.simplicity_rank,
         risk_class_hint: entry.risk_class,
+        intent_count_per_skill: intentTarget,
+        diversity: {
+          required: ['D1_paraphrase', 'D2_colloquial'],
+          sparse: ['D4_misconception'],
+        },
       }),
     },
   ];
-  const estimatedTokens = estimateTokensFromMessages(messages) + 1200; // reply budget
+  const estimatedTokens = estimateTokensFromMessages(messages) + 1800;
   const out = await schedule(() => jsonFn({ messages }), { estimatedTokens });
-  // Support both flat and items[0] shapes
   const item = Array.isArray(out.items) ? (out.items[0] || out) : out;
-  return rowsFromItem(entry, item);
+  return rowsFromItem(entry, item, { intentTarget });
 }
+
+/** @deprecated use generateIntentsForExample */
+export async function generateIntentsForCommand(entry, deps) {
+  const exampleEntry = {
+    ...entry,
+    example: entry.example || entry.command,
+  };
+  return generateIntentsForExample(exampleEntry, deps);
+}
+
+export { rowsFromItem };

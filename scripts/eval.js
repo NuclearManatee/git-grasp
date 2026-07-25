@@ -6,6 +6,8 @@ import { search } from '../src/search/index.js';
 import { loadEnv, requireLlmKey } from '../src/lib/env.js';
 import { llmJsonObject } from '../src/lib/llm.js';
 import { createRateLimiter, estimateTokensFromMessages } from '../src/lib/rateLimit.js';
+import { gradeCase, migrateGoldenCase } from '../src/eval/judge.js';
+import { DEFAULT_GLOSSARY } from '../src/catalog/step0Glossary.js';
 
 loadEnv();
 
@@ -16,10 +18,14 @@ const forceMockEmb = process.env.GIT_HELP_MOCK_EMBEDDINGS === '1' || args.includ
 
 const goldenPath = path.join(PACKAGE_ROOT, 'eval', 'golden', 'cases.json');
 const criteriaPath = path.join(PACKAGE_ROOT, 'eval', 'judge', 'criteria.md');
+const glossaryPath = path.join(PACKAGE_ROOT, 'data', 'catalog', 'glossary.json');
 const outDir = path.join(PACKAGE_ROOT, 'local', 'eval');
 mkdirSync(outDir, { recursive: true });
 
-const cases = JSON.parse(readFileSync(goldenPath, 'utf8'));
+const glossary = existsSync(glossaryPath)
+  ? JSON.parse(readFileSync(glossaryPath, 'utf8'))
+  : DEFAULT_GLOSSARY;
+const cases = JSON.parse(readFileSync(goldenPath, 'utf8')).map((c) => migrateGoldenCase(c, glossary));
 const criteria = existsSync(criteriaPath) ? readFileSync(criteriaPath, 'utf8') : '';
 
 const lim = createRateLimiter({
@@ -29,24 +35,26 @@ const lim = createRateLimiter({
 
 async function judgeCase(c, actual) {
   if (useMockJudge) {
-    const ok = [c.expectedCommand, ...(c.acceptableCommands || [])].some(
-      (x) => actual.command === x || actual.command?.startsWith(x.split(' <')[0]),
-    );
-    const soft = actual.command && c.expectedCommand
-      && actual.command.split(/\s+/).slice(0, 2).join(' ') === c.expectedCommand.split(/\s+/).slice(0, 2).join(' ');
-    const pass = ok || soft;
-    return { score: pass ? 5 : 2, pass, rationale: pass ? 'mock pass' : 'mock fail' };
+    return gradeCase(c, actual, glossary);
   }
   requireLlmKey();
   const messages = [
-    { role: 'system', content: `You are a strict grader for git-help. ${criteria}\nReturn JSON {score:1-5, pass:boolean, rationale:string}.` },
+    {
+      role: 'system',
+      content: `You are a strict grader for git-help. ${criteria}\nReturn JSON {score:1-5, pass:boolean, passAt3:boolean, passAt5:boolean, rationale:string}.`,
+    },
     {
       role: 'user',
       content: JSON.stringify({
         query: c.query,
         expectedCommand: c.expectedCommand,
+        expectedExample: c.expectedExample,
         acceptableCommands: c.acceptableCommands || [],
+        acceptableExamples: c.acceptableExamples || [],
+        preferSimplest: c.preferSimplest,
+        expectedSimplestExample: c.expectedSimplestExample,
         actualCommand: actual.command,
+        actualExample: actual.example,
         expectedSkillBand: c.expectedSkillBand,
         actualSkillLevel: actual.skill_level,
         judgeNotes: c.judgeNotes,
@@ -54,17 +62,26 @@ async function judgeCase(c, actual) {
       }),
     },
   ];
-  return lim.schedule(() => llmJsonObject({ messages }), {
+  const out = await lim.schedule(() => llmJsonObject({ messages }), {
     estimatedTokens: estimateTokensFromMessages(messages) + 400,
   });
+  return {
+    score: Number(out.score) || 1,
+    pass: Boolean(out.pass),
+    passAt3: out.passAt3 != null ? Boolean(out.passAt3) : Boolean(out.pass) || Number(out.score) >= 3,
+    passAt5: out.passAt5 != null ? Boolean(out.passAt5) : Boolean(out.pass) && Number(out.score) >= 5,
+    rationale: out.rationale || '',
+  };
 }
 
 const results = [];
 let passed = 0;
+let passedAt3 = 0;
+let passedAt5 = 0;
 let scoreSum = 0;
 
 for (const c of cases) {
-  let actual = { command: null, skill_level: null, intent_description: null };
+  let actual = { command: null, example: null, skill_level: null, intent_description: null };
   try {
     const r = await search(c.query, {
       forceMockEmbeddings: forceMockEmb,
@@ -74,12 +91,20 @@ for (const c of cases) {
     if (top) {
       actual = {
         command: top.command,
+        example: top.example ?? top.command,
         skill_level: top.skill_level,
         intent_description: top.intent_description,
+        simplicity_rank: top.simplicity_rank,
       };
     }
   } catch (err) {
-    actual = { command: null, skill_level: null, intent_description: null, error: err.message };
+    actual = {
+      command: null,
+      example: null,
+      skill_level: null,
+      intent_description: null,
+      error: err.message,
+    };
   }
 
   let judgment;
@@ -94,14 +119,28 @@ for (const c of cases) {
   }
   const pass = Boolean(judgment.pass);
   if (pass) passed += 1;
+  if (judgment.passAt3) passedAt3 += 1;
+  if (judgment.passAt5) passedAt5 += 1;
   scoreSum += Number(judgment.score) || 0;
-  results.push({ id: c.id, pass, score: judgment.score, rationale: judgment.rationale, actual });
+  results.push({
+    id: c.id,
+    pass,
+    passAt3: Boolean(judgment.passAt3),
+    passAt5: Boolean(judgment.passAt5),
+    score: judgment.score,
+    rationale: judgment.rationale,
+    actual,
+  });
 }
 
 const passRate = cases.length ? passed / cases.length : 0;
 const report = {
   passRate,
+  passRateAt3: cases.length ? passedAt3 / cases.length : 0,
+  passRateAt5: cases.length ? passedAt5 / cases.length : 0,
   passed,
+  passedAt3,
+  passedAt5,
   total: cases.length,
   avgScore: cases.length ? scoreSum / cases.length : 0,
   minPassRate: minPass,
@@ -113,5 +152,13 @@ const report = {
 };
 
 writeFileSync(path.join(outDir, 'last-report.json'), `${JSON.stringify(report, null, 2)}\n`);
-console.log(JSON.stringify({ passRate, passed, total: cases.length, gate: report.gate }, null, 2));
+writeFileSync(path.join(outDir, 'eval-report.json'), `${JSON.stringify(report, null, 2)}\n`);
+console.log(JSON.stringify({
+  passRate,
+  passRateAt3: report.passRateAt3,
+  passRateAt5: report.passRateAt5,
+  passed,
+  total: cases.length,
+  gate: report.gate,
+}, null, 2));
 process.exit(report.gate || minPass === 0 ? 0 : 1);

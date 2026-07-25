@@ -1,3 +1,5 @@
-{"command":"gitk","reason":"allowlist","stage":"commands"}
-{"command":"gitk --all","reason":"allowlist","stage":"commands"}
-{"command":"gitk <file>","reason":"allowlist","stage":"commands"}
+{"example":"git archive --format=tar main | gzip > archive.tar.gz","command":"git archive","reason":"shell_meta","stage":"commands"}
+{"example":"git archive --format=tar --prefix=project/ HEAD | gzip > project.tar.gz","command":"git archive","reason":"shell_meta","stage":"commands"}
+{"example":"gitk","command":"gitk","reason":"allowlist","stage":"commands"}
+{"example":"gitk --all","command":"gitk --all","reason":"allowlist","stage":"commands"}
+{"example":"gitk app.js","command":"gitk app.js","reason":"allowlist","stage":"commands"}

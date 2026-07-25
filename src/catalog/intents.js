@@ -1,12 +1,12 @@
-import { makeRowId } from '../lib/validator.js';
+import { makeRowId, normalizeExample } from '../lib/validator.js';
+import { SKILL_MAX, SKILL_MIN } from '../lib/skills.js';
 
 /** Richer NL intents so bag-of-words / real embeddings can match user phrasing. */
 const LEVEL_TONE = {
   1: (cmd, topic, phrases) => `${phrases.noob} (${topic}) — ${cmd}`,
   2: (cmd, topic, phrases) => `${phrases.beginner} using ${cmd}`,
   3: (cmd, topic, phrases) => `${phrases.mid} ${cmd}`,
-  4: (cmd, topic, phrases) => `${phrases.advanced} ${cmd}`,
-  5: (cmd, topic, phrases) => `${phrases.pro} ${cmd}`,
+  4: (cmd, topic, phrases) => `${phrases.pro} ${cmd}`,
 };
 
 /** Exact golden-query aligned phrases keyed by command prefix match (first hit wins). */
@@ -280,22 +280,29 @@ const RISK_TEXT = {
 };
 
 /**
- * Deterministic multi-level intents (used for seed; Groq can refine later).
+ * Deterministic multi-level intents (used for seed; LLM can refine later).
  */
 export function generateIntentRows(entry) {
-  const { command, risk_class = 'none', topic = 'git' } = entry;
-  const phrases = phrasesFor(command, topic);
+  const example = normalizeExample(entry.example || entry.command);
+  const command = normalizeExample(entry.command || example);
+  const risk_class = entry.risk_class || 'none';
+  const topic = entry.topic || 'git';
+  const phrases = phrasesFor(example, topic);
   const rows = [];
-  for (let level = 1; level <= 5; level += 1) {
+  for (let level = SKILL_MIN; level <= SKILL_MAX; level += 1) {
     rows.push({
-      id: makeRowId(command, level),
+      id: makeRowId(example, level, 0),
       command,
+      example,
+      intent_family: entry.intent_family || '',
+      simplicity_rank: Number(entry.simplicity_rank ?? 1),
       skill_level: level,
-      intent_description: LEVEL_TONE[level](command, topic, phrases),
-      explanation: `${command} is used for ${topic} operations in Git.`,
+      intent_description: LEVEL_TONE[level](example, topic, phrases),
+      explanation: `${example} is used for ${topic} operations in Git.`,
       risks: RISK_TEXT[risk_class] || RISK_TEXT.none,
-      examples: command,
+      examples: example,
       risk_class,
+      topic,
     });
   }
   return rows;

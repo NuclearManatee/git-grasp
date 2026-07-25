@@ -4,6 +4,7 @@ import ora from 'ora';
 import { search } from '../search/index.js';
 import { formatSearchResult, primaryCommand } from '../ux/format.js';
 import { writeConfig, readConfig } from '../lib/config.js';
+import { parseSkillLevel, skillName, SKILL_NAMES, SKILL_MIN, SKILL_MAX } from '../lib/skills.js';
 import { doctor } from './doctor.js';
 
 async function maybeCopy(text) {
@@ -30,9 +31,9 @@ function runSearchCommand(program) {
         if (cmd) {
           try {
             await maybeCopy(cmd);
-            console.error(chalk.dim('Copied command to clipboard'));
+            console.error(chalk.dim('Copied example to clipboard'));
           } catch {
-            console.error(chalk.yellow('Clipboard unavailable; command printed above'));
+            console.error(chalk.yellow('Clipboard unavailable; example printed above'));
           }
         }
       }
@@ -59,24 +60,23 @@ export function buildProgram() {
     .command('search')
     .description('Search for a Git command')
     .argument('[query...]', 'natural language query')
-    .option('-v, --verbose', 'show explanation, risks, examples')
-    .option('-c, --copy', 'copy winning command to clipboard')
+    .option('-v, --verbose', 'show explanation, risks, advanced alternate')
+    .option('-c, --copy', 'copy winning example to clipboard')
     .action(runSearchCommand(program));
 
   program
     .command('set-level')
-    .description('Restrict search to a skill level (1-5), or clear/off')
-    .argument('<level>', '1-5 | clear | off')
+    .description(`Restrict search to at most this skill (${SKILL_NAMES.join('|')}), or clear/off`)
+    .argument('<level>', `${SKILL_NAMES.join('|')}|${SKILL_MIN}-${SKILL_MAX}|clear|off`)
     .action((level) => {
       try {
-        if (level === 'clear' || level === 'off') {
-          writeConfig({ skillLevel: null });
+        const n = parseSkillLevel(level);
+        writeConfig({ skillLevel: n });
+        if (n == null) {
           console.log('Skill filter cleared');
           return;
         }
-        const n = Number(level);
-        writeConfig({ skillLevel: n });
-        console.log(`Skill filter set to ${n}`);
+        console.log(`Skill filter set to at most ${skillName(n)} (${n})`);
       } catch (e) {
         console.error(chalk.red(e.message));
         process.exitCode = 1;
@@ -100,8 +100,8 @@ export function buildProgram() {
   // Default: bare query args → search
   program
     .argument('[query...]', 'natural language query')
-    .option('-v, --verbose', 'show explanation, risks, examples')
-    .option('-c, --copy', 'copy winning command to clipboard')
+    .option('-v, --verbose', 'show explanation, risks, advanced alternate')
+    .option('-c, --copy', 'copy winning example to clipboard')
     .action(async (queryParts, opts, cmd) => {
       // If a subcommand was used, commander won't hit this with leftover wrongly —
       // when user runs `git-help undo commit`, queryParts is the args.

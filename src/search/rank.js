@@ -1,5 +1,9 @@
+import { skillAtMost } from '../lib/skills.js';
+import { normalizeExample } from '../lib/validator.js';
+
 /**
  * Rank catalog rows against a query embedding using cosine similarity.
+ * Order: exactness (score) > simplicity within family > example specificity.
  */
 export function rankResults(rows, queryEmbedding, thresholds, { skillLevel = null } = {}) {
   const topK = thresholds.topK ?? 5;
@@ -9,20 +13,29 @@ export function rankResults(rows, queryEmbedding, thresholds, { skillLevel = nul
   const requireSkillConsistency = thresholds.requireSkillConsistency !== false;
   const specificityWindow = thresholds.specificityWindow ?? 0.12;
   const promoteMargin = thresholds.specificityPromoteMargin ?? 0.05;
+  const simplicityWindow = thresholds.simplicityWindow ?? 0.08;
+  const advancedWindow = thresholds.advancedWindow ?? 0.12;
 
   let candidates = rows;
   if (skillLevel != null) {
-    candidates = rows.filter((r) => r.skill_level === skillLevel);
+    candidates = rows.filter((r) => skillAtMost(r.skill_level, skillLevel));
   }
 
   const scored = candidates.map((r) => ({
     ...r,
+    example: r.example ?? r.command,
+    intent_family: r.intent_family ?? '',
+    simplicity_rank: Number(r.simplicity_rank ?? 1),
     score: cosineLike(queryEmbedding, r.embedding),
   }));
-  scored.sort((a, b) => b.score - a.score || specificityKey(b.command) - specificityKey(a.command));
 
-  // Prefer a more specific command when nearly as similar as a bare prefix.
-  preferSpecificCommands(scored, specificityWindow, promoteMargin);
+  scored.sort((a, b) => compareRank(a, b));
+
+  // Prefer a more specific example when nearly as similar as a bare prefix.
+  preferSpecificExamples(scored, specificityWindow, promoteMargin);
+
+  // Within score window of the head, prefer simplest in the same family.
+  preferSimplestInFamily(scored, simplicityWindow);
 
   const top = scored.slice(0, topK);
 
@@ -30,49 +43,87 @@ export function rankResults(rows, queryEmbedding, thresholds, { skillLevel = nul
     return {
       status: 'empty',
       results: [],
+      advanced: null,
       lowConfidence: false,
       ambiguous: false,
     };
   }
 
   const first = top[0];
-  const second = top[1];
-  const lowConfidence = first.score < lowConfidenceScore;
-  const gap = second ? first.score - second.score : 1;
-  let ambiguous = Boolean(second && gap < maxSecondGap);
+  const advanced = pickAdvancedAlternate(scored, first, advancedWindow);
 
-  if (requireSkillConsistency && second && first.command !== second.command && gap < maxSecondGap * 2) {
+  // Cross-family ambiguity only
+  const secondOtherFamily = top.find(
+    (r) => r !== first && familyKey(r) !== familyKey(first),
+  );
+  const gap = secondOtherFamily ? first.score - secondOtherFamily.score : 1;
+  let ambiguous = Boolean(secondOtherFamily && gap < maxSecondGap);
+
+  if (
+    requireSkillConsistency
+    && secondOtherFamily
+    && exampleKey(first) !== exampleKey(secondOtherFamily)
+    && gap < maxSecondGap * 2
+  ) {
     ambiguous = true;
   }
 
-  // Still return best match even if below minScore (low confidence warning)
+  const lowConfidence = first.score < lowConfidenceScore;
   const belowFloor = first.score < minScore;
 
+  if (ambiguous && secondOtherFamily) {
+    return {
+      status: 'ambiguous',
+      results: [first, secondOtherFamily],
+      advanced: null,
+      lowConfidence: lowConfidence || belowFloor,
+      ambiguous: true,
+      gap,
+    };
+  }
+
   return {
-    status: ambiguous ? 'ambiguous' : 'ok',
-    results: ambiguous ? top.slice(0, 2) : [first],
+    status: 'ok',
+    results: [first],
+    advanced,
     lowConfidence: lowConfidence || belowFloor,
-    ambiguous,
+    ambiguous: false,
     gap,
   };
 }
 
-function specificityKey(command) {
-  return String(command || '').trim().split(/\s+/).filter(Boolean).length;
+function familyKey(r) {
+  return String(r.intent_family || '').trim() || `cmd:${r.command}`;
 }
 
-function isCommandPrefix(shorter, longer) {
-  const a = String(shorter || '').trim().split(/\s+/);
-  const b = String(longer || '').trim().split(/\s+/);
+function exampleKey(r) {
+  return normalizeExample(r.example ?? r.command);
+}
+
+function compareRank(a, b) {
+  if (b.score !== a.score) return b.score - a.score;
+  const sa = Number(a.simplicity_rank ?? 1);
+  const sb = Number(b.simplicity_rank ?? 1);
+  if (sa !== sb) return sa - sb;
+  return specificityKey(b.example ?? b.command) - specificityKey(a.example ?? a.command);
+}
+
+function specificityKey(text) {
+  return String(text || '').trim().split(/\s+/).filter(Boolean).length;
+}
+
+function isExamplePrefix(shorter, longer) {
+  const a = normalizeExample(shorter).split(/\s+/);
+  const b = normalizeExample(longer).split(/\s+/);
   if (a.length >= b.length) return false;
   return a.every((tok, i) => tok === b[i]);
 }
 
 /**
- * If a short command leads and a longer command that extends it sits within
+ * If a short example leads and a longer example that extends it sits within
  * `promoteMargin` score points, promote the best-scoring longer form.
  */
-export function preferSpecificCommands(scored, window = 0.08, promoteMargin = 0.035) {
+export function preferSpecificExamples(scored, window = 0.08, promoteMargin = 0.035) {
   if (!Array.isArray(scored) || scored.length < 2) return scored;
   const head = scored[0];
   let bestIdx = -1;
@@ -81,7 +132,7 @@ export function preferSpecificCommands(scored, window = 0.08, promoteMargin = 0.
     const cand = scored[i];
     if (head.score - cand.score > window) break;
     if (head.score - cand.score > promoteMargin) continue;
-    if (!isCommandPrefix(head.command, cand.command)) continue;
+    if (!isExamplePrefix(head.example ?? head.command, cand.example ?? cand.command)) continue;
     if (cand.score > bestScore) {
       bestScore = cand.score;
       bestIdx = i;
@@ -92,6 +143,57 @@ export function preferSpecificCommands(scored, window = 0.08, promoteMargin = 0.
     scored.unshift(picked);
   }
   return scored;
+}
+
+/** @deprecated use preferSpecificExamples */
+export function preferSpecificCommands(scored, window, promoteMargin) {
+  return preferSpecificExamples(scored, window, promoteMargin);
+}
+
+/**
+ * Among candidates within simplicityWindow of head score and same family,
+ * promote the lowest simplicity_rank.
+ */
+export function preferSimplestInFamily(scored, window = 0.08) {
+  if (!Array.isArray(scored) || scored.length < 2) return scored;
+  const head = scored[0];
+  const fam = familyKey(head);
+  let bestIdx = 0;
+  let bestRank = Number(head.simplicity_rank ?? 1);
+  for (let i = 1; i < Math.min(scored.length, 40); i += 1) {
+    const cand = scored[i];
+    if (head.score - cand.score > window) break;
+    if (familyKey(cand) !== fam) continue;
+    const rank = Number(cand.simplicity_rank ?? 1);
+    if (rank < bestRank || (rank === bestRank && cand.score > scored[bestIdx].score)) {
+      bestRank = rank;
+      bestIdx = i;
+    }
+  }
+  if (bestIdx > 0) {
+    const [picked] = scored.splice(bestIdx, 1);
+    scored.unshift(picked);
+  }
+  return scored;
+}
+
+function pickAdvancedAlternate(scored, primary, window) {
+  const fam = familyKey(primary);
+  const primaryEx = exampleKey(primary);
+  let best = null;
+  for (let i = 0; i < Math.min(scored.length, 40); i += 1) {
+    const cand = scored[i];
+    if (primary.score - cand.score > window) break;
+    if (familyKey(cand) !== fam) continue;
+    if (exampleKey(cand) === primaryEx) continue;
+    const rank = Number(cand.simplicity_rank ?? 1);
+    const primaryRank = Number(primary.simplicity_rank ?? 1);
+    if (rank <= primaryRank) continue;
+    if (!best || rank > Number(best.simplicity_rank ?? 1) || (rank === Number(best.simplicity_rank ?? 1) && cand.score > best.score)) {
+      best = cand;
+    }
+  }
+  return best;
 }
 
 function cosineLike(a, b) {

@@ -1,8 +1,9 @@
 import { mkdirSync, readFileSync, writeFileSync, existsSync, chmodSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { userPaths } from './paths.js';
+import { isValidSkillLevel, parseSkillLevel, SKILL_MAX, SKILL_MIN } from './skills.js';
 
-const SCHEMA_VERSION = 1;
+const SCHEMA_VERSION = 2;
 
 export function configFilePath() {
   return path.join(userPaths().config, 'config.json');
@@ -26,9 +27,15 @@ export function readConfig() {
     }
   }
   const raw = JSON.parse(readFileSync(file, 'utf8'));
+  let skillLevel = raw.skillLevel === undefined ? null : raw.skillLevel;
+  if (skillLevel != null) {
+    // Migrate old 5 → expert(4)
+    const n = Number(skillLevel);
+    if (n === 5) skillLevel = 4;
+  }
   return {
     schemaVersion: raw.schemaVersion ?? SCHEMA_VERSION,
-    skillLevel: raw.skillLevel === undefined ? null : raw.skillLevel,
+    skillLevel,
   };
 }
 
@@ -41,9 +48,11 @@ export function writeConfig(cfg) {
     skillLevel: cfg.skillLevel ?? null,
   };
   if (data.skillLevel !== null) {
-    const n = Number(data.skillLevel);
-    if (!Number.isInteger(n) || n < 1 || n > 5) {
-      throw new Error('skillLevel must be 1–5 or null');
+    const n = typeof data.skillLevel === 'string'
+      ? parseSkillLevel(data.skillLevel)
+      : Number(data.skillLevel);
+    if (!isValidSkillLevel(n)) {
+      throw new Error(`skillLevel must be ${SKILL_MIN}–${SKILL_MAX} or null`);
     }
     data.skillLevel = n;
   }

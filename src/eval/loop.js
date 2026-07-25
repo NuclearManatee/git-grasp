@@ -35,7 +35,11 @@ export function generateNewCasesFromIntents(intents, {
       id: `gen-c${cycle}-${idHash}`,
       query,
       expectedCommand: row.command,
+      expectedExample: row.example || row.command,
       acceptableCommands: [row.command],
+      acceptableExamples: [row.example || row.command],
+      expectedSimplestExample: row.example || row.command,
+      preferSimplest: Number(row.simplicity_rank ?? 1) === 1,
       expectedSkillBand: [row.skill_level, row.skill_level],
       judgeNotes: `Generated cycle ${cycle} from catalog intent`,
       tags: ['generated', `cycle-${cycle}`, row.topic || 'git'],
@@ -195,15 +199,17 @@ export async function runCaseSuite(cases, { searchFn, judgeFn }) {
   let passed = 0;
   let scoreSum = 0;
   for (const c of cases) {
-    let actual = { command: null, skill_level: null, intent_description: null };
+    let actual = { command: null, example: null, skill_level: null, intent_description: null };
     try {
       const r = await searchFn(c.query);
       const top = r?.results?.[0];
       if (top) {
         actual = {
           command: top.command,
+          example: top.example ?? top.command,
           skill_level: top.skill_level,
           intent_description: top.intent_description,
+          simplicity_rank: top.simplicity_rank,
         };
       }
     } catch (e) {
@@ -222,7 +228,9 @@ export async function runCaseSuite(cases, { searchFn, judgeFn }) {
       pass: Boolean(verdict.pass),
       score: verdict.score,
       expectedCommand: c.expectedCommand,
+      expectedExample: c.expectedExample,
       actualCommand: actual.command,
+      actualExample: actual.example,
       rationale: verdict.rationale,
     });
   }

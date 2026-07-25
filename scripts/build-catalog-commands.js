@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Step 1: Local docs → LLM extract → Are You Sure? loops.
+ * Step 1: Local docs → LLM extract command+examples → Are You Sure? loops.
  */
 import { mkdirSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
@@ -11,29 +11,31 @@ import { llmJsonObject } from '../src/lib/llm.js';
 import { createRateLimiter, estimateTokensFromMessages } from '../src/lib/rateLimit.js';
 import { getProvider } from '../src/lib/providers.js';
 import { loadLocalDocs } from '../src/catalog/downloadDocs.js';
-import { mergeCommands } from '../src/catalog/step1Commands.js';
+import {
+  mergeCommands,
+  buildExtractorSystem,
+  buildAreYouSureSystem,
+  groupByCommand,
+} from '../src/catalog/step1Commands.js';
 import { TOPIC_CHECKLIST, critiqueCoverage } from '../src/catalog/critique.js';
 import { normalizeCommands } from '../src/catalog/step3Normalize.js';
+import { DEFAULT_GLOSSARY } from '../src/catalog/step0Glossary.js';
 
 loadEnv();
 requireLlmKey();
-
-const EXTRACTOR_SYSTEM = `You are the git-help catalog EXTRACTOR.
-Read git documentation text and list concrete git command examples.
-Return JSON only:
-{"commands":[{"command":"git status","topic":"status","risk_class":"none","source_hint":"note"}]}
-Rules: command starts with git; no shell operators; placeholders ok; topic from checklist; risk_class none|low|high|destructive.`;
-
-const ARE_YOU_SURE_SYSTEM = `You audit a git command catalog ("Are you sure?" reinforcement).
-Return JSON only:
-{"sure":false,"missing_topics":[],"additional_commands":[{"command":"git reset --soft HEAD~1","topic":"undo","risk_class":"high","source_hint":"gap"}],"rationale":"short"}
-If sure=true, additional_commands must be []. Never invent non-git or shell pipelines.
-When sure=false, propose at most 40 distinct additional_commands to fill gaps. Keep the JSON compact.`;
 
 const outDir = path.join(PACKAGE_ROOT, 'data', 'catalog');
 const localDir = path.join(PACKAGE_ROOT, 'local', 'catalog');
 mkdirSync(outDir, { recursive: true });
 mkdirSync(localDir, { recursive: true });
+
+const glossaryPath = path.join(outDir, 'glossary.json');
+const glossary = existsSync(glossaryPath)
+  ? JSON.parse(readFileSync(glossaryPath, 'utf8'))
+  : DEFAULT_GLOSSARY;
+
+const EXTRACTOR_SYSTEM = buildExtractorSystem(glossary);
+const ARE_YOU_SURE_SYSTEM = buildAreYouSureSystem(glossary);
 
 const provider = getProvider();
 const statePath = path.join(localDir, 'step1-state.json');
@@ -79,11 +81,19 @@ try {
     const page = pages[state.pageIndex];
     const messages = [
       { role: 'system', content: EXTRACTOR_SYSTEM },
-      { role: 'user', content: JSON.stringify({ url: page.url, documentation_text: page.text, topic_checklist: TOPIC_CHECKLIST }) },
+      {
+        role: 'user',
+        content: JSON.stringify({
+          url: page.url,
+          documentation_text: page.text,
+          topic_checklist: TOPIC_CHECKLIST,
+          glossary,
+        }),
+      },
     ];
     try {
       const out = await callLlm(messages);
-      state.commands = mergeCommands(state.commands, out.commands || []);
+      state.commands = mergeCommands(state.commands, out.commands || [], glossary);
     } catch (err) {
       if (err.code === 'RATE_LIMIT_PAUSE') throw err;
       console.error(`extract skip ${page.url}: ${err.message}`);
@@ -99,13 +109,13 @@ try {
       missingTopics: cov.missing.length,
     }));
     if (state.commands.length >= minCommands && cov.missing.length === 0) {
-      console.log('Extract early-complete: min commands + all topics covered');
+      console.log('Extract early-complete: min examples + all topics covered');
       state.phase = 'are_you_sure';
       saveState(state);
       break;
     }
     if (state.commands.length >= Math.max(minCommands, 280)) {
-      console.log('Extract early-complete: command volume threshold');
+      console.log('Extract early-complete: example volume threshold');
       state.phase = 'are_you_sure';
       saveState(state);
       break;
@@ -126,19 +136,20 @@ try {
         content: JSON.stringify({
           are_you_sure: true,
           question: 'Are you sure this git command catalog is complete for everyday developers?',
-          min_commands: minCommands,
+          min_examples: minCommands,
           current_count: state.commands.length,
           topic_checklist: TOPIC_CHECKLIST,
           coverage_missing_topics: coverage.missing,
-          sample_commands: state.commands.slice(0, 100).map((c) => c.command),
+          sample_examples: state.commands.slice(0, 100).map((c) => c.example),
           all_topics_present: [...new Set(state.commands.map((c) => c.topic))],
+          glossary,
         }),
       },
     ];
     try {
       const audit = await callLlm(messages);
-      const added = mergeCommands([], audit.additional_commands || []);
-      state.commands = mergeCommands(state.commands, added);
+      const added = mergeCommands([], audit.additional_commands || [], glossary);
+      state.commands = mergeCommands(state.commands, added, glossary);
       const after = critiqueCoverage(state.commands);
       const roundInfo = {
         round: state.aysRound,
@@ -181,8 +192,9 @@ try {
     saveState(state);
   }
 
-  const { commands, drops, allowlist } = normalizeCommands(state.commands);
+  const { commands, drops, allowlist } = normalizeCommands(state.commands, { glossary });
   writeFileSync(path.join(outDir, 'commands.raw.json'), `${JSON.stringify(state.commands, null, 2)}\n`);
+  writeFileSync(path.join(outDir, 'commands.grouped.json'), `${JSON.stringify(groupByCommand(commands), null, 2)}\n`);
   writeFileSync(path.join(outDir, 'commands.extracted.json'), `${JSON.stringify(commands, null, 2)}\n`);
   writeFileSync(path.join(outDir, 'commands.json'), `${JSON.stringify(commands, null, 2)}\n`);
   writeFileSync(path.join(outDir, 'command-allowlist.json'), `${JSON.stringify(allowlist, null, 2)}\n`);
@@ -193,6 +205,7 @@ try {
     source: `local-docs+${provider.id}-are-you-sure`,
     provider: provider.id,
     model: provider.defaultModel,
+    exampleCount: commands.length,
     count: commands.length,
     sure: Boolean(state.sure),
     rounds: state.rounds,
@@ -201,7 +214,7 @@ try {
     createdAt: new Date().toISOString(),
   };
   writeFileSync(path.join(outDir, 'manifest.step1.json'), `${JSON.stringify(manifest, null, 2)}\n`);
-  console.log(`Step1 done: ${commands.length} commands, sure=${manifest.sure}`);
+  console.log(`Step1 done: ${commands.length} examples, sure=${manifest.sure}`);
   console.log('Day usage', lim.getDayUsage());
 } catch (e) {
   if (e.code === 'RATE_LIMIT_PAUSE') {

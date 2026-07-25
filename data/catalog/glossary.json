@@ -1,0 +1,44 @@
+{
+  "branch": [
+    "main",
+    "develop",
+    "feature/login"
+  ],
+  "file": [
+    "app.js",
+    "README.md",
+    "src/index.ts"
+  ],
+  "url": [
+    "https://github.com/example/repo.git"
+  ],
+  "message": [
+    "fix typo",
+    "Add login form"
+  ],
+  "commit": [
+    "HEAD",
+    "HEAD~1",
+    "abc1234"
+  ],
+  "name": [
+    "feature",
+    "v1.0.0",
+    "alice"
+  ],
+  "path": [
+    "../hotfix",
+    "worktrees/feature"
+  ],
+  "pattern": [
+    "TODO",
+    "FIXME"
+  ],
+  "email": [
+    "dev@example.com"
+  ],
+  "other": [
+    "upstream",
+    "origin"
+  ]
+}

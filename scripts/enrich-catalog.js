@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 /**
- * Enrich commands.json with golden + essential forms, then generate intents
- * only for commands that still lack intent rows (no multi-command batching).
+ * Enrich examples with golden + essentials, then generate intents for gaps.
  */
 import { mkdirSync, writeFileSync, readFileSync, existsSync, appendFileSync } from 'node:fs';
 import path from 'node:path';
@@ -9,13 +8,15 @@ import { PACKAGE_ROOT } from '../src/lib/paths.js';
 import { loadEnv, requireLlmKey } from '../src/lib/env.js';
 import { llmJsonObject } from '../src/lib/llm.js';
 import { createRateLimiter } from '../src/lib/rateLimit.js';
-import { generateIntentsForCommand } from '../src/catalog/step2Intents.js';
+import { generateIntentsForExample } from '../src/catalog/step2Intents.js';
 import {
   enrichCommandsFromEssentials,
   enrichCommandsFromGolden,
   commandsMissingIntents,
 } from '../src/catalog/enrich.js';
 import { normalizeCommands } from '../src/catalog/step3Normalize.js';
+import { assignFamiliesHeuristic } from '../src/catalog/step1bFamilies.js';
+import { DEFAULT_GLOSSARY } from '../src/catalog/step0Glossary.js';
 
 loadEnv();
 requireLlmKey();
@@ -27,6 +28,10 @@ mkdirSync(localDir, { recursive: true });
 const commandsPath = path.join(outDir, 'commands.json');
 const intentsRawPath = path.join(outDir, 'intents.raw.jsonl');
 const goldenPath = path.join(PACKAGE_ROOT, 'eval', 'golden', 'cases.json');
+const glossaryPath = path.join(outDir, 'glossary.json');
+const glossary = existsSync(glossaryPath)
+  ? JSON.parse(readFileSync(glossaryPath, 'utf8'))
+  : DEFAULT_GLOSSARY;
 
 if (!existsSync(commandsPath)) {
   console.error('Missing commands.json');
@@ -36,19 +41,20 @@ if (!existsSync(commandsPath)) {
 let commands = JSON.parse(readFileSync(commandsPath, 'utf8'));
 const golden = existsSync(goldenPath) ? JSON.parse(readFileSync(goldenPath, 'utf8')) : [];
 const before = commands.length;
-commands = enrichCommandsFromEssentials(commands);
-commands = enrichCommandsFromGolden(commands, golden);
-const { commands: normalized, allowlist } = normalizeCommands(commands);
-commands = normalized;
+commands = enrichCommandsFromEssentials(commands, undefined, glossary);
+commands = enrichCommandsFromGolden(commands, golden, glossary);
+const { commands: normalized, allowlist } = normalizeCommands(commands, { glossary });
+commands = assignFamiliesHeuristic(normalized);
 writeFileSync(commandsPath, `${JSON.stringify(commands, null, 2)}\n`);
+writeFileSync(path.join(outDir, 'examples.json'), `${JSON.stringify(commands, null, 2)}\n`);
 writeFileSync(path.join(outDir, 'command-allowlist.json'), `${JSON.stringify(allowlist, null, 2)}\n`);
-console.log(`Enriched commands ${before} → ${commands.length}`);
+console.log(`Enriched examples ${before} → ${commands.length}`);
 
 const existing = existsSync(intentsRawPath)
   ? readFileSync(intentsRawPath, 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l))
   : [];
 const missing = commandsMissingIntents(commands, existing);
-console.log(`Missing intents for ${missing.length} commands`);
+console.log(`Missing intents for ${missing.length} examples`);
 
 if (missing.length === 0) {
   console.log('Nothing to generate');
@@ -71,16 +77,18 @@ function appendRows(rows) {
 }
 
 let done = 0;
-const tasks = missing.map((entry, idx) => async () => {
+const tasks = missing.map((entry) => async () => {
   let rows = [];
   try {
-    rows = await generateIntentsForCommand(entry, {
+    rows = await generateIntentsForExample(entry, {
       llmJson: llmJsonObject,
       schedule: (fn, opts) => lim.schedule(fn, opts),
+      glossary,
+      common: entry.source_hint === 'essential' || Number(entry.simplicity_rank) === 1,
     });
   } catch (err) {
     if (err.code === 'RATE_LIMIT_PAUSE') throw err;
-    console.error(`enrich fail ${entry.command}: ${err.message}`);
+    console.error(`enrich fail ${entry.example}: ${err.message}`);
   }
   await appendRows(rows);
   done += 1;

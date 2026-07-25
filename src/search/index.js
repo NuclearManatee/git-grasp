@@ -2,6 +2,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { verifyFileChecksum } from '../lib/checksum.js';
 import { defaultDbPath, defaultThresholdsPath } from '../lib/paths.js';
 import { readConfig } from '../lib/config.js';
+import { skillName } from '../lib/skills.js';
 import { openDb, loadAllRows, dbExists } from '../db/schema.js';
 import { getEmbedder } from './embed.js';
 import { rankResults, normalizeQuery } from './rank.js';
@@ -62,7 +63,9 @@ export async function search(query, {
   const ranked = rankResults(rows, embedding, thresholds, { skillLevel });
 
   if (ranked.status === 'empty' && skillLevel != null) {
-    const err = new Error(`No results for skill level ${skillLevel}. Try: git-help set-level clear`);
+    const err = new Error(
+      `No results for skill ≤ ${skillName(skillLevel)}. Try: git-help set-level clear`,
+    );
     err.code = 'FILTER_EMPTY';
     throw err;
   }
