@@ -218,7 +218,7 @@ try {
   console.log('Day usage', lim.getDayUsage());
 } catch (e) {
   if (e.code === 'RATE_LIMIT_PAUSE') {
-    console.error('Rate/quota pause — re-run npm run build-catalog:commands to resume');
+    console.error('Rate/quota pause — re-run bun run build-catalog:commands to resume');
     process.exit(20);
   }
   throw e;

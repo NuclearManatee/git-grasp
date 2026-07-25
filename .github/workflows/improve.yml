@@ -13,11 +13,10 @@ jobs:
     if: github.ref != 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: oven-sh/setup-bun@v2
         with:
-          node-version: '22'
-          cache: npm
-      - run: npm ci
+          bun-version: '1.3.14'
+      - run: bun install --frozen-lockfile
         env:
           GIT_HELP_SKIP_POSTINSTALL: '1'
       - name: Ensure improve branch
@@ -26,7 +25,7 @@ jobs:
           git config user.email "improve@users.noreply.github.com"
           BR="improve/ci-$(date +%Y%m%d)"
           git checkout -B "$BR"
-      - run: node scripts/improve.js --max-iterations=${{ inputs.max_iterations || 5 }} --force-branch
+      - run: bun scripts/improve.js --max-iterations=${{ inputs.max_iterations || 5 }} --force-branch
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
           GIT_HELP_MOCK_EMBEDDINGS: '1'

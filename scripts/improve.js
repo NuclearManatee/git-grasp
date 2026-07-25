@@ -48,7 +48,7 @@ const grid = [
 ];
 
 function runTests() {
-  execSync('npm test', {
+  execSync('bun run test', {
     stdio: 'inherit',
     env: { ...process.env, GIT_HELP_MOCK_EMBEDDINGS: '1', GIT_HELP_SKIP_POSTINSTALL: '1' },
   });
@@ -56,7 +56,7 @@ function runTests() {
 
 function runEval() {
   if (useMockEval) {
-    execSync('node scripts/eval.js --mock-judge --mock-embed', {
+    execSync('bun scripts/eval.js --mock-judge --mock-embed', {
       stdio: 'inherit',
       env: { ...process.env, GIT_HELP_MOCK_EMBEDDINGS: '1', GIT_HELP_MOCK_JUDGE: '1' },
       cwd: PACKAGE_ROOT,
@@ -66,7 +66,7 @@ function runEval() {
     const env = { ...process.env };
     delete env.GIT_HELP_MOCK_EMBEDDINGS;
     delete env.GIT_HELP_MOCK_JUDGE;
-    execSync('node scripts/eval.js --min-pass-rate=0', {
+    execSync('bun scripts/eval.js --min-pass-rate=0', {
       stdio: 'inherit',
       env,
       cwd: PACKAGE_ROOT,

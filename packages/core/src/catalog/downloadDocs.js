@@ -61,7 +61,7 @@ export async function downloadAllDocs({
 export function loadLocalDocs(root, { maxChars = 3500 } = {}) {
   const dir = docsDir(root);
   if (!existsSync(dir)) {
-    throw new Error(`Local docs missing at ${dir} — run npm run download-docs first`);
+    throw new Error(`Local docs missing at ${dir} — run bun run download-docs first`);
   }
   const files = readdirSync(dir).filter((f) => f.endsWith('.json')).sort();
   if (files.length === 0) throw new Error(`No doc files in ${dir}`);

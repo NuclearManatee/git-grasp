@@ -31,11 +31,15 @@ Postinstall smoke-loads the platform `sqlite-vec` native. Embedding model downlo
 ## Usage
 
 ```bash
-bun run cli -- "undo last commit but keep my files"
-# or
-bun apps/cli/bin/index.js search "create a branch" --verbose
-bun run doctor
-bun run cli -- set-level beginner
+export PATH="$HOME/.bun/bin:$PATH"   # Git Bash / shells without bun on PATH
+cd /path/to/git-help
+bun install && bun run seed
+bun link                             # once → `git-help` on PATH
+
+git-help "undo last commit but keep my files"
+git-help search "create a branch" --verbose
+git-help set-level beginner
+git-help doctor
 ```
 
 `set-level` restricts results to **at most** that skill. Flags: `--verbose`, `--copy`.
