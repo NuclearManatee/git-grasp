@@ -1,0 +1,1 @@
+{"topK":5,"minScore":0.1,"maxSecondGap":0.05,"lowConfidenceScore":0.3,"requireSkillConsistency":true,"normalizeQuery":true}

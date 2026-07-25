@@ -1,0 +1,50 @@
+{
+  "name": "git-help",
+  "version": "0.1.0",
+  "description": "Semantic search CLI for Git commands",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "bin": {
+    "git-help": "./bin/index.js"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "data/",
+    "config/",
+    "prompts/",
+    "scripts/postinstall.js",
+    "README.md",
+    "package.json"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "test:unit": "vitest run test/unit",
+    "test:integration": "vitest run test/integration",
+    "test:watch": "vitest",
+    "build-catalog": "node scripts/build-catalog.js",
+    "seed": "node scripts/seed.js",
+    "eval": "node scripts/eval.js",
+    "eval:gen-dynamic": "node scripts/gen-dynamic.js",
+    "improve": "node scripts/improve.js",
+    "postinstall": "node scripts/postinstall.js"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "^3.4.2",
+    "@libsql/client": "^0.14.0",
+    "chalk": "^5.4.1",
+    "clipboardy": "^4.0.0",
+    "commander": "^13.1.0",
+    "dotenv": "^16.4.7",
+    "ora": "^8.2.0"
+  },
+  "devDependencies": {
+    "vitest": "^3.0.5"
+  },
+  "overrides": {
+    "sharp": "0.35.0"
+  }
+}

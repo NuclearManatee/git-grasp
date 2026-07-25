@@ -1,0 +1,29 @@
+name: Golden Eval
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  eval:
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+        env:
+          GIT_HELP_SKIP_POSTINSTALL: '1'
+      - run: npm test
+      - name: Golden eval
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GIT_HELP_SKIP_POSTINSTALL: '1'
+          GIT_HELP_MOCK_EMBEDDINGS: '1'
+        run: node scripts/eval.js --min-pass-rate=0.9

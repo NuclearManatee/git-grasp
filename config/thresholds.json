@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "topK": 5,
+  "minScore": 0.35,
+  "maxSecondGap": 0.05,
+  "lowConfidenceScore": 0.45,
+  "requireSkillConsistency": true,
+  "normalizeQuery": true
+}

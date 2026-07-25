@@ -1,0 +1,33 @@
+name: Improve Loop
+
+on:
+  workflow_dispatch:
+    inputs:
+      max_iterations:
+        description: Max iterations
+        default: '5'
+
+jobs:
+  improve:
+    runs-on: ubuntu-latest
+    if: github.ref != 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+        env:
+          GIT_HELP_SKIP_POSTINSTALL: '1'
+      - name: Ensure improve branch
+        run: |
+          git config user.name "git-help-improve"
+          git config user.email "improve@users.noreply.github.com"
+          BR="improve/ci-$(date +%Y%m%d)"
+          git checkout -B "$BR"
+      - run: node scripts/improve.js --max-iterations=${{ inputs.max_iterations || 5 }} --force-branch
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GIT_HELP_MOCK_EMBEDDINGS: '1'
+          GIT_HELP_MOCK_JUDGE: '1'

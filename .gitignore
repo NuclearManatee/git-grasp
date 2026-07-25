@@ -1,0 +1,13 @@
+.env
+.env.local
+local/
+node_modules/
+coverage/
+*.log
+.DS_Store
+data/models/
+!data/git-commands.db
+!data/git-commands.db.sha256
+!data/catalog/
+local/eval/
+local/improve/

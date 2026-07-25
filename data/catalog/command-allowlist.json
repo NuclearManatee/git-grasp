@@ -1,0 +1,13 @@
+[
+  "add", "am", "annotate", "apply", "archive", "bisect", "blame", "branch", "bugreport",
+  "bundle", "checkout", "cherry", "cherry-pick", "citool", "clean", "clone", "commit",
+  "config", "count-objects", "credential", "describe", "diff", "difftool", "fast-export",
+  "fast-import", "fetch", "filter-branch", "format-patch", "fsck", "gc", "grep", "gui",
+  "help", "init", "instaweb", "log", "maintenance", "merge", "mergetool", "mv", "notes",
+  "pull", "push", "range-diff", "rebase", "reflog", "remote", "repack", "replace",
+  "request-pull", "reset", "restore", "revert", "rm", "shortlog", "show", "show-branch",
+  "sparse-checkout", "stash", "status", "submodule", "switch", "tag", "verify-commit",
+  "verify-tag", "version", "whatchanged", "worktree", "refs", "rev-parse", "rev-list",
+  "ls-files", "ls-remote", "update-index", "update-ref", "symbolic-ref", "check-ignore",
+  "check-attr", "name-rev", "merge-base", "for-each-ref", "interpret-trailers", "stage", "prune"
+]

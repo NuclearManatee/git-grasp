@@ -1,0 +1,317 @@
+[
+  {
+    "id": "status-01",
+    "query": "what files did I change",
+    "expectedCommand": "git status",
+    "acceptableCommands": ["git status", "git status -sb"],
+    "expectedSkillBand": [1, 3],
+    "judgeNotes": "Status overview",
+    "tags": ["status"]
+  },
+  {
+    "id": "undo-soft-01",
+    "query": "undo last commit keep changes staged",
+    "expectedCommand": "git reset --soft HEAD~1",
+    "acceptableCommands": ["git reset --soft HEAD~1"],
+    "expectedSkillBand": [2, 5],
+    "judgeNotes": "Must be soft reset not hard",
+    "tags": ["undo"]
+  },
+  {
+    "id": "undo-hard-01",
+    "query": "throw away last commit and all changes permanently",
+    "expectedCommand": "git reset --hard HEAD~1",
+    "acceptableCommands": ["git reset --hard HEAD~1"],
+    "expectedSkillBand": [3, 5],
+    "judgeNotes": "Destructive hard reset",
+    "tags": ["undo"]
+  },
+  {
+    "id": "stash-01",
+    "query": "temporarily shelve my uncommitted work",
+    "expectedCommand": "git stash",
+    "acceptableCommands": ["git stash", "git stash push -m \"<message>\""],
+    "expectedSkillBand": [1, 4],
+    "judgeNotes": "Stash",
+    "tags": ["stash"]
+  },
+  {
+    "id": "branch-create-01",
+    "query": "create and switch to a new branch",
+    "expectedCommand": "git switch -c <name>",
+    "acceptableCommands": ["git switch -c <name>", "git checkout -b <name>"],
+    "expectedSkillBand": [2, 5],
+    "judgeNotes": "New branch",
+    "tags": ["branch"]
+  },
+  {
+    "id": "commit-01",
+    "query": "save my staged changes with a message",
+    "expectedCommand": "git commit -m \"<message>\"",
+    "acceptableCommands": ["git commit -m \"<message>\"", "git commit -am \"<message>\""],
+    "expectedSkillBand": [1, 3],
+    "judgeNotes": "Commit",
+    "tags": ["commit"]
+  },
+  {
+    "id": "log-01",
+    "query": "show commit history one line each",
+    "expectedCommand": "git log --oneline",
+    "acceptableCommands": ["git log --oneline", "git log --graph --oneline --all"],
+    "expectedSkillBand": [1, 4],
+    "judgeNotes": "Log",
+    "tags": ["history"]
+  },
+  {
+    "id": "pull-01",
+    "query": "download and integrate remote changes",
+    "expectedCommand": "git pull",
+    "acceptableCommands": ["git pull", "git pull --rebase", "git fetch"],
+    "expectedSkillBand": [1, 4],
+    "judgeNotes": "Pull/fetch family ok if judged equivalent",
+    "tags": ["remote"]
+  },
+  {
+    "id": "push-01",
+    "query": "upload my commits to origin and set upstream",
+    "expectedCommand": "git push -u origin HEAD",
+    "acceptableCommands": ["git push -u origin HEAD", "git push"],
+    "expectedSkillBand": [2, 5],
+    "judgeNotes": "Push",
+    "tags": ["remote"]
+  },
+  {
+    "id": "diff-staged-01",
+    "query": "see what I have staged for commit",
+    "expectedCommand": "git diff --staged",
+    "acceptableCommands": ["git diff --staged"],
+    "expectedSkillBand": [2, 5],
+    "judgeNotes": "Staged diff",
+    "tags": ["diff"]
+  },
+  {
+    "id": "clone-01",
+    "query": "copy a remote repository to my machine",
+    "expectedCommand": "git clone <url>",
+    "acceptableCommands": ["git clone <url>", "git clone --depth 1 <url>"],
+    "expectedSkillBand": [1, 3],
+    "judgeNotes": "Clone",
+    "tags": ["create"]
+  },
+  {
+    "id": "rebase-abort-01",
+    "query": "cancel an in-progress rebase",
+    "expectedCommand": "git rebase --abort",
+    "acceptableCommands": ["git rebase --abort"],
+    "expectedSkillBand": [2, 5],
+    "judgeNotes": "Abort rebase",
+    "tags": ["rebase"]
+  },
+  {
+    "id": "cherry-pick-01",
+    "query": "apply a single commit from another branch onto mine",
+    "expectedCommand": "git cherry-pick <commit>",
+    "acceptableCommands": ["git cherry-pick <commit>"],
+    "expectedSkillBand": [3, 5],
+    "judgeNotes": "Cherry-pick",
+    "tags": ["history"]
+  },
+  {
+    "id": "reflog-01",
+    "query": "see where my HEAD has been to recover a lost commit",
+    "expectedCommand": "git reflog",
+    "acceptableCommands": ["git reflog"],
+    "expectedSkillBand": [3, 5],
+    "judgeNotes": "Reflog",
+    "tags": ["undo"]
+  },
+  {
+    "id": "tag-01",
+    "query": "create an annotated release tag",
+    "expectedCommand": "git tag -a <name> -m \"<message>\"",
+    "acceptableCommands": ["git tag -a <name> -m \"<message>\"", "git tag <name>"],
+    "expectedSkillBand": [2, 5],
+    "judgeNotes": "Tag",
+    "tags": ["tag"]
+  },
+  {
+    "id": "clean-01",
+    "query": "preview untracked files that would be deleted",
+    "expectedCommand": "git clean -n",
+    "acceptableCommands": ["git clean -n"],
+    "expectedSkillBand": [2, 5],
+    "judgeNotes": "Dry-run clean",
+    "tags": ["clean"]
+  },
+  {
+    "id": "merge-abort-01",
+    "query": "abort a merge with conflicts",
+    "expectedCommand": "git merge --abort",
+    "acceptableCommands": ["git merge --abort"],
+    "expectedSkillBand": [2, 5],
+    "judgeNotes": "Merge abort",
+    "tags": ["merge"]
+  },
+  {
+    "id": "add-patch-01",
+    "query": "interactively stage hunks of a file",
+    "expectedCommand": "git add -p",
+    "acceptableCommands": ["git add -p"],
+    "expectedSkillBand": [3, 5],
+    "judgeNotes": "Patch add",
+    "tags": ["stage"]
+  },
+  {
+    "id": "remote-v-01",
+    "query": "list remotes with their URLs",
+    "expectedCommand": "git remote -v",
+    "acceptableCommands": ["git remote -v"],
+    "expectedSkillBand": [1, 4],
+    "judgeNotes": "Remotes",
+    "tags": ["remote"]
+  },
+  {
+    "id": "blame-01",
+    "query": "who last changed each line of this file",
+    "expectedCommand": "git blame <file>",
+    "acceptableCommands": ["git blame <file>", "git annotate <file>"],
+    "expectedSkillBand": [2, 5],
+    "judgeNotes": "Blame",
+    "tags": ["history"]
+  },
+  {
+    "id": "worktree-01",
+    "query": "check out another branch in a linked working directory",
+    "expectedCommand": "git worktree add <path> <branch>",
+    "acceptableCommands": ["git worktree add <path> <branch>"],
+    "expectedSkillBand": [4, 5],
+    "judgeNotes": "Worktree",
+    "tags": ["worktree"]
+  },
+  {
+    "id": "submodule-01",
+    "query": "initialize and update nested submodules",
+    "expectedCommand": "git submodule update --init --recursive",
+    "acceptableCommands": ["git submodule update --init --recursive"],
+    "expectedSkillBand": [3, 5],
+    "judgeNotes": "Submodules",
+    "tags": ["submodule"]
+  },
+  {
+    "id": "amend-01",
+    "query": "add more changes into the previous commit without editing message",
+    "expectedCommand": "git commit --amend --no-edit",
+    "acceptableCommands": ["git commit --amend --no-edit", "git commit --amend"],
+    "expectedSkillBand": [3, 5],
+    "judgeNotes": "Amend",
+    "tags": ["commit"]
+  },
+  {
+    "id": "force-lease-01",
+    "query": "force push safely without clobbering others work",
+    "expectedCommand": "git push --force-with-lease",
+    "acceptableCommands": ["git push --force-with-lease"],
+    "expectedSkillBand": [4, 5],
+    "judgeNotes": "Prefer lease over --force",
+    "tags": ["remote"]
+  },
+  {
+    "id": "revert-01",
+    "query": "create a new commit that undoes a previous commit",
+    "expectedCommand": "git revert <commit>",
+    "acceptableCommands": ["git revert <commit>", "git revert HEAD"],
+    "expectedSkillBand": [2, 5],
+    "judgeNotes": "Revert not reset",
+    "tags": ["undo"]
+  },
+  {
+    "id": "config-user-01",
+    "query": "set my git email address globally",
+    "expectedCommand": "git config --global user.email \"<email>\"",
+    "acceptableCommands": ["git config --global user.email \"<email>\""],
+    "expectedSkillBand": [1, 3],
+    "judgeNotes": "Config email",
+    "tags": ["config"]
+  },
+  {
+    "id": "grep-01",
+    "query": "search repository contents for a string",
+    "expectedCommand": "git grep \"<pattern>\"",
+    "acceptableCommands": ["git grep \"<pattern>\"", "git grep -n \"<pattern>\""],
+    "expectedSkillBand": [2, 5],
+    "judgeNotes": "Grep",
+    "tags": ["search"]
+  },
+  {
+    "id": "bisect-01",
+    "query": "start binary search for the commit that introduced a bug",
+    "expectedCommand": "git bisect start",
+    "acceptableCommands": ["git bisect start"],
+    "expectedSkillBand": [3, 5],
+    "judgeNotes": "Bisect",
+    "tags": ["debug"]
+  },
+  {
+    "id": "restore-staged-01",
+    "query": "unstage a file but keep my working tree edits",
+    "expectedCommand": "git restore --staged <file>",
+    "acceptableCommands": ["git restore --staged <file>", "git reset HEAD <file>"],
+    "expectedSkillBand": [2, 5],
+    "judgeNotes": "Unstage",
+    "tags": ["stage"]
+  },
+  {
+    "id": "switch-prev-01",
+    "query": "go back to the previous branch I was on",
+    "expectedCommand": "git switch -",
+    "acceptableCommands": ["git switch -", "git checkout -"],
+    "expectedSkillBand": [2, 5],
+    "judgeNotes": "Previous branch",
+    "tags": ["branch"]
+  },
+  {
+    "id": "fetch-prune-01",
+    "query": "update remote refs and delete gone remote-tracking branches",
+    "expectedCommand": "git fetch --all --prune",
+    "acceptableCommands": ["git fetch --all --prune", "git fetch"],
+    "expectedSkillBand": [3, 5],
+    "judgeNotes": "Fetch prune",
+    "tags": ["remote"]
+  },
+  {
+    "id": "init-01",
+    "query": "create a new empty git repository here",
+    "expectedCommand": "git init",
+    "acceptableCommands": ["git init"],
+    "expectedSkillBand": [1, 2],
+    "judgeNotes": "Init",
+    "tags": ["create"]
+  },
+  {
+    "id": "show-01",
+    "query": "inspect the latest commit contents",
+    "expectedCommand": "git show",
+    "acceptableCommands": ["git show", "git show HEAD"],
+    "expectedSkillBand": [1, 4],
+    "judgeNotes": "Show",
+    "tags": ["history"]
+  },
+  {
+    "id": "rm-cached-01",
+    "query": "stop tracking a file but leave it on disk",
+    "expectedCommand": "git rm --cached <file>",
+    "acceptableCommands": ["git rm --cached <file>"],
+    "expectedSkillBand": [2, 5],
+    "judgeNotes": "Untrack",
+    "tags": ["files"]
+  },
+  {
+    "id": "stash-pop-01",
+    "query": "reapply my most recent stash and remove it from the stash list",
+    "expectedCommand": "git stash pop",
+    "acceptableCommands": ["git stash pop"],
+    "expectedSkillBand": [2, 4],
+    "judgeNotes": "Stash pop",
+    "tags": ["stash"]
+  }
+]
