@@ -9,12 +9,12 @@
   ],
   "source": "git-scm.com+llm",
   "docMirrorHash": null,
-  "exampleCount": 335,
-  "commandCount": 335,
+  "exampleCount": 334,
+  "commandCount": 334,
   "extractedCommandCount": 343,
-  "intentCount": 6404,
-  "familyCount": 228,
+  "intentCount": 6414,
+  "familyCount": 227,
   "dropCount": 0,
-  "hash": "ad4bfcb23cc13ccca9662164c803a45f233cf467a73dcc88f91ffdf31dc153b6",
-  "createdAt": "2026-07-25T11:18:06.343Z"
+  "hash": "71b1b4c4e914c6f3dd98f7a85b3d813da478ef98912d31c0d07d450e0780bdc7",
+  "createdAt": "2026-07-25T12:27:40.176Z"
 }
