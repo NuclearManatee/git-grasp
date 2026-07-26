@@ -1,8 +1,14 @@
 ---
-const bunInstall = `bun install
-bun run seed
-bun link
+const repo = 'cremaschi/git-help';
+const latest = `https://github.com/${repo}/releases/latest/download`;
+const bunInstall = `bun add -g git-help
 git-help "undo last commit but keep my files"`;
+const binaries = [
+  { label: 'Linux x64', file: 'git-help-linux-x64.zip' },
+  { label: 'macOS Apple Silicon', file: 'git-help-darwin-arm64.zip' },
+  { label: 'macOS Intel', file: 'git-help-darwin-x64.zip' },
+  { label: 'Windows x64', file: 'git-help-windows-x64.zip' },
+];
 ---
 <section id="install" class="gh-container py-16 sm:py-20" aria-labelledby="install-heading">
   <div class="mb-8 max-w-xl">
@@ -10,7 +16,7 @@ git-help "undo last commit but keep my files"`;
       Install
     </h2>
     <p class="mt-3 text-gh-muted">
-      Requires Bun ≥ 1.1. Native binaries are on the way.
+      Bun package (npm registry) or standalone binaries from GitHub Releases. Runtime for the package path requires Bun ≥ 1.1.
     </p>
   </div>
 
@@ -67,10 +73,22 @@ git-help "undo last commit but keep my files"`;
       class="hidden p-4"
       hidden
     >
-      <p class="text-gh-muted">
-        Native binaries (Windows, macOS, Linux) — <strong class="text-gh-fg">coming soon</strong>.
-        Use the Bun install path for now.
+      <p class="mb-4 text-sm text-gh-muted">
+        Download the zip for your OS, extract, and run <code class="text-gh-fg">git-help</code> from that folder
+        (includes <code class="text-gh-fg">data/</code> and <code class="text-gh-fg">config/</code>).
       </p>
+      <ul class="space-y-2 font-mono text-sm">
+        {binaries.map((b) => (
+          <li>
+            <a
+              class="text-gh-accent underline-offset-2 hover:underline"
+              href={`${latest}/${b.file}`}
+            >
+              {b.label}
+            </a>
+          </li>
+        ))}
+      </ul>
     </div>
   </div>
 </section>

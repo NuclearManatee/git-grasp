@@ -101,13 +101,12 @@ function rowsFromItem(entry, item, { intentTarget = 3 } = {}) {
  */
 export async function generateIntentsForExample(entry, {
   llmJson,
-  groqJson,
   schedule,
   glossary = DEFAULT_GLOSSARY,
   common = false,
 } = {}) {
-  const jsonFn = llmJson || groqJson;
-  if (!jsonFn) throw new Error('llmJson (or groqJson) required');
+  const jsonFn = llmJson;
+  if (!jsonFn) throw new Error('llmJson required');
   const intentTarget = intentCountForExample(entry, { common });
   const messages = [
     { role: 'system', content: buildIntentWriterSystem(glossary) },

@@ -43,8 +43,14 @@ export {
   mockEmbed,
   isEmbeddingModelCached,
   embeddingModelId,
+  embeddingModelRevision,
   resetEmbedderForTests,
 } from './search/embed.js';
+export {
+  EMBEDDING_MODEL_ID,
+  EMBEDDING_MODEL_REVISION,
+} from './search/embeddingModel.js';
+export { assertSecureConfigFile, readConfig, writeConfig, configFilePath } from './lib/config.js';
 export {
   benchEnabled,
   benchTakeLast,
@@ -69,7 +75,6 @@ export {
 } from './lib/paths.js';
 
 export { verifyFileChecksum, writeChecksumFile } from './lib/checksum.js';
-export { readConfig, writeConfig, configFilePath } from './lib/config.js';
 export {
   parseSkillLevel,
   skillName,

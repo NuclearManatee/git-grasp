@@ -4,7 +4,7 @@ import { extractCommandsWithAreYouSure, mergeCommands } from '../../packages/cor
 describe('extractCommandsWithAreYouSure (mocked LLM)', () => {
   it('extracts then completes Are You Sure loop', async () => {
     let phase = 'extract';
-    const groqJson = async ({ messages }) => {
+    const llmJson = async ({ messages }) => {
       const sys = messages[0].content;
       if (sys.includes('EXTRACTOR') || phase === 'extract') {
         phase = 'ays';
@@ -48,7 +48,7 @@ describe('extractCommandsWithAreYouSure (mocked LLM)', () => {
 
     const result = await extractCommandsWithAreYouSure({
       pages,
-      groqJson,
+      llmJson,
       schedule: async (fn) => fn(),
       maxRounds: 2,
       minCommands: 10,

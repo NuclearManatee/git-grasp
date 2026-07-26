@@ -1,7 +1,8 @@
 /**
- * Connection heuristic for adaptive playground load.
- * Auto-load when clearly on Wi‑Fi / ethernet / other high-quality links.
- * If `type` is missing, only auto-load for effectiveType === '4g'.
+ * Connection heuristic for adaptive catalog prefetch (not model download).
+ * Prefetch catalog when clearly on Wi‑Fi / ethernet / other high-quality links.
+ * If `type` is missing, only prefetch for effectiveType === '4g'.
+ * Embedding model always requires explicit "Start playground".
  */
 
 /**

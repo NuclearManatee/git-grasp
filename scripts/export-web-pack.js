@@ -69,6 +69,7 @@ const packMb = packed.byteLength / (1024 * 1024);
 const MODEL_BYTES_ESTIMATE = 90 * 1024 * 1024;
 const totalBytes = packed.byteLength + MODEL_BYTES_ESTIMATE;
 const totalMb = Math.ceil(totalBytes / (1024 * 1024));
+const modelMb = Math.ceil(MODEL_BYTES_ESTIMATE / (1024 * 1024));
 
 mkdirSync(path.dirname(constantsOut), { recursive: true });
 writeFileSync(
@@ -77,6 +78,8 @@ writeFileSync(
 export const WEB_PACK_BYTES = ${packed.byteLength};
 export const WEB_PACK_SHA256 = '${hash}';
 export const MODEL_BYTES_ESTIMATE = ${MODEL_BYTES_ESTIMATE};
+export const MODEL_DOWNLOAD_MB = ${modelMb};
+export const MODEL_DOWNLOAD_LABEL = '~${modelMb} MB';
 export const PLAYGROUND_DOWNLOAD_MB = ${totalMb};
 export const PLAYGROUND_DOWNLOAD_LABEL = '~${totalMb} MB';
 `,

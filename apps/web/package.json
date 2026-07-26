@@ -4,12 +4,11 @@
   "type": "module",
   "private": true,
   "dependencies": {
-    "@astrojs/react": "^4.2.0",
-    "@astrojs/tailwind": "^6.0.0",
+    "@astrojs/react": "^4.4.2",
     "@git-help/core": "workspace:*",
     "@xterm/addon-fit": "^0.10.0",
     "@xterm/xterm": "^5.5.0",
-    "astro": "^5.1.0",
+    "astro": "^6.4.8",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwindcss": "^3.4.17"
@@ -18,7 +17,9 @@
     "@axe-core/playwright": "^4.10.1",
     "@playwright/test": "^1.50.0",
     "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0"
+    "@types/react-dom": "^19.0.0",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49"
   },
   "scripts": {
     "dev": "astro dev",

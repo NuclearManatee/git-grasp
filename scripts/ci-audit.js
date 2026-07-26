@@ -1,13 +1,14 @@
 #!/usr/bin/env bun
 /**
- * CI audit gate: fail on high+ except known transitive / stub deps (track for fix).
+ * CI audit gate: fail on high/critical. Prefer empty allowlist.
  * Uses `bun audit --json` (package → advisory[] map).
  */
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 
 let out = '';
 try {
-  out = execSync('bun audit --json', { encoding: 'utf8' });
+  // Prefer the same bun binary that launched this script (PATH may omit bun).
+  out = execFileSync(process.execPath, ['audit', '--json'], { encoding: 'utf8' });
 } catch (e) {
   out = e.stdout?.toString?.() || e.stdout || '';
 }
@@ -22,7 +23,7 @@ try {
   process.exit(1);
 }
 
-/** @type {Array<[string, { severity?: string }]>} */
+/** @type {Array<[string, { severity?: string, title?: string, id?: string }]>} */
 const findings = [];
 for (const [name, advisories] of Object.entries(report)) {
   if (!Array.isArray(advisories)) continue;
@@ -33,11 +34,9 @@ for (const [name, advisories] of Object.entries(report)) {
 
 const highs = findings.filter(([, v]) => v.severity === 'high' || v.severity === 'critical');
 
-const allowed = new Set([
-  'sharp',
-  '@huggingface/transformers',
-  'astro', // web stub; bump when interactive search ships
-]);
+/** @type {Set<string>} Temporary exceptions only — keep empty when possible. */
+const allowed = new Set();
+
 const unexpected = highs.filter(([name]) => !allowed.has(name));
 
 if (unexpected.length) {
@@ -49,6 +48,9 @@ if (unexpected.length) {
 }
 
 if (highs.length) {
-  console.warn('Allowed known advisories (track for fix):', highs.map(([n]) => n).join(', '));
+  console.warn(
+    'Allowed known advisories (must bump soon):',
+    highs.map(([n, a]) => `${n}:${a.id || a.title || a.severity}`).join(', '),
+  );
 }
 console.log('Audit gate passed');

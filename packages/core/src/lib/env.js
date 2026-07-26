@@ -26,14 +26,9 @@ export function requireProviderKey(providerId = null) {
   return key;
 }
 
-/** Prefer DeepSeek; falls back only if explicitly using groq provider. */
+/** Resolve the configured provider and require its API key. */
 export function requireLlmKey(providerId = null) {
   return requireProviderKey(providerId ?? resolveProviderId());
-}
-
-/** @deprecated Prefer requireLlmKey / requireProviderKey('deepseek') */
-export function requireGroqKey() {
-  return requireProviderKey('groq');
 }
 
 export function requireDeepSeekKey() {

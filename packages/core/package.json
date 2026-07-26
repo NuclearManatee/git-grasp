@@ -18,7 +18,6 @@
     "./lib/llm.js": "./src/lib/llm.js",
     "./lib/rateLimit.js": "./src/lib/rateLimit.js",
     "./lib/providers.js": "./src/lib/providers.js",
-    "./lib/groq.js": "./src/lib/groq.js",
     "./lib/ansi.js": "./src/lib/ansi.js",
     "./lib/checksum.js": "./src/lib/checksum.js",
     "./lib/config.js": "./src/lib/config.js",

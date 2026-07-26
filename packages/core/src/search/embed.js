@@ -3,7 +3,11 @@ import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { EMBEDDING_DIM } from '../db/constants.js';
 import { PACKAGE_ROOT } from '../lib/paths.js';
-import { embeddingModelId, isEmbeddingModelCached } from './modelReady.js';
+import {
+  embeddingModelId,
+  embeddingModelRevision,
+  isEmbeddingModelCached,
+} from './modelReady.js';
 
 /**
  * Bag-of-words style mock embedding so overlapping tokens rank closer (CI without HF).
@@ -67,16 +71,19 @@ export async function getEmbedder({ forceMock = false, onStatus = undefined } = 
       }
       let extractor;
       try {
-        extractor = await pipeline('feature-extraction', model, {
+        const loadOpts = {
           dtype: 'fp32',
+          revision: embeddingModelRevision(),
           local_files_only: cached,
-        });
+        };
+        extractor = await pipeline('feature-extraction', model, loadOpts);
       } catch (err) {
         if (!cached) throw err;
         onStatus?.(`Local model cache incomplete; downloading ${model}…`);
         env.allowRemoteModels = true;
         extractor = await pipeline('feature-extraction', model, {
           dtype: 'fp32',
+          revision: embeddingModelRevision(),
           local_files_only: false,
         });
       }
@@ -99,4 +106,4 @@ export function resetEmbedderForTests() {
   pipelinePromise = null;
 }
 
-export { isEmbeddingModelCached, embeddingModelId };
+export { isEmbeddingModelCached, embeddingModelId, embeddingModelRevision };

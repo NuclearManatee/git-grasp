@@ -9,12 +9,15 @@ import {
   formatSearchResult,
   parseSkillLevel,
   skillName,
+  sanitizeField,
+  getOpenWebPack,
 } from '@git-help/core/browser';
 import {
-  PLAYGROUND_DOWNLOAD_LABEL,
   WEB_PACK_BYTES,
   WEB_PACK_SHA256,
   MODEL_BYTES_ESTIMATE,
+  MODEL_DOWNLOAD_LABEL,
+  PLAYGROUND_DOWNLOAD_LABEL,
 } from '../../lib/assetSizes.js';
 import { shouldAutoLoadPlayground, readConnection, deviceInfo } from '../../lib/connection.js';
 import { trackWebCliLoad, trackWebCliSearch } from '../../lib/umami.js';
@@ -36,7 +39,7 @@ function previewLines() {
     '    git reset --soft HEAD~1',
     '    ────────────────────────────',
     '',
-    'Load the catalog + embedding model to try live search.',
+    'Start the playground to download the embedding model and try live search.',
   ].join('\n');
 }
 
@@ -51,16 +54,24 @@ export default function Playground({ forceMock = false, forceOptIn = false }) {
   const busyRef = useRef(false);
   const skillRef = useRef(/** @type {number | null} */ (null));
   const readyRef = useRef(false);
+  const packPrefetchRef = useRef(/** @type {Promise<void> | null} */ (null));
 
-  const [phase, setPhase] = useState(/** @type {'idle'|'waiting'|'overlay'|'loading'|'ready'|'error'} */ ('idle'));
+  const [phase, setPhase] = useState(/** @type {'idle'|'overlay'|'loading'|'ready'|'error'} */ ('idle'));
   const [status, setStatus] = useState('');
   const [error, setError] = useState(/** @type {string | null} */ (null));
   const [inView, setInView] = useState(false);
+  const [packReady, setPackReady] = useState(false);
 
   const mockMode =
     forceMock
     || (typeof window !== 'undefined'
       && new URLSearchParams(window.location.search).get('mock') === '1');
+
+  const downloadLabel = packReady && !mockMode
+    ? MODEL_DOWNLOAD_LABEL
+    : mockMode
+      ? `~${Math.ceil((WEB_PACK_BYTES || 0) / (1024 * 1024))} MB`
+      : PLAYGROUND_DOWNLOAD_LABEL;
 
   useEffect(() => {
     try {
@@ -178,7 +189,7 @@ export default function Playground({ forceMock = false, forceOptIn = false }) {
               : `skill filter ≤ ${skillName(level)}`,
           );
         } catch (e) {
-          term.writeln(`\x1b[31m${e.message || e}\x1b[0m`);
+          term.writeln(`\x1b[31m${sanitizeField(e.message || e)}\x1b[0m`);
         }
         writePrompt();
         return;
@@ -225,10 +236,10 @@ export default function Playground({ forceMock = false, forceOptIn = false }) {
           ...deviceInfo(),
         });
       } catch (e) {
-        term.writeln(`\x1b[31m${e.message || e}\x1b[0m`);
+        term.writeln(`\x1b[31m${sanitizeField(e.message || e)}\x1b[0m`);
         trackWebCliSearch({
           query,
-          response: { status: 'error', error: String(e.message || e), code: e.code },
+          response: { status: 'error', error: sanitizeField(String(e.message || e)), code: e.code },
           latency_ms: Math.round(performance.now() - t0),
           mock: mockMode,
           connection: readConnection(),
@@ -241,10 +252,33 @@ export default function Playground({ forceMock = false, forceOptIn = false }) {
     }
   }, [mockMode, writePrompt]);
 
+  const ensureCatalog = useCallback(async () => {
+    if (getOpenWebPack()) {
+      setPackReady(true);
+      return;
+    }
+    if (!WEB_PACK_SHA256 || !/^[a-fA-F0-9]{64}$/.test(WEB_PACK_SHA256)) {
+      throw new Error('Catalog integrity constant missing (WEB_PACK_SHA256)');
+    }
+    if (!packPrefetchRef.current) {
+      packPrefetchRef.current = (async () => {
+        const packRes = await fetch(PACK_URL);
+        if (!packRes.ok) throw new Error(`Failed to fetch catalog (${packRes.status})`);
+        const packBuf = new Uint8Array(await packRes.arrayBuffer());
+        await openWebPack(packBuf, { expectedSha256: WEB_PACK_SHA256 });
+        setPackReady(true);
+      })().catch((err) => {
+        packPrefetchRef.current = null;
+        throw err;
+      });
+    }
+    await packPrefetchRef.current;
+  }, []);
+
   const loadAssets = useCallback(async () => {
     setPhase('loading');
     setError(null);
-    setStatus('Downloading catalog…');
+    setStatus(packReady ? 'Loading embedding model…' : 'Downloading catalog…');
     const t0 = performance.now();
     const conn = readConnection();
     const device = deviceInfo();
@@ -255,15 +289,10 @@ export default function Playground({ forceMock = false, forceOptIn = false }) {
       term?.clear();
       term?.writeln('Loading playground assets…');
 
-      const packRes = await fetch(PACK_URL);
-      if (!packRes.ok) throw new Error(`Failed to fetch catalog (${packRes.status})`);
-      const packBuf = new Uint8Array(await packRes.arrayBuffer());
-      const expected = WEB_PACK_SHA256 || null;
       setStatus('Verifying catalog…');
-      await openWebPack(packBuf, { expectedSha256: expected || undefined });
+      await ensureCatalog();
 
       setStatus(mockMode ? 'Using mock embeddings…' : 'Loading embedding model…');
-      // Warm embedder
       await searchBrowser('warmup', {
         forceMockEmbeddings: mockMode,
         skillLevelOverride: null,
@@ -276,11 +305,11 @@ export default function Playground({ forceMock = false, forceOptIn = false }) {
       });
 
       const duration = Math.round(performance.now() - t0);
-      const bytes = (WEB_PACK_BYTES || packBuf.byteLength) + (mockMode ? 0 : MODEL_BYTES_ESTIMATE);
+      const bytes = (WEB_PACK_BYTES || 0) + (mockMode ? 0 : MODEL_BYTES_ESTIMATE);
       trackWebCliLoad({
         duration_ms: duration,
         bytes,
-        pack_bytes: packBuf.byteLength,
+        pack_bytes: WEB_PACK_BYTES,
         outcome: 'ok',
         mock: mockMode,
         connection: conn,
@@ -301,37 +330,38 @@ export default function Playground({ forceMock = false, forceOptIn = false }) {
         duration_ms: duration,
         bytes: WEB_PACK_BYTES + (mockMode ? 0 : MODEL_BYTES_ESTIMATE),
         outcome: 'error',
-        error: String(e.message || e),
+        error: sanitizeField(String(e.message || e)),
         mock: mockMode,
         connection: conn,
         ...device,
       });
-      setError(e.message || String(e));
+      setError(sanitizeField(e.message || String(e)));
       setPhase('error');
       setStatus('Failed to load');
     }
-  }, [ensureTerminal, mockMode, writePrompt]);
+  }, [ensureCatalog, ensureTerminal, mockMode, packReady, writePrompt]);
 
   useEffect(() => {
     if (!inView || phase !== 'idle') return;
-    setPhase('waiting');
-    const conn = readConnection();
-    const auto = !forceOptIn && shouldAutoLoadPlayground(conn);
-    // e2e can force overlay with ?optin=1
+    setPhase('overlay');
+    ensureTerminal();
+    const term = termRef.current;
+    term?.clear();
+    term?.writeln(previewLines());
+
+    // Catalog-only prefetch on good links (never auto-download the model).
     const wantOptIn =
       forceOptIn
       || (typeof window !== 'undefined'
         && new URLSearchParams(window.location.search).get('optin') === '1');
-    if (auto && !wantOptIn) {
-      void loadAssets();
-    } else {
-      setPhase('overlay');
-      ensureTerminal();
-      const term = termRef.current;
-      term?.clear();
-      term?.writeln(previewLines());
+    const conn = readConnection();
+    if (!wantOptIn && shouldAutoLoadPlayground(conn)) {
+      setStatus('Prefetching catalog…');
+      void ensureCatalog()
+        .then(() => setStatus('Catalog ready — start to enable search'))
+        .catch(() => setStatus(''));
     }
-  }, [inView, phase, forceOptIn, loadAssets, ensureTerminal]);
+  }, [inView, phase, forceOptIn, ensureTerminal, ensureCatalog]);
 
   return (
     <section
@@ -368,17 +398,11 @@ export default function Playground({ forceMock = false, forceOptIn = false }) {
 
         {(phase === 'overlay' || phase === 'error') && (
           <div
-            className="absolute inset-0 top-9 flex flex-col items-center justify-center gap-4 bg-gh-bg/90 p-6 text-center backdrop-blur-sm"
+            className="absolute inset-x-0 top-9 bottom-12 flex flex-col items-center justify-center gap-4 bg-gh-bg/90 p-6 text-center backdrop-blur-sm"
             data-testid="playground-overlay"
           >
             {phase === 'overlay' && (
               <>
-                <p className="max-w-sm text-sm text-gh-muted">
-                  This will download{' '}
-                  <strong className="text-gh-fg">{PLAYGROUND_DOWNLOAD_LABEL}</strong>
-                  {' '}
-                  (catalog + embedding model) to run search in your browser.
-                </p>
                 <button
                   type="button"
                   className="gh-btn-primary"
@@ -387,6 +411,12 @@ export default function Playground({ forceMock = false, forceOptIn = false }) {
                 >
                   Start playground
                 </button>
+                <p className="max-w-sm text-sm text-gh-muted">
+                  Will download{' '}
+                  <strong className="text-gh-fg">{downloadLabel}</strong>
+                  {' '}
+                  for enabling search.
+                </p>
               </>
             )}
             {phase === 'error' && (
@@ -408,7 +438,7 @@ export default function Playground({ forceMock = false, forceOptIn = false }) {
 
         {phase === 'loading' && (
           <div
-            className="pointer-events-none absolute inset-0 top-9 flex items-center justify-center bg-gh-bg/50"
+            className="pointer-events-none absolute inset-x-0 top-9 bottom-12 flex items-center justify-center bg-gh-bg/50"
             data-testid="playground-loading"
           >
             <p className="rounded border border-gh-border bg-gh-panel px-4 py-2 font-mono text-sm text-gh-fg">
@@ -416,6 +446,19 @@ export default function Playground({ forceMock = false, forceOptIn = false }) {
             </p>
           </div>
         )}
+
+        <p className="border-t border-gh-border px-4 py-2.5 text-xs leading-relaxed text-gh-muted">
+          Playground queries and results may be sent to cookieless analytics to improve search.
+          Details on{' '}
+          <a href="/privacy" className="text-gh-accent underline-offset-2 hover:underline">
+            Privacy &amp; legal
+          </a>
+          . For offline use with no remote telemetry,{' '}
+          <a href="#install" className="text-gh-accent underline-offset-2 hover:underline">
+            install the CLI
+          </a>
+          .
+        </p>
       </div>
     </section>
   );

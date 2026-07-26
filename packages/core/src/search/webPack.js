@@ -12,8 +12,23 @@
  *     embedding: dim * float32
  */
 
+import { EMBEDDING_DIM } from '../db/constants.js';
+
 export const WEB_PACK_MAGIC = 0x4b504847; // 'GHPK' LE
 export const WEB_PACK_VERSION = 1;
+export const WEB_PACK_MAX_ROWS = 100_000;
+export const WEB_PACK_MAX_THRESHOLDS_JSON = 256 * 1024;
+export const WEB_PACK_MAX_META_JSON = 64 * 1024;
+
+function integrityError(message) {
+  return Object.assign(new Error(message), { code: 'INTEGRITY' });
+}
+
+function needBytes(bytes, offset, length, label) {
+  if (length < 0 || offset + length > bytes.byteLength) {
+    throw integrityError(`Web pack truncated reading ${label}`);
+  }
+}
 
 /**
  * @typedef {object} WebPackMeta
@@ -103,38 +118,71 @@ export function encodeWebPack({ dim, thresholds, rows }) {
  */
 export function decodeWebPack(data) {
   const bytes = data instanceof Uint8Array ? data : new Uint8Array(data);
+  if (bytes.byteLength < 20) {
+    throw integrityError('Web pack too small');
+  }
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   let o = 0;
 
   const magic = view.getUint32(o, true); o += 4;
   if (magic !== WEB_PACK_MAGIC) {
-    throw Object.assign(new Error('Invalid web pack magic'), { code: 'INTEGRITY' });
+    throw integrityError('Invalid web pack magic');
   }
   const version = view.getUint32(o, true); o += 4;
   if (version !== WEB_PACK_VERSION) {
-    throw Object.assign(new Error(`Unsupported web pack version ${version}`), { code: 'INTEGRITY' });
+    throw integrityError(`Unsupported web pack version ${version}`);
   }
   const dim = view.getUint32(o, true); o += 4;
+  if (dim !== EMBEDDING_DIM) {
+    throw integrityError(`Unexpected embedding dim ${dim} (expected ${EMBEDDING_DIM})`);
+  }
   const rowCount = view.getUint32(o, true); o += 4;
+  if (rowCount > WEB_PACK_MAX_ROWS) {
+    throw integrityError(`Web pack rowCount ${rowCount} exceeds max ${WEB_PACK_MAX_ROWS}`);
+  }
   const thrLen = view.getUint32(o, true); o += 4;
-  const thrJson = new TextDecoder().decode(bytes.subarray(o, o + thrLen));
+  if (thrLen > WEB_PACK_MAX_THRESHOLDS_JSON) {
+    throw integrityError(`Web pack thresholds JSON too large (${thrLen})`);
+  }
+  needBytes(bytes, o, thrLen, 'thresholds');
+  let thresholds;
+  try {
+    thresholds = JSON.parse(new TextDecoder().decode(bytes.subarray(o, o + thrLen)));
+  } catch {
+    throw integrityError('Web pack thresholds JSON invalid');
+  }
   o += thrLen;
-  const thresholds = JSON.parse(thrJson);
 
   /** @type {WebPackHandle['rows']} */
   const rows = [];
   const decoder = new TextDecoder();
   for (let i = 0; i < rowCount; i += 1) {
+    needBytes(bytes, o, 4, `row[${i}].metaLen`);
     const metaLen = view.getUint32(o, true); o += 4;
-    const meta = JSON.parse(decoder.decode(bytes.subarray(o, o + metaLen)));
+    if (metaLen > WEB_PACK_MAX_META_JSON) {
+      throw integrityError(`Web pack meta JSON too large at row ${i}`);
+    }
+    needBytes(bytes, o, metaLen, `row[${i}].meta`);
+    let meta;
+    try {
+      meta = JSON.parse(decoder.decode(bytes.subarray(o, o + metaLen)));
+    } catch {
+      throw integrityError(`Web pack meta JSON invalid at row ${i}`);
+    }
     o += metaLen;
-    const embBytes = bytes.subarray(o, o + dim * 4);
-    o += dim * 4;
+    const embByteLen = dim * 4;
+    needBytes(bytes, o, embByteLen, `row[${i}].embedding`);
+    const embBytes = bytes.subarray(o, o + embByteLen);
+    o += embByteLen;
     const embedding = new Float32Array(embBytes.buffer.slice(
       embBytes.byteOffset,
       embBytes.byteOffset + embBytes.byteLength,
     ));
     rows.push({ ...meta, embedding });
+  }
+
+  if (o !== bytes.byteLength) {
+    throw integrityError(`Web pack trailing bytes (${bytes.byteLength - o})`);
   }
 
   return {

@@ -68,7 +68,7 @@ describe('generateIntentsForCommand', () => {
       { command: 'git stash', example: 'git stash', topic: 'stash' },
       {
         schedule: async (fn) => fn(),
-        groqJson: async () => ({
+        llmJson: async () => ({
           command: 'git stash',
           example: 'git stash',
           explanation: 'stash changes',

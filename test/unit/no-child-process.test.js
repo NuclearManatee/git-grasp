@@ -16,13 +16,18 @@ function walk(dir) {
 }
 
 describe('no child_process in runtime src', () => {
-  it('search/cli/ux/db/lib (except none) do not import child_process', () => {
+  it('search/cli/ux/db/lib (except config ACL helper) do not import child_process', () => {
+    const allow = new Set([
+      path.join('lib', 'config.js'), // Windows icacls via execFileSync only
+    ]);
     const files = walk(root).filter((f) => !f.includes(`${path.sep}catalog${path.sep}`));
     const offenders = [];
     for (const f of files) {
+      const rel = path.relative(root, f);
+      if (allow.has(rel)) continue;
       const text = readFileSync(f, 'utf8');
       if (/\bchild_process\b|\bspawn\(|\bexecFile\(/.test(text)) {
-        offenders.push(path.relative(root, f));
+        offenders.push(rel);
       }
     }
     expect(offenders).toEqual([]);

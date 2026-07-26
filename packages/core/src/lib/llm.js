@@ -13,19 +13,11 @@ export class LlmError extends Error {
 }
 
 function resolveTimeoutMs() {
-  return Number(
-    process.env.GIT_HELP_LLM_TIMEOUT_MS
-      || process.env.GIT_HELP_GROQ_TIMEOUT_MS
-      || 90_000,
-  );
+  return Number(process.env.GIT_HELP_LLM_TIMEOUT_MS || 90_000);
 }
 
 function resolveMaxTokens() {
-  return Number(
-    process.env.GIT_HELP_LLM_MAX_TOKENS
-      || process.env.GIT_HELP_GROQ_MAX_TOKENS
-      || 4096,
-  );
+  return Number(process.env.GIT_HELP_LLM_MAX_TOKENS || 4096);
 }
 
 /**

@@ -4,8 +4,10 @@
  */
 
 import { EMBEDDING_DIM } from '../db/constants.js';
+import { EMBEDDING_MODEL_ID, EMBEDDING_MODEL_REVISION } from './embeddingModel.js';
 
-export const BROWSER_EMBEDDING_MODEL = 'Xenova/all-MiniLM-L6-v2';
+export const BROWSER_EMBEDDING_MODEL = EMBEDDING_MODEL_ID;
+export const BROWSER_EMBEDDING_REVISION = EMBEDDING_MODEL_REVISION;
 
 /**
  * Bag-of-words mock embedding (FNV-1a per token — no Node crypto).
@@ -65,10 +67,11 @@ export async function getBrowserEmbedder({ forceMock = false, onStatus = undefin
   if (!pipelinePromise) {
     pipelinePromise = (async () => {
       const model = BROWSER_EMBEDDING_MODEL;
-      onStatus?.(`Loading embedding model ${model}…`);
+      onStatus?.(`Loading embedding model ${model}@${BROWSER_EMBEDDING_REVISION.slice(0, 7)}…`);
       const { pipeline } = await import('@huggingface/transformers');
       const extractor = await pipeline('feature-extraction', model, {
         dtype: 'fp32',
+        revision: BROWSER_EMBEDDING_REVISION,
       });
       onStatus?.('Embedding model ready');
       return {

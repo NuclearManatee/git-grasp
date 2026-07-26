@@ -88,7 +88,8 @@ describe('searchBrowser', () => {
       row('hard', 'throw away last commit permanently'),
     ];
     const bytes = encodeWebPack({ dim: EMBEDDING_DIM, thresholds, rows });
-    await openWebPack(bytes);
+    const hash = await sha256Hex(bytes);
+    await openWebPack(bytes, { expectedSha256: hash });
     const result = await searchBrowser('undo last commit keep changes staged', {
       forceMockEmbeddings: true,
     });
@@ -98,11 +99,27 @@ describe('searchBrowser', () => {
     expect(result.embedderMock).toBe(true);
   });
 
+  it('requires expectedSha256', async () => {
+    const rows = [row('a', 'create a branch')];
+    const bytes = encodeWebPack({ dim: EMBEDDING_DIM, thresholds, rows });
+    await expect(openWebPack(bytes)).rejects.toMatchObject({ code: 'INTEGRITY' });
+  });
+
   it('rejects integrity mismatch', async () => {
     const rows = [row('a', 'create a branch')];
     const bytes = encodeWebPack({ dim: EMBEDDING_DIM, thresholds, rows });
     await expect(
       openWebPack(bytes, { expectedSha256: '0'.repeat(64) }),
     ).rejects.toMatchObject({ code: 'INTEGRITY' });
+  });
+
+  it('rejects oversize declared lengths', () => {
+    const rows = [row('a', 'create a branch')];
+    const good = encodeWebPack({ dim: EMBEDDING_DIM, thresholds, rows });
+    const evil = new Uint8Array(good);
+    const view = new DataView(evil.buffer);
+    // thrLen at offset 16
+    view.setUint32(16, 0xffffffff, true);
+    expect(() => decodeWebPack(evil)).toThrow(/too large|truncated/);
   });
 });

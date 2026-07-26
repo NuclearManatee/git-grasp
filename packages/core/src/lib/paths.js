@@ -7,9 +7,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 /**
  * Resolve monorepo / package root (directory that contains `data/` and `config/`).
- * Walks up from packages/core/src/lib toward the filesystem root.
- * Compiled binaries (`bun build --compile`) may not have a real import.meta path —
- * prefer GIT_HELP_ROOT, then cwd, then walk from this module.
+ * Order: GIT_HELP_ROOT → directory of process.execPath (compiled releases) →
+ * cwd → walk from this module → hard fallback to repo root.
  */
 function isPackageRoot(dir) {
   return existsSync(path.join(dir, 'data'))
@@ -20,6 +19,14 @@ function findPackageRoot() {
   if (process.env.GIT_HELP_ROOT && isPackageRoot(process.env.GIT_HELP_ROOT)) {
     return path.resolve(process.env.GIT_HELP_ROOT);
   }
+
+  try {
+    const execDir = path.dirname(process.execPath);
+    if (isPackageRoot(execDir)) return execDir;
+  } catch {
+    // ignore
+  }
+
   const cwd = process.cwd();
   if (isPackageRoot(cwd)) return cwd;
 

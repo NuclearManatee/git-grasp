@@ -1,6 +1,6 @@
 /**
  * Central LLM provider registry.
- * DeepSeek V4 Pro is the default (OpenAI-compatible chat completions).
+ * DeepSeek V4 Pro is the only provider (OpenAI-compatible chat completions).
  * @see https://api-docs.deepseek.com/
  * @see https://api-docs.deepseek.com/quick_start/rate_limit/
  */
@@ -26,24 +26,6 @@ export const PROVIDERS = Object.freeze({
       rpd: 0,
       tpm: 0,
       tpd: 0,
-    }),
-  }),
-  groq: Object.freeze({
-    id: 'groq',
-    name: 'Groq',
-    envKey: 'GROQ_API_KEY',
-    baseUrl: 'https://api.groq.com/openai/v1',
-    chatPath: '/chat/completions',
-    defaultModel: 'openai/gpt-oss-120b',
-    concurrencyLimit: 1,
-    defaultConcurrency: 1,
-    supportsJsonObject: true,
-    defaultThinking: null,
-    softLimits: Object.freeze({
-      rpm: 30,
-      rpd: 1000,
-      tpm: 8000,
-      tpd: 200_000,
     }),
   }),
 });

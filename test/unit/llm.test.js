@@ -18,18 +18,22 @@ describe('providers', () => {
     expect(chatCompletionsUrl(p)).toBe('https://api.deepseek.com/chat/completions');
   });
 
-  it('positive: groq selectable', () => {
-    expect(resolveProviderId('groq')).toBe('groq');
-    expect(PROVIDERS.groq.envKey).toBe('GROQ_API_KEY');
+  it('positive: deepseek is the only provider', () => {
+    expect(Object.keys(PROVIDERS)).toEqual(['deepseek']);
+    expect(PROVIDERS.deepseek.envKey).toBe('DEEPSEEK_API_KEY');
   });
 
   it('negative: unknown provider', () => {
     expect(() => resolveProviderId('nope')).toThrow(/Unknown LLM provider/);
   });
 
-  it('edge: env override', () => {
-    process.env.GIT_HELP_LLM_PROVIDER = 'GROQ';
-    expect(resolveProviderId()).toBe('groq');
+  it('edge: env override deepseek', () => {
+    process.env.GIT_HELP_LLM_PROVIDER = 'DEEPSEEK';
+    expect(resolveProviderId()).toBe('deepseek');
+  });
+
+  it('negative: groq no longer selectable', () => {
+    expect(() => resolveProviderId('groq')).toThrow(/Unknown LLM provider/);
   });
 });
 

@@ -20,4 +20,6 @@ bench/install-last.json
 bench/git-help
 bench/git-help-compile.exe
 bench/git-help.exe
+dist-release/
+.npmrc
 
