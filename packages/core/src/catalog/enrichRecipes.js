@@ -28,9 +28,9 @@ export function enrichRecipesFromGolden(recipes, goldenCases = [], glossary = DE
       if (!example) continue;
       const sig = stepSignature([{ run: example }]);
       if (bySig.has(sig)) continue;
-      const command = normalizeExample(
-        materializePlaceholders(g.expectedCommand || deriveCommandKey(example), glossary),
-      );
+      // Always derive verb from the example itself — parent golden expectedCommand
+      // may be a sibling porcelain (e.g. git branch) while the example is plumbing.
+      const command = deriveCommandKey(example);
       const title = `Golden: ${example}`;
       let id = recipeSlugFromTitle(`golden-${example}`);
       if (byId.has(id)) id = `${id}-${byId.size}`;
@@ -44,7 +44,7 @@ export function enrichRecipesFromGolden(recipes, goldenCases = [], glossary = DE
         usage: normalizeUsage({ command_line: example, blurb: '' }, example),
         topic: 'golden',
         primary_example: example,
-        command: command.startsWith('git') ? command : deriveCommandKey(example),
+        command,
         source: `golden:${g.id || 'case'}`,
         step_signature: sig,
       };

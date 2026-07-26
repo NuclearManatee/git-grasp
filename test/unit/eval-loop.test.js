@@ -5,10 +5,13 @@ import {
   nextCyclePlan,
   applyEvalResult,
   runCaseSuite,
+  summarizeCoveredAreas,
+  buildEvalFocusPrompt,
+  priorCasesForCycle,
   EVAL_LOOP_DEFAULTS,
 } from '../../packages/core/src/eval/loop.js';
 
-const intents = Array.from({ length: 80 }, (_, i) => ({
+const intents = Array.from({ length: 200 }, (_, i) => ({
   command: `git cmd-${i}`,
   example: `git cmd-${i}`,
   skill_level: (i % 4) + 1,
@@ -44,6 +47,34 @@ describe('generateNewCasesFromIntents', () => {
       { count: 5 },
     )).toThrow(/Could only generate/);
   });
+
+  it('excludes prior queries and prefers focus commands', () => {
+    const prior = intents.slice(0, 10).map((r) => r.intent_description);
+    const cases = generateNewCasesFromIntents(intents, {
+      count: 10,
+      cycle: 2,
+      excludeQueries: prior,
+      preferCommands: ['git cmd-50'],
+    });
+    expect(cases.every((c) => !prior.includes(c.query))).toBe(true);
+    expect(cases.some((c) => c.expectedCommand === 'git cmd-50')).toBe(true);
+  });
+});
+
+describe('eval focus helpers', () => {
+  it('summarizes covered areas and builds LLM prompt', () => {
+    const covered = summarizeCoveredAreas([
+      { query: 'stash work', expectedCommand: 'git stash', tags: ['stash', 'generated'] },
+    ]);
+    expect(covered.queries).toEqual(['stash work']);
+    expect(covered.commands).toContain('git stash');
+    const prompt = buildEvalFocusPrompt(covered, {
+      topics: ['stash', 'rebase'],
+      commands: ['git stash', 'git rebase'],
+    }, { cycle: 2, count: 30 });
+    expect(prompt.system).toMatch(/Concentrate on OTHER areas/i);
+    expect(prompt.user).toMatch(/stash work/);
+  });
 });
 
 describe('eval loop state machine', () => {
@@ -53,6 +84,7 @@ describe('eval loop state machine', () => {
       const plan = nextCyclePlan(state, { golden, intents });
       expect(plan.type).toBe('cycle');
       expect(plan.cases.length).toBeGreaterThanOrEqual(golden.length + 30);
+      expect(priorCasesForCycle(state, golden).length).toBe(golden.length + state.accumulatedGenerated.length);
       const applied = applyEvalResult(state, plan, { passRate: 1, avgScore: 5 });
       expect(applied.restart).toBe(false);
       state = applied.state;
@@ -64,6 +96,15 @@ describe('eval loop state machine', () => {
     const done = applyEvalResult(state, finalPlan, { passRate: 0.95, avgScore: 4.5 });
     expect(done.done).toBe(true);
     expect(done.state.phase).toBe('done');
+  });
+
+  it('later cycles exclude prior generated queries', () => {
+    let state = createEvalLoopState({ ...EVAL_LOOP_DEFAULTS, minPassRate: 0.5, requiredCycles: 2 });
+    const c1 = nextCyclePlan(state, { golden, intents });
+    state = applyEvalResult(state, c1, { passRate: 1, avgScore: 5 }).state;
+    const c2 = nextCyclePlan(state, { golden, intents });
+    const priorQs = new Set(c1.generated.map((c) => c.query));
+    expect(c2.generated.every((c) => !priorQs.has(c.query))).toBe(true);
   });
 
   it('fault: failed cycle restarts attempt', () => {

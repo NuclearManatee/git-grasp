@@ -5,7 +5,7 @@ import { normalizeExample } from '../lib/validator.js';
  * Rank catalog rows against a query embedding using cosine similarity.
  * Order: exactness (score) > simplicity within family > example specificity.
  */
-export function rankResults(rows, queryEmbedding, thresholds, { skillLevel = null } = {}) {
+export function rankResults(rows, queryEmbedding, thresholds, { skillLevel = null, query = '' } = {}) {
   const topK = thresholds.topK ?? 5;
   const maxSecondGap = thresholds.maxSecondGap ?? 0.05;
   const yellowScore = thresholds.confidenceYellowScore ?? thresholds.lowConfidenceScore ?? 0.45;
@@ -15,6 +15,7 @@ export function rankResults(rows, queryEmbedding, thresholds, { skillLevel = nul
   const promoteMargin = thresholds.specificityPromoteMargin ?? 0.05;
   const simplicityWindow = thresholds.simplicityWindow ?? 0.08;
   const advancedWindow = thresholds.advancedWindow ?? 0.12;
+  const flagWindow = thresholds.flagMatchWindow ?? 0.14;
 
   let candidates = rows;
   if (skillLevel != null) {
@@ -37,11 +38,14 @@ export function rankResults(rows, queryEmbedding, thresholds, { skillLevel = nul
   // Prefer a more specific example when nearly as similar as a bare prefix.
   preferSpecificExamples(scored, specificityWindow, promoteMargin);
 
+  // Query mentions flags / distinctive tokens → promote examples that include them.
+  preferFlagMatches(scored, query, flagWindow);
+
   // Within score window of the head, prefer simplest in the same family.
   preferSimplestInFamily(scored, simplicityWindow);
 
   // Prefer single-step over multi-step when scores are close (protects atomic queries).
-  preferFewerSteps(scored, simplicityWindow);
+  preferFewerSteps(scored, simplicityWindow, query);
 
   const top = scored.slice(0, topK);
 
@@ -202,17 +206,89 @@ function stepCount(r) {
   return 1;
 }
 
+/** Tokens in the query that should appear in a more specific example. */
+export function flagHintsFromQuery(query) {
+  const q = String(query || '').toLowerCase();
+  const hints = [];
+  if (/\brebase\b/.test(q) && /\bpull\b/.test(q)) hints.push('--rebase');
+  if (/\bignored?\b/.test(q) && /\bstatus\b/.test(q)) hints.push('--ignored');
+  if (/no[- ]?fast[- ]?forward|without fast-?forward|--no-ff/.test(q)) hints.push('--no-ff');
+  if (/\b(interactive|interactively)\b/.test(q) && /\brewrite|rebase|squash\b/.test(q)) {
+    hints.push('-i', '--interactive');
+  }
+  if (/\bone[- ]?line|oneline\b/.test(q)) hints.push('--oneline');
+  if (/\bgraph\b/.test(q)) hints.push('--graph');
+  if (/\ball branches\b|\ball\b/.test(q) && /\b(graph|log|history)\b/.test(q)) hints.push('--all');
+  if (/\bcone\b/.test(q) || (/\bsparse\b/.test(q) && /\b(init|enable)\b/.test(q))) {
+    hints.push('init', '--cone');
+  }
+  if (/\bdelete\b/.test(q) && /\bbranch\b/.test(q)) hints.push('-d', '-D', '--delete');
+  return hints;
+}
+
+function exampleHasHint(example, hint) {
+  const ex = normalizeExample(example).toLowerCase();
+  const h = String(hint).toLowerCase();
+  if (h === '-i') return /(^|\s)-i(\s|$)/.test(ex) || ex.includes('--interactive');
+  return ex.includes(h);
+}
+
+/**
+ * Promote candidates whose example contains query-implied flags within score window.
+ */
+export function preferFlagMatches(scored, query, window = 0.14) {
+  if (!Array.isArray(scored) || scored.length < 2) return scored;
+  const hints = flagHintsFromQuery(query);
+  if (!hints.length) return scored;
+  const head = scored[0];
+  let bestIdx = -1;
+  let bestHits = -1;
+  let bestScore = -Infinity;
+  for (let i = 0; i < Math.min(scored.length, 40); i += 1) {
+    const cand = scored[i];
+    if (head.score - cand.score > window) break;
+    const hits = hints.filter((h) => exampleHasHint(cand.example ?? cand.command, h)).length;
+    if (hits === 0) continue;
+    if (hits > bestHits || (hits === bestHits && cand.score > bestScore)) {
+      bestHits = hits;
+      bestScore = cand.score;
+      bestIdx = i;
+    }
+  }
+  if (bestIdx > 0) {
+    const [picked] = scored.splice(bestIdx, 1);
+    scored.unshift(picked);
+  }
+  return scored;
+}
+
+function queryLooksAtomic(query) {
+  const q = String(query || '').toLowerCase();
+  if (!q) return false;
+  if (/\b(then|after|and then|onto (a )?new branch|switch.*pop|stash.*switch)\b/.test(q)) {
+    return false;
+  }
+  if (/\bdelete\b.*\bbranch\b|\bremove\b.*\bbranch\b/.test(q)) return true;
+  if (/\b(show|list|enable|pull|status|log|merge|rebase)\b/.test(q) && !/\bthen\b/.test(q)) {
+    return true;
+  }
+  return false;
+}
+
 /**
  * Within score window, prefer fewer steps (single-command over workflows).
+ * Stronger bias when the query looks atomic (not a composite workflow ask).
  */
-export function preferFewerSteps(scored, window = 0.08) {
+export function preferFewerSteps(scored, window = 0.08, query = '') {
   if (!Array.isArray(scored) || scored.length < 2) return scored;
+  const atomic = queryLooksAtomic(query);
+  const effectiveWindow = atomic ? Math.max(window, 0.16) : window;
   const head = scored[0];
   let bestIdx = 0;
   let bestSteps = stepCount(head);
   for (let i = 1; i < Math.min(scored.length, 40); i += 1) {
     const cand = scored[i];
-    if (head.score - cand.score > window) break;
+    if (head.score - cand.score > effectiveWindow) break;
     const steps = stepCount(cand);
     if (steps < bestSteps || (steps === bestSteps && cand.score > scored[bestIdx].score)) {
       bestSteps = steps;

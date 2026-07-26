@@ -16,6 +16,7 @@ import {
   recipeSourceRank,
   stepSignature,
 } from './recipeIdentity.js';
+import { isCommandLikeIntent } from './intentHygiene.js';
 
 /**
  * Normalize recipes: materialize placeholders, validate, dedupe by id + step_signature.
@@ -51,7 +52,9 @@ export function normalizeRecipes(rawRecipes, {
       usage: normalizeUsage(raw.usage, primary),
       topic: sanitizeField(raw.topic || 'advanced', 64),
       primary_example: primary,
-      command: normalizeExample(raw.command || deriveCommandKey(primary)),
+      // Prefer verb derived from the run line so sibling examples (e.g. symbolic-ref
+      // under a "branch" golden) do not inherit a mismatched command key.
+      command: deriveCommandKey(primary) || normalizeExample(raw.command || ''),
       source: sanitizeField(raw.source || '', 64),
       checklist: sanitizeField(raw.checklist || '', 64),
       step_signature: stepSignature(commands),
@@ -100,6 +103,10 @@ export function normalizeIntents(rawIntents, recipes) {
     const v = validateSearchIntent(intent, { recipeIds });
     if (!v.ok) {
       drops.push({ id: intent.id, reason: v.reason });
+      continue;
+    }
+    if (isCommandLikeIntent(intent.intent_text)) {
+      drops.push({ id: intent.id, reason: 'command_like' });
       continue;
     }
     const key = `${intent.recipe_id}|${intent.skill_level}|${intent.intent_text.toLowerCase()}`;

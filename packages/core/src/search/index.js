@@ -109,7 +109,7 @@ export async function search(query, {
   }
   benchMark('knn');
 
-  const ranked = rankResults(candidates, embedding, thresholds, { skillLevel });
+  const ranked = rankResults(candidates, embedding, thresholds, { skillLevel, query: q });
   benchMark('rank');
 
   if (ranked.status === 'empty' && skillLevel != null) {

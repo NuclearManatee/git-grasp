@@ -14,7 +14,7 @@
     "usage": "git cherry-pick --abort\nAbort the cherry-pick operation",
     "topic": "undo",
     "primary_example": "git cherry-pick --abort",
-    "command": "git cherry-pick --abort",
+    "command": "git cherry-pick",
     "source": "ays",
     "checklist": "",
     "step_signature": "git cherry-pick --abort"
@@ -170,7 +170,7 @@
     "usage": "git add app.js\nStage forgotten file → Fold into last commit",
     "topic": "commit",
     "primary_example": "git add app.js",
-    "command": "git commit",
+    "command": "git add",
     "source": "workflow",
     "checklist": "amend-exclude-path",
     "step_signature": "git add app.js\ngit commit --amend --no-edit"
@@ -198,7 +198,7 @@
     "usage": "git reset --soft HEAD~1\nOpen last commit → Exclude this path → Recreate commit without that path",
     "topic": "commit",
     "primary_example": "git reset --soft HEAD~1",
-    "command": "git commit",
+    "command": "git reset",
     "source": "workflow",
     "checklist": "amend-exclude-path",
     "step_signature": "git reset --soft HEAD~1\ngit restore --staged app.js\ngit commit -c ORIG_HEAD"
@@ -318,7 +318,7 @@
     "usage": "git stash apply stash@{0}\nApply the most recent stash",
     "topic": "stash",
     "primary_example": "git stash apply stash@{0}",
-    "command": "git stash apply",
+    "command": "git stash",
     "source": "ays",
     "checklist": "",
     "step_signature": "git stash apply stash@{0}"
@@ -978,7 +978,7 @@
     "usage": "git add app.js\nStage the resolved file → Continue the cherry-pick",
     "topic": "undo",
     "primary_example": "git add app.js",
-    "command": "git cherry-pick",
+    "command": "git add",
     "source": "workflow",
     "checklist": "cherry-pick-or-revert-followup",
     "step_signature": "git add app.js\ngit cherry-pick --continue"
@@ -1094,7 +1094,7 @@
     "usage": "git checkout --theirs app.js\nAccept the incoming branch's version of app.js → Mark the conflict as resolved → Complete the merge",
     "topic": "undo",
     "primary_example": "git checkout --theirs app.js",
-    "command": "git merge",
+    "command": "git checkout",
     "source": "workflow",
     "checklist": "conflict-abort-or-resolve",
     "step_signature": "git checkout --theirs app.js\ngit add app.js\ngit commit"
@@ -1590,7 +1590,7 @@
     "usage": "git commit --amend -m \"Add login form\"\nUpdate commit message",
     "topic": "commit",
     "primary_example": "git commit --amend -m \"Add login form\"",
-    "command": "git commit --amend -m",
+    "command": "git commit",
     "source": "ays",
     "checklist": "",
     "step_signature": "git commit --amend -m \"Add login form\""
@@ -3270,7 +3270,7 @@
     "usage": "git annotate",
     "topic": "golden",
     "primary_example": "git annotate",
-    "command": "git blame",
+    "command": "git annotate",
     "source": "golden:blame-01",
     "checklist": "",
     "step_signature": "git annotate"
@@ -3290,7 +3290,7 @@
     "usage": "git annotate app.js",
     "topic": "golden",
     "primary_example": "git annotate app.js",
-    "command": "git blame",
+    "command": "git annotate",
     "source": "golden:blame-01",
     "checklist": "",
     "step_signature": "git annotate app.js"
@@ -3396,6 +3396,26 @@
     "step_signature": "git branch -a"
   },
   {
+    "id": "golden-git-branch-d-feature-login",
+    "title": "Golden: git branch -d feature/login",
+    "commands": [
+      {
+        "run": "git branch -d feature/login",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case branch-delete-01",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git branch -d feature/login",
+    "topic": "golden",
+    "primary_example": "git branch -d feature/login",
+    "command": "git branch",
+    "source": "golden:branch-delete-01",
+    "checklist": "",
+    "step_signature": "git branch -d feature/login"
+  },
+  {
     "id": "golden-git-bundle-create-repo-bundle-all",
     "title": "Golden: git bundle create repo.bundle --all",
     "commands": [
@@ -3470,7 +3490,7 @@
     "usage": "git checkout",
     "topic": "golden",
     "primary_example": "git checkout",
-    "command": "git switch",
+    "command": "git checkout",
     "source": "golden:branch-create-01",
     "checklist": "",
     "step_signature": "git checkout"
@@ -3490,7 +3510,7 @@
     "usage": "git checkout -- app.js",
     "topic": "golden",
     "primary_example": "git checkout -- app.js",
-    "command": "git restore",
+    "command": "git checkout",
     "source": "golden:restore-02",
     "checklist": "",
     "step_signature": "git checkout -- app.js"
@@ -3510,7 +3530,7 @@
     "usage": "git checkout -b feature",
     "topic": "golden",
     "primary_example": "git checkout -b feature",
-    "command": "git switch",
+    "command": "git checkout",
     "source": "golden:branch-create-01",
     "checklist": "",
     "step_signature": "git checkout -b feature"
@@ -3530,7 +3550,7 @@
     "usage": "git checkout main",
     "topic": "golden",
     "primary_example": "git checkout main",
-    "command": "git switch",
+    "command": "git checkout",
     "source": "golden:switch-02",
     "checklist": "",
     "step_signature": "git checkout main"
@@ -3576,6 +3596,26 @@
     "step_signature": "git cherry-pick abc1234"
   },
   {
+    "id": "golden-git-clean-dry-run",
+    "title": "Golden: git clean --dry-run",
+    "commands": [
+      {
+        "run": "git clean --dry-run",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case clean-01",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git clean --dry-run",
+    "topic": "golden",
+    "primary_example": "git clean --dry-run",
+    "command": "git clean",
+    "source": "golden:clean-01",
+    "checklist": "",
+    "step_signature": "git clean --dry-run"
+  },
+  {
     "id": "golden-git-clean-n",
     "title": "Golden: git clean -n",
     "commands": [
@@ -3614,6 +3654,46 @@
     "source": "golden:commit-01",
     "checklist": "",
     "step_signature": "git commit -am \"fix typo\""
+  },
+  {
+    "id": "golden-git-commit-amend-no-edit",
+    "title": "Golden: git commit --amend --no-edit",
+    "commands": [
+      {
+        "run": "git commit --amend --no-edit",
+        "comment": "Amend"
+      }
+    ],
+    "explanation": "Amend",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git commit --amend --no-edit",
+    "topic": "golden",
+    "primary_example": "git commit --amend --no-edit",
+    "command": "git commit",
+    "source": "golden:amend-01",
+    "checklist": "",
+    "step_signature": "git commit --amend --no-edit"
+  },
+  {
+    "id": "golden-git-commit-help",
+    "title": "Golden: git commit --help",
+    "commands": [
+      {
+        "run": "git commit --help",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case help-01",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git commit --help",
+    "topic": "golden",
+    "primary_example": "git commit --help",
+    "command": "git commit",
+    "source": "golden:help-01",
+    "checklist": "",
+    "step_signature": "git commit --help"
   },
   {
     "id": "golden-git-commit-m-fix-typo",
@@ -3716,6 +3796,46 @@
     "step_signature": "git describe --tags"
   },
   {
+    "id": "golden-git-diff-staged",
+    "title": "Golden: git diff --staged",
+    "commands": [
+      {
+        "run": "git diff --staged",
+        "comment": "Staged diff"
+      }
+    ],
+    "explanation": "Staged diff",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git diff --staged",
+    "topic": "golden",
+    "primary_example": "git diff --staged",
+    "command": "git diff",
+    "source": "golden:diff-staged-01",
+    "checklist": "",
+    "step_signature": "git diff --staged"
+  },
+  {
+    "id": "golden-git-fetch-all-prune",
+    "title": "Golden: git fetch --all --prune",
+    "commands": [
+      {
+        "run": "git fetch --all --prune",
+        "comment": "Fetch prune"
+      }
+    ],
+    "explanation": "Fetch prune",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git fetch --all --prune",
+    "topic": "golden",
+    "primary_example": "git fetch --all --prune",
+    "command": "git fetch",
+    "source": "golden:fetch-prune-01",
+    "checklist": "",
+    "step_signature": "git fetch --all --prune"
+  },
+  {
     "id": "golden-git-fsck",
     "title": "Golden: git fsck",
     "commands": [
@@ -3796,6 +3916,46 @@
     "step_signature": "git help commit"
   },
   {
+    "id": "golden-git-log-graph-oneline-all",
+    "title": "Golden: git log --graph --oneline --all",
+    "commands": [
+      {
+        "run": "git log --graph --oneline --all",
+        "comment": "Log"
+      }
+    ],
+    "explanation": "Log",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git log --graph --oneline --all",
+    "topic": "golden",
+    "primary_example": "git log --graph --oneline --all",
+    "command": "git log",
+    "source": "golden:log-01",
+    "checklist": "",
+    "step_signature": "git log --graph --oneline --all"
+  },
+  {
+    "id": "golden-git-log-oneline",
+    "title": "Golden: git log --oneline",
+    "commands": [
+      {
+        "run": "git log --oneline",
+        "comment": "Log"
+      }
+    ],
+    "explanation": "Log",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git log --oneline",
+    "topic": "golden",
+    "primary_example": "git log --oneline",
+    "command": "git log",
+    "source": "golden:log-01",
+    "checklist": "",
+    "step_signature": "git log --oneline"
+  },
+  {
     "id": "golden-git-ls-files",
     "title": "Golden: git ls-files",
     "commands": [
@@ -3814,6 +3974,46 @@
     "source": "golden:ls-files-01",
     "checklist": "",
     "step_signature": "git ls-files"
+  },
+  {
+    "id": "golden-git-merge-abort",
+    "title": "Golden: git merge --abort",
+    "commands": [
+      {
+        "run": "git merge --abort",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case merge-abort-01",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git merge --abort",
+    "topic": "golden",
+    "primary_example": "git merge --abort",
+    "command": "git merge",
+    "source": "golden:merge-abort-01",
+    "checklist": "",
+    "step_signature": "git merge --abort"
+  },
+  {
+    "id": "golden-git-merge-no-ff-feature-login",
+    "title": "Golden: git merge --no-ff feature/login",
+    "commands": [
+      {
+        "run": "git merge --no-ff feature/login",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case merge-ff-01",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git merge --no-ff feature/login",
+    "topic": "golden",
+    "primary_example": "git merge --no-ff feature/login",
+    "command": "git merge",
+    "source": "golden:merge-ff-01",
+    "checklist": "",
+    "step_signature": "git merge --no-ff feature/login"
   },
   {
     "id": "golden-git-mv-app-js-src-index-ts",
@@ -3854,6 +4054,86 @@
     "source": "golden:notes-01",
     "checklist": "",
     "step_signature": "git notes add -m \"Fix typo\""
+  },
+  {
+    "id": "golden-git-pull-rebase",
+    "title": "Golden: git pull --rebase",
+    "commands": [
+      {
+        "run": "git pull --rebase",
+        "comment": "Pull/fetch family ok if judged equivalent"
+      }
+    ],
+    "explanation": "Pull/fetch family ok if judged equivalent",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git pull --rebase",
+    "topic": "golden",
+    "primary_example": "git pull --rebase",
+    "command": "git pull",
+    "source": "golden:pull-01",
+    "checklist": "",
+    "step_signature": "git pull --rebase"
+  },
+  {
+    "id": "golden-git-push-force-with-lease",
+    "title": "Golden: git push --force-with-lease",
+    "commands": [
+      {
+        "run": "git push --force-with-lease",
+        "comment": "Prefer lease over --force"
+      }
+    ],
+    "explanation": "Prefer lease over --force",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git push --force-with-lease",
+    "topic": "golden",
+    "primary_example": "git push --force-with-lease",
+    "command": "git push",
+    "source": "golden:force-lease-01",
+    "checklist": "",
+    "step_signature": "git push --force-with-lease"
+  },
+  {
+    "id": "golden-git-rebase-abort",
+    "title": "Golden: git rebase --abort",
+    "commands": [
+      {
+        "run": "git rebase --abort",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case rebase-abort-01",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git rebase --abort",
+    "topic": "golden",
+    "primary_example": "git rebase --abort",
+    "command": "git rebase",
+    "source": "golden:rebase-abort-01",
+    "checklist": "",
+    "step_signature": "git rebase --abort"
+  },
+  {
+    "id": "golden-git-rebase-i-head-3",
+    "title": "Golden: git rebase -i HEAD~3",
+    "commands": [
+      {
+        "run": "git rebase -i HEAD~3",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case rebase-i-01",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git rebase -i HEAD~3",
+    "topic": "golden",
+    "primary_example": "git rebase -i HEAD~3",
+    "command": "git rebase",
+    "source": "golden:rebase-i-01",
+    "checklist": "",
+    "step_signature": "git rebase -i HEAD~3"
   },
   {
     "id": "golden-git-remote",
@@ -3910,7 +4190,7 @@
     "usage": "git rev-parse --abbrev-ref HEAD",
     "topic": "golden",
     "primary_example": "git rev-parse --abbrev-ref HEAD",
-    "command": "git branch",
+    "command": "git rev-parse",
     "source": "golden:branch-current-01",
     "checklist": "",
     "step_signature": "git rev-parse --abbrev-ref HEAD"
@@ -4016,6 +4296,26 @@
     "step_signature": "git show HEAD"
   },
   {
+    "id": "golden-git-sparse-checkout-init-cone",
+    "title": "Golden: git sparse-checkout init --cone",
+    "commands": [
+      {
+        "run": "git sparse-checkout init --cone",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case sparse-01",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git sparse-checkout init --cone",
+    "topic": "golden",
+    "primary_example": "git sparse-checkout init --cone",
+    "command": "git sparse-checkout",
+    "source": "golden:sparse-01",
+    "checklist": "",
+    "step_signature": "git sparse-checkout init --cone"
+  },
+  {
     "id": "golden-git-stash-include-untracked",
     "title": "Golden: git stash --include-untracked",
     "commands": [
@@ -4054,6 +4354,46 @@
     "source": "golden:stash-01",
     "checklist": "",
     "step_signature": "git stash push -m \"fix typo\""
+  },
+  {
+    "id": "golden-git-status-ignored",
+    "title": "Golden: git status --ignored",
+    "commands": [
+      {
+        "run": "git status --ignored",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case status-04",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git status --ignored",
+    "topic": "golden",
+    "primary_example": "git status --ignored",
+    "command": "git status",
+    "source": "golden:status-04",
+    "checklist": "",
+    "step_signature": "git status --ignored"
+  },
+  {
+    "id": "golden-git-submodule-update-init-recursive",
+    "title": "Golden: git submodule update --init --recursive",
+    "commands": [
+      {
+        "run": "git submodule update --init --recursive",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case submodule-01",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git submodule update --init --recursive",
+    "topic": "golden",
+    "primary_example": "git submodule update --init --recursive",
+    "command": "git submodule",
+    "source": "golden:submodule-01",
+    "checklist": "",
+    "step_signature": "git submodule update --init --recursive"
   },
   {
     "id": "golden-git-switch",
@@ -4130,7 +4470,7 @@
     "usage": "git symbolic-ref --short HEAD",
     "topic": "golden",
     "primary_example": "git symbolic-ref --short HEAD",
-    "command": "git branch",
+    "command": "git symbolic-ref",
     "source": "golden:branch-current-01",
     "checklist": "",
     "step_signature": "git symbolic-ref --short HEAD"
@@ -4150,7 +4490,7 @@
     "usage": "git version",
     "topic": "golden",
     "primary_example": "git version",
-    "command": "git --version",
+    "command": "git version",
     "source": "golden:version-01",
     "checklist": "",
     "step_signature": "git version"
@@ -4494,7 +4834,7 @@
     "usage": "git reset --soft HEAD~1\nUndo last commit, keep changes staged → Unstage the file to peel → Recommit the remaining changes → Create and switch to new branch → Stage the peeled file → Commit the peeled file on new branch",
     "topic": "advanced",
     "primary_example": "git reset --soft HEAD~1",
-    "command": "git reset --soft",
+    "command": "git reset",
     "source": "workflow",
     "checklist": "peel-split-last-commit",
     "step_signature": "git reset --soft HEAD~1\ngit restore --staged app.js\ngit commit -m \"Fix typo\"\ngit switch -c feature/login\ngit add app.js\ngit commit -m \"Add login form\""
@@ -5910,7 +6250,7 @@
     "usage": "git fetch origin\nFetch → Rebase → Publish rewritten history",
     "topic": "rebase",
     "primary_example": "git fetch origin",
-    "command": "git rebase",
+    "command": "git fetch",
     "source": "workflow",
     "checklist": "upstream-first-push",
     "step_signature": "git fetch origin\ngit rebase origin/main\ngit push --force-with-lease"
@@ -5950,7 +6290,7 @@
     "usage": "git checkout abc1234~1 -- app.js\nRestore the deleted file",
     "topic": "undo",
     "primary_example": "git checkout abc1234~1 -- app.js",
-    "command": "git checkout abc1234~1 -- app.js",
+    "command": "git checkout",
     "source": "ays",
     "checklist": "",
     "step_signature": "git checkout abc1234~1 -- app.js"
@@ -5998,7 +6338,7 @@
     "usage": "git fsck --unreachable\nFind dangling commits",
     "topic": "stash",
     "primary_example": "git fsck --unreachable",
-    "command": "git fsck --unreachable",
+    "command": "git fsck",
     "source": "ays",
     "checklist": "",
     "step_signature": "git fsck --unreachable\ngit show abc1234\ngit stash apply abc1234"
@@ -6142,7 +6482,7 @@
     "usage": "git bisect replay bisect.log\nReplay from saved log",
     "topic": "debug",
     "primary_example": "git bisect replay bisect.log",
-    "command": "git bisect replay",
+    "command": "git bisect",
     "source": "ays",
     "checklist": "",
     "step_signature": "git bisect replay bisect.log"
@@ -6210,7 +6550,7 @@
     "usage": "git checkout --ours app.js\nKeep our version",
     "topic": "merge",
     "primary_example": "git checkout --ours app.js",
-    "command": "git checkout --ours app.js",
+    "command": "git checkout",
     "source": "ays",
     "checklist": "",
     "step_signature": "git checkout --ours app.js\ngit add app.js"
@@ -6286,7 +6626,7 @@
     "usage": "git restore --source=abc1234 app.js\nRestore app.js from commit abc1234",
     "topic": "undo",
     "primary_example": "git restore --source=abc1234 app.js",
-    "command": "git restore --source",
+    "command": "git restore",
     "source": "ays",
     "checklist": "",
     "step_signature": "git restore --source=abc1234 app.js"
@@ -6326,7 +6666,7 @@
     "usage": "git restore --staged --worktree app.js\nUnstage and discard changes in app.js",
     "topic": "undo",
     "primary_example": "git restore --staged --worktree app.js",
-    "command": "git restore --staged --worktree app.js",
+    "command": "git restore",
     "source": "ays",
     "checklist": "",
     "step_signature": "git restore --staged --worktree app.js"
@@ -6482,7 +6822,7 @@
     "usage": "git bisect run app.js\nRun test script on each step",
     "topic": "debug",
     "primary_example": "git bisect run app.js",
-    "command": "git bisect run",
+    "command": "git bisect",
     "source": "ays",
     "checklist": "",
     "step_signature": "git bisect run app.js"
@@ -6870,7 +7210,7 @@
     "usage": "git stash show -p stash@{0}\nShow full diff of the latest stash",
     "topic": "stash",
     "primary_example": "git stash show -p stash@{0}",
-    "command": "git stash show",
+    "command": "git stash",
     "source": "ays",
     "checklist": "",
     "step_signature": "git stash show -p stash@{0}"
@@ -7070,7 +7410,7 @@
     "usage": "git stash push --include-untracked\nStash all changes including untracked files",
     "topic": "stash",
     "primary_example": "git stash push --include-untracked",
-    "command": "git stash push --include-untracked",
+    "command": "git stash",
     "source": "ays",
     "checklist": "",
     "step_signature": "git stash push --include-untracked"
@@ -7398,7 +7738,7 @@
     "usage": "git stash push --include-untracked -m \"fix typo\"\nStash with untracked files",
     "topic": "stash",
     "primary_example": "git stash push --include-untracked -m \"fix typo\"",
-    "command": "git stash push --include-untracked",
+    "command": "git stash",
     "source": "ays",
     "checklist": "",
     "step_signature": "git stash push --include-untracked -m \"fix typo\""
@@ -7418,7 +7758,7 @@
     "usage": "git reset --mixed HEAD~1\nUndo commit, keep changes unstaged",
     "topic": "undo",
     "primary_example": "git reset --mixed HEAD~1",
-    "command": "git reset --mixed",
+    "command": "git reset",
     "source": "ays",
     "checklist": "",
     "step_signature": "git reset --mixed HEAD~1"
@@ -7438,7 +7778,7 @@
     "usage": "git fsck --lost-found\nFind dangling blobs in .git/lost-found/other",
     "topic": "undo",
     "primary_example": "git fsck --lost-found",
-    "command": "git fsck --lost-found",
+    "command": "git fsck",
     "source": "ays",
     "checklist": "",
     "step_signature": "git fsck --lost-found"
@@ -7458,7 +7798,7 @@
     "usage": "git reset --merge ORIG_HEAD\nAbort merge and reset working tree",
     "topic": "undo",
     "primary_example": "git reset --merge ORIG_HEAD",
-    "command": "git reset --merge ORIG_HEAD",
+    "command": "git reset",
     "source": "ays",
     "checklist": "",
     "step_signature": "git reset --merge ORIG_HEAD"
@@ -7686,7 +8026,7 @@
     "usage": "git push --force-with-lease\nForce push safely → Check branch status",
     "topic": "advanced",
     "primary_example": "git push --force-with-lease",
-    "command": "git push --force-with-lease",
+    "command": "git push",
     "source": "workflow",
     "checklist": "upstream-first-push",
     "step_signature": "git push --force-with-lease\ngit status -sb"
@@ -7754,7 +8094,7 @@
     "usage": "git worktree add -b feature/login ../hotfix\nCreate worktree with new branch → List all worktrees",
     "topic": "worktree",
     "primary_example": "git worktree add -b feature/login ../hotfix",
-    "command": "git worktree add",
+    "command": "git worktree",
     "source": "workflow",
     "checklist": "worktree-add",
     "step_signature": "git worktree add -b feature/login ../hotfix\ngit worktree list"

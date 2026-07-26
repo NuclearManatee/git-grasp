@@ -94,7 +94,7 @@ export async function searchBrowser(query, {
     maxSkillLevel: skillLevel != null ? skillLevel : null,
   });
 
-  const ranked = rankResults(candidates, embedding, thresholds, { skillLevel });
+  const ranked = rankResults(candidates, embedding, thresholds, { skillLevel, query: q });
 
   if (ranked.status === 'empty' && skillLevel != null) {
     const err = new Error(
