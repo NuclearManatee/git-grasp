@@ -33,6 +33,7 @@
     "./catalog/stepRecipeIntents.js": "./src/catalog/stepRecipeIntents.js",
     "./catalog/stepRecipeFamilies.js": "./src/catalog/stepRecipeFamilies.js",
     "./catalog/stepRecipeNormalize.js": "./src/catalog/stepRecipeNormalize.js",
+    "./catalog/stepRecipeAys.js": "./src/catalog/stepRecipeAys.js",
     "./catalog/enrichRecipes.js": "./src/catalog/enrichRecipes.js",
     "./catalog/nearDup.js": "./src/catalog/nearDup.js",
     "./catalog/personas.js": "./src/catalog/personas.js",

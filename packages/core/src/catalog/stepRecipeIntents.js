@@ -6,12 +6,14 @@ import { PACKAGE_ROOT } from '../lib/paths.js';
 
 /**
  * @param {object} recipe
+ * Full band: everyday recipes get 5 paraphrases per skill; others 4 (~16–20 intents/recipe before AYS).
  */
 export function intentCountForRecipe(recipe) {
   const common = Number(recipe.simplicity_rank) === 1
     || recipe.source === 'cheat-sheet'
-    || /^(git status|git commit|git branch|git push|git pull|git stash|git log|git diff|git add)\b/.test(recipe.command || '');
-  return common ? 5 : 3;
+    || recipe.source === 'essential'
+    || /^(git status|git commit|git branch|git push|git pull|git stash|git log|git diff|git add|git switch|git restore|git reset)\b/.test(recipe.command || '');
+  return common ? 5 : 4;
 }
 
 export function buildRecipeIntentSystem({ glossary, personas } = {}) {
@@ -37,10 +39,42 @@ Return JSON only:
 }
 Rules:
 - Cover ALL four skills: ${SKILL_NAMES.join(', ')}.
-- Per skill: provide intent_descriptions array (natural language; no shell operators).
-- Diversity: paraphrases + colloquial/non-git wording; at most one misconception phrasing per skill.
+- Per skill: provide intent_descriptions array with AT LEAST the requested intent_target_per_skill items.
+- Diversity: D1 paraphrases + D2 colloquial/non-git wording required; D4 misconception phrasings sparse (at most one per skill).
+- Tone matches skill name (non-technical colloquial → expert technical).
 - Stay faithful to the recipe; do not invent different commands.
 - Do NOT output risk_class or risks fields.
+- Glossary (context only): ${JSON.stringify(glossary || {})}`;
+}
+
+export function buildIntentAreYouSureSystem({ glossary, personas } = {}) {
+  const personaBlock = personasPromptBlock(personas || loadSkillPersonas());
+  return `You are auditing intents for ONE git recipe ("Are you sure?").
+Add MORE natural-language query variants that are missing — especially panicked junior phrasing,
+colloquial non-git wording, mid-level flag-aware phrasing, and terse expert forms.
+
+Persona guidance:
+${personaBlock}
+
+Return JSON only:
+{
+  "sure": false,
+  "additional_intents": [
+    {
+      "skill_level": "non-technical",
+      "intent_descriptions": [
+        "I messed up my last save point but keep my work"
+      ]
+    }
+  ],
+  "rationale": "short"
+}
+Rules:
+- If sure=true, additional_intents MUST be [].
+- Cover gaps across skills: ${SKILL_NAMES.join(', ')}.
+- Do not repeat existing_intents (case-insensitive).
+- No shell operators in intent text.
+- Stay faithful to the given recipe commands.
 - Glossary (context only): ${JSON.stringify(glossary || {})}`;
 }
 
@@ -68,7 +102,7 @@ export function intentsFromLlmItem(recipe, item, { intentTarget = 3 } = {}) {
     let idx = 0;
     for (const desc of descs) {
       if (!desc) continue;
-      if (idx >= Math.max(intentTarget, 5)) break;
+      if (idx >= Math.max(intentTarget, 6)) break;
       rows.push({
         id: makeIntentId(recipe.id, level, idx),
         recipe_id: recipe.id,
@@ -79,6 +113,56 @@ export function intentsFromLlmItem(recipe, item, { intentTarget = 3 } = {}) {
     }
   }
   return rows;
+}
+
+/**
+ * Merge intent rows; dedupe by recipe_id|skill|lowercase text; re-index ids.
+ */
+export function mergeIntentRows(existing = [], incoming = []) {
+  const seen = new Set();
+  const byKey = [];
+  for (const row of [...existing, ...incoming]) {
+    if (!row?.intent_text || !row.recipe_id) continue;
+    const key = `${row.recipe_id}|${row.skill_level}|${String(row.intent_text).toLowerCase()}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    byKey.push(row);
+  }
+  const counters = new Map();
+  return byKey.map((row) => {
+    const ck = `${row.recipe_id}|${row.skill_level}`;
+    const idx = counters.get(ck) || 0;
+    counters.set(ck, idx + 1);
+    return {
+      ...row,
+      id: makeIntentId(row.recipe_id, row.skill_level, idx),
+    };
+  });
+}
+
+async function applyNearDupFilter(rows, embedFn, maxCosine) {
+  if (!embedFn || !rows.length) return rows;
+  const bySkill = new Map();
+  for (const row of rows) {
+    if (!bySkill.has(row.skill_level)) bySkill.set(row.skill_level, []);
+    bySkill.get(row.skill_level).push(row);
+  }
+  const filtered = [];
+  for (const [level, group] of bySkill) {
+    const texts = group.map((r) => r.intent_text);
+    const kept = await filterNearDuplicateIntents(texts, { embedFn, maxCosine });
+    const keepSet = new Set(kept.map((t) => t.toLowerCase()));
+    let idx = 0;
+    for (const row of group) {
+      if (!keepSet.has(row.intent_text.toLowerCase())) continue;
+      filtered.push({
+        ...row,
+        id: makeIntentId(row.recipe_id, level, idx),
+      });
+      idx += 1;
+    }
+  }
+  return filtered;
 }
 
 /**
@@ -118,32 +202,91 @@ export async function generateIntentsForRecipe(recipe, {
   }));
 
   let rows = intentsFromLlmItem(recipe, out, { intentTarget });
+  rows = await applyNearDupFilter(rows, embedFn, maxCosine);
+  return rows;
+}
 
-  if (embedFn && rows.length) {
-    const bySkill = new Map();
-    for (const row of rows) {
-      if (!bySkill.has(row.skill_level)) bySkill.set(row.skill_level, []);
-      bySkill.get(row.skill_level).push(row);
-    }
-    const filtered = [];
-    for (const [level, group] of bySkill) {
-      const texts = group.map((r) => r.intent_text);
-      const kept = await filterNearDuplicateIntents(texts, { embedFn, maxCosine });
-      const keepSet = new Set(kept.map((t) => t.toLowerCase()));
-      let idx = 0;
-      for (const row of group) {
-        if (!keepSet.has(row.intent_text.toLowerCase())) continue;
-        filtered.push({
-          ...row,
-          id: makeIntentId(recipe.id, level, idx),
-        });
-        idx += 1;
-      }
-    }
-    rows = filtered;
+/**
+ * Full LLM band + Are-you-sure expansion for one recipe's intents.
+ */
+export async function generateIntentsForRecipeWithAreYouSure(recipe, {
+  llmJson,
+  schedule = (fn) => fn(),
+  glossary = {},
+  personas = null,
+  embedFn = null,
+  maxCosine = 0.92,
+  maxRounds = 3,
+  minIntents = null,
+  root = PACKAGE_ROOT,
+  onRound = () => {},
+} = {}) {
+  const intentTarget = intentCountForRecipe(recipe);
+  const floor = minIntents ?? intentTarget * 4; // all skills
+  let rows = await generateIntentsForRecipe(recipe, {
+    llmJson,
+    schedule,
+    glossary,
+    personas,
+    embedFn,
+    maxCosine,
+    root,
+  });
+
+  const aysSystem = buildIntentAreYouSureSystem({
+    glossary,
+    personas: personas || loadSkillPersonas(root),
+  });
+  const rounds = [];
+
+  for (let round = 1; round <= maxRounds; round += 1) {
+    if (rows.length >= floor * 1.2) break;
+    const audit = await schedule(() => llmJson({
+      messages: [
+        { role: 'system', content: aysSystem },
+        {
+          role: 'user',
+          content: JSON.stringify({
+            are_you_sure: true,
+            question: 'Are you sure these intents cover panicked, colloquial, mid, and expert phrasings?',
+            min_intents: floor,
+            current_count: rows.length,
+            recipe: {
+              id: recipe.id,
+              title: recipe.title,
+              commands: recipe.commands,
+              primary_example: recipe.primary_example,
+            },
+            existing_intents: rows.map((r) => ({
+              skill_level: r.skill_level,
+              intent_text: r.intent_text,
+            })),
+            intent_target_per_skill: intentTarget,
+          }),
+        },
+      ],
+    }));
+
+    const extraItem = { intents: audit.additional_intents || [] };
+    const added = intentsFromLlmItem(recipe, extraItem, { intentTarget: 6 });
+    const before = rows.length;
+    rows = mergeIntentRows(rows, added);
+    rows = await applyNearDupFilter(rows, embedFn, maxCosine);
+    const roundInfo = {
+      round,
+      sure: Boolean(audit.sure),
+      rationale: audit.rationale || '',
+      added: rows.length - before,
+      count: rows.length,
+    };
+    rounds.push(roundInfo);
+    onRound(roundInfo);
+
+    if (Boolean(audit.sure) && rows.length >= floor) break;
+    if ((rows.length - before) === 0) break;
   }
 
-  return rows;
+  return { intents: rows, rounds };
 }
 
 /**
