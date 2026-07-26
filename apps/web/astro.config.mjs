@@ -1,12 +1,11 @@
 import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
-import tailwind from '@astrojs/tailwind';
 
-// Phase C will set site to https://git-help.cremaschi.dev
 export default defineConfig({
+  site: 'https://git-help.cremaschi.dev',
   srcDir: './src',
   outDir: './dist',
-  integrations: [react(), tailwind({ applyBaseStyles: false })],
+  integrations: [react()],
   vite: {
     optimizeDeps: {
       exclude: ['@huggingface/transformers'],

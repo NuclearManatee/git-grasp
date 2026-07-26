@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import {
   ConcurrencyRateLimiter,
-  GroqRateLimiter,
-  GROQ_LIMITS,
+  WindowRateLimiter,
+  WINDOW_LIMITS,
   DEEPSEEK_LIMITS,
   estimateTokensFromText,
   estimateTokensFromMessages,
@@ -140,7 +140,7 @@ describe('ConcurrencyRateLimiter (DeepSeek-style)', () => {
   });
 });
 
-describe('GroqRateLimiter (window compat)', () => {
+describe('WindowRateLimiter (soft windows)', () => {
   let now;
   let slept;
   let lim;
@@ -150,7 +150,7 @@ describe('GroqRateLimiter (window compat)', () => {
     now = 1_700_000_000_000;
     slept = [];
     tmp = mkdtempSync(path.join(os.tmpdir(), 'gh-rl-g-'));
-    lim = new GroqRateLimiter({
+    lim = new WindowRateLimiter({
       now: () => now,
       sleep: async (ms) => { slept.push(ms); now += ms; },
       statePath: path.join(tmp, 'day.json'),
@@ -177,7 +177,7 @@ describe('GroqRateLimiter (window compat)', () => {
   });
 
   it('TPD exhaustion', async () => {
-    lim = new GroqRateLimiter({
+    lim = new WindowRateLimiter({
       now: () => now,
       sleep: async (ms) => { slept.push(ms); now += ms; },
       limits: { rpm: 100, rpd: 100, tpm: 10_000, tpd: 50 },
@@ -192,7 +192,7 @@ describe('GroqRateLimiter (window compat)', () => {
       now: () => now,
       sleep: async (ms) => { now += ms; },
       minIntervalMs: 100,
-      limits: GROQ_LIMITS,
+      limits: WINDOW_LIMITS,
     });
     await s.schedule(async () => 1);
     expect(s.getDayUsage().requests).toBe(1);
@@ -214,10 +214,8 @@ describe('createRateLimiter', () => {
     expect(lim.concurrency).toBe(8);
   });
 
-  it('groq → window limiter concurrency 1', () => {
+  it('unknown provider throws', () => {
     process.env.GIT_HELP_LLM_PROVIDER = 'groq';
-    const lim = createRateLimiter({});
-    expect(lim).toBeInstanceOf(GroqRateLimiter);
-    expect(lim.concurrency).toBe(1);
+    expect(() => createRateLimiter({})).toThrow(/Unknown LLM provider/);
   });
 });

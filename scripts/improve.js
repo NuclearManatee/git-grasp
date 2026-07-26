@@ -62,7 +62,7 @@ function runEval() {
       cwd: PACKAGE_ROOT,
     });
   } else {
-    console.log('Running real Groq eval (no mock embeddings)…');
+    console.log('Running real DeepSeek eval (no mock embeddings)…');
     const env = { ...process.env };
     delete env.GIT_HELP_MOCK_EMBEDDINGS;
     delete env.GIT_HELP_MOCK_JUDGE;

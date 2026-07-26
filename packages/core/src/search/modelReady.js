@@ -1,8 +1,9 @@
 import { existsSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { PACKAGE_ROOT, packageDataDir, userPaths } from '../lib/paths.js';
+import { EMBEDDING_MODEL_ID, EMBEDDING_MODEL_REVISION } from './embeddingModel.js';
 
-const MODEL_ID = 'Xenova/all-MiniLM-L6-v2';
+const MODEL_ID = EMBEDDING_MODEL_ID;
 
 /**
  * Heuristic: is the MiniLM cache likely already on disk?
@@ -50,4 +51,8 @@ export function isEmbeddingModelCached() {
 
 export function embeddingModelId() {
   return MODEL_ID;
+}
+
+export function embeddingModelRevision() {
+  return EMBEDDING_MODEL_REVISION;
 }

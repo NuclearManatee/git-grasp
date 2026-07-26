@@ -1,0 +1,216 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.3.14'
+
+      - name: Install
+        run: bun install --frozen-lockfile
+        env:
+          GIT_HELP_SKIP_POSTINSTALL: '1'
+
+      - name: Unit + integration tests
+        run: bun run test
+        env:
+          GIT_HELP_MOCK_EMBEDDINGS: '1'
+          GIT_HELP_SKIP_POSTINSTALL: '1'
+
+      - name: CI audit
+        run: bun scripts/ci-audit.js
+
+      - name: Require DeepSeek secret
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        run: |
+          if [ -z "$DEEPSEEK_API_KEY" ]; then
+            echo "DEEPSEEK_API_KEY secret is required for the main gate" >&2
+            exit 1
+          fi
+
+      - name: Golden eval
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          GIT_HELP_SKIP_POSTINSTALL: '1'
+          GIT_HELP_MOCK_EMBEDDINGS: '1'
+        run: bun scripts/eval.js --min-pass-rate=0.9
+
+      - name: Export web pack
+        run: bun scripts/export-web-pack.js
+        env:
+          GIT_HELP_MOCK_EMBEDDINGS: '0'
+
+      - name: Build web
+        run: bun run web:build
+
+      - name: Install Playwright Chromium
+        working-directory: apps/web
+        run: bunx playwright install chromium --with-deps
+
+      - name: Web e2e
+        working-directory: apps/web
+        run: bun run e2e
+        env:
+          CI: '1'
+
+      - name: Upload web dist
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-dist
+          path: apps/web/dist
+          retention-days: 2
+
+  pages:
+    needs: [gate]
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download web dist
+        uses: actions/download-artifact@v4
+        with:
+          name: web-dist
+          path: dist
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  binaries:
+    needs: [gate]
+    if: startsWith(github.ref, 'refs/tags/v')
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            slug: linux-x64
+          - os: macos-latest
+            slug: darwin-arm64
+          - os: macos-13
+            slug: darwin-x64
+          - os: windows-latest
+            slug: windows-x64
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.3.14'
+
+      - name: Install
+        run: bun install --frozen-lockfile
+        env:
+          GIT_HELP_SKIP_POSTINSTALL: '1'
+
+      - name: Build release zip
+        run: bun scripts/build-release-binary.js --platform=${{ matrix.slug }}
+        env:
+          GIT_HELP_SKIP_POSTINSTALL: '1'
+
+      - name: Upload zip artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: binary-${{ matrix.slug }}
+          path: dist-release/git-help-${{ matrix.slug }}.zip
+          if-no-files-found: error
+
+  github-release:
+    needs: [gate, binaries]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download binary artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: binary-*
+          merge-multiple: true
+          path: release-assets
+
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME}"
+          gh release create "$TAG" release-assets/*.zip \
+            --title "$TAG" \
+            --notes "git-help $TAG — CLI binaries (unzip and run \`./git-help\` from the extracted folder). Bun users: \`bun add -g git-help\`." \
+            --verify-tag
+
+  npm-publish:
+    needs: [gate]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.3.14'
+
+      - name: Install
+        run: bun install --frozen-lockfile
+        env:
+          GIT_HELP_SKIP_POSTINSTALL: '1'
+
+      - name: Check version matches tag
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME#v}"
+          PKG=$(bun -e "console.log(JSON.parse(await Bun.file('package.json').text()).version)")
+          if [ "$TAG" != "$PKG" ]; then
+            echo "Tag v$TAG does not match package.json version $PKG" >&2
+            exit 1
+          fi
+
+      - name: Publish to npm
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${NPM_TOKEN:-}" ]; then
+            echo "NPM_TOKEN secret is required to publish" >&2
+            exit 1
+          fi
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+          bun publish --access public

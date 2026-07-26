@@ -68,21 +68,32 @@ export function stripHtmlToText(html) {
     .trim();
 }
 
+export const DOC_MAX_REDIRECTS = 5;
+
 /**
  * Fetch a single allowlisted doc page as plain text.
+ * @param {string} url
+ * @param {{ fetchImpl?: typeof fetch, maxRedirects?: number, _depth?: number }} [opts]
  */
-export async function fetchDocPage(url, { fetchImpl = globalThis.fetch } = {}) {
+export async function fetchDocPage(url, {
+  fetchImpl = globalThis.fetch,
+  maxRedirects = DOC_MAX_REDIRECTS,
+  _depth = 0,
+} = {}) {
   assertAllowlistedUrl(url);
   const res = await fetchImpl(url, {
     redirect: 'manual',
     headers: { Accept: 'text/html', 'User-Agent': 'git-help-catalog-builder/0.1' },
   });
   if (res.status >= 300 && res.status < 400) {
+    if (_depth >= maxRedirects) {
+      throw new Error(`Too many redirects (>${maxRedirects}): ${url}`);
+    }
     const loc = res.headers.get('location');
     if (!loc) throw new Error(`Redirect without location: ${url}`);
     const next = new URL(loc, url).href;
     assertAllowlistedUrl(next);
-    return fetchDocPage(next, { fetchImpl });
+    return fetchDocPage(next, { fetchImpl, maxRedirects, _depth: _depth + 1 });
   }
   if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
   const buf = Buffer.from(await res.arrayBuffer());

@@ -7,6 +7,9 @@ on:
         description: Max iterations
         default: '5'
 
+permissions:
+  contents: write
+
 jobs:
   improve:
     runs-on: ubuntu-latest
@@ -27,6 +30,6 @@ jobs:
           git checkout -B "$BR"
       - run: bun scripts/improve.js --max-iterations=${{ inputs.max_iterations || 5 }} --force-branch
         env:
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           GIT_HELP_MOCK_EMBEDDINGS: '1'
           GIT_HELP_MOCK_JUDGE: '1'

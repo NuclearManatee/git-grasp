@@ -13,6 +13,21 @@ const {
 
 const umamiScript = import.meta.env.PUBLIC_UMAMI_SCRIPT_URL;
 const umamiWebsiteId = import.meta.env.PUBLIC_UMAMI_WEBSITE_ID;
+
+/** Meta CSP — GitHub Pages cannot set response headers; pair with Cloudflare if possible. */
+const csp = [
+  "default-src 'self'",
+  "base-uri 'self'",
+  "object-src 'none'",
+  "img-src 'self' data: https:",
+  "font-src 'self' https://fonts.gstatic.com",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  // Astro islands + Transformers.js WASM need unsafe-inline / wasm-unsafe-eval
+  "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cloud.umami.is https://*.umami.is",
+  "connect-src 'self' https://huggingface.co https://*.huggingface.co https://cdn.jsdelivr.net https://cloud.umami.is https://*.umami.is",
+  "worker-src 'self' blob:",
+  "form-action 'self'",
+].join('; ');
 ---
 <!doctype html>
 <html lang="en">
@@ -20,6 +35,8 @@ const umamiWebsiteId = import.meta.env.PUBLIC_UMAMI_WEBSITE_ID;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
+    <meta http-equiv="Content-Security-Policy" content={csp} />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
     <title>{title}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

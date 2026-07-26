@@ -21,7 +21,13 @@ export {
   mockEmbedBrowser,
   resetBrowserEmbedderForTests,
   BROWSER_EMBEDDING_MODEL,
+  BROWSER_EMBEDDING_REVISION,
 } from './search/embed.browser.js';
+export {
+  EMBEDDING_MODEL_ID,
+  EMBEDDING_MODEL_REVISION,
+} from './search/embeddingModel.js';
+export { sanitizeField, stripAnsi } from './lib/ansi.js';
 export {
   rankResults,
   normalizeQuery,

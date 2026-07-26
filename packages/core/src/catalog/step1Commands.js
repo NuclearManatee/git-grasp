@@ -179,15 +179,14 @@ export function commandsNeedingMoreExamples(grouped, minExamples = 3) {
 export async function extractCommandsWithAreYouSure({
   pages,
   llmJson,
-  groqJson,
   schedule,
   glossary = DEFAULT_GLOSSARY,
   maxRounds = 5,
   minCommands = 200,
   onRound = () => {},
 }) {
-  const jsonFn = llmJson || groqJson;
-  if (!jsonFn) throw new Error('llmJson (or groqJson) required');
+  const jsonFn = llmJson;
+  if (!jsonFn) throw new Error('llmJson required');
   let commands = [];
   const extractorSystem = buildExtractorSystem(glossary);
   const aysSystem = buildAreYouSureSystem(glossary);

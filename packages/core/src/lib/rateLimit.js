@@ -2,8 +2,8 @@ import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import { getProvider } from './providers.js';
 
-/** @deprecated Prefer provider softLimits — kept for tests/compat. */
-export const GROQ_LIMITS = Object.freeze({
+/** Soft RPM/TPM-style windows for SerialRateLimiter / WindowRateLimiter tests. */
+export const WINDOW_LIMITS = Object.freeze({
   rpm: 30,
   rpd: 1000,
   tpm: 8000,
@@ -294,13 +294,13 @@ export class ConcurrencyRateLimiter {
   }
 }
 
-/** @deprecated Alias — Groq-style token windows with concurrency=1 by default. */
-export class GroqRateLimiter extends ConcurrencyRateLimiter {
+/** Token-window limiter with concurrency=1 by default. */
+export class WindowRateLimiter extends ConcurrencyRateLimiter {
   constructor(opts = {}) {
     const {
       concurrency = 1,
       minIntervalMs = 0,
-      limits = GROQ_LIMITS,
+      limits = WINDOW_LIMITS,
       ...rest
     } = opts;
     super({
@@ -312,20 +312,20 @@ export class GroqRateLimiter extends ConcurrencyRateLimiter {
   }
 }
 
-/** @deprecated Prefer ConcurrencyRateLimiter */
-export class SerialRateLimiter extends GroqRateLimiter {
+/** Prefer ConcurrencyRateLimiter for DeepSeek; this is serial + soft windows. */
+export class SerialRateLimiter extends WindowRateLimiter {
   constructor(opts = {}) {
     super({
       ...opts,
       concurrency: 1,
       minIntervalMs: opts.minIntervalMs ?? 2000,
-      limits: opts.limits ?? GROQ_LIMITS,
+      limits: opts.limits ?? WINDOW_LIMITS,
     });
   }
 }
 
 /**
- * Factory: DeepSeek → concurrency limiter; Groq → window limiter.
+ * Factory: DeepSeek concurrency limiter (only provider).
  */
 export function createRateLimiter({
   provider: providerOpt = null,
@@ -341,24 +341,12 @@ export function createRateLimiter({
   const conc = concurrency
     ?? (Number.isFinite(envConc) && envConc > 0 ? envConc : provider.defaultConcurrency);
 
-  if (provider.id === 'deepseek') {
-    return new ConcurrencyRateLimiter({
-      concurrency: Math.min(conc, provider.concurrencyLimit),
-      limits: limits ?? provider.softLimits,
-      statePath,
-      checkpointPath,
-      minIntervalMs: minIntervalMs ?? Number(process.env.GIT_HELP_LLM_INTERVAL_MS || 0),
-      maxRetries: maxRetries ?? 6,
-    });
-  }
-
-  return new GroqRateLimiter({
-    concurrency: 1,
+  return new ConcurrencyRateLimiter({
+    concurrency: Math.min(conc, provider.concurrencyLimit),
     limits: limits ?? provider.softLimits,
     statePath,
     checkpointPath,
-    minIntervalMs: minIntervalMs
-      ?? Number(process.env.GIT_HELP_LLM_INTERVAL_MS || process.env.GIT_HELP_GROQ_INTERVAL_MS || 2000),
-    maxRetries: maxRetries ?? 8,
+    minIntervalMs: minIntervalMs ?? Number(process.env.GIT_HELP_LLM_INTERVAL_MS || 0),
+    maxRetries: maxRetries ?? 6,
   });
 }

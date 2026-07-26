@@ -50,6 +50,21 @@ describe('downloadDocs / local docs', () => {
     rmSync(root, { recursive: true, force: true });
   });
 
+  it('fault: redirect loop exceeds max', async () => {
+    const root = mkdtempSync(path.join(os.tmpdir(), 'gh-docs-loop-'));
+    await expect(downloadAllDocs({
+      root,
+      urls: ['https://git-scm.com/docs/git'],
+      fetchImpl: async () => ({
+        status: 302,
+        ok: false,
+        headers: { get: (h) => (h === 'location' ? 'https://git-scm.com/docs/git-status' : null) },
+        arrayBuffer: async () => Buffer.from(''),
+      }),
+    })).rejects.toThrow(/Too many redirects/);
+    rmSync(root, { recursive: true, force: true });
+  });
+
   it('edge: pageSlug sanitizes', () => {
     expect(pageSlug('https://git-scm.com/docs/git-status')).toMatch(/git-status/);
   });

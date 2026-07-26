@@ -1,7 +1,14 @@
 # Local Umami for Playwright e2e (not for production).
-# Usage: docker compose -f apps/web/docker-compose.umami.yml up -d
+# Usage: docker compose -f apps/web/docker-compose.umami.yml --profile e2e up -d
+#
+# Sandboxing:
+# - profile `e2e` so it never starts with a bare `docker compose up`
+# - published port bound to 127.0.0.1 only (not LAN)
+# - Postgres not published
+# - no-new-privileges on both services
 services:
   umami-db:
+    profiles: [e2e]
     image: postgres:15-alpine
     environment:
       POSTGRES_DB: umami
@@ -9,6 +16,9 @@ services:
       POSTGRES_PASSWORD: umami
     volumes:
       - umami-db-data:/var/lib/postgresql/data
+    networks: [umami-e2e]
+    security_opt:
+      - no-new-privileges:true
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U umami -d umami']
       interval: 5s
@@ -16,9 +26,10 @@ services:
       retries: 10
 
   umami:
+    profiles: [e2e]
     image: ghcr.io/umami-software/umami:postgresql-latest
     ports:
-      - '3001:3000'
+      - '127.0.0.1:3001:3000'
     environment:
       DATABASE_URL: postgresql://umami:umami@umami-db:5432/umami
       APP_SECRET: git-help-e2e-secret-change-me
@@ -26,6 +37,13 @@ services:
     depends_on:
       umami-db:
         condition: service_healthy
+    networks: [umami-e2e]
+    security_opt:
+      - no-new-privileges:true
+
+networks:
+  umami-e2e:
+    driver: bridge
 
 volumes:
   umami-db-data:
