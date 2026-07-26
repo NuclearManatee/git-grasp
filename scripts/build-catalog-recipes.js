@@ -3,6 +3,10 @@ import { writeFileSync, mkdirSync, existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { synthesizeRecipes } from '../packages/core/src/catalog/stepRecipes.js';
 import { expandRecipesWithAreYouSure } from '../packages/core/src/catalog/stepRecipeAys.js';
+import {
+  enrichRecipesFromEssentials,
+  enrichRecipesFromGolden,
+} from '../packages/core/src/catalog/enrichRecipes.js';
 import { DEFAULT_GLOSSARY } from '../packages/core/src/catalog/step0Glossary.js';
 import { loadManOracle, makeFlagValidator } from '../packages/core/src/catalog/sources/manOracle.js';
 import { PACKAGE_ROOT } from '../packages/core/src/lib/paths.js';
@@ -23,6 +27,15 @@ const maxRounds = Number(process.env.GIT_HELP_AYS_ROUNDS || 5);
 
 let recipes = synthesizeRecipes({ root: PACKAGE_ROOT, glossary });
 console.log(`Base recipes from sources: ${recipes.length}`);
+
+recipes = enrichRecipesFromEssentials(recipes, glossary);
+let golden = [];
+const goldenPath = path.join(PACKAGE_ROOT, 'eval', 'golden', 'cases.json');
+if (existsSync(goldenPath)) {
+  golden = JSON.parse(readFileSync(goldenPath, 'utf8'));
+}
+recipes = enrichRecipesFromGolden(recipes, golden, glossary);
+console.log(`After essentials+golden: ${recipes.length}`);
 
 if (!skipAys) {
   requireLlmKey();

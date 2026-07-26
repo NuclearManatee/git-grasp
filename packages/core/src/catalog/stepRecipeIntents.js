@@ -241,31 +241,44 @@ export async function generateIntentsForRecipeWithAreYouSure(recipe, {
 
   for (let round = 1; round <= maxRounds; round += 1) {
     if (rows.length >= floor * 1.2) break;
-    const audit = await schedule(() => llmJson({
-      messages: [
-        { role: 'system', content: aysSystem },
-        {
-          role: 'user',
-          content: JSON.stringify({
-            are_you_sure: true,
-            question: 'Are you sure these intents cover panicked, colloquial, mid, and expert phrasings?',
-            min_intents: floor,
-            current_count: rows.length,
-            recipe: {
-              id: recipe.id,
-              title: recipe.title,
-              commands: recipe.commands,
-              primary_example: recipe.primary_example,
-            },
-            existing_intents: rows.map((r) => ({
-              skill_level: r.skill_level,
-              intent_text: r.intent_text,
-            })),
-            intent_target_per_skill: intentTarget,
-          }),
-        },
-      ],
-    }));
+    let audit;
+    try {
+      audit = await schedule(() => llmJson({
+        messages: [
+          { role: 'system', content: aysSystem },
+          {
+            role: 'user',
+            content: JSON.stringify({
+              are_you_sure: true,
+              question: 'Are you sure these intents cover panicked, colloquial, mid, and expert phrasings?',
+              min_intents: floor,
+              max_additional_per_skill: 3,
+              current_count: rows.length,
+              recipe: {
+                id: recipe.id,
+                title: recipe.title,
+                commands: recipe.commands,
+                primary_example: recipe.primary_example,
+              },
+              existing_intents: rows.map((r) => ({
+                skill_level: r.skill_level,
+                intent_text: r.intent_text,
+              })),
+              intent_target_per_skill: intentTarget,
+            }),
+          },
+        ],
+      }));
+    } catch (err) {
+      rounds.push({
+        round,
+        sure: false,
+        rationale: `llm_error: ${err?.message || err}`,
+        added: 0,
+        count: rows.length,
+      });
+      break;
+    }
 
     const extraItem = { intents: audit.additional_intents || [] };
     const added = intentsFromLlmItem(recipe, extraItem, { intentTarget: 6 });

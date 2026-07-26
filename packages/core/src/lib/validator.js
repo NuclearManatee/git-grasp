@@ -81,6 +81,13 @@ export function validateExample(example, opts = {}) {
   if (!base.ok) return base;
   const e = normalizeExample(example);
   if (/<[^>]+>/.test(e)) return { ok: false, reason: 'placeholder' };
+  const tokens = e.split(/\s+/);
+  // Reject narrative/prose lines that start with git but are not pasteable invocations
+  if (tokens.length > 14) return { ok: false, reason: 'prose' };
+  if (/\b(fetches|will NOT|by default|equivalent to|note:|use add to)\b/i.test(e)) {
+    return { ok: false, reason: 'prose' };
+  }
+  if (/#/.test(e)) return { ok: false, reason: 'inline_comment' };
   return { ok: true };
 }
 

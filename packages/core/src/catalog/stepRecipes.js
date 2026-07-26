@@ -154,6 +154,50 @@ export function recipesFromProgitBlocks(blocks, {
 }
 
 /**
+ * Single-step recipes from individual Pro Git command lines (fills gaps beyond tldr/CS).
+ */
+export function recipesFromProgitSingles(blocks, {
+  glossary = DEFAULT_GLOSSARY,
+  validateFlags = null,
+  existingRuns = new Set(),
+} = {}) {
+  const recipes = [];
+  const seen = new Set(existingRuns);
+  const seenIds = new Set();
+  for (const block of blocks || []) {
+    for (const raw of block.runs || []) {
+      let run = normalizeExample(materializePlaceholders(raw, glossary));
+      if (!run || seen.has(run)) continue;
+      const v = validateExample(run);
+      if (!v.ok) continue;
+      if (validateFlags) {
+        const f = validateFlags(run);
+        if (!f?.ok) continue;
+      }
+      seen.add(run);
+      const title = titleFromRun(run, '');
+      let id = recipeSlugFromTitle(`progit-${run}`);
+      if (seenIds.has(id)) id = `${id}-${commandSlug(run).slice(0, 16)}`;
+      seenIds.add(id);
+      recipes.push({
+        id,
+        title,
+        commands: [{ run, comment: '' }],
+        explanation: `From Pro Git (${block.chapter || 'chapter'}).`,
+        intent_family: '',
+        simplicity_rank: 1,
+        usage: normalizeUsage({ command_line: run, blurb: '' }, run),
+        topic: topicFromCommand(deriveCommandKey(run)),
+        primary_example: run,
+        command: deriveCommandKey(run),
+        source: 'progit-single',
+      });
+    }
+  }
+  return recipes;
+}
+
+/**
  * Full offline recipe synthesis from cached sources.
  */
 export function synthesizeRecipes({
@@ -168,16 +212,21 @@ export function synthesizeRecipes({
   const universe = mergeCommandUniverse(cs, tldr);
   const singles = recipesFromUniverse(universe, { glossary, validateFlags });
   const existingRuns = new Set(singles.map((r) => r.primary_example));
-  const multi = recipesFromProgitBlocks(loadProgitBlocks(root), {
+  const blocks = loadProgitBlocks(root);
+  const multi = recipesFromProgitBlocks(blocks, {
+    glossary,
+    validateFlags,
+    existingRuns,
+  });
+  for (const r of multi) existingRuns.add(r.primary_example);
+  const progitSingles = recipesFromProgitSingles(blocks, {
     glossary,
     validateFlags,
     existingRuns,
   });
 
-  // Prefer cheat-sheet/tldr singles; append progit multi that don't collide on id
   const byId = new Map();
-  for (const r of singles) byId.set(r.id, r);
-  for (const r of multi) {
+  for (const r of [...singles, ...multi, ...progitSingles]) {
     if (!byId.has(r.id)) byId.set(r.id, r);
   }
   return [...byId.values()];

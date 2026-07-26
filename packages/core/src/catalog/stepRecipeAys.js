@@ -39,6 +39,7 @@ Return JSON only:
 Rules:
 - If sure=true, additional_recipes MUST be [].
 - Prefer 1–3 step recipes; multi-step only when the workflow truly needs it.
+- Return at most 8 additional_recipes per response (keep JSON compact).
 - Every commands[].run MUST be a pasteable git invocation (starts with git, no shell operators && || | ; \` $()).
 - Use ONLY concrete glossary tokens (no <placeholders>): ${JSON.stringify(glossary || DEFAULT_GLOSSARY)}
 - topic must be one of: ${TOPIC_CHECKLIST.join(', ')}
@@ -147,30 +148,50 @@ export async function expandRecipesWithAreYouSure(recipes, {
 
   for (let round = 1; round <= maxRounds; round += 1) {
     const coverage = critiqueCoverage(current);
-    const audit = await schedule(() => llmJson({
-      messages: [
-        { role: 'system', content: system },
-        {
-          role: 'user',
-          content: JSON.stringify({
-            are_you_sure: true,
-            question: 'Are you sure this recipe catalog covers everyday + edge Git workflows?',
-            min_recipes: minRecipes,
-            current_count: current.length,
-            topic_checklist: TOPIC_CHECKLIST,
-            coverage_missing_topics: coverage.missing,
-            existing_primary_examples: current.map((r) => r.primary_example).slice(0, 200),
-            existing_titles: current.map((r) => r.title).slice(0, 120),
-            all_topics_present: [...new Set(current.map((r) => r.topic))],
-            glossary,
-          }),
-        },
-      ],
-    }));
+    let audit;
+    try {
+      audit = await schedule(() => llmJson({
+        messages: [
+          { role: 'system', content: system },
+          {
+            role: 'user',
+            content: JSON.stringify({
+              are_you_sure: true,
+              question: 'Are you sure this recipe catalog covers everyday + edge Git workflows?',
+              min_recipes: minRecipes,
+              max_additional_recipes: 8,
+              current_count: current.length,
+              topic_checklist: TOPIC_CHECKLIST,
+              coverage_missing_topics: coverage.missing,
+              // Keep payload small to avoid truncated JSON responses
+              existing_primary_examples: current.map((r) => r.primary_example).slice(-120),
+              sample_titles: current.map((r) => r.title).slice(-60),
+              all_topics_present: [...new Set(current.map((r) => r.topic))],
+              glossary,
+            }),
+          },
+        ],
+      }));
+    } catch (err) {
+      const roundInfo = {
+        round,
+        sure: false,
+        rationale: `llm_error: ${err?.message || err}`,
+        proposed: 0,
+        added: 0,
+        count: current.length,
+        missing_topics: coverage.missing,
+      };
+      rounds.push(roundInfo);
+      onRound(roundInfo);
+      // One soft retry on the next loop iteration; stop if repeated failures
+      if (rounds.filter((r) => String(r.rationale).startsWith('llm_error')).length >= 2) break;
+      continue;
+    }
 
     const addedRaw = Array.isArray(audit.additional_recipes) ? audit.additional_recipes : [];
     const added = [];
-    for (const draft of addedRaw) {
+    for (const draft of addedRaw.slice(0, 8)) {
       const recipe = materializeAysRecipe(draft, { glossary, validateFlags, source: 'ays' });
       if (recipe) added.push(recipe);
     }
