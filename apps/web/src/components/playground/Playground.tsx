@@ -416,6 +416,19 @@ export default function Playground({ forceMock = false, forceOptIn = false }) {
             </p>
           </div>
         )}
+
+        <p className="border-t border-gh-border px-4 py-2.5 text-xs leading-relaxed text-gh-muted">
+          Playground queries and results may be sent to cookieless analytics to improve search.
+          Details on{' '}
+          <a href="/privacy" className="text-gh-accent underline-offset-2 hover:underline">
+            Privacy &amp; legal
+          </a>
+          . For offline use with no remote telemetry,{' '}
+          <a href="#install" className="text-gh-accent underline-offset-2 hover:underline">
+            install the CLI
+          </a>
+          .
+        </p>
       </div>
     </section>
   );

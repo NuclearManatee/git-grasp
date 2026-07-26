@@ -1,15 +1,364 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Footer from '../components/Footer.astro';
 ---
-<BaseLayout title="Privacy & legal — git-help">
+<BaseLayout
+  title="Privacy & legal — git-help"
+  description="How git-help and git-help.cremaschi.dev handle personal data: local-first CLI, cookieless Umami, and playground telemetry."
+>
   <main id="main" class="gh-container flex-1 py-16">
-    <h1 class="font-mono text-3xl font-semibold">Privacy &amp; legal</h1>
-    <p class="mt-4 max-w-2xl text-gh-muted leading-relaxed">
-      Legal copy forthcoming. This placeholder will be replaced with translated Italian
-      source text covering privacy, analytics (cookieless Umami), and local-first data handling.
-    </p>
-    <p class="mt-6">
-      <a href="/" class="text-gh-accent hover:underline">← Back to git-help</a>
-    </p>
+    <header class="max-w-3xl">
+      <p class="font-mono text-sm text-gh-muted">
+        <a href="/" class="text-gh-accent hover:underline">git-help</a>
+        <span aria-hidden="true"> / </span>
+        Privacy &amp; legal
+      </p>
+      <h1 class="mt-3 font-mono text-3xl font-semibold tracking-tight sm:text-4xl">
+        Privacy &amp; legal
+      </h1>
+      <p class="mt-3 text-sm text-gh-muted">Last updated: 26 July 2026</p>
+      <p class="mt-6 text-gh-muted leading-relaxed">
+        This notice explains how personal data is handled for <strong class="font-medium text-gh-fg">git-help</strong>
+        and the website at
+        <a href="https://git-help.cremaschi.dev" class="text-gh-accent hover:underline">https://git-help.cremaschi.dev</a>
+        (the “Site”). It is written for users in the EU/EEA and Italy under the GDPR and Italian privacy law.
+      </p>
+      <p class="mt-4 text-gh-muted leading-relaxed">
+        git-help is a local-first tool for semantic search of Git commands. The installable CLI is designed so search
+        runs on your machine. The Site is a marketing page plus an optional in-browser playground.
+      </p>
+    </header>
+
+    <div class="prose-privacy mt-12 max-w-3xl space-y-12 text-gh-muted leading-relaxed">
+      <section aria-labelledby="controller">
+        <h2 id="controller" class="font-mono text-xl font-semibold text-gh-fg">1. Controller</h2>
+        <p class="mt-4">The data controller is:</p>
+        <address class="mt-4 not-italic text-gh-fg">
+          <strong class="font-medium">Edoardo Cremaschi</strong><br />
+          Piazza della Vittoria, 2/B<br />
+          27100 Pavia PV, Italy<br />
+          Email: edoardo (dot) cremaschi (at) gmail (dot) com
+        </address>
+        <p class="mt-4">
+          For privacy requests, use that email with subject line <span class="font-mono text-gh-fg">git-help privacy</span>.
+        </p>
+      </section>
+
+      <section aria-labelledby="cli">
+        <h2 id="cli" class="font-mono text-xl font-semibold text-gh-fg">2. Local-first CLI (no Site telemetry)</h2>
+        <p class="mt-4">If you install and use the <strong class="font-medium text-gh-fg">git-help CLI</strong> on your own device:</p>
+        <ul class="mt-4 list-disc space-y-2 pl-5">
+          <li>Search queries and results are processed <strong class="font-medium text-gh-fg">locally</strong>.</li>
+          <li>The CLI does <strong class="font-medium text-gh-fg">not</strong> send your search queries to the Site or to the controller for analytics.</li>
+          <li>
+            Catalog and embedding data used for search stay on your device after install/seed (subject to normal local
+            storage on your machine).
+          </li>
+        </ul>
+        <p class="mt-4">
+          Using the CLI is the way to avoid website analytics and playground telemetry described below.
+        </p>
+      </section>
+
+      <section aria-labelledby="site">
+        <h2 id="site" class="font-mono text-xl font-semibold text-gh-fg">3. What the Site does and does not do</h2>
+        <p class="mt-4">The Site:</p>
+        <ul class="mt-4 list-disc space-y-2 pl-5">
+          <li>does <strong class="font-medium text-gh-fg">not</strong> require an account;</li>
+          <li>does <strong class="font-medium text-gh-fg">not</strong> use cookies for authentication or advertising;</li>
+          <li>does <strong class="font-medium text-gh-fg">not</strong> sell personal data;</li>
+          <li>does <strong class="font-medium text-gh-fg">not</strong> show ads.</li>
+        </ul>
+        <p class="mt-4">The Site may use:</p>
+        <ul class="mt-4 list-disc space-y-2 pl-5">
+          <li><strong class="font-medium text-gh-fg">cookieless analytics</strong> (Umami), when configured;</li>
+          <li>
+            <strong class="font-medium text-gh-fg">playground telemetry</strong> (queries and results), when you start and
+            use the playground;
+          </li>
+          <li>
+            browser <span class="font-mono text-gh-fg">localStorage</span> for a non-identifying preference
+            (<span class="font-mono text-gh-fg">skillLevel</span>);
+          </li>
+          <li>
+            <strong class="font-medium text-gh-fg">third-party infrastructure</strong> to host the Site, load fonts, and
+            download the playground model/catalog.
+          </li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="umami">
+        <h2 id="umami" class="font-mono text-xl font-semibold text-gh-fg">4. Website analytics (Umami)</h2>
+        <p class="mt-4">
+          When analytics are configured, the Site uses <strong class="font-medium text-gh-fg">Umami</strong> in cookieless
+          mode (no analytics cookies for tracking).
+        </p>
+        <h3 class="mt-6 font-mono text-base font-semibold text-gh-fg">What may be collected</h3>
+        <p class="mt-2">Typical Umami page/event data:</p>
+        <ul class="mt-4 list-disc space-y-2 pl-5">
+          <li>page path / URL of the visit;</li>
+          <li>referrer;</li>
+          <li>browser user-agent (and derived device/browser class);</li>
+          <li>
+            approximate location derived by the collector from IP (country/region level; the collector may see the IP at
+            request time);
+          </li>
+          <li>timestamps and technical event metadata;</li>
+          <li>custom events described in §5 when the playground is used.</li>
+        </ul>
+        <p class="mt-4">
+          <strong class="font-medium text-gh-fg">Purpose:</strong> understand Site usage and improve the product (traffic,
+          feature use, reliability).
+        </p>
+        <p class="mt-4">
+          <strong class="font-medium text-gh-fg">Legal basis:</strong> legitimate interest in operating and improving a free
+          developer tool, balanced against minimal, cookieless collection and no advertising/sale.
+        </p>
+        <p class="mt-4">
+          <strong class="font-medium text-gh-fg">Retention:</strong> events are retained for up to
+          <strong class="font-medium text-gh-fg">360 days</strong>, then deleted or anonymised.
+        </p>
+        <p class="mt-4">
+          <strong class="font-medium text-gh-fg">Ads / sale:</strong> none. Analytics data is not sold and not used for
+          cross-site advertising.
+        </p>
+        <p class="mt-4">
+          <strong class="font-medium text-gh-fg">How to limit:</strong> browse without interacting with the playground, use
+          a tracker blocker, or use the CLI instead of the Site.
+        </p>
+      </section>
+
+      <section aria-labelledby="playground">
+        <h2 id="playground" class="font-mono text-xl font-semibold text-gh-fg">5. Playground telemetry</h2>
+        <p class="mt-4">
+          The in-browser playground runs search in your browser after you download assets. Separately, when analytics are
+          configured, the Site may send <strong class="font-medium text-gh-fg">playground events</strong> to Umami, including:
+        </p>
+        <ul class="mt-4 list-disc space-y-2 pl-5">
+          <li>
+            <span class="font-mono text-gh-fg">web_cli_load</span> — load success/failure, approximate bytes, duration,
+            mock mode, coarse connection/device info;
+          </li>
+          <li>
+            <span class="font-mono text-gh-fg">web_cli_search</span> — the
+            <strong class="font-medium text-gh-fg">query text you typed</strong>, returned result metadata
+            (commands/examples/scores/status), latency, mock mode, and coarse connection/device info.
+          </li>
+        </ul>
+        <p class="mt-4">
+          <strong class="font-medium text-gh-fg">Purpose:</strong> improve search quality and playground reliability (what
+          people ask, what is returned, where it fails).
+        </p>
+        <p class="mt-4">
+          <strong class="font-medium text-gh-fg">Legal basis: consent.</strong> By clicking
+          <strong class="font-medium text-gh-fg">Start</strong> (or otherwise starting the playground) and running searches
+          on the Site, you consent to sending those events for the purpose above. You may stop at any time by leaving the
+          playground / Site. Withdrawal does not affect processing already completed.
+        </p>
+        <p class="mt-4"><strong class="font-medium text-gh-fg">How to avoid:</strong></p>
+        <ul class="mt-4 list-disc space-y-2 pl-5">
+          <li>do <strong class="font-medium text-gh-fg">not</strong> start the playground; or</li>
+          <li>use the <strong class="font-medium text-gh-fg">CLI</strong> instead (local search, no Site query telemetry).</li>
+        </ul>
+        <p class="mt-4">
+          Do not type secrets, credentials, private repo URLs, or other sensitive personal data into the playground. Treat
+          playground queries as potentially logged.
+        </p>
+      </section>
+
+      <section aria-labelledby="downloads">
+        <h2 id="downloads" class="font-mono text-xl font-semibold text-gh-fg">6. Large downloads (catalog and model)</h2>
+        <p class="mt-4">
+          After you start the playground (and in some cases after a catalog prefetch on a strong connection), the browser
+          downloads:
+        </p>
+        <ul class="mt-4 list-disc space-y-2 pl-5">
+          <li>a <strong class="font-medium text-gh-fg">catalog / vector pack</strong> from the Site (same origin); and</li>
+          <li>
+            an <strong class="font-medium text-gh-fg">embedding model</strong> from
+            <strong class="font-medium text-gh-fg">Hugging Face</strong> / related CDNs (third party),
+          </li>
+        </ul>
+        <p class="mt-4">
+          together typically around <strong class="font-medium text-gh-fg">~104 MB</strong> (roughly ~14 MB pack + ~90 MB
+          model; sizes can change as builds update).
+        </p>
+        <p class="mt-4">
+          These downloads are needed to run search in the browser. They are not an account signup, but they do create
+          network requests to the Site and to model hosts (see §8).
+        </p>
+      </section>
+
+      <section aria-labelledby="storage">
+        <h2 id="storage" class="font-mono text-xl font-semibold text-gh-fg">7. Local storage on your device</h2>
+        <p class="mt-4">The Site may store in your browser:</p>
+        <div class="mt-4 overflow-x-auto">
+          <table class="w-full min-w-[20rem] border-collapse text-left text-sm">
+            <thead>
+              <tr class="border-b border-gh-border text-gh-fg">
+                <th class="py-2 pr-4 font-mono font-medium">Key</th>
+                <th class="py-2 font-mono font-medium">Purpose</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b border-gh-border/60">
+                <td class="py-2 pr-4 align-top font-mono text-gh-fg">git-help.skillLevel</td>
+                <td class="py-2">Remembers your chosen skill filter in the playground</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="mt-4">
+          This stays in your browser. Clear site data / localStorage to remove it. It is not used as an account identifier.
+        </p>
+        <p class="mt-4">No auth cookies are set by git-help.</p>
+      </section>
+
+      <section aria-labelledby="third-parties">
+        <h2 id="third-parties" class="font-mono text-xl font-semibold text-gh-fg">8. Third parties</h2>
+        <p class="mt-4">
+          Depending on configuration and features used, processing may involve:
+        </p>
+        <div class="mt-4 overflow-x-auto">
+          <table class="w-full min-w-[28rem] border-collapse text-left text-sm">
+            <thead>
+              <tr class="border-b border-gh-border text-gh-fg">
+                <th class="py-2 pr-4 font-mono font-medium">Party</th>
+                <th class="py-2 font-mono font-medium">Role</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b border-gh-border/60">
+                <td class="py-2 pr-4 align-top text-gh-fg">Umami (e.g. Umami Cloud / <span class="font-mono">*.umami.is</span>)</td>
+                <td class="py-2">Cookieless analytics collection and storage</td>
+              </tr>
+              <tr class="border-b border-gh-border/60">
+                <td class="py-2 pr-4 align-top text-gh-fg">GitHub Pages (and related CDNs)</td>
+                <td class="py-2">Hosting and delivery of the static Site and catalog pack</td>
+              </tr>
+              <tr class="border-b border-gh-border/60">
+                <td class="py-2 pr-4 align-top text-gh-fg">
+                  Google Fonts (<span class="font-mono">fonts.googleapis.com</span> /
+                  <span class="font-mono">fonts.gstatic.com</span>)
+                </td>
+                <td class="py-2">Font delivery (your browser requests fonts from Google)</td>
+              </tr>
+              <tr class="border-b border-gh-border/60">
+                <td class="py-2 pr-4 align-top text-gh-fg">Hugging Face (and CDNs such as jsDelivr where used)</td>
+                <td class="py-2">Embedding model download for the playground</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="mt-4">
+          These parties process technical data as independent controllers or processors under their own terms. Some may be
+          located <strong class="font-medium text-gh-fg">outside the EU/EEA</strong> (including the United States). Where
+          transfers occur, they rely on the safeguards those providers publish (e.g. Standard Contractual Clauses / provider
+          GDPR terms). Details change over time; check each provider’s current documentation.
+        </p>
+      </section>
+
+      <section aria-labelledby="children">
+        <h2 id="children" class="font-mono text-xl font-semibold text-gh-fg">9. Children</h2>
+        <p class="mt-4">
+          The Site and CLI are aimed at developers and technical users. They are
+          <strong class="font-medium text-gh-fg">not directed at children under 16</strong>. We do not knowingly collect
+          personal data from children under that age. If you believe a child provided data via the playground or analytics,
+          contact the controller to request deletion.
+        </p>
+      </section>
+
+      <section aria-labelledby="rights">
+        <h2 id="rights" class="font-mono text-xl font-semibold text-gh-fg">10. Your rights (GDPR / Italy)</h2>
+        <p class="mt-4">You may request:</p>
+        <ul class="mt-4 list-disc space-y-2 pl-5">
+          <li><strong class="font-medium text-gh-fg">access</strong> to personal data we hold about you;</li>
+          <li><strong class="font-medium text-gh-fg">rectification</strong> of inaccurate data;</li>
+          <li><strong class="font-medium text-gh-fg">erasure</strong> (“right to be forgotten”), where applicable;</li>
+          <li><strong class="font-medium text-gh-fg">restriction</strong> of processing;</li>
+          <li><strong class="font-medium text-gh-fg">objection</strong> to processing based on legitimate interest;</li>
+          <li>
+            <strong class="font-medium text-gh-fg">withdrawal of consent</strong> for playground telemetry (stop using the
+            playground; ask us to delete retained events where identifiable);
+          </li>
+          <li>
+            <strong class="font-medium text-gh-fg">complaint</strong> to the Italian Data Protection Authority
+            (<a
+              href="https://www.garanteprivacy.it"
+              class="text-gh-accent hover:underline"
+              rel="noopener noreferrer"
+              target="_blank"
+            >Garante per la protezione dei dati personali</a>).
+          </li>
+        </ul>
+        <p class="mt-4">
+          Because analytics are largely cookieless and we do not run accounts, we may need enough information from you
+          (time window, rough IP/region, pages used, playground queries you remember) to locate events. We will respond
+          within the time limits required by law.
+        </p>
+      </section>
+
+      <section aria-labelledby="retention">
+        <h2 id="retention" class="font-mono text-xl font-semibold text-gh-fg">11. Retention and deletion</h2>
+        <ul class="mt-4 list-disc space-y-2 pl-5">
+          <li>
+            <strong class="font-medium text-gh-fg">Umami page/analytics events:</strong> retained for up to
+            <strong class="font-medium text-gh-fg">360 days</strong>, then deleted or aggregated so they no longer identify
+            a visit, unless a longer period is required for security or legal claims.
+          </li>
+          <li>
+            <strong class="font-medium text-gh-fg">Playground telemetry events:</strong> same analytics store / retention as
+            above.
+          </li>
+          <li>
+            <strong class="font-medium text-gh-fg">localStorage <span class="font-mono">skillLevel</span>:</strong> until you
+            clear it.
+          </li>
+          <li>
+            <strong class="font-medium text-gh-fg">CLI local files:</strong> under your control on your machine; not retained
+            by the controller.
+          </li>
+        </ul>
+        <p class="mt-4">
+          To request deletion of analytics/playground events that can be linked to you, email the controller
+          (<span class="font-mono text-gh-fg">git-help privacy</span>) and describe the relevant period and activity.
+        </p>
+      </section>
+
+      <section aria-labelledby="transfers">
+        <h2 id="transfers" class="font-mono text-xl font-semibold text-gh-fg">12. International transfers</h2>
+        <p class="mt-4">
+          Hosting, fonts, analytics, and model downloads may involve servers outside the EU/EEA. See §8. If you want to
+          minimise transfers, use the CLI offline after local install and avoid the Site playground and third-party
+          font/model requests.
+        </p>
+      </section>
+
+      <section aria-labelledby="changes">
+        <h2 id="changes" class="font-mono text-xl font-semibold text-gh-fg">13. Changes</h2>
+        <p class="mt-4">
+          We may update this notice when the product or providers change. The “Last updated” date at the top will change.
+          Material changes may also be noted on the Site (for example in the footer or on this page). Continued use of the
+          Site after an update means the new notice applies to subsequent use. For playground telemetry based on consent,
+          continued use of the playground after a material change to that section constitutes renewed consent only for
+          future events.
+        </p>
+      </section>
+
+      <section aria-labelledby="contact">
+        <h2 id="contact" class="font-mono text-xl font-semibold text-gh-fg">14. Contact</h2>
+        <p class="mt-4">
+          Questions or rights requests:
+          <strong class="font-medium text-gh-fg">Edoardo Cremaschi</strong>, email
+          edoardo (dot) cremaschi (at) gmail (dot) com, subject
+          <span class="font-mono text-gh-fg">git-help privacy</span>.
+        </p>
+      </section>
+
+      <p class="pt-4">
+        <a href="/" class="text-gh-accent hover:underline">← Back to git-help</a>
+      </p>
+    </div>
   </main>
+  <Footer />
 </BaseLayout>
