@@ -1,0 +1,57 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Footer from '../../components/Footer.astro';
+import { loadRecipes, listTags } from '../../lib/recipesCatalog.js';
+
+const recipes = loadRecipes();
+const tags = listTags(recipes);
+const total = recipes.length;
+---
+<BaseLayout
+  title="Examples · git-help"
+  description="Browse catalog recipes by topic — CLI-style snippets with comments."
+>
+  <header class="border-b border-gh-border">
+    <div class="gh-container flex items-center justify-between gap-4 py-6">
+      <a href="/" class="font-mono text-lg font-semibold tracking-tight text-gh-fg">git-help</a>
+      <nav class="flex gap-4 text-sm" aria-label="Primary">
+        <a href="/examples" class="text-gh-fg" aria-current="page">Examples</a>
+        <a href="/#install" class="text-gh-muted hover:text-gh-fg">Install</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="gh-container flex-1 py-12 sm:py-16">
+    <h1 class="font-mono text-3xl font-semibold tracking-tight text-gh-fg sm:text-4xl">
+      Examples
+    </h1>
+    <p class="mt-3 max-w-xl text-gh-muted">
+      Catalog recipes grouped by topic. Open a tag for a CLI-style carousel, or browse everything.
+    </p>
+
+    <ul class="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <li>
+        <a
+          href="/examples/all"
+          class="flex items-baseline justify-between gap-3 rounded-lg border border-gh-accent/40 bg-gh-panel/90 px-4 py-3 transition hover:border-gh-accent"
+        >
+          <span class="font-mono text-sm font-medium text-gh-fg">all</span>
+          <span class="font-mono text-xs text-gh-muted">{total}</span>
+        </a>
+      </li>
+      {tags.map(({ tag, count }) => (
+        <li>
+          <a
+            href={`/examples/${tag}`}
+            class="flex items-baseline justify-between gap-3 rounded-lg border border-gh-border bg-gh-panel/80 px-4 py-3 transition hover:border-gh-accent"
+          >
+            <span class="font-mono text-sm font-medium text-gh-fg">{tag}</span>
+            <span class="font-mono text-xs text-gh-muted">{count}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </main>
+
+  <Footer />
+</BaseLayout>

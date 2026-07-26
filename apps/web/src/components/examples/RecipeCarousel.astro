@@ -1,0 +1,213 @@
+---
+/**
+ * CLI-style recipe carousel. Client script owns paging; recipes are embedded JSON.
+ */
+interface Props {
+  recipes: object[];
+  heading: string;
+  tag: string;
+}
+
+const { recipes, heading, tag } = Astro.props;
+const dataJson = JSON.stringify(recipes).replace(/</g, '\\u003c');
+---
+<section class="flex flex-1 flex-col" data-carousel data-tag={tag}>
+  <header class="border-b border-gh-border px-4 py-4 sm:px-6">
+    <div class="gh-container flex flex-wrap items-center gap-3">
+      <div class="min-w-0">
+        <p class="font-mono text-xs text-gh-muted">
+          <a href="/examples" class="hover:text-gh-fg">examples</a>
+          <span aria-hidden="true"> / </span>
+          <span class="text-gh-fg">{tag}</span>
+        </p>
+        <h1 class="mt-1 font-mono text-lg font-semibold text-gh-fg">{heading}</h1>
+      </div>
+      <p class="font-mono text-sm text-gh-muted" data-counter>—</p>
+      <div class="ml-auto flex flex-wrap items-center gap-2">
+        <label class="sr-only" for="carousel-q">Filter recipes</label>
+        <input
+          id="carousel-q"
+          data-q
+          type="search"
+          placeholder="Filter…"
+          class="min-w-[12rem] rounded border border-gh-border bg-gh-panel px-3 py-2 font-mono text-sm text-gh-fg placeholder:text-gh-muted"
+        />
+        <button
+          type="button"
+          data-prev
+          class="gh-btn-secondary px-3 py-2 font-mono text-sm"
+          title="Previous (Left arrow)"
+        >
+          ← Prev
+        </button>
+        <button
+          type="button"
+          data-next
+          class="gh-btn-secondary px-3 py-2 font-mono text-sm"
+          title="Next (Right arrow)"
+        >
+          Next →
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex flex-1 items-center justify-center px-4 py-10 sm:px-6">
+    <article
+      class="w-full max-w-2xl rounded-lg border border-gh-border bg-gh-panel/90 p-5 shadow-glow sm:p-6"
+      aria-live="polite"
+    >
+      <div class="mb-3 flex flex-wrap gap-2 font-mono text-xs text-gh-muted" data-tags></div>
+      <h2 class="mb-4 font-mono text-base font-bold text-gh-fg" data-title></h2>
+      <div class="font-mono text-sm leading-relaxed whitespace-pre-wrap" data-cli></div>
+      <div
+        class="mt-4 border-t border-dashed border-gh-border pt-4 font-mono text-xs leading-relaxed whitespace-pre-wrap text-gh-muted"
+        data-explanation
+      ></div>
+    </article>
+  </main>
+
+  <p class="px-4 pb-8 text-center font-mono text-xs text-gh-muted sm:px-6">
+    Use <kbd class="rounded border border-gh-border bg-gh-bg px-1.5 py-0.5">←</kbd>
+    <kbd class="rounded border border-gh-border bg-gh-bg px-1.5 py-0.5">→</kbd>
+    or the buttons.
+  </p>
+</section>
+
+<style>
+  .carousel-run {
+    color: #6ec6ff;
+  }
+  .carousel-comment,
+  .carousel-rule {
+    color: #8b9aab;
+  }
+  .carousel-intent {
+    color: #3d9a6a;
+    margin-top: 0.75rem;
+  }
+</style>
+
+<script define:vars={{ dataJson }}>
+  const root = document.querySelector('[data-carousel]');
+  const RECIPES = JSON.parse(dataJson);
+  let filtered = RECIPES.slice();
+  let index = 0;
+
+  function esc(s) {
+    return String(s ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function snippetHtml(steps) {
+    return (steps || [])
+      .map((step) => {
+        const run = esc(step.run || '');
+        const comment = step.comment ? esc(`  # ${step.comment}`) : '';
+        return (
+          '  <span class="carousel-run">' +
+          run +
+          '</span>' +
+          (comment ? '<span class="carousel-comment">' + comment + '</span>' : '')
+        );
+      })
+      .join('\n');
+  }
+
+  function render() {
+    const elCounter = root.querySelector('[data-counter]');
+    const prev = root.querySelector('[data-prev]');
+    const next = root.querySelector('[data-next]');
+    if (!filtered.length) {
+      elCounter.textContent = '0 / 0';
+      root.querySelector('[data-title]').textContent = 'No matches';
+      root.querySelector('[data-tags]').innerHTML = '';
+      root.querySelector('[data-cli]').textContent = '';
+      root.querySelector('[data-explanation]').textContent = '';
+      prev.disabled = next.disabled = true;
+      return;
+    }
+    index = Math.max(0, Math.min(index, filtered.length - 1));
+    const r = filtered[index];
+    elCounter.textContent =
+      index + 1 + ' / ' + filtered.length + '  ·  ' + RECIPES.length + ' in tag';
+    prev.disabled = index <= 0;
+    next.disabled = index >= filtered.length - 1;
+
+    root.querySelector('[data-tags]').innerHTML = [
+      r.command && '<span class="gh-badge">' + esc(r.command) + '</span>',
+      r.topic && '<span class="gh-badge">' + esc(r.topic) + '</span>',
+      r.family && '<span class="gh-badge">' + esc(r.family) + '</span>',
+      r.source && '<span class="gh-badge">' + esc(r.source) + '</span>',
+      '<span class="gh-badge">simplicity ' + esc(r.simplicity) + '</span>',
+    ]
+      .filter(Boolean)
+      .join('');
+
+    root.querySelector('[data-title]').textContent = r.title;
+
+    const width = Math.max(
+      28,
+      Math.min(56, Math.max((r.usage.commandLine || '').length, (r.usage.blurb || '').length) + 2),
+    );
+    const rule = '  ' + '─'.repeat(width);
+    let cli = '';
+    cli += '<div>' + snippetHtml(r.steps) + '</div>\n';
+    cli += '<div class="carousel-rule">' + esc(rule) + '</div>\n';
+    cli +=
+      '<div class="carousel-run">  ' + esc(r.usage.commandLine || r.primary) + '</div>\n';
+    if (r.usage.blurb) cli += '<div>  ' + esc(r.usage.blurb) + '</div>\n';
+    cli += '<div class="carousel-rule">' + esc(rule) + '</div>\n';
+    cli += '<div class="carousel-intent">' + esc(r.primary) + '</div>';
+    root.querySelector('[data-cli]').innerHTML = cli;
+    root.querySelector('[data-explanation]').textContent = r.explanation || '';
+  }
+
+  function applyFilter() {
+    const q = root.querySelector('[data-q]').value.trim().toLowerCase();
+    filtered = !q
+      ? RECIPES.slice()
+      : RECIPES.filter((r) =>
+          [
+            r.title,
+            r.command,
+            r.topic,
+            r.family,
+            r.source,
+            r.primary,
+            ...(r.steps || []).flatMap((s) => [s.run, s.comment]),
+          ]
+            .join(' ')
+            .toLowerCase()
+            .includes(q),
+        );
+    index = 0;
+    render();
+  }
+
+  root.querySelector('[data-prev]').onclick = () => {
+    index -= 1;
+    render();
+  };
+  root.querySelector('[data-next]').onclick = () => {
+    index += 1;
+    render();
+  };
+  root.querySelector('[data-q]').addEventListener('input', applyFilter);
+  window.addEventListener('keydown', (e) => {
+    if (e.target && (e.target.id === 'carousel-q' || e.target.closest?.('[data-q]'))) return;
+    if (e.key === 'ArrowLeft') {
+      index -= 1;
+      render();
+    }
+    if (e.key === 'ArrowRight') {
+      index += 1;
+      render();
+    }
+  });
+
+  render();
+</script>

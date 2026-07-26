@@ -89,24 +89,31 @@ function formatPrimaryBlock(r, prefix = '', { verbose = false } = {}) {
 }
 
 /**
+ * Colorize one snippet line: cyan command, dim `# comment`.
+ * @param {string} line
+ */
+export function colorizeSnippetLine(line) {
+  const raw = sanitizeField(line);
+  const m = raw.match(/^(.*?)(\s+#\s.*)?$/);
+  const run = (m?.[1] ?? raw).trimEnd();
+  const comment = m?.[2] ?? '';
+  if (!comment) return `  ${chalk.cyan(run)}`;
+  return `  ${chalk.cyan(run)}${chalk.dim(comment)}`;
+}
+
+/**
  * Render recipe commands as an inline-comment snippet.
  */
 export function formatSnippetBlock(r) {
-  const snippet = r.snippet
-    || (Array.isArray(r.commands)
-      ? r.commands.map((c) => {
-        const comment = c.comment ? `  # ${c.comment}` : '';
-        return `${c.run}${comment}`;
-      }).join('\n')
-      : null)
-    || r.example
-    || r.command
-    || '';
-  const out = [];
-  for (const line of String(snippet).split(/\n/)) {
-    out.push(`  ${chalk.cyan(sanitizeField(line))}`);
+  if (Array.isArray(r.commands) && r.commands.length) {
+    return r.commands.map((c) => {
+      const run = sanitizeField(c.run);
+      const comment = c.comment ? `  # ${sanitizeField(c.comment)}` : '';
+      return colorizeSnippetLine(`${run}${comment}`);
+    });
   }
-  return out;
+  const snippet = r.snippet || r.example || r.command || '';
+  return String(snippet).split(/\n/).filter((l) => l.length).map(colorizeSnippetLine);
 }
 
 /**

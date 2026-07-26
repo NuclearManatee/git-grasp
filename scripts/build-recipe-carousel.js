@@ -21,13 +21,6 @@ function parseUsage(usage, fallback) {
   return { commandLine: fallback || '', blurb: parts[0] || '' };
 }
 
-function snippetLines(r) {
-  if (Array.isArray(r.commands) && r.commands.length) {
-    return r.commands.map((c) => (c.comment ? `${c.run}  # ${c.comment}` : c.run));
-  }
-  return [r.primary_example || r.command || ''];
-}
-
 const payload = recipes.map((r) => ({
   id: r.id,
   title: r.title || r.command,
@@ -37,7 +30,9 @@ const payload = recipes.map((r) => ({
   family: r.intent_family || '',
   simplicity: r.simplicity_rank ?? 1,
   explanation: r.explanation || '',
-  snippet: snippetLines(r),
+  steps: Array.isArray(r.commands)
+    ? r.commands.map((c) => ({ run: c.run, comment: c.comment || '' }))
+    : [{ run: r.primary_example || r.command || '', comment: '' }],
   usage: parseUsage(r.usage, r.primary_example),
   primary: r.primary_example || '',
 }));
@@ -144,7 +139,8 @@ const html = `<!DOCTYPE html>
     line-height: 1.45;
     font-size: 0.92rem;
   }
-  .cli .snippet { color: var(--cyan); }
+  .cli .run { color: var(--cyan); }
+  .cli .comment { color: var(--muted); }
   .cli .rule { color: var(--muted); }
   .cli .blurb { color: var(--text); }
   .cli .intent { color: var(--accent); margin-top: 0.75rem; }
@@ -202,6 +198,15 @@ function esc(s) {
     .replace(/"/g, '&quot;');
 }
 
+function snippetHtml(steps) {
+  return (steps || []).map((step) => {
+    const run = esc(step.run || '');
+    const comment = step.comment ? esc('  # ' + step.comment) : '';
+    return '  <span class="run">' + run + '</span>' +
+      (comment ? '<span class="comment">' + comment + '</span>' : '');
+  }).join('\\n');
+}
+
 function render() {
   const elCounter = document.getElementById('counter');
   const prev = document.getElementById('prev');
@@ -233,11 +238,10 @@ function render() {
 
   const width = Math.max(28, Math.min(56, Math.max((r.usage.commandLine || '').length, (r.usage.blurb || '').length) + 2));
   const rule = '  ' + '─'.repeat(width);
-  const snippet = (r.snippet || []).map((line) => '  ' + line).join('\\n');
   let cli = '';
-  cli += '<div class="snippet">' + esc(snippet) + '</div>\\n';
+  cli += '<div>' + snippetHtml(r.steps) + '</div>\\n';
   cli += '<div class="rule">' + esc(rule) + '</div>\\n';
-  cli += '<div class="snippet">  ' + esc(r.usage.commandLine || r.primary) + '</div>\\n';
+  cli += '<div class="run">  ' + esc(r.usage.commandLine || r.primary) + '</div>\\n';
   if (r.usage.blurb) cli += '<div class="blurb">  ' + esc(r.usage.blurb) + '</div>\\n';
   cli += '<div class="rule">' + esc(rule) + '</div>\\n';
   cli += '<div class="intent">' + esc(r.primary) + '</div>';
@@ -248,7 +252,7 @@ function render() {
 function applyFilter() {
   const q = document.getElementById('q').value.trim().toLowerCase();
   filtered = !q ? RECIPES.slice() : RECIPES.filter((r) =>
-    [r.title, r.command, r.topic, r.family, r.source, r.primary, ...(r.snippet || [])]
+    [r.title, r.command, r.topic, r.family, r.source, r.primary, ...(r.steps || []).flatMap((s) => [s.run, s.comment])]
       .join(' ').toLowerCase().includes(q)
   );
   index = 0;

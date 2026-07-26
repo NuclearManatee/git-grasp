@@ -5,7 +5,9 @@ import {
   formatUsageFrame,
   parseUsage,
   formatConfidenceLine,
+  formatSnippetBlock,
 } from '../../packages/core/src/ux/format.js';
+import chalk from 'chalk';
 
 describe('formatSearchResult', () => {
   const baseRow = {
@@ -117,5 +119,16 @@ describe('formatConfidenceLine', () => {
       confidence: 'ok',
       results: [{ score: 0.9 }],
     })).toBe('');
+  });
+});
+
+describe('formatSnippetBlock colors', () => {
+  it('uses cyan for run and dim for # comment', () => {
+    const lines = formatSnippetBlock({
+      commands: [{ run: 'git add .', comment: 'stage everything' }],
+    });
+    expect(lines).toHaveLength(1);
+    expect(lines[0]).toContain(chalk.cyan('git add .'));
+    expect(lines[0]).toContain(chalk.dim('  # stage everything'));
   });
 });

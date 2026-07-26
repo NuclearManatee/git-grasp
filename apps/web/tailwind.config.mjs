@@ -12,6 +12,7 @@ export default {
           accentDim: '#2a6b4a',
           panel: '#1a222c',
           border: '#2a3544',
+          cyan: '#6ec6ff',
           warn: '#c9a227',
           danger: '#c45c5c',
         },
