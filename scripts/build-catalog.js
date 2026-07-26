@@ -1,27 +1,24 @@
 #!/usr/bin/env bun
 /**
- * Full catalog pipeline (resilient):
- *  0) download-docs (if missing or --refetch-docs)
- *  0b) glossary
- *  1) commands + examples + Are You Sure?
- *  1b) families + simplicity
- *  2) per-example intents
- *  3) enrich + normalize
+ * Recipe catalog pipeline (schema v5):
+ *  0) ingest sources (cheat sheet, tldr, progit, git-scm docs, man oracle)
+ *  1) synthesize recipes
+ *  2) assign families
+ *  3) generate intents
+ *  4) enrich + normalize → recipes.json + intents.jsonl
  */
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
-import { existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { PACKAGE_ROOT } from '@git-help/core';
-import { docsDir } from '@git-help/core/catalog/downloadDocs.js';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const only = process.argv.find((a) => a.startsWith('--only='))?.split('=')[1];
 const refetch = process.argv.includes('--refetch-docs');
+const fixtures = process.argv.includes('--fixtures');
 
-function run(script) {
-  console.log(`\n>>> ${script}`);
-  const r = spawnSync(process.execPath, [path.join(root, script)], {
+function run(script, args = []) {
+  console.log(`\n>>> ${script} ${args.join(' ')}`);
+  const r = spawnSync(process.execPath, [path.join(root, script), ...args], {
     stdio: 'inherit',
     env: process.env,
   });
@@ -29,18 +26,19 @@ function run(script) {
   if (r.status !== 0) process.exit(r.status || 1);
 }
 
-const needDocs = refetch || !existsSync(docsDir(PACKAGE_ROOT));
-if ((!only || only === 'docs' || only === 'commands') && needDocs) {
-  run('download-docs.js');
-} else if (only === 'docs') {
-  run('download-docs.js');
+if (fixtures) {
+  run('build-catalog-fixtures.js');
+  console.log('\nFixture catalog written.');
+  process.exit(0);
 }
 
-if (!only || only === 'glossary') run('build-catalog-glossary.js');
-if (!only || only === 'commands') run('build-catalog-commands.js');
-if (!only || only === 'families') run('build-catalog-families.js');
-if (!only || only === 'intents') run('build-catalog-intents.js');
-if (!only || only === 'enrich') run('enrich-catalog.js');
-if (!only || only === 'normalize') run('build-catalog-normalize.js');
+if (!only || only === 'ingest' || only === 'sources') {
+  run('ingest-sources.js', refetch ? ['--refetch-docs'] : []);
+}
+if (!only || only === 'recipes') run('build-catalog-recipes.js');
+if (!only || only === 'families') run('build-catalog-recipe-families.js');
+if (!only || only === 'intents') run('build-catalog-recipe-intents.js');
+if (!only || only === 'enrich') run('enrich-recipe-catalog.js');
+if (!only || only === 'normalize') run('build-catalog-recipe-normalize.js');
 
-console.log('\nCatalog build pipeline finished.');
+console.log('\nRecipe catalog build pipeline finished.');

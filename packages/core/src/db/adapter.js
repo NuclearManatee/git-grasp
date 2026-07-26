@@ -4,7 +4,14 @@
  * Browser search uses BrowserVecPackAdapter via `@git-help/core/browser` (no bun:sqlite).
  */
 
-import { openDb, knnRecall, insertCommandRow, SCHEMA_VERSION } from './schema.js';
+import {
+  openDb,
+  knnRecall,
+  insertIntentWithEmbedding,
+  insertRecipe,
+  insertCommandRow,
+  SCHEMA_VERSION,
+} from './schema.js';
 
 /**
  * @typedef {object} StorageAdapter
@@ -26,6 +33,24 @@ export const BunSqliteAdapter = {
     return knnRecall(handle, queryEmbedding, k, opts);
   },
   insert(handle, row) {
+    if (row?.recipe_id && (row.intent_text || row.intent_description) && row.embedding) {
+      if (row.commands || row.title) {
+        insertRecipe(handle, {
+          id: row.recipe_id,
+          title: row.title,
+          commands: row.commands,
+          explanation: row.explanation,
+          intent_family: row.intent_family,
+          simplicity_rank: row.simplicity_rank,
+          usage: row.usage,
+          topic: row.topic,
+          primary_example: row.primary_example || row.example,
+          command: row.command,
+        });
+      }
+      insertIntentWithEmbedding(handle, row);
+      return;
+    }
     insertCommandRow(handle, row);
   },
   close(handle) {

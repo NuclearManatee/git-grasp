@@ -31,7 +31,7 @@ const thresholds = JSON.parse(readFileSync(thresholdsPath, 'utf8'));
 const db = openDb(dbPath, { readonly: true });
 
 const metaRows = loadAllRows(db);
-const embStmt = db.prepare('SELECT id, embedding FROM vec_commands');
+const embStmt = db.prepare('SELECT id, embedding FROM vec_intents');
 const embById = new Map();
 for (const row of embStmt.iterate()) {
   embById.set(row.id, row.embedding);

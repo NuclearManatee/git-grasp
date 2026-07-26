@@ -15,13 +15,21 @@ export {
 export {
   openDb,
   openCatalog,
+  insertRecipe,
+  insertIntentWithEmbedding,
   insertCommandRow,
   knnRecall,
   loadAllRows,
+  parseCommands,
+  renderSnippet,
   dbExists,
   smokeTestSqliteVec,
   loadSqliteVec,
 } from './db/schema.js';
+
+export {
+  serializeCommands,
+} from './db/recipeFormat.js';
 
 export {
   BunSqliteAdapter,

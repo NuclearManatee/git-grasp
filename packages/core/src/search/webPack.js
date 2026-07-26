@@ -33,6 +33,8 @@ function needBytes(bytes, offset, length, label) {
 /**
  * @typedef {object} WebPackMeta
  * @property {string} id
+ * @property {string} [recipe_id]
+ * @property {string} [title]
  * @property {string} command
  * @property {string} example
  * @property {string} usage
@@ -42,6 +44,9 @@ function needBytes(bytes, offset, length, label) {
  * @property {string} intent_description
  * @property {string} explanation
  * @property {number} schema_version
+ * @property {Array<{ run: string, comment?: string }>|string} [commands]
+ * @property {string} [topic]
+ * @property {string} [snippet]
  */
 
 /**
@@ -68,15 +73,20 @@ export function encodeWebPack({ dim, thresholds, rows }) {
   const metaParts = rows.map((r) => {
     const meta = {
       id: r.id,
+      recipe_id: r.recipe_id ?? undefined,
+      title: r.title ?? undefined,
       command: r.command,
       example: r.example,
       usage: r.usage ?? '',
       intent_family: r.intent_family ?? '',
       simplicity_rank: Number(r.simplicity_rank ?? 1),
       skill_level: Number(r.skill_level),
-      intent_description: r.intent_description,
+      intent_description: r.intent_description || r.intent_text,
       explanation: r.explanation ?? '',
-      schema_version: Number(r.schema_version ?? 4),
+      schema_version: Number(r.schema_version ?? 5),
+      topic: r.topic ?? undefined,
+      commands: r.commands ?? undefined,
+      snippet: r.snippet ?? undefined,
     };
     return new TextEncoder().encode(JSON.stringify(meta));
   });

@@ -27,7 +27,7 @@ function row(id, text, skill = 2) {
     skill_level: skill,
     intent_description: text,
     explanation: 'test',
-    schema_version: 4,
+    schema_version: 5,
     embedding: mockEmbedBrowser(text),
   };
 }

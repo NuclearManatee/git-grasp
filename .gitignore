@@ -7,6 +7,7 @@ coverage/
 .DS_Store
 *.bak
 data/models/
+data/cache/
 test/tmp-checksum/
 apps/web/dist/
 apps/web/.astro/

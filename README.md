@@ -1,6 +1,6 @@
 # git-help
 
-Local-first CLI for **semantic search** of Git commands. Intents are keyed by pasteable **examples**, tagged with skill levels (`non-technical` → `expert`) and matched with on-device embeddings + **sqlite-vec** KNN recall. Answers show a short doc-style **usage** frame. The CLI never runs Git for you.
+Local-first CLI for **semantic search** of Git recipes. Natural-language intents map 1:N onto validated recipes (single- or multi-step), tagged with skill levels (`non-technical` → `expert`) and matched with on-device embeddings + **sqlite-vec** KNN recall. Answers show a giteveryday-style command snippet (inline comments) plus a short **usage** frame. The CLI never runs Git for you.
 
 Site: [git-help.cremaschi.dev](https://git-help.cremaschi.dev)
 
@@ -10,7 +10,7 @@ Bun workspaces:
 
 | Package | Role |
 |---------|------|
-| `@git-help/core` | Schema v4, `bun:sqlite` + `sqlite-vec`, MiniLM embeddings, JS re-rank, seed/search facades |
+| `@git-help/core` | Schema v5 (`recipes` + `search_intents` + `vec_intents`), MiniLM embeddings, JS re-rank, seed/search facades |
 | `@git-help/cli` | CLI UX |
 | `@git-help/seeding` | Catalog → DB |
 | `@git-help/eval` | Golden / loop eval |
@@ -71,8 +71,10 @@ Offline after install + seed (and model warm). Maintainer / CI features need `DE
 | Script | Purpose |
 |--------|---------|
 | `bun run rebuild` | Full catalog build + seed DB |
-| `bun run build-catalog` | glossary→docs→examples→families→intents→normalize |
-| `bun run seed` | Embed intents → `data/git-commands.db` (schema v4 + vec0) |
+| `bun run build-catalog` | ingest sources → recipes → families → intents → enrich → normalize |
+| `bun run build-catalog:fixtures` | Tiny offline recipes/intents for tests (no network/LLM) |
+| `bun run ingest-sources` | Fetch cheat sheet / tldr / Pro Git + man oracle into `data/cache/` (gitignored) |
+| `bun run seed` | Embed intents → `data/git-commands.db` (schema v5 + vec0) |
 | `bun test` | Unit (Vitest) + integration (Bun) |
 | `bun run eval` | Golden eval |
 | `bun run eval:loop` | 5 cycles then final gate |
@@ -89,8 +91,10 @@ Perf budget / Docker profiles: **[docs/perf.md](docs/perf.md)**.
 
 ## Architecture notes
 
-- Search: sqlite-vec cosine KNN recall → existing JS rank (family / simplicity / specificity).
-- Web playground: static **web vector pack** + Transformers.js MiniLM (`@git-help/core/browser`) — no `bun:sqlite` in the browser bundle.
+- Schema v5: `recipes` (workflow + commands JSON) ← N `search_intents` (skill-tagged query text) → `vec_intents` KNN.
+- Catalog generation: cheat sheet + tldr (command universe) + Pro Git (multi-step context); flags validated via git-scm docs + `git help`. Sources stay in gitignored `data/cache/`; commit derived `recipes.json` / `intents.jsonl` / DB on `improve/*` after eval.
+- Search: sqlite-vec cosine KNN recall → JS re-rank (family / simplicity / specificity).
+- Web playground: denormalized **web vector pack** + Transformers.js MiniLM (`@git-help/core/browser`) — no `bun:sqlite` in the browser bundle.
 - Bun path uses `BunSqliteAdapter`. Release binaries use `bun build --compile` plus adjacent `data/` / `config/`.
 
 ### Web playground / e2e
@@ -118,10 +122,11 @@ Umami events: `web_cli_load`, `web_cli_search` (cookieless). On `main`, Pages + 
 
 - `main` — release; golden eval gate; Pages deploy
 - `develop` — integration
-- `feature/*` — code (this stack)
-- `improve/*` — eval/threshold/catalog outcomes only
+- `feature/*` — **code** (schema, pipeline, CLI/web); fixtures only — no production catalog/DB rebuilds
+- `improve/*` — regenerated `data/catalog/*` + `data/git-commands.db` after a successful eval gate
 - Tags `v*` on `main` — binaries + npm publish
 
+Do not commit upstream corpora (Pro Git / tldr trees). Sources fetch to gitignored `data/cache/`.
 ## CI secrets
 
 | Secret | Used for |

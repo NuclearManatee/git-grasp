@@ -90,14 +90,90 @@ export function validateIntentRow(row, opts = {}) {
   const example = row.example != null ? row.example : row.command;
   const ex = validateExample(example, opts);
   if (!ex.ok) return ex;
-  if (!row.intent_description || typeof row.intent_description !== 'string') {
+  const text = row.intent_description || row.intent_text;
+  if (!text || typeof text !== 'string') {
     return { ok: false, reason: 'schema' };
   }
-  if (row.intent_description.length > 2000) return { ok: false, reason: 'length' };
+  if (text.length > 2000) return { ok: false, reason: 'length' };
   if (!isValidSkillLevel(row.skill_level)) {
     return { ok: false, reason: 'schema' };
   }
   return { ok: true };
+}
+
+/**
+ * @param {string} title
+ */
+export function recipeSlugFromTitle(title) {
+  return commandSlug(title).slice(0, 96) || 'recipe';
+}
+
+/**
+ * Validate a recipe before catalog insert.
+ * @param {object} recipe
+ * @param {{ extraAllowlist?: Iterable<string>, validateFlags?: (run: string) => { ok: boolean, reason?: string } }} [opts]
+ */
+export function validateRecipe(recipe, opts = {}) {
+  if (!recipe || typeof recipe !== 'object') return { ok: false, reason: 'schema' };
+  if (!recipe.id || typeof recipe.id !== 'string') return { ok: false, reason: 'schema' };
+  if (!recipe.title || typeof recipe.title !== 'string') return { ok: false, reason: 'schema' };
+
+  let commands = recipe.commands;
+  if (typeof commands === 'string') {
+    try {
+      commands = JSON.parse(commands);
+    } catch {
+      return { ok: false, reason: 'commands_json' };
+    }
+  }
+  if (!Array.isArray(commands) || commands.length === 0) {
+    return { ok: false, reason: 'commands_empty' };
+  }
+
+  for (const step of commands) {
+    const run = String(step?.run || '').trim();
+    const ex = validateExample(run, opts);
+    if (!ex.ok) return { ok: false, reason: ex.reason, run };
+    if (typeof opts.validateFlags === 'function') {
+      const flags = opts.validateFlags(run);
+      if (!flags?.ok) return { ok: false, reason: flags?.reason || 'flags', run };
+    }
+  }
+
+  const primary = recipe.primary_example || commands[0].run;
+  const pe = validateExample(primary, opts);
+  if (!pe.ok) return pe;
+
+  if (recipe.command) {
+    const cmd = validateCommand(recipe.command, opts);
+    if (!cmd.ok && cmd.reason !== 'allowlist') return cmd;
+  }
+
+  return { ok: true };
+}
+
+/**
+ * Validate a search_intents row (normalized).
+ * @param {object} intent
+ * @param {{ recipeIds?: Set<string> }} [opts]
+ */
+export function validateSearchIntent(intent, opts = {}) {
+  if (!intent?.id || !intent.recipe_id) return { ok: false, reason: 'schema' };
+  const text = intent.intent_text || intent.intent_description;
+  if (!text || typeof text !== 'string') return { ok: false, reason: 'schema' };
+  if (text.length > 2000) return { ok: false, reason: 'length' };
+  if (!isValidSkillLevel(intent.skill_level)) return { ok: false, reason: 'schema' };
+  if (opts.recipeIds && !opts.recipeIds.has(intent.recipe_id)) {
+    return { ok: false, reason: 'fk' };
+  }
+  return { ok: true };
+}
+
+/**
+ * Intent id: {recipe_id}:{skill}:{intentIndex}
+ */
+export function makeIntentId(recipeId, skillLevel, intentIndex = 0) {
+  return `${recipeId}:${skillLevel}:${intentIndex}`;
 }
 
 export { SKILL_MIN, SKILL_MAX, ALLOWED_SUBCOMMANDS };

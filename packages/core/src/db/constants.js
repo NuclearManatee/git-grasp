@@ -1,4 +1,4 @@
-export const SCHEMA_VERSION = 4;
+export const SCHEMA_VERSION = 5;
 export const EMBEDDING_DIM = 384;
 
 /** Default KNN overfetch before JS re-rank. */

@@ -1,0 +1,64 @@
+[
+  {
+    "id": "show-working-tree-status",
+    "title": "Show working tree status",
+    "commands": [
+      {
+        "run": "git status",
+        "comment": "Show staged, unstaged, and untracked files"
+      }
+    ],
+    "explanation": "Shows working tree status.",
+    "intent_family": "status",
+    "simplicity_rank": 1,
+    "usage": "git status\nShow working tree status.",
+    "topic": "status",
+    "primary_example": "git status",
+    "command": "git status",
+    "source": ""
+  },
+  {
+    "id": "topic-branch-and-merge",
+    "title": "Create topic branch and merge",
+    "commands": [
+      {
+        "run": "git switch -c feature/login",
+        "comment": "Create and switch to a topic branch"
+      },
+      {
+        "run": "git switch main",
+        "comment": "Return to main"
+      },
+      {
+        "run": "git merge feature/login",
+        "comment": "Merge the topic branch"
+      }
+    ],
+    "explanation": "Create a topic branch, then merge it back into main.",
+    "intent_family": "branch-merge",
+    "simplicity_rank": 2,
+    "usage": "git switch -c feature/login\nCreate a topic branch then merge later.",
+    "topic": "branch",
+    "primary_example": "git switch -c feature/login",
+    "command": "git switch",
+    "source": ""
+  },
+  {
+    "id": "undo-last-commit-keep-changes",
+    "title": "Undo last commit keep changes",
+    "commands": [
+      {
+        "run": "git reset --soft HEAD~1",
+        "comment": "Move HEAD back one commit; keep changes staged"
+      }
+    ],
+    "explanation": "Moves HEAD back one commit, keeps index and worktree.",
+    "intent_family": "soft-undo",
+    "simplicity_rank": 1,
+    "usage": "git reset --soft HEAD~1\nMoves HEAD back one commit and keeps changes staged.",
+    "topic": "undo",
+    "primary_example": "git reset --soft HEAD~1",
+    "command": "git reset",
+    "source": ""
+  }
+]

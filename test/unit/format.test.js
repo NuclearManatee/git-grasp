@@ -47,7 +47,7 @@ describe('formatSearchResult', () => {
         intent_description: 'amend with editor',
       },
     }, { verbose: true });
-    expect(text).toMatch(/beginner-level command/);
+    expect(text).toMatch(/beginner-level/);
     expect(text).toMatch(/Explanation/);
     expect(text).toMatch(/Also \(advanced\)/);
     expect(text).toMatch(/score:/);

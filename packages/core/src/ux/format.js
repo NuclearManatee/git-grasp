@@ -71,20 +71,42 @@ export function formatConfidenceLine(result, { verbose = false } = {}) {
 }
 
 function formatPrimaryBlock(r, prefix = '', { verbose = false } = {}) {
-  const command = sanitizeField(r.command);
-  const intent = sanitizeField(r.intent_description, 200);
+  const title = sanitizeField(r.title || r.command);
+  const intent = sanitizeField(r.intent_description || r.intent_text, 200);
   const skill = skillName(r.skill_level);
   const lines = [];
 
-  lines.push(prefix + chalk.bold(command));
+  lines.push(prefix + chalk.bold(title));
+  lines.push(...formatSnippetBlock(r));
   lines.push(...formatUsageFrame(r));
 
   if (verbose) {
-    lines.push(`${intent} (${skill}-level command)`);
+    lines.push(`${intent} (${skill}-level)`);
   } else {
     lines.push(intent);
   }
   return lines.join('\n');
+}
+
+/**
+ * Render recipe commands as an inline-comment snippet.
+ */
+export function formatSnippetBlock(r) {
+  const snippet = r.snippet
+    || (Array.isArray(r.commands)
+      ? r.commands.map((c) => {
+        const comment = c.comment ? `  # ${c.comment}` : '';
+        return `${c.run}${comment}`;
+      }).join('\n')
+      : null)
+    || r.example
+    || r.command
+    || '';
+  const out = [];
+  for (const line of String(snippet).split(/\n/)) {
+    out.push(`  ${chalk.cyan(sanitizeField(line))}`);
+  }
+  return out;
 }
 
 /**

@@ -2,11 +2,16 @@ import { describe, it, expect } from 'bun:test';
 import { mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { openDb, insertCommandRow } from '../../packages/core/src/db/schema.js';
+import {
+  openDb,
+  insertRecipe,
+  insertIntentWithEmbedding,
+} from '../../packages/core/src/db/schema.js';
 import { mockEmbed } from '../../packages/core/src/search/embed.js';
 import { writeChecksumFile } from '../../packages/core/src/lib/checksum.js';
 import { search } from '../../packages/core/src/search/index.js';
 import { rankResults } from '../../packages/core/src/search/rank.js';
+import { makeIntentId } from '../../packages/core/src/lib/validator.js';
 
 const dir = path.join(path.dirname(fileURLToPath(import.meta.url)), '../fixtures');
 const dbPath = path.join(dir, 'test.db');
@@ -29,33 +34,53 @@ async function buildFixture() {
   try { rmSync(dbPath); } catch { /* */ }
   try { rmSync(`${dbPath}.sha256`); } catch { /* */ }
   const client = openDb(dbPath);
+
+  insertRecipe(client, {
+    id: 'undo-last-commit-keep-changes',
+    title: 'Undo last commit keep changes',
+    commands: [{ run: 'git reset --soft HEAD~1', comment: 'keep staged' }],
+    explanation: 'Moves HEAD back one commit, keeps index and worktree',
+    intent_family: 'soft-undo',
+    simplicity_rank: 1,
+    usage: 'git reset --soft HEAD~1\nMoves HEAD back one commit and keeps changes staged.',
+    topic: 'undo',
+    primary_example: 'git reset --soft HEAD~1',
+    command: 'git reset',
+  });
+  insertRecipe(client, {
+    id: 'show-working-tree-status',
+    title: 'Show working tree status',
+    commands: [{ run: 'git status', comment: 'status' }],
+    explanation: 'Shows working tree status',
+    intent_family: 'status',
+    simplicity_rank: 1,
+    usage: 'git status\nShow working tree status.',
+    topic: 'status',
+    primary_example: 'git status',
+    command: 'git status',
+  });
+
   const rows = [
     {
-      id: 'git-reset-soft-head-1:2:0',
-      command: 'git reset',
-      example: 'git reset --soft HEAD~1',
-      usage: 'git reset --soft HEAD~1\nMoves HEAD back one commit and keeps changes staged.',
-      intent_family: 'soft-undo',
-      simplicity_rank: 1,
+      recipe_id: 'undo-last-commit-keep-changes',
       skill_level: 2,
-      intent_description: 'undo my last commit but keep the changes',
-      embedding: mockEmbed('undo my last commit but keep the changes'),
-      explanation: 'Moves HEAD back one commit, keeps index and worktree',
+      intent_text: 'undo my last commit but keep the changes',
     },
     {
-      id: 'git-status:1:0',
-      command: 'git status',
-      example: 'git status',
-      usage: 'git status\nShow working tree status.',
-      intent_family: 'status',
-      simplicity_rank: 1,
+      recipe_id: 'show-working-tree-status',
       skill_level: 1,
-      intent_description: 'what files did I change',
-      embedding: mockEmbed('what files did I change'),
-      explanation: 'Shows working tree status',
+      intent_text: 'what files did I change',
     },
   ];
-  for (const r of rows) insertCommandRow(client, r);
+  for (const r of rows) {
+    insertIntentWithEmbedding(client, {
+      id: makeIntentId(r.recipe_id, r.skill_level, 0),
+      recipe_id: r.recipe_id,
+      intent_text: r.intent_text,
+      skill_level: r.skill_level,
+      embedding: mockEmbed(r.intent_text),
+    });
+  }
   client.close();
   writeChecksumFile(dbPath);
 }
@@ -81,7 +106,6 @@ describe('search integration', () => {
       forceMockEmbeddings: true,
       skillLevelOverride: 1,
     });
-    // Only skill≤1 rows survive hydrate; reset is skill 2 → empty or status-only
     expect(result.status === 'empty' || result.results.every((r) => r.skill_level <= 1)).toBe(true);
   });
 

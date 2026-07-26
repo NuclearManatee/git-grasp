@@ -6,7 +6,8 @@ Project guidance for AI assistants working in this repo.
 
 - **Runtime:** Bun (`bun:sqlite` + `sqlite-vec`).
 - **Monorepo:** `packages/core` (DB, embeddings, search), `apps/cli`, `apps/seeding`, `apps/eval`, `apps/web` (Astro stub).
-- **Search:** sqlite-vec KNN recall → JS re-rank in `@git-help/core`. Schema v4 (`git_commands` + `vec_commands`).
+- **Search:** sqlite-vec KNN recall → JS re-rank in `@git-help/core`. Schema v5 (`recipes` + `search_intents` + `vec_intents`).
+- **Catalog:** generation code on `feature/*`; production `data/catalog/recipes.json`, `intents.jsonl`, and seeded DB land on `improve/*` after the eval gate. Upstream source fetches go to gitignored `data/cache/sources/`.
 
 ## Git flow (required)
 

@@ -5,7 +5,7 @@ const forceMock = process.env.GIT_HELP_MOCK_EMBEDDINGS === '1' || process.argv.i
 
 try {
   const result = await seedCatalog({ forceMock });
-  console.log(`Seeded ${result.n} rows (skipped ${result.skipped}) → ${result.dbPath}`);
+  console.log(`Seeded ${result.recipes} recipes / ${result.n} intents (skipped ${result.skipped}) → ${result.dbPath}`);
   console.log(`sha256 ${result.hash}`);
   console.log(`embeddings: ${result.mock ? 'mock' : 'all-MiniLM-L6-v2'}`);
 } catch (e) {
