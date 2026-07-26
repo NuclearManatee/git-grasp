@@ -11,17 +11,21 @@ import { materializePlaceholders, DEFAULT_GLOSSARY } from './step0Glossary.js';
 import { normalizeUsage } from '../db/utils.js';
 import { deriveCommandKey } from './stepRecipes.js';
 import { PACKAGE_ROOT } from '../lib/paths.js';
+import {
+  mergeRecipesBySignature,
+  recipeSourceRank,
+  stepSignature,
+} from './recipeIdentity.js';
 
 /**
- * Normalize recipes: materialize placeholders, validate, dedupe by primary_example.
+ * Normalize recipes: materialize placeholders, validate, dedupe by id + step_signature.
  */
 export function normalizeRecipes(rawRecipes, {
   glossary = DEFAULT_GLOSSARY,
   validateFlags = null,
 } = {}) {
   const drops = [];
-  const byExample = new Map();
-  const byId = new Map();
+  const prepared = [];
 
   for (const raw of rawRecipes || []) {
     const commands = (Array.isArray(raw.commands) ? raw.commands : []).map((c) => ({
@@ -49,33 +53,32 @@ export function normalizeRecipes(rawRecipes, {
       primary_example: primary,
       command: normalizeExample(raw.command || deriveCommandKey(primary)),
       source: sanitizeField(raw.source || '', 64),
+      checklist: sanitizeField(raw.checklist || '', 64),
+      step_signature: stepSignature(commands),
     };
 
-    const v = validateRecipe(recipe, { validateFlags: validateFlags || undefined });
+    const skipFlags = String(recipe.source || '').startsWith('golden:')
+      || recipe.source === 'essential'
+      || recipe.source === 'workflow';
+    const v = validateRecipe(recipe, {
+      validateFlags: skipFlags ? undefined : (validateFlags || undefined),
+    });
     if (!v.ok) {
       drops.push({ id: recipe.id, reason: v.reason, run: v.run });
       continue;
     }
-
-    // Prefer cheat-sheet over tldr/progit on same primary_example
-    const prev = byExample.get(primary);
-    if (prev) {
-      const rank = { 'cheat-sheet': 0, tldr: 1, universe: 1, progit: 2 };
-      const prevR = rank[prev.source] ?? 3;
-      const nextR = rank[recipe.source] ?? 3;
-      if (nextR >= prevR) {
-        drops.push({ id: recipe.id, reason: 'dup_example', primary });
-        continue;
-      }
-    }
-    if (byId.has(recipe.id) && byId.get(recipe.id).primary_example !== primary) {
-      recipe.id = `${recipe.id}-${byId.size}`;
-    }
-    byExample.set(primary, recipe);
-    byId.set(recipe.id, recipe);
+    prepared.push(recipe);
   }
 
-  const recipes = [...byId.values()].sort((a, b) => a.id.localeCompare(b.id));
+  // Prefer better sources on same signature via merge order: sort by source rank ascending
+  prepared.sort((a, b) => recipeSourceRank(a.source) - recipeSourceRank(b.source)
+    || a.id.localeCompare(b.id));
+  const before = prepared.length;
+  const recipes = mergeRecipesBySignature([], prepared)
+    .sort((a, b) => a.id.localeCompare(b.id));
+  if (recipes.length < before) {
+    drops.push({ reason: 'dup_signature_or_id', dropped: before - recipes.length });
+  }
   return { recipes, drops };
 }
 

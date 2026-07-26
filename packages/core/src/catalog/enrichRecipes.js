@@ -4,16 +4,19 @@ import { deriveCommandKey } from './stepRecipes.js';
 import { coerceSkillBandValue } from '../lib/skills.js';
 import { normalizeUsage } from '../db/utils.js';
 import { ESSENTIAL_COMMANDS } from './enrich.js';
+import { enrichRecipesFromWorkflows } from './stepRecipeWorkflows.js';
+import { mergeRecipesBySignature, stepSignature } from './recipeIdentity.js';
 
 /**
  * Ensure golden expected examples exist as single-step recipes.
+ * Skips when expectedRecipeId is set (workflow goldens).
  */
 export function enrichRecipesFromGolden(recipes, goldenCases = [], glossary = DEFAULT_GLOSSARY) {
-  const byExample = new Map(
-    recipes.map((r) => [normalizeExample(r.primary_example), r]),
-  );
+  const bySig = new Set(recipes.map((r) => r.step_signature || stepSignature(r.commands || [{ run: r.primary_example }])));
+  const byId = new Set(recipes.map((r) => r.id));
 
   for (const g of goldenCases || []) {
+    if (g.expectedRecipeId) continue;
     const examples = [
       g.expectedExample,
       g.expectedSimplestExample,
@@ -22,12 +25,15 @@ export function enrichRecipesFromGolden(recipes, goldenCases = [], glossary = DE
 
     for (const raw of examples) {
       const example = normalizeExample(materializePlaceholders(raw, glossary));
-      if (!example || byExample.has(example)) continue;
+      if (!example) continue;
+      const sig = stepSignature([{ run: example }]);
+      if (bySig.has(sig)) continue;
       const command = normalizeExample(
         materializePlaceholders(g.expectedCommand || deriveCommandKey(example), glossary),
       );
       const title = `Golden: ${example}`;
-      const id = recipeSlugFromTitle(`golden-${example}`);
+      let id = recipeSlugFromTitle(`golden-${example}`);
+      if (byId.has(id)) id = `${id}-${byId.size}`;
       const recipe = {
         id,
         title,
@@ -40,9 +46,11 @@ export function enrichRecipesFromGolden(recipes, goldenCases = [], glossary = DE
         primary_example: example,
         command: command.startsWith('git') ? command : deriveCommandKey(example),
         source: `golden:${g.id || 'case'}`,
+        step_signature: sig,
       };
       recipes.push(recipe);
-      byExample.set(example, recipe);
+      bySig.add(sig);
+      byId.add(id);
     }
   }
   return recipes;
@@ -52,13 +60,12 @@ export function enrichRecipesFromGolden(recipes, goldenCases = [], glossary = DE
  * Add essential porcelain recipes when missing.
  */
 export function enrichRecipesFromEssentials(recipes, glossary = DEFAULT_GLOSSARY) {
-  const byExample = new Map(
-    recipes.map((r) => [normalizeExample(r.primary_example), r]),
-  );
+  const bySig = new Set(recipes.map((r) => r.step_signature || stepSignature(r.commands || [{ run: r.primary_example }])));
   for (const group of ESSENTIAL_COMMANDS) {
     for (const ex of group.examples || []) {
       const example = normalizeExample(materializePlaceholders(ex.example, glossary));
-      if (byExample.has(example)) continue;
+      const sig = stepSignature([{ run: example }]);
+      if (bySig.has(sig)) continue;
       const id = recipeSlugFromTitle(example);
       const recipe = {
         id,
@@ -72,13 +79,17 @@ export function enrichRecipesFromEssentials(recipes, glossary = DEFAULT_GLOSSARY
         primary_example: example,
         command: group.command,
         source: 'essential',
+        step_signature: sig,
       };
       recipes.push(recipe);
-      byExample.set(example, recipe);
+      bySig.add(sig);
     }
   }
   return recipes;
 }
+
+export { enrichRecipesFromWorkflows, mergeRecipesBySignature };
+
 
 /**
  * Inject golden queries as intents for matching recipes.
@@ -87,12 +98,13 @@ export function enrichIntentsFromGolden(intents, recipes, goldenCases = []) {
   const byExample = new Map(
     recipes.map((r) => [normalizeExample(r.primary_example), r]),
   );
+  const byId = new Map(recipes.map((r) => [r.id, r]));
   const out = [...intents];
   const seen = new Set(intents.map((i) => `${i.recipe_id}|${i.intent_text.toLowerCase()}`));
 
   for (const g of goldenCases || []) {
-    const example = normalizeExample(g.expectedExample || '');
-    const recipe = byExample.get(example);
+    const recipe = (g.expectedRecipeId && byId.get(g.expectedRecipeId))
+      || byExample.get(normalizeExample(g.expectedExample || ''));
     if (!recipe || !g.query) continue;
     const skill = (() => {
       const band = g.expectedSkillBand;

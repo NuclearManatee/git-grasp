@@ -2,6 +2,7 @@ import chalk from 'chalk';
 import { sanitizeField } from '../lib/ansi.js';
 import { skillName } from '../lib/skills.js';
 import { normalizeExample } from '../lib/validator.js';
+import { clipboardTextFromRecipe } from '../catalog/recipeIdentity.js';
 
 /**
  * Format search result for CLI.
@@ -147,10 +148,13 @@ export function parseUsage(r) {
   return { commandLine: example, blurb: parts[0] || '' };
 }
 
-/** Pasteable example for clipboard. */
+/** Pasteable example for clipboard (all steps for multi-step recipes). */
 export function primaryCommand(result) {
   const r = result.results?.[0];
   if (!r) return null;
+  if (Array.isArray(r.commands) && r.commands.length) {
+    return clipboardTextFromRecipe(r);
+  }
   return r.example ?? r.command ?? null;
 }
 

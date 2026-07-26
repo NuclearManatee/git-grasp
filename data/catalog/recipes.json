@@ -15,7 +15,9 @@
     "topic": "undo",
     "primary_example": "git cherry-pick --abort",
     "command": "git cherry-pick --abort",
-    "source": "ays"
+    "source": "ays",
+    "checklist": "",
+    "step_signature": "git cherry-pick --abort"
   },
   {
     "id": "abort-the-process-of-applying-a-patch-file",
@@ -33,7 +35,9 @@
     "topic": "advanced",
     "primary_example": "git am --abort",
     "command": "git am",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git am --abort"
   },
   {
     "id": "add-a-new-worktree-directory-for-a-branch-with-the-same-name-created-if-missing",
@@ -51,7 +55,9 @@
     "topic": "advanced",
     "primary_example": "git worktree add main",
     "command": "git worktree",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git worktree add main"
   },
   {
     "id": "add-a-note-to-a-commit",
@@ -69,7 +75,9 @@
     "topic": "notes",
     "primary_example": "git notes add -m \"Add login form\" HEAD",
     "command": "git notes",
-    "source": "ays"
+    "source": "ays",
+    "checklist": "",
+    "step_signature": "git notes add -m \"Add login form\" HEAD"
   },
   {
     "id": "add-a-remote",
@@ -87,7 +95,113 @@
     "topic": "remote",
     "primary_example": "git remote add upstream upstream",
     "command": "git remote",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git remote add upstream upstream"
+  },
+  {
+    "id": "add-commit-push",
+    "title": "Stage, commit, and push",
+    "commands": [
+      {
+        "run": "git add app.js",
+        "comment": "Stage"
+      },
+      {
+        "run": "git commit -m \"Fix typo\"",
+        "comment": "Commit"
+      },
+      {
+        "run": "git push",
+        "comment": "Push"
+      }
+    ],
+    "explanation": "Everyday ship flow for a small change.",
+    "intent_family": "soft-undo-recommit",
+    "simplicity_rank": 2,
+    "usage": "git add app.js\nStage → Commit → Push",
+    "topic": "commit",
+    "primary_example": "git add app.js",
+    "command": "git add",
+    "source": "workflow",
+    "checklist": "soft-undo-recommit",
+    "step_signature": "git add app.js\ngit commit -m \"Fix typo\"\ngit push"
+  },
+  {
+    "id": "add-patch-then-commit",
+    "title": "Interactively stage hunks then commit",
+    "commands": [
+      {
+        "run": "git add -p app.js",
+        "comment": "Stage hunks"
+      },
+      {
+        "run": "git commit -m \"Fix typo\"",
+        "comment": "Commit"
+      }
+    ],
+    "explanation": "Stage selectively with add -p, then commit.",
+    "intent_family": "unstage-vs-discard",
+    "simplicity_rank": 2,
+    "usage": "git add -p app.js\nStage hunks → Commit",
+    "topic": "stage",
+    "primary_example": "git add -p app.js",
+    "command": "git add",
+    "source": "workflow",
+    "checklist": "unstage-vs-discard",
+    "step_signature": "git add -p app.js\ngit commit -m \"Fix typo\""
+  },
+  {
+    "id": "amend-add-forgotten-file",
+    "title": "Amend last commit to add a forgotten file",
+    "commands": [
+      {
+        "run": "git add app.js",
+        "comment": "Stage forgotten file"
+      },
+      {
+        "run": "git commit --amend --no-edit",
+        "comment": "Fold into last commit"
+      }
+    ],
+    "explanation": "Stage a missed file and amend without rewriting the message.",
+    "intent_family": "amend-exclude-path",
+    "simplicity_rank": 2,
+    "usage": "git add app.js\nStage forgotten file → Fold into last commit",
+    "topic": "commit",
+    "primary_example": "git add app.js",
+    "command": "git commit",
+    "source": "workflow",
+    "checklist": "amend-exclude-path",
+    "step_signature": "git add app.js\ngit commit --amend --no-edit"
+  },
+  {
+    "id": "amend-exclude-path",
+    "title": "Amend last commit excluding one path",
+    "commands": [
+      {
+        "run": "git reset --soft HEAD~1",
+        "comment": "Open last commit"
+      },
+      {
+        "run": "git restore --staged app.js",
+        "comment": "Exclude this path"
+      },
+      {
+        "run": "git commit -c ORIG_HEAD",
+        "comment": "Recreate commit without that path"
+      }
+    ],
+    "explanation": "Open the tip softly, exclude a path, recreate the commit.",
+    "intent_family": "amend-exclude-path",
+    "simplicity_rank": 2,
+    "usage": "git reset --soft HEAD~1\nOpen last commit → Exclude this path → Recreate commit without that path",
+    "topic": "commit",
+    "primary_example": "git reset --soft HEAD~1",
+    "command": "git commit",
+    "source": "workflow",
+    "checklist": "amend-exclude-path",
+    "step_signature": "git reset --soft HEAD~1\ngit restore --staged app.js\ngit commit -c ORIG_HEAD"
   },
   {
     "id": "append-a-line-to-the-commit-message-to-indicate-that-the-commit-was-cherry-picke",
@@ -105,7 +219,9 @@
     "topic": "advanced",
     "primary_example": "git cherry-pick -x HEAD",
     "command": "git cherry-pick",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git cherry-pick -x HEAD"
   },
   {
     "id": "apply-a-commit-to-the-current-branch",
@@ -123,7 +239,9 @@
     "topic": "advanced",
     "primary_example": "git cherry-pick HEAD",
     "command": "git cherry-pick",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git cherry-pick HEAD"
   },
   {
     "id": "apply-a-patch-file",
@@ -141,7 +259,9 @@
     "topic": "patch",
     "primary_example": "git apply 0001-fix-typo.patch",
     "command": "git apply",
-    "source": "ays"
+    "source": "ays",
+    "checklist": "",
+    "step_signature": "git apply 0001-fix-typo.patch"
   },
   {
     "id": "apply-a-range-of-commits-to-the-current-branch-see-also-git-rebase-onto",
@@ -159,7 +279,9 @@
     "topic": "advanced",
     "primary_example": "git cherry-pick upstream~..upstream",
     "command": "git cherry-pick",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git cherry-pick upstream~..upstream"
   },
   {
     "id": "apply-a-stash-and-remove-it-from-the-stash-list-if-applying-doesn-t-cause-confli",
@@ -177,7 +299,9 @@
     "topic": "stash",
     "primary_example": "git stash pop",
     "command": "git stash",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git stash pop"
   },
   {
     "id": "apply-a-stash-without-removing-it",
@@ -195,7 +319,9 @@
     "topic": "stash",
     "primary_example": "git stash apply stash@{0}",
     "command": "git stash apply",
-    "source": "ays"
+    "source": "ays",
+    "checklist": "",
+    "step_signature": "git stash apply stash@{0}"
   },
   {
     "id": "book-02-git-basics-sections-getting-a-repository-asc-git-add-c",
@@ -221,7 +347,9 @@
     "topic": "stage",
     "primary_example": "git add *.c",
     "command": "git add",
-    "source": "progit"
+    "source": "progit",
+    "checklist": "",
+    "step_signature": "git add *.c\ngit add LICENSE\ngit commit -m 'Initial project version'"
   },
   {
     "id": "book-02-git-basics-sections-recording-changes-asc-git-add-contributing-md",
@@ -243,7 +371,9 @@
     "topic": "stage",
     "primary_example": "git add CONTRIBUTING.md",
     "command": "git add",
-    "source": "progit"
+    "source": "progit",
+    "checklist": "",
+    "step_signature": "git add CONTRIBUTING.md\ngit status"
   },
   {
     "id": "book-02-git-basics-sections-recording-changes-asc-git-mv-readme-md-readme",
@@ -265,7 +395,9 @@
     "topic": "advanced",
     "primary_example": "git mv README.md README",
     "command": "git mv",
-    "source": "progit"
+    "source": "progit",
+    "checklist": "",
+    "step_signature": "git mv README.md README\ngit status"
   },
   {
     "id": "book-02-git-basics-sections-recording-changes-asc-git-rm-projects-md",
@@ -287,7 +419,9 @@
     "topic": "advanced",
     "primary_example": "git rm PROJECTS.md",
     "command": "git rm",
-    "source": "progit"
+    "source": "progit",
+    "checklist": "",
+    "step_signature": "git rm PROJECTS.md\ngit status"
   },
   {
     "id": "book-02-git-basics-sections-recording-changes-asc-git-rm-readme-md",
@@ -309,7 +443,9 @@
     "topic": "advanced",
     "primary_example": "git rm README.md",
     "command": "git rm",
-    "source": "progit"
+    "source": "progit",
+    "checklist": "",
+    "step_signature": "git rm README.md\ngit add README"
   },
   {
     "id": "book-02-git-basics-sections-undoing-asc-git-add",
@@ -331,7 +467,9 @@
     "topic": "stage",
     "primary_example": "git add *",
     "command": "git add",
-    "source": "progit"
+    "source": "progit",
+    "checklist": "",
+    "step_signature": "git add *\ngit status"
   },
   {
     "id": "book-02-git-basics-sections-undoing-asc-git-checkout-contributing-md",
@@ -353,7 +491,9 @@
     "topic": "branch",
     "primary_example": "git checkout -- CONTRIBUTING.md",
     "command": "git checkout",
-    "source": "progit"
+    "source": "progit",
+    "checklist": "",
+    "step_signature": "git checkout -- CONTRIBUTING.md\ngit status"
   },
   {
     "id": "book-02-git-basics-sections-undoing-asc-git-commit-m-initial-commit",
@@ -379,7 +519,9 @@
     "topic": "commit",
     "primary_example": "git commit -m 'Initial commit'",
     "command": "git commit",
-    "source": "progit"
+    "source": "progit",
+    "checklist": "",
+    "step_signature": "git commit -m 'Initial commit'\ngit add forgotten_file\ngit commit --amend"
   },
   {
     "id": "book-02-git-basics-sections-undoing-asc-git-reset-head-contributing-md",
@@ -401,7 +543,9 @@
     "topic": "undo",
     "primary_example": "git reset HEAD CONTRIBUTING.md",
     "command": "git reset",
-    "source": "progit"
+    "source": "progit",
+    "checklist": "",
+    "step_signature": "git reset HEAD CONTRIBUTING.md\ngit status"
   },
   {
     "id": "book-02-git-basics-sections-undoing-asc-git-restore-contributing-md",
@@ -423,7 +567,9 @@
     "topic": "undo",
     "primary_example": "git restore CONTRIBUTING.md",
     "command": "git restore",
-    "source": "progit"
+    "source": "progit",
+    "checklist": "",
+    "step_signature": "git restore CONTRIBUTING.md\ngit status"
   },
   {
     "id": "book-02-git-basics-sections-undoing-asc-git-restore-staged-contributing-md",
@@ -445,7 +591,9 @@
     "topic": "undo",
     "primary_example": "git restore --staged CONTRIBUTING.md",
     "command": "git restore",
-    "source": "progit"
+    "source": "progit",
+    "checklist": "",
+    "step_signature": "git restore --staged CONTRIBUTING.md\ngit status"
   },
   {
     "id": "book-03-git-branching-sections-basic-branching-and-merging-asc-git-branch-iss53",
@@ -467,7 +615,9 @@
     "topic": "branch",
     "primary_example": "git branch iss53",
     "command": "git branch",
-    "source": "progit"
+    "source": "progit",
+    "checklist": "",
+    "step_signature": "git branch iss53\ngit checkout iss53"
   },
   {
     "id": "book-03-git-branching-sections-basic-branching-and-merging-asc-git-checkout-b-ho",
@@ -489,7 +639,9 @@
     "topic": "branch",
     "primary_example": "git checkout -b hotfix",
     "command": "git checkout",
-    "source": "progit"
+    "source": "progit",
+    "checklist": "",
+    "step_signature": "git checkout -b hotfix\ngit commit -a -m 'Fix broken email address'"
   },
   {
     "id": "book-03-git-branching-sections-basic-branching-and-merging-asc-git-checkout-iss5",
@@ -511,7 +663,9 @@
     "topic": "branch",
     "primary_example": "git checkout iss53",
     "command": "git checkout",
-    "source": "progit"
+    "source": "progit",
+    "checklist": "",
+    "step_signature": "git checkout iss53\ngit commit -a -m 'Finish the new footer [issue 53]'"
   },
   {
     "id": "book-03-git-branching-sections-rebasing-asc-git-checkout-experiment",
@@ -533,7 +687,9 @@
     "topic": "branch",
     "primary_example": "git checkout experiment",
     "command": "git checkout",
-    "source": "progit"
+    "source": "progit",
+    "checklist": "",
+    "step_signature": "git checkout experiment\ngit rebase master"
   },
   {
     "id": "book-07-git-tools-sections-revision-selection-asc-git-show-1c002dd4b536e7479fe34",
@@ -559,7 +715,9 @@
     "topic": "advanced",
     "primary_example": "git show 1c002dd4b536e7479fe34593e72e6c6c1819e53b",
     "command": "git show",
-    "source": "progit"
+    "source": "progit",
+    "checklist": "",
+    "step_signature": "git show 1c002dd4b536e7479fe34593e72e6c6c1819e53b\ngit show 1c002dd4b536e7479f\ngit show 1c002d"
   },
   {
     "id": "book-07-git-tools-sections-revision-selection-asc-git-show-ca82a6dff817ec66f4434",
@@ -581,7 +739,9 @@
     "topic": "advanced",
     "primary_example": "git show ca82a6dff817ec66f44342007202690a93763949",
     "command": "git show",
-    "source": "progit"
+    "source": "progit",
+    "checklist": "",
+    "step_signature": "git show ca82a6dff817ec66f44342007202690a93763949\ngit show topic1"
   },
   {
     "id": "book-07-git-tools-sections-revision-selection-asc-git-show-d921970",
@@ -603,7 +763,9 @@
     "topic": "advanced",
     "primary_example": "git show d921970^",
     "command": "git show",
-    "source": "progit"
+    "source": "progit",
+    "checklist": "",
+    "step_signature": "git show d921970^\ngit show d921970^2"
   },
   {
     "id": "book-07-git-tools-sections-stashing-cleaning-asc-git-status-s",
@@ -629,7 +791,109 @@
     "topic": "status",
     "primary_example": "git status -s",
     "command": "git status",
-    "source": "progit"
+    "source": "progit",
+    "checklist": "",
+    "step_signature": "git status -s\ngit stash -u\ngit status -s"
+  },
+  {
+    "id": "branch-delete-merged-local",
+    "title": "Switch to main then delete a merged branch",
+    "commands": [
+      {
+        "run": "git switch main",
+        "comment": "Leave feature branch"
+      },
+      {
+        "run": "git branch -d feature/login",
+        "comment": "Delete merged branch"
+      }
+    ],
+    "explanation": "Return to main and delete a fully merged feature branch.",
+    "intent_family": "branch-from-parent",
+    "simplicity_rank": 2,
+    "usage": "git switch main\nLeave feature branch → Delete merged branch",
+    "topic": "branch",
+    "primary_example": "git switch main",
+    "command": "git switch",
+    "source": "workflow",
+    "checklist": "branch-from-parent",
+    "step_signature": "git switch main\ngit branch -d feature/login"
+  },
+  {
+    "id": "branch-from-head-parent",
+    "title": "Create a branch pointing at the parent of HEAD",
+    "commands": [
+      {
+        "run": "git branch topic/prior HEAD~1",
+        "comment": "Branch at parent commit"
+      },
+      {
+        "run": "git switch topic/prior",
+        "comment": "Move there"
+      }
+    ],
+    "explanation": "Keep current tip, start a branch at HEAD~1 for the previous state.",
+    "intent_family": "branch-from-parent",
+    "simplicity_rank": 2,
+    "usage": "git branch topic/prior HEAD~1\nBranch at parent commit → Move there",
+    "topic": "branch",
+    "primary_example": "git branch topic/prior HEAD~1",
+    "command": "git branch",
+    "source": "workflow",
+    "checklist": "branch-from-parent",
+    "step_signature": "git branch topic/prior HEAD~1\ngit switch topic/prior"
+  },
+  {
+    "id": "branch-from-parent-switch",
+    "title": "Create a branch from parent commit and switch to it",
+    "commands": [
+      {
+        "run": "git branch feature/login HEAD~1",
+        "comment": "Create branch at parent commit"
+      },
+      {
+        "run": "git switch feature/login",
+        "comment": "Switch to the new branch"
+      }
+    ],
+    "explanation": "Create a new branch pointing to the parent of the current HEAD, then switch to it.",
+    "intent_family": "branch-from-parent",
+    "simplicity_rank": 2,
+    "usage": "git branch feature/login HEAD~1\nCreate branch at parent commit → Switch to the new branch",
+    "topic": "branch",
+    "primary_example": "git branch feature/login HEAD~1",
+    "command": "git branch",
+    "source": "workflow",
+    "checklist": "branch-from-parent",
+    "step_signature": "git branch feature/login HEAD~1\ngit switch feature/login"
+  },
+  {
+    "id": "branch-from-parent-switch-verify",
+    "title": "Create branch from parent commit, switch, and verify",
+    "commands": [
+      {
+        "run": "git branch feature/login HEAD~1",
+        "comment": "Create branch at parent commit"
+      },
+      {
+        "run": "git switch feature/login",
+        "comment": "Switch to new branch"
+      },
+      {
+        "run": "git log --oneline -1",
+        "comment": "Verify current commit"
+      }
+    ],
+    "explanation": "Create a branch pointing to the parent of HEAD, switch to it, and confirm.",
+    "intent_family": "branch-from-parent",
+    "simplicity_rank": 2,
+    "usage": "git branch feature/login HEAD~1\nCreate branch at parent commit → Switch to new branch → Verify current commit",
+    "topic": "branch",
+    "primary_example": "git branch feature/login HEAD~1",
+    "command": "git branch",
+    "source": "workflow",
+    "checklist": "branch-from-parent",
+    "step_signature": "git branch feature/login HEAD~1\ngit switch feature/login\ngit log --oneline -1"
   },
   {
     "id": "cancel-a-git-revert-after-a-merge-conflict",
@@ -647,7 +911,9 @@
     "topic": "undo",
     "primary_example": "git revert --abort",
     "command": "git revert",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git revert --abort"
   },
   {
     "id": "change-the-url-of-a-remote-use-add-to-keep-the-existing-url",
@@ -665,7 +931,81 @@
     "topic": "remote",
     "primary_example": "git remote set-url upstream upstream",
     "command": "git remote",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git remote set-url upstream upstream"
+  },
+  {
+    "id": "cherry-pick-abort",
+    "title": "Abort a conflicted cherry-pick",
+    "commands": [
+      {
+        "run": "git cherry-pick --abort",
+        "comment": "Abort"
+      },
+      {
+        "run": "git status -sb",
+        "comment": "Confirm"
+      }
+    ],
+    "explanation": "Cancel an in-progress cherry-pick.",
+    "intent_family": "cherry-pick-or-revert-followup",
+    "simplicity_rank": 2,
+    "usage": "git cherry-pick --abort\nAbort → Confirm",
+    "topic": "undo",
+    "primary_example": "git cherry-pick --abort",
+    "command": "git cherry-pick",
+    "source": "workflow",
+    "checklist": "cherry-pick-or-revert-followup",
+    "step_signature": "git cherry-pick --abort\ngit status -sb"
+  },
+  {
+    "id": "cherry-pick-or-revert-followup-continue",
+    "title": "Continue a cherry-pick after resolving conflicts",
+    "commands": [
+      {
+        "run": "git add app.js",
+        "comment": "Stage the resolved file"
+      },
+      {
+        "run": "git cherry-pick --continue",
+        "comment": "Continue the cherry-pick"
+      }
+    ],
+    "explanation": "After manually resolving conflicts during a cherry-pick, continue the operation.",
+    "intent_family": "cherry-pick-or-revert-followup",
+    "simplicity_rank": 2,
+    "usage": "git add app.js\nStage the resolved file → Continue the cherry-pick",
+    "topic": "undo",
+    "primary_example": "git add app.js",
+    "command": "git cherry-pick",
+    "source": "workflow",
+    "checklist": "cherry-pick-or-revert-followup",
+    "step_signature": "git add app.js\ngit cherry-pick --continue"
+  },
+  {
+    "id": "cherry-pick-then-push",
+    "title": "Cherry-pick a commit then push",
+    "commands": [
+      {
+        "run": "git cherry-pick abc1234",
+        "comment": "Apply commit"
+      },
+      {
+        "run": "git push",
+        "comment": "Publish"
+      }
+    ],
+    "explanation": "Apply a commit onto the current branch and publish.",
+    "intent_family": "cherry-pick-or-revert-followup",
+    "simplicity_rank": 2,
+    "usage": "git cherry-pick abc1234\nApply commit → Publish",
+    "topic": "sync",
+    "primary_example": "git cherry-pick abc1234",
+    "command": "git cherry-pick",
+    "source": "workflow",
+    "checklist": "cherry-pick-or-revert-followup",
+    "step_signature": "git cherry-pick abc1234\ngit push"
   },
   {
     "id": "clean-untracked-files-and-directories",
@@ -683,7 +1023,9 @@
     "topic": "clean",
     "primary_example": "git clean -fd",
     "command": "git clean",
-    "source": "ays"
+    "source": "ays",
+    "checklist": "",
+    "step_signature": "git clean -fd"
   },
   {
     "id": "clone-an-existing-repository-only-fetching-the-10-most-recent-commits-on-the-def",
@@ -701,7 +1043,61 @@
     "topic": "create",
     "primary_example": "git clone --depth 10 upstream",
     "command": "git clone",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git clone --depth 10 upstream"
+  },
+  {
+    "id": "commit-amend-no-edit-push-lease",
+    "title": "Amend --no-edit then force-with-lease",
+    "commands": [
+      {
+        "run": "git commit --amend --no-edit",
+        "comment": "Amend"
+      },
+      {
+        "run": "git push --force-with-lease",
+        "comment": "Publish"
+      }
+    ],
+    "explanation": "Fold staged fixes into tip and publish rewritten tip safely.",
+    "intent_family": "amend-exclude-path",
+    "simplicity_rank": 3,
+    "usage": "git commit --amend --no-edit\nAmend → Publish",
+    "topic": "commit",
+    "primary_example": "git commit --amend --no-edit",
+    "command": "git commit",
+    "source": "workflow",
+    "checklist": "amend-exclude-path",
+    "step_signature": "git commit --amend --no-edit\ngit push --force-with-lease"
+  },
+  {
+    "id": "conflict-abort-or-resolve-theirs",
+    "title": "Resolve merge conflict using theirs then commit",
+    "commands": [
+      {
+        "run": "git checkout --theirs app.js",
+        "comment": "Accept the incoming branch's version of app.js"
+      },
+      {
+        "run": "git add app.js",
+        "comment": "Mark the conflict as resolved"
+      },
+      {
+        "run": "git commit",
+        "comment": "Complete the merge"
+      }
+    ],
+    "explanation": "Resolve a merge conflict by accepting the incoming branch's version of a file, then complete the merge.",
+    "intent_family": "conflict-abort-or-resolve",
+    "simplicity_rank": 2,
+    "usage": "git checkout --theirs app.js\nAccept the incoming branch's version of app.js → Mark the conflict as resolved → Complete the merge",
+    "topic": "undo",
+    "primary_example": "git checkout --theirs app.js",
+    "command": "git merge",
+    "source": "workflow",
+    "checklist": "conflict-abort-or-resolve",
+    "step_signature": "git checkout --theirs app.js\ngit add app.js\ngit commit"
   },
   {
     "id": "copy-the-state-of-a-branch-into-the-working-tree-and-stage-it-note-use-git-commi",
@@ -719,7 +1115,9 @@
     "topic": "merge",
     "primary_example": "git merge --squash upstream",
     "command": "git merge",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git merge --squash upstream"
   },
   {
     "id": "create-a-bundle-for-offline-transfer",
@@ -737,7 +1135,9 @@
     "topic": "bundle",
     "primary_example": "git bundle create repo.bundle main",
     "command": "git bundle",
-    "source": "ays"
+    "source": "ays",
+    "checklist": "",
+    "step_signature": "git bundle create repo.bundle main"
   },
   {
     "id": "create-a-patch-from-a-commit",
@@ -755,7 +1155,9 @@
     "topic": "patch",
     "primary_example": "git format-patch -1 HEAD",
     "command": "git format-patch",
-    "source": "ays"
+    "source": "ays",
+    "checklist": "",
+    "step_signature": "git format-patch -1 HEAD"
   },
   {
     "id": "create-a-tag-with-the-given-name-pointing-to-a-given-commit",
@@ -773,7 +1175,9 @@
     "topic": "tag",
     "primary_example": "git tag upstream HEAD",
     "command": "git tag",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git tag upstream HEAD"
   },
   {
     "id": "create-a-tag-with-the-given-name-pointing-to-the-current-commit",
@@ -791,7 +1195,9 @@
     "topic": "tag",
     "primary_example": "git tag upstream",
     "command": "git tag",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git tag upstream"
   },
   {
     "id": "create-an-archive-of-the-repository",
@@ -809,7 +1215,9 @@
     "topic": "archive",
     "primary_example": "git archive --format=tar.gz HEAD --output=repo.tar.gz",
     "command": "git archive",
-    "source": "ays"
+    "source": "ays",
+    "checklist": "",
+    "step_signature": "git archive --format=tar.gz HEAD --output=repo.tar.gz"
   },
   {
     "id": "create-and-switch-to-a-new-branch",
@@ -827,7 +1235,9 @@
     "topic": "branch",
     "primary_example": "git checkout -b upstream",
     "command": "git checkout",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git checkout -b upstream"
   },
   {
     "id": "create-and-switch-to-a-new-branch-based-on-a-specific-reference-branch-remote-br",
@@ -845,7 +1255,33 @@
     "topic": "branch",
     "primary_example": "git checkout -b upstream upstream",
     "command": "git checkout",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git checkout -b upstream upstream"
+  },
+  {
+    "id": "create-branch-push-upstream",
+    "title": "Create branch and push with upstream",
+    "commands": [
+      {
+        "run": "git switch -c feature/login",
+        "comment": "New branch"
+      },
+      {
+        "run": "git push -u origin HEAD",
+        "comment": "Publish + track"
+      }
+    ],
+    "explanation": "Start a feature branch and publish it.",
+    "intent_family": "upstream-first-push",
+    "simplicity_rank": 2,
+    "usage": "git switch -c feature/login\nNew branch → Publish + track",
+    "topic": "branch",
+    "primary_example": "git switch -c feature/login",
+    "command": "git switch",
+    "source": "workflow",
+    "checklist": "upstream-first-push",
+    "step_signature": "git switch -c feature/login\ngit push -u origin HEAD"
   },
   {
     "id": "create-new-branch-based-on-a-specific-commit",
@@ -863,7 +1299,9 @@
     "topic": "branch",
     "primary_example": "git branch upstream upstream",
     "command": "git branch",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git branch upstream upstream"
   },
   {
     "id": "delete-all-stashes",
@@ -881,7 +1319,9 @@
     "topic": "stash",
     "primary_example": "git stash clear",
     "command": "git stash",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git stash clear"
   },
   {
     "id": "delete-the-latest-stash",
@@ -899,7 +1339,33 @@
     "topic": "stash",
     "primary_example": "git stash drop",
     "command": "git stash",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git stash drop"
+  },
+  {
+    "id": "diff-staged-then-commit",
+    "title": "Review staged diff then commit",
+    "commands": [
+      {
+        "run": "git diff --staged",
+        "comment": "Review"
+      },
+      {
+        "run": "git commit -m \"Fix typo\"",
+        "comment": "Commit"
+      }
+    ],
+    "explanation": "Sanity-check the index before creating the commit.",
+    "intent_family": "soft-undo-recommit",
+    "simplicity_rank": 2,
+    "usage": "git diff --staged\nReview → Commit",
+    "topic": "commit",
+    "primary_example": "git diff --staged",
+    "command": "git diff",
+    "source": "workflow",
+    "checklist": "soft-undo-recommit",
+    "step_signature": "git diff --staged\ngit commit -m \"Fix typo\""
   },
   {
     "id": "discard-all-unstaged-changes-in-the-current-directory-see-git-reset-for-more-und",
@@ -917,7 +1383,9 @@
     "topic": "branch",
     "primary_example": "git checkout .",
     "command": "git checkout",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git checkout ."
   },
   {
     "id": "discard-all-unstaged-changes-to-tracked-files",
@@ -935,7 +1403,9 @@
     "topic": "undo",
     "primary_example": "git restore :/",
     "command": "git restore",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git restore :/"
   },
   {
     "id": "discard-any-uncommitted-changes-staged-or-not-for-only-unstaged-changes-use-git-",
@@ -953,7 +1423,9 @@
     "topic": "undo",
     "primary_example": "git reset --hard",
     "command": "git reset",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git reset --hard"
   },
   {
     "id": "display-a-log-of-what-has-been-done-so-far",
@@ -971,7 +1443,9 @@
     "topic": "advanced",
     "primary_example": "git bisect log",
     "command": "git bisect",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git bisect log"
   },
   {
     "id": "download-changes-from-given-remote-repository-and-branch-then-merge-them-into-he",
@@ -989,7 +1463,9 @@
     "topic": "sync",
     "primary_example": "git pull upstream main",
     "command": "git pull",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git pull upstream main"
   },
   {
     "id": "end-the-bisect-session-and-return-to-the-previous-branch",
@@ -1007,7 +1483,33 @@
     "topic": "advanced",
     "primary_example": "git bisect reset",
     "command": "git bisect",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git bisect reset"
+  },
+  {
+    "id": "fetch-merge-main",
+    "title": "Fetch then merge origin/main",
+    "commands": [
+      {
+        "run": "git fetch origin",
+        "comment": "Fetch"
+      },
+      {
+        "run": "git merge origin/main",
+        "comment": "Merge upstream main"
+      }
+    ],
+    "explanation": "Update remote refs and merge main into the current branch.",
+    "intent_family": "upstream-first-push",
+    "simplicity_rank": 2,
+    "usage": "git fetch origin\nFetch → Merge upstream main",
+    "topic": "sync",
+    "primary_example": "git fetch origin",
+    "command": "git fetch",
+    "source": "workflow",
+    "checklist": "upstream-first-push",
+    "step_signature": "git fetch origin\ngit merge origin/main"
   },
   {
     "id": "fetch-new-branches-from-a-specific-remote-upstream-repository",
@@ -1025,7 +1527,33 @@
     "topic": "sync",
     "primary_example": "git fetch upstream",
     "command": "git fetch",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git fetch upstream"
+  },
+  {
+    "id": "fetch-prune-and-status",
+    "title": "Fetch with prune then short status",
+    "commands": [
+      {
+        "run": "git fetch --all --prune",
+        "comment": "Fetch+prune"
+      },
+      {
+        "run": "git status -sb",
+        "comment": "Status"
+      }
+    ],
+    "explanation": "Prune deleted remote branches and inspect.",
+    "intent_family": "upstream-first-push",
+    "simplicity_rank": 2,
+    "usage": "git fetch --all --prune\nFetch+prune → Status",
+    "topic": "sync",
+    "primary_example": "git fetch --all --prune",
+    "command": "git fetch",
+    "source": "workflow",
+    "checklist": "upstream-first-push",
+    "step_signature": "git fetch --all --prune\ngit status -sb"
   },
   {
     "id": "fetch-the-latest-changes-from-the-default-remote-upstream-repository-if-set",
@@ -1043,7 +1571,9 @@
     "topic": "sync",
     "primary_example": "git fetch",
     "command": "git fetch",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git fetch"
   },
   {
     "id": "fix-the-last-commit-message-without-changing-content",
@@ -1061,7 +1591,9 @@
     "topic": "commit",
     "primary_example": "git commit --amend -m \"Add login form\"",
     "command": "git commit --amend -m",
-    "source": "ays"
+    "source": "ays",
+    "checklist": "",
+    "step_signature": "git commit --amend -m \"Add login form\""
   },
   {
     "id": "git-add",
@@ -1079,7 +1611,9 @@
     "topic": "stage",
     "primary_example": "git add .",
     "command": "git add",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git add ."
   },
   {
     "id": "git-add-app-js",
@@ -1097,7 +1631,9 @@
     "topic": "stage",
     "primary_example": "git add app.js",
     "command": "git add",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git add app.js"
   },
   {
     "id": "git-add-curses-ux-audio-alsa-c",
@@ -1115,7 +1651,9 @@
     "topic": "stage",
     "primary_example": "git add curses/ux_audio_alsa.c",
     "command": "git add",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git add curses/ux_audio_alsa.c"
   },
   {
     "id": "git-add-p",
@@ -1133,7 +1671,9 @@
     "topic": "stage",
     "primary_example": "git add -p",
     "command": "git add",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git add -p"
   },
   {
     "id": "git-am-3-i",
@@ -1151,7 +1691,9 @@
     "topic": "advanced",
     "primary_example": "git am -3 -i -s ./+to-apply",
     "command": "git am",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git am -3 -i -s ./+to-apply"
   },
   {
     "id": "git-am-3-k",
@@ -1169,7 +1711,9 @@
     "topic": "advanced",
     "primary_example": "git am -3 -k",
     "command": "git am",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git am -3 -k"
   },
   {
     "id": "git-branch",
@@ -1187,7 +1731,9 @@
     "topic": "branch",
     "primary_example": "git branch",
     "command": "git branch",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git branch"
   },
   {
     "id": "git-branch-no-merged-master",
@@ -1205,7 +1751,9 @@
     "topic": "branch",
     "primary_example": "git branch --no-merged master",
     "command": "git branch",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git branch --no-merged master"
   },
   {
     "id": "git-checkout-master",
@@ -1223,7 +1771,9 @@
     "topic": "branch",
     "primary_example": "git checkout master",
     "command": "git checkout",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git checkout master"
   },
   {
     "id": "git-cherry-pick-master-4",
@@ -1241,7 +1791,9 @@
     "topic": "advanced",
     "primary_example": "git cherry-pick master~4",
     "command": "git cherry-pick",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git cherry-pick master~4"
   },
   {
     "id": "git-cherry-pick-v2-6-14-private2-6-14",
@@ -1259,7 +1811,9 @@
     "topic": "advanced",
     "primary_example": "git cherry-pick v2.6.14..private2.6.14",
     "command": "git cherry-pick",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git cherry-pick v2.6.14..private2.6.14"
   },
   {
     "id": "git-clone-depth-1-https-github-com-example-repo-git",
@@ -1277,7 +1831,9 @@
     "topic": "create",
     "primary_example": "git clone --depth 1 https://github.com/example/repo.git",
     "command": "git clone",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git clone --depth 1 https://github.com/example/repo.git"
   },
   {
     "id": "git-clone-git-git-kernel-org-pub-scm-torvalds-linux-2-6-my2-6",
@@ -1295,7 +1851,9 @@
     "topic": "create",
     "primary_example": "git clone git://git.kernel.org/pub/scm/.../torvalds/linux-2.6 my2.6",
     "command": "git clone",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git clone git://git.kernel.org/pub/scm/.../torvalds/linux-2.6 my2.6"
   },
   {
     "id": "git-clone-https-github-com-example-repo-git",
@@ -1313,7 +1871,9 @@
     "topic": "create",
     "primary_example": "git clone https://github.com/example/repo.git",
     "command": "git clone",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git clone https://github.com/example/repo.git"
   },
   {
     "id": "git-commit-a-amend",
@@ -1331,7 +1891,9 @@
     "topic": "commit",
     "primary_example": "git commit -a --amend",
     "command": "git commit",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git commit -a --amend"
   },
   {
     "id": "git-commit-a-s",
@@ -1349,7 +1911,9 @@
     "topic": "commit",
     "primary_example": "git commit -a -s",
     "command": "git commit",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git commit -a -s"
   },
   {
     "id": "git-commit-am-fix-typo",
@@ -1367,7 +1931,9 @@
     "topic": "commit",
     "primary_example": "git commit -am \"Fix typo\"",
     "command": "git commit",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git commit -am \"Fix typo\""
   },
   {
     "id": "git-commit-m-fix-typo",
@@ -1385,7 +1951,9 @@
     "topic": "commit",
     "primary_example": "git commit -m \"Fix typo\"",
     "command": "git commit",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git commit -m \"Fix typo\""
   },
   {
     "id": "git-commit-m-import",
@@ -1403,7 +1971,9 @@
     "topic": "commit",
     "primary_example": "git commit -m \"import of frotz source tree.\"",
     "command": "git commit",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git commit -m \"import of frotz source tree.\""
   },
   {
     "id": "git-config-global-user-email-dev-example-com",
@@ -1421,7 +1991,9 @@
     "topic": "config",
     "primary_example": "git config --global user.email \"dev@example.com\"",
     "command": "git config",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git config --global user.email \"dev@example.com\""
   },
   {
     "id": "git-config-list",
@@ -1439,7 +2011,9 @@
     "topic": "config",
     "primary_example": "git config --list",
     "command": "git config",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git config --list"
   },
   {
     "id": "git-config-user-name-alice",
@@ -1457,7 +2031,9 @@
     "topic": "config",
     "primary_example": "git config user.name \"alice\"",
     "command": "git config",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git config user.name \"alice\""
   },
   {
     "id": "git-diff-head",
@@ -1475,7 +2051,9 @@
     "topic": "diff",
     "primary_example": "git diff HEAD",
     "command": "git diff",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git diff HEAD"
   },
   {
     "id": "git-diff-head-git-diff-head",
@@ -1493,7 +2071,9 @@
     "topic": "diff",
     "primary_example": "git diff HEAD^",
     "command": "git diff",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git diff HEAD^"
   },
   {
     "id": "git-fetch-origin",
@@ -1511,7 +2091,9 @@
     "topic": "remote",
     "primary_example": "git fetch origin",
     "command": "git fetch",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git fetch origin"
   },
   {
     "id": "git-format-patch-master",
@@ -1529,7 +2111,9 @@
     "topic": "advanced",
     "primary_example": "git format-patch master",
     "command": "git format-patch",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git format-patch master"
   },
   {
     "id": "git-gc",
@@ -1547,7 +2131,9 @@
     "topic": "advanced",
     "primary_example": "git gc",
     "command": "git gc",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git gc"
   },
   {
     "id": "git-grep-i-todo",
@@ -1565,7 +2151,9 @@
     "topic": "search",
     "primary_example": "git grep -i \"todo\"",
     "command": "git grep",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git grep -i \"todo\""
   },
   {
     "id": "git-grep-n-fixme",
@@ -1583,7 +2171,9 @@
     "topic": "search",
     "primary_example": "git grep -n \"FIXME\"",
     "command": "git grep",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git grep -n \"FIXME\""
   },
   {
     "id": "git-grep-todo",
@@ -1601,7 +2191,9 @@
     "topic": "search",
     "primary_example": "git grep \"TODO\"",
     "command": "git grep",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git grep \"TODO\""
   },
   {
     "id": "git-init",
@@ -1619,7 +2211,9 @@
     "topic": "create",
     "primary_example": "git init",
     "command": "git init",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git init"
   },
   {
     "id": "git-log-p",
@@ -1637,7 +2231,9 @@
     "topic": "history",
     "primary_example": "git log -p",
     "command": "git log",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git log -p"
   },
   {
     "id": "git-log-p-orig-head",
@@ -1655,7 +2251,9 @@
     "topic": "history",
     "primary_example": "git log -p ORIG_HEAD.. arch/i386 include/asm-i386",
     "command": "git log",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git log -p ORIG_HEAD.. arch/i386 include/asm-i386"
   },
   {
     "id": "git-log-v2-43-curses",
@@ -1673,7 +2271,9 @@
     "topic": "history",
     "primary_example": "git log v2.43.. curses/",
     "command": "git log",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git log v2.43.. curses/"
   },
   {
     "id": "git-ls-remote-heads-http-git-kernel-org-jgarzik-libata-dev-git",
@@ -1691,7 +2291,9 @@
     "topic": "advanced",
     "primary_example": "git ls-remote --heads http://git.kernel.org/.../jgarzik/libata-dev.git",
     "command": "git ls-remote",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git ls-remote --heads http://git.kernel.org/.../jgarzik/libata-dev.git"
   },
   {
     "id": "git-merge-alsa-audio",
@@ -1709,7 +2311,9 @@
     "topic": "merge",
     "primary_example": "git merge alsa-audio",
     "command": "git merge",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git merge alsa-audio"
   },
   {
     "id": "git-merge-main",
@@ -1727,7 +2331,9 @@
     "topic": "merge",
     "primary_example": "git merge main",
     "command": "git merge",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git merge main"
   },
   {
     "id": "git-pull",
@@ -1745,7 +2351,9 @@
     "topic": "sync",
     "primary_example": "git pull",
     "command": "git pull",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git pull"
   },
   {
     "id": "git-pull-git-git-kernel-org-pub-jgarzik-libata-dev-git-all",
@@ -1763,7 +2371,9 @@
     "topic": "sync",
     "primary_example": "git pull git://git.kernel.org/pub/.../jgarzik/libata-dev.git ALL",
     "command": "git pull",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git pull git://git.kernel.org/pub/.../jgarzik/libata-dev.git ALL"
   },
   {
     "id": "git-pull-origin-main",
@@ -1781,7 +2391,9 @@
     "topic": "remote",
     "primary_example": "git pull origin main",
     "command": "git pull",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git pull origin main"
   },
   {
     "id": "git-push-follow-tags-ko",
@@ -1799,7 +2411,9 @@
     "topic": "sync",
     "primary_example": "git push --follow-tags ko",
     "command": "git push",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git push --follow-tags ko"
   },
   {
     "id": "git-push-u-origin-head",
@@ -1817,7 +2431,9 @@
     "topic": "remote",
     "primary_example": "git push -u origin HEAD",
     "command": "git push",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git push -u origin HEAD"
   },
   {
     "id": "git-rebase-main",
@@ -1835,7 +2451,9 @@
     "topic": "rebase",
     "primary_example": "git rebase main",
     "command": "git rebase",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git rebase main"
   },
   {
     "id": "git-remote-add-origin-https-github-com-example-repo-git",
@@ -1853,7 +2471,9 @@
     "topic": "remote",
     "primary_example": "git remote add origin https://github.com/example/repo.git",
     "command": "git remote",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git remote add origin https://github.com/example/repo.git"
   },
   {
     "id": "git-remote-remove-origin",
@@ -1871,7 +2491,9 @@
     "topic": "remote",
     "primary_example": "git remote remove origin",
     "command": "git remote",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git remote remove origin"
   },
   {
     "id": "git-remote-v",
@@ -1889,7 +2511,9 @@
     "topic": "remote",
     "primary_example": "git remote -v",
     "command": "git remote",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git remote -v"
   },
   {
     "id": "git-request-pull-or-pull-request",
@@ -1907,7 +2531,9 @@
     "topic": "advanced",
     "primary_example": "git request-pull or pull-request mechanisms (e.g. as used on",
     "command": "git request-pull",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git request-pull or pull-request mechanisms (e.g. as used on"
   },
   {
     "id": "git-reset-hard-head-1",
@@ -1925,7 +2551,9 @@
     "topic": "undo",
     "primary_example": "git reset --hard HEAD~1",
     "command": "git reset",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git reset --hard HEAD~1"
   },
   {
     "id": "git-reset-hard-orig-head",
@@ -1943,7 +2571,9 @@
     "topic": "undo",
     "primary_example": "git reset --hard ORIG_HEAD",
     "command": "git reset",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git reset --hard ORIG_HEAD"
   },
   {
     "id": "git-reset-head-app-js",
@@ -1961,7 +2591,9 @@
     "topic": "undo",
     "primary_example": "git reset HEAD app.js",
     "command": "git reset",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git reset HEAD app.js"
   },
   {
     "id": "git-reset-soft-head-1",
@@ -1979,7 +2611,9 @@
     "topic": "undo",
     "primary_example": "git reset --soft HEAD~1",
     "command": "git reset",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git reset --soft HEAD~1"
   },
   {
     "id": "git-restore-app-js",
@@ -1997,7 +2631,9 @@
     "topic": "undo",
     "primary_example": "git restore app.js",
     "command": "git restore",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git restore app.js"
   },
   {
     "id": "git-restore-curses-ux-audio-oss-c",
@@ -2015,7 +2651,9 @@
     "topic": "undo",
     "primary_example": "git restore curses/ux_audio_oss.c",
     "command": "git restore",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git restore curses/ux_audio_oss.c"
   },
   {
     "id": "git-restore-source-head-1-app-js",
@@ -2033,7 +2671,9 @@
     "topic": "undo",
     "primary_example": "git restore --source=HEAD~1 app.js",
     "command": "git restore",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git restore --source=HEAD~1 app.js"
   },
   {
     "id": "git-restore-staged-app-js",
@@ -2051,7 +2691,9 @@
     "topic": "undo",
     "primary_example": "git restore --staged app.js",
     "command": "git restore",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git restore --staged app.js"
   },
   {
     "id": "git-revert-abc1234",
@@ -2069,7 +2711,9 @@
     "topic": "undo",
     "primary_example": "git revert abc1234",
     "command": "git revert",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git revert abc1234"
   },
   {
     "id": "git-rm-app-js",
@@ -2087,7 +2731,9 @@
     "topic": "stage",
     "primary_example": "git rm app.js",
     "command": "git rm",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git rm app.js"
   },
   {
     "id": "git-rm-cached-app-js",
@@ -2105,7 +2751,9 @@
     "topic": "stage",
     "primary_example": "git rm --cached app.js",
     "command": "git rm",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git rm --cached app.js"
   },
   {
     "id": "git-rm-r-src",
@@ -2123,7 +2771,9 @@
     "topic": "stage",
     "primary_example": "git rm -r src",
     "command": "git rm",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git rm -r src"
   },
   {
     "id": "git-show-branch-ko-branch-branch",
@@ -2141,7 +2791,9 @@
     "topic": "advanced",
     "primary_example": "git show-branch ko/$branch $branch",
     "command": "git show-branch",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git show-branch ko/$branch $branch"
   },
   {
     "id": "git-status",
@@ -2159,7 +2811,9 @@
     "topic": "status",
     "primary_example": "git status",
     "command": "git status",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git status"
   },
   {
     "id": "git-status-sb",
@@ -2177,7 +2831,9 @@
     "topic": "status",
     "primary_example": "git status -sb",
     "command": "git status",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git status -sb"
   },
   {
     "id": "git-submodule-add-https-github-com-example-repo-git",
@@ -2195,7 +2851,9 @@
     "topic": "submodule",
     "primary_example": "git submodule add https://github.com/example/repo.git",
     "command": "git submodule",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git submodule add https://github.com/example/repo.git"
   },
   {
     "id": "git-submodule-status",
@@ -2213,7 +2871,9 @@
     "topic": "submodule",
     "primary_example": "git submodule status",
     "command": "git submodule",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git submodule status"
   },
   {
     "id": "git-switch-c-alsa-audio",
@@ -2231,7 +2891,9 @@
     "topic": "branch",
     "primary_example": "git switch -c alsa-audio",
     "command": "git switch",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git switch -c alsa-audio"
   },
   {
     "id": "git-switch-c-feature-login",
@@ -2249,7 +2911,9 @@
     "topic": "branch",
     "primary_example": "git switch -c feature/login",
     "command": "git switch",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git switch -c feature/login"
   },
   {
     "id": "git-switch-c-mine",
@@ -2267,7 +2931,9 @@
     "topic": "branch",
     "primary_example": "git switch -c mine master",
     "command": "git switch",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git switch -c mine master"
   },
   {
     "id": "git-switch-c-private2-6-14",
@@ -2285,7 +2951,9 @@
     "topic": "branch",
     "primary_example": "git switch -c private2.6.14 v2.6.14",
     "command": "git switch",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git switch -c private2.6.14 v2.6.14"
   },
   {
     "id": "git-switch-c-seen",
@@ -2303,7 +2971,9 @@
     "topic": "branch",
     "primary_example": "git switch -C seen next",
     "command": "git switch",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git switch -C seen next"
   },
   {
     "id": "git-switch-c-topic-one",
@@ -2321,7 +2991,9 @@
     "topic": "branch",
     "primary_example": "git switch -c topic/one master",
     "command": "git switch",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git switch -c topic/one master"
   },
   {
     "id": "git-switch-main",
@@ -2339,7 +3011,9 @@
     "topic": "branch",
     "primary_example": "git switch main",
     "command": "git switch",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git switch main"
   },
   {
     "id": "git-switch-maint",
@@ -2357,7 +3031,9 @@
     "topic": "branch",
     "primary_example": "git switch maint",
     "command": "git switch",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git switch maint"
   },
   {
     "id": "git-switch-master",
@@ -2375,7 +3051,9 @@
     "topic": "branch",
     "primary_example": "git switch master",
     "command": "git switch",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git switch master"
   },
   {
     "id": "git-tag-a-v1-0-0-m-fix-typo",
@@ -2393,7 +3071,9 @@
     "topic": "tag",
     "primary_example": "git tag -a v1.0.0 -m \"Fix typo\"",
     "command": "git tag",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git tag -a v1.0.0 -m \"Fix typo\""
   },
   {
     "id": "git-tag-l",
@@ -2411,7 +3091,9 @@
     "topic": "tag",
     "primary_example": "git tag -l",
     "command": "git tag",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git tag -l"
   },
   {
     "id": "git-tag-s-m",
@@ -2429,7 +3111,9 @@
     "topic": "tag",
     "primary_example": "git tag -s -m \"GIT 0.99.9x\" v0.99.9x",
     "command": "git tag",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git tag -s -m \"GIT 0.99.9x\" v0.99.9x"
   },
   {
     "id": "git-tag-v1-0-0",
@@ -2447,7 +3131,9 @@
     "topic": "tag",
     "primary_example": "git tag v1.0.0",
     "command": "git tag",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git tag v1.0.0"
   },
   {
     "id": "git-tag-v2-43",
@@ -2465,7 +3151,9 @@
     "topic": "tag",
     "primary_example": "git tag v2.43",
     "command": "git tag",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git tag v2.43"
   },
   {
     "id": "git-version",
@@ -2483,7 +3171,9 @@
     "topic": "advanced",
     "primary_example": "git --version",
     "command": "git",
-    "source": "cheat-sheet"
+    "source": "cheat-sheet",
+    "checklist": "",
+    "step_signature": "git --version"
   },
   {
     "id": "git-worktree-add-hotfix-feature-login",
@@ -2501,7 +3191,9 @@
     "topic": "worktree",
     "primary_example": "git worktree add ../hotfix feature/login",
     "command": "git worktree",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git worktree add ../hotfix feature/login"
   },
   {
     "id": "git-worktree-remove-hotfix",
@@ -2519,7 +3211,9 @@
     "topic": "worktree",
     "primary_example": "git worktree remove ../hotfix",
     "command": "git worktree",
-    "source": "essential"
+    "source": "essential",
+    "checklist": "",
+    "step_signature": "git worktree remove ../hotfix"
   },
   {
     "id": "golden-git-add",
@@ -2537,7 +3231,9 @@
     "topic": "golden",
     "primary_example": "git add",
     "command": "git add",
-    "source": "golden:add-patch-01"
+    "source": "golden:add-patch-01",
+    "checklist": "",
+    "step_signature": "git add"
   },
   {
     "id": "golden-git-add-a",
@@ -2555,7 +3251,9 @@
     "topic": "golden",
     "primary_example": "git add -A",
     "command": "git add",
-    "source": "golden:add-03"
+    "source": "golden:add-03",
+    "checklist": "",
+    "step_signature": "git add -A"
   },
   {
     "id": "golden-git-annotate",
@@ -2573,7 +3271,9 @@
     "topic": "golden",
     "primary_example": "git annotate",
     "command": "git blame",
-    "source": "golden:blame-01"
+    "source": "golden:blame-01",
+    "checklist": "",
+    "step_signature": "git annotate"
   },
   {
     "id": "golden-git-annotate-app-js",
@@ -2591,7 +3291,9 @@
     "topic": "golden",
     "primary_example": "git annotate app.js",
     "command": "git blame",
-    "source": "golden:blame-01"
+    "source": "golden:blame-01",
+    "checklist": "",
+    "step_signature": "git annotate app.js"
   },
   {
     "id": "golden-git-archive-format-zip-head-o-repo-zip",
@@ -2609,7 +3311,9 @@
     "topic": "golden",
     "primary_example": "git archive --format=zip HEAD -o repo.zip",
     "command": "git archive",
-    "source": "golden:archive-01"
+    "source": "golden:archive-01",
+    "checklist": "",
+    "step_signature": "git archive --format=zip HEAD -o repo.zip"
   },
   {
     "id": "golden-git-bisect-start",
@@ -2627,7 +3331,9 @@
     "topic": "golden",
     "primary_example": "git bisect start",
     "command": "git bisect",
-    "source": "golden:bisect-01"
+    "source": "golden:bisect-01",
+    "checklist": "",
+    "step_signature": "git bisect start"
   },
   {
     "id": "golden-git-blame",
@@ -2645,7 +3351,9 @@
     "topic": "golden",
     "primary_example": "git blame",
     "command": "git blame",
-    "source": "golden:blame-01"
+    "source": "golden:blame-01",
+    "checklist": "",
+    "step_signature": "git blame"
   },
   {
     "id": "golden-git-blame-app-js",
@@ -2663,7 +3371,9 @@
     "topic": "golden",
     "primary_example": "git blame app.js",
     "command": "git blame",
-    "source": "golden:blame-01"
+    "source": "golden:blame-01",
+    "checklist": "",
+    "step_signature": "git blame app.js"
   },
   {
     "id": "golden-git-branch-a",
@@ -2681,7 +3391,9 @@
     "topic": "golden",
     "primary_example": "git branch -a",
     "command": "git branch",
-    "source": "golden:branch-list-01"
+    "source": "golden:branch-list-01",
+    "checklist": "",
+    "step_signature": "git branch -a"
   },
   {
     "id": "golden-git-bundle-create-repo-bundle-all",
@@ -2699,7 +3411,9 @@
     "topic": "golden",
     "primary_example": "git bundle create repo.bundle --all",
     "command": "git bundle",
-    "source": "golden:bundle-01"
+    "source": "golden:bundle-01",
+    "checklist": "",
+    "step_signature": "git bundle create repo.bundle --all"
   },
   {
     "id": "golden-git-check-ignore-app-js",
@@ -2717,7 +3431,9 @@
     "topic": "golden",
     "primary_example": "git check-ignore app.js",
     "command": "git check-ignore",
-    "source": "golden:check-ignore-01"
+    "source": "golden:check-ignore-01",
+    "checklist": "",
+    "step_signature": "git check-ignore app.js"
   },
   {
     "id": "golden-git-check-ignore-v-app-js",
@@ -2735,7 +3451,9 @@
     "topic": "golden",
     "primary_example": "git check-ignore -v app.js",
     "command": "git check-ignore",
-    "source": "golden:check-ignore-01"
+    "source": "golden:check-ignore-01",
+    "checklist": "",
+    "step_signature": "git check-ignore -v app.js"
   },
   {
     "id": "golden-git-checkout",
@@ -2753,7 +3471,9 @@
     "topic": "golden",
     "primary_example": "git checkout",
     "command": "git switch",
-    "source": "golden:branch-create-01"
+    "source": "golden:branch-create-01",
+    "checklist": "",
+    "step_signature": "git checkout"
   },
   {
     "id": "golden-git-checkout-app-js",
@@ -2771,7 +3491,9 @@
     "topic": "golden",
     "primary_example": "git checkout -- app.js",
     "command": "git restore",
-    "source": "golden:restore-02"
+    "source": "golden:restore-02",
+    "checklist": "",
+    "step_signature": "git checkout -- app.js"
   },
   {
     "id": "golden-git-checkout-b-feature",
@@ -2789,7 +3511,9 @@
     "topic": "golden",
     "primary_example": "git checkout -b feature",
     "command": "git switch",
-    "source": "golden:branch-create-01"
+    "source": "golden:branch-create-01",
+    "checklist": "",
+    "step_signature": "git checkout -b feature"
   },
   {
     "id": "golden-git-checkout-main",
@@ -2807,7 +3531,9 @@
     "topic": "golden",
     "primary_example": "git checkout main",
     "command": "git switch",
-    "source": "golden:switch-02"
+    "source": "golden:switch-02",
+    "checklist": "",
+    "step_signature": "git checkout main"
   },
   {
     "id": "golden-git-cherry-pick",
@@ -2825,7 +3551,9 @@
     "topic": "golden",
     "primary_example": "git cherry-pick",
     "command": "git cherry-pick",
-    "source": "golden:cherry-pick-01"
+    "source": "golden:cherry-pick-01",
+    "checklist": "",
+    "step_signature": "git cherry-pick"
   },
   {
     "id": "golden-git-cherry-pick-abc1234",
@@ -2843,7 +3571,9 @@
     "topic": "golden",
     "primary_example": "git cherry-pick abc1234",
     "command": "git cherry-pick",
-    "source": "golden:cherry-01"
+    "source": "golden:cherry-01",
+    "checklist": "",
+    "step_signature": "git cherry-pick abc1234"
   },
   {
     "id": "golden-git-clean-n",
@@ -2861,7 +3591,9 @@
     "topic": "golden",
     "primary_example": "git clean -n",
     "command": "git clean",
-    "source": "golden:clean-01"
+    "source": "golden:clean-01",
+    "checklist": "",
+    "step_signature": "git clean -n"
   },
   {
     "id": "golden-git-commit-am-fix-typo",
@@ -2879,7 +3611,9 @@
     "topic": "golden",
     "primary_example": "git commit -am \"fix typo\"",
     "command": "git commit",
-    "source": "golden:commit-01"
+    "source": "golden:commit-01",
+    "checklist": "",
+    "step_signature": "git commit -am \"fix typo\""
   },
   {
     "id": "golden-git-commit-m-fix-typo",
@@ -2897,7 +3631,9 @@
     "topic": "golden",
     "primary_example": "git commit -m \"fix typo\"",
     "command": "git commit",
-    "source": "golden:commit-01"
+    "source": "golden:commit-01",
+    "checklist": "",
+    "step_signature": "git commit -m \"fix typo\""
   },
   {
     "id": "golden-git-config",
@@ -2915,7 +3651,9 @@
     "topic": "golden",
     "primary_example": "git config",
     "command": "git config",
-    "source": "golden:config-user-01"
+    "source": "golden:config-user-01",
+    "checklist": "",
+    "step_signature": "git config"
   },
   {
     "id": "golden-git-config-global-user-name-alice",
@@ -2933,7 +3671,9 @@
     "topic": "golden",
     "primary_example": "git config --global user.name \"alice\"",
     "command": "git config",
-    "source": "golden:config-02"
+    "source": "golden:config-02",
+    "checklist": "",
+    "step_signature": "git config --global user.name \"alice\""
   },
   {
     "id": "golden-git-describe",
@@ -2951,7 +3691,9 @@
     "topic": "golden",
     "primary_example": "git describe",
     "command": "git describe",
-    "source": "golden:describe-01"
+    "source": "golden:describe-01",
+    "checklist": "",
+    "step_signature": "git describe"
   },
   {
     "id": "golden-git-describe-tags",
@@ -2969,7 +3711,9 @@
     "topic": "golden",
     "primary_example": "git describe --tags",
     "command": "git describe",
-    "source": "golden:describe-01"
+    "source": "golden:describe-01",
+    "checklist": "",
+    "step_signature": "git describe --tags"
   },
   {
     "id": "golden-git-fsck",
@@ -2987,7 +3731,9 @@
     "topic": "golden",
     "primary_example": "git fsck",
     "command": "git fsck",
-    "source": "golden:fsck-01"
+    "source": "golden:fsck-01",
+    "checklist": "",
+    "step_signature": "git fsck"
   },
   {
     "id": "golden-git-gc-prune-now",
@@ -3005,7 +3751,9 @@
     "topic": "golden",
     "primary_example": "git gc --prune=now",
     "command": "git gc",
-    "source": "golden:gc-01"
+    "source": "golden:gc-01",
+    "checklist": "",
+    "step_signature": "git gc --prune=now"
   },
   {
     "id": "golden-git-grep-n-todo",
@@ -3023,7 +3771,9 @@
     "topic": "golden",
     "primary_example": "git grep -n \"TODO\"",
     "command": "git grep",
-    "source": "golden:grep-01"
+    "source": "golden:grep-01",
+    "checklist": "",
+    "step_signature": "git grep -n \"TODO\""
   },
   {
     "id": "golden-git-help-commit",
@@ -3041,7 +3791,9 @@
     "topic": "golden",
     "primary_example": "git help commit",
     "command": "git help",
-    "source": "golden:help-01"
+    "source": "golden:help-01",
+    "checklist": "",
+    "step_signature": "git help commit"
   },
   {
     "id": "golden-git-ls-files",
@@ -3059,7 +3811,9 @@
     "topic": "golden",
     "primary_example": "git ls-files",
     "command": "git ls-files",
-    "source": "golden:ls-files-01"
+    "source": "golden:ls-files-01",
+    "checklist": "",
+    "step_signature": "git ls-files"
   },
   {
     "id": "golden-git-mv-app-js-src-index-ts",
@@ -3077,7 +3831,9 @@
     "topic": "golden",
     "primary_example": "git mv app.js src/index.ts",
     "command": "git mv",
-    "source": "golden:mv-01"
+    "source": "golden:mv-01",
+    "checklist": "",
+    "step_signature": "git mv app.js src/index.ts"
   },
   {
     "id": "golden-git-notes-add-m-fix-typo",
@@ -3095,7 +3851,9 @@
     "topic": "golden",
     "primary_example": "git notes add -m \"Fix typo\"",
     "command": "git notes",
-    "source": "golden:notes-01"
+    "source": "golden:notes-01",
+    "checklist": "",
+    "step_signature": "git notes add -m \"Fix typo\""
   },
   {
     "id": "golden-git-remote",
@@ -3113,7 +3871,9 @@
     "topic": "golden",
     "primary_example": "git remote",
     "command": "git remote",
-    "source": "golden:remote-v-01"
+    "source": "golden:remote-v-01",
+    "checklist": "",
+    "step_signature": "git remote"
   },
   {
     "id": "golden-git-restore",
@@ -3131,7 +3891,9 @@
     "topic": "golden",
     "primary_example": "git restore",
     "command": "git restore",
-    "source": "golden:restore-staged-01"
+    "source": "golden:restore-staged-01",
+    "checklist": "",
+    "step_signature": "git restore"
   },
   {
     "id": "golden-git-rev-parse-abbrev-ref-head",
@@ -3149,7 +3911,9 @@
     "topic": "golden",
     "primary_example": "git rev-parse --abbrev-ref HEAD",
     "command": "git branch",
-    "source": "golden:branch-current-01"
+    "source": "golden:branch-current-01",
+    "checklist": "",
+    "step_signature": "git rev-parse --abbrev-ref HEAD"
   },
   {
     "id": "golden-git-revert",
@@ -3167,7 +3931,9 @@
     "topic": "golden",
     "primary_example": "git revert",
     "command": "git revert",
-    "source": "golden:revert-01"
+    "source": "golden:revert-01",
+    "checklist": "",
+    "step_signature": "git revert"
   },
   {
     "id": "golden-git-shortlog",
@@ -3185,7 +3951,9 @@
     "topic": "golden",
     "primary_example": "git shortlog",
     "command": "git shortlog",
-    "source": "golden:shortlog-01"
+    "source": "golden:shortlog-01",
+    "checklist": "",
+    "step_signature": "git shortlog"
   },
   {
     "id": "golden-git-shortlog-sn",
@@ -3203,7 +3971,9 @@
     "topic": "golden",
     "primary_example": "git shortlog -sn",
     "command": "git shortlog",
-    "source": "golden:shortlog-01"
+    "source": "golden:shortlog-01",
+    "checklist": "",
+    "step_signature": "git shortlog -sn"
   },
   {
     "id": "golden-git-show-abc1234",
@@ -3221,7 +3991,9 @@
     "topic": "golden",
     "primary_example": "git show abc1234",
     "command": "git show",
-    "source": "golden:show-02"
+    "source": "golden:show-02",
+    "checklist": "",
+    "step_signature": "git show abc1234"
   },
   {
     "id": "golden-git-show-head",
@@ -3239,7 +4011,9 @@
     "topic": "golden",
     "primary_example": "git show HEAD",
     "command": "git show",
-    "source": "golden:show-01"
+    "source": "golden:show-01",
+    "checklist": "",
+    "step_signature": "git show HEAD"
   },
   {
     "id": "golden-git-stash-include-untracked",
@@ -3257,7 +4031,9 @@
     "topic": "golden",
     "primary_example": "git stash --include-untracked",
     "command": "git stash",
-    "source": "golden:stash-03"
+    "source": "golden:stash-03",
+    "checklist": "",
+    "step_signature": "git stash --include-untracked"
   },
   {
     "id": "golden-git-stash-push-m-fix-typo",
@@ -3275,7 +4051,9 @@
     "topic": "golden",
     "primary_example": "git stash push -m \"fix typo\"",
     "command": "git stash",
-    "source": "golden:stash-01"
+    "source": "golden:stash-01",
+    "checklist": "",
+    "step_signature": "git stash push -m \"fix typo\""
   },
   {
     "id": "golden-git-switch",
@@ -3293,7 +4071,9 @@
     "topic": "golden",
     "primary_example": "git switch",
     "command": "git switch",
-    "source": "golden:branch-create-01"
+    "source": "golden:branch-create-01",
+    "checklist": "",
+    "step_signature": "git switch"
   },
   {
     "id": "golden-git-switch-c-feature",
@@ -3311,7 +4091,9 @@
     "topic": "golden",
     "primary_example": "git switch -c feature",
     "command": "git switch",
-    "source": "golden:branch-create-01"
+    "source": "golden:branch-create-01",
+    "checklist": "",
+    "step_signature": "git switch -c feature"
   },
   {
     "id": "golden-git-symbolic-ref-head",
@@ -3329,7 +4111,9 @@
     "topic": "golden",
     "primary_example": "git symbolic-ref HEAD",
     "command": "git symbolic-ref",
-    "source": "golden:expert-01"
+    "source": "golden:expert-01",
+    "checklist": "",
+    "step_signature": "git symbolic-ref HEAD"
   },
   {
     "id": "golden-git-symbolic-ref-short-head",
@@ -3347,7 +4131,9 @@
     "topic": "golden",
     "primary_example": "git symbolic-ref --short HEAD",
     "command": "git branch",
-    "source": "golden:branch-current-01"
+    "source": "golden:branch-current-01",
+    "checklist": "",
+    "step_signature": "git symbolic-ref --short HEAD"
   },
   {
     "id": "golden-git-version",
@@ -3365,7 +4151,9 @@
     "topic": "golden",
     "primary_example": "git version",
     "command": "git --version",
-    "source": "golden:version-01"
+    "source": "golden:version-01",
+    "checklist": "",
+    "step_signature": "git version"
   },
   {
     "id": "initialize-a-barebones-repository-suitable-for-use-as-a-remote-over-ssh",
@@ -3383,7 +4171,9 @@
     "topic": "create",
     "primary_example": "git init --bare",
     "command": "git init",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git init --bare"
   },
   {
     "id": "initialize-a-repository-using-sha256-for-object-hashes-requires-git-version-2-29",
@@ -3401,7 +4191,9 @@
     "topic": "create",
     "primary_example": "git init --object-format sha256",
     "command": "git init",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git init --object-format sha256"
   },
   {
     "id": "launch-git-gui-for-staging",
@@ -3419,7 +4211,9 @@
     "topic": "gui",
     "primary_example": "git gui",
     "command": "git gui",
-    "source": "ays"
+    "source": "ays",
+    "checklist": "",
+    "step_signature": "git gui"
   },
   {
     "id": "list-all-stashes",
@@ -3437,7 +4231,9 @@
     "topic": "stash",
     "primary_example": "git stash list",
     "command": "git stash",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git stash list"
   },
   {
     "id": "list-all-tags",
@@ -3455,7 +4251,9 @@
     "topic": "tag",
     "primary_example": "git tag",
     "command": "git tag",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git tag"
   },
   {
     "id": "list-all-tags-which-contain-a-given-commit-head-if-not-specified",
@@ -3473,7 +4271,9 @@
     "topic": "tag",
     "primary_example": "git tag --contains HEAD",
     "command": "git tag",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git tag --contains HEAD"
   },
   {
     "id": "list-all-the-working-directories-including-the-primary-one",
@@ -3491,7 +4291,9 @@
     "topic": "advanced",
     "primary_example": "git worktree list",
     "command": "git worktree",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git worktree list"
   },
   {
     "id": "list-tracked-files",
@@ -3509,7 +4311,33 @@
     "topic": "files",
     "primary_example": "git ls-files --others --exclude-standard",
     "command": "git ls-files",
-    "source": "ays"
+    "source": "ays",
+    "checklist": "",
+    "step_signature": "git ls-files --others --exclude-standard"
+  },
+  {
+    "id": "merge-abort-clean",
+    "title": "Abort a conflicted merge",
+    "commands": [
+      {
+        "run": "git merge --abort",
+        "comment": "Abort merge"
+      },
+      {
+        "run": "git status -sb",
+        "comment": "Confirm clean of merge state"
+      }
+    ],
+    "explanation": "Give up on the in-progress merge and return to pre-merge state.",
+    "intent_family": "conflict-abort-or-resolve",
+    "simplicity_rank": 2,
+    "usage": "git merge --abort\nAbort merge → Confirm clean of merge state",
+    "topic": "merge",
+    "primary_example": "git merge --abort",
+    "command": "git merge",
+    "source": "workflow",
+    "checklist": "conflict-abort-or-resolve",
+    "step_signature": "git merge --abort\ngit status -sb"
   },
   {
     "id": "move-part-of-the-current-branch-onto-a-new-base-providing-the-old-base-to-start-",
@@ -3527,7 +4355,9 @@
     "topic": "rebase",
     "primary_example": "git rebase --onto upstream upstream",
     "command": "git rebase",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git rebase --onto upstream upstream"
   },
   {
     "id": "open-an-editor-to-write-a-message-and-commit-staged-files-to-the-repository",
@@ -3545,7 +4375,9 @@
     "topic": "commit",
     "primary_example": "git commit",
     "command": "git commit",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git commit"
   },
   {
     "id": "open-git-documentation-in-browser",
@@ -3563,7 +4395,9 @@
     "topic": "help",
     "primary_example": "git help --web log",
     "command": "git help",
-    "source": "ays"
+    "source": "ays",
+    "checklist": "",
+    "step_signature": "git help --web log"
   },
   {
     "id": "optimize-repository-and-remove-unreachable-objects",
@@ -3581,7 +4415,125 @@
     "topic": "maintenance",
     "primary_example": "git gc --aggressive --prune=now",
     "command": "git gc",
-    "source": "ays"
+    "source": "ays",
+    "checklist": "",
+    "step_signature": "git gc --aggressive --prune=now"
+  },
+  {
+    "id": "peel-file-from-last-commit-to-branch",
+    "title": "Peel one file from the last commit onto a new branch",
+    "commands": [
+      {
+        "run": "git reset --soft HEAD~1",
+        "comment": "Undo last commit; keep all changes staged"
+      },
+      {
+        "run": "git restore --staged app.js",
+        "comment": "Unstage the file to peel off"
+      },
+      {
+        "run": "git commit -m \"Fix typo\"",
+        "comment": "Recommit everything else"
+      },
+      {
+        "run": "git switch -c topic/app-js",
+        "comment": "New branch for the peeled file"
+      },
+      {
+        "run": "git add app.js",
+        "comment": "Stage only that file"
+      },
+      {
+        "run": "git commit -m \"app.js change\"",
+        "comment": "Commit it alone"
+      }
+    ],
+    "explanation": "Soft-undo the tip, put the unwanted path aside, recommit the rest, then commit that path on a new branch.",
+    "intent_family": "peel-split-last-commit",
+    "simplicity_rank": 2,
+    "usage": "git reset --soft HEAD~1\nUndo last commit; keep all changes staged → Unstage the file to peel off → Recommit everything else → New branch for the peeled file → Stage only that file → Commit it alone",
+    "topic": "undo",
+    "primary_example": "git reset --soft HEAD~1",
+    "command": "git reset",
+    "source": "workflow",
+    "checklist": "peel-split-last-commit",
+    "step_signature": "git reset --soft HEAD~1\ngit restore --staged app.js\ngit commit -m \"Fix typo\"\ngit switch -c topic/app-js\ngit add app.js\ngit commit -m \"app.js change\""
+  },
+  {
+    "id": "peel-split-last-commit-branch",
+    "title": "Peel file from last commit onto new branch",
+    "commands": [
+      {
+        "run": "git reset --soft HEAD~1",
+        "comment": "Undo last commit, keep changes staged"
+      },
+      {
+        "run": "git restore --staged app.js",
+        "comment": "Unstage the file to peel"
+      },
+      {
+        "run": "git commit -m \"Fix typo\"",
+        "comment": "Recommit the remaining changes"
+      },
+      {
+        "run": "git switch -c feature/login",
+        "comment": "Create and switch to new branch"
+      },
+      {
+        "run": "git add app.js",
+        "comment": "Stage the peeled file"
+      },
+      {
+        "run": "git commit -m \"Add login form\"",
+        "comment": "Commit the peeled file on new branch"
+      }
+    ],
+    "explanation": "Undo the last commit, unstage a specific file, recommit the rest, then move the peeled file to a new branch and commit it there.",
+    "intent_family": "peel-split-last-commit",
+    "simplicity_rank": 2,
+    "usage": "git reset --soft HEAD~1\nUndo last commit, keep changes staged → Unstage the file to peel → Recommit the remaining changes → Create and switch to new branch → Stage the peeled file → Commit the peeled file on new branch",
+    "topic": "advanced",
+    "primary_example": "git reset --soft HEAD~1",
+    "command": "git reset --soft",
+    "source": "workflow",
+    "checklist": "peel-split-last-commit",
+    "step_signature": "git reset --soft HEAD~1\ngit restore --staged app.js\ngit commit -m \"Fix typo\"\ngit switch -c feature/login\ngit add app.js\ngit commit -m \"Add login form\""
+  },
+  {
+    "id": "peel-split-last-commit-simple",
+    "title": "Peel one file from last commit into a new commit",
+    "commands": [
+      {
+        "run": "git reset --soft HEAD~1",
+        "comment": "Undo last commit, keep changes staged"
+      },
+      {
+        "run": "git restore --staged app.js",
+        "comment": "Unstage the file to peel off"
+      },
+      {
+        "run": "git commit -m \"Fix typo\"",
+        "comment": "Recommit the remaining staged changes"
+      },
+      {
+        "run": "git add app.js",
+        "comment": "Stage the peeled file"
+      },
+      {
+        "run": "git commit -m \"Add login form\"",
+        "comment": "Commit the peeled file separately"
+      }
+    ],
+    "explanation": "Soft reset the last commit, unstage a specific file, recommit the rest, then commit the peeled file separately.",
+    "intent_family": "peel-split-last-commit",
+    "simplicity_rank": 2,
+    "usage": "git reset --soft HEAD~1\nUndo last commit, keep changes staged → Unstage the file to peel off → Recommit the remaining staged changes → Stage the peeled file → Commit the peeled file separately",
+    "topic": "undo",
+    "primary_example": "git reset --soft HEAD~1",
+    "command": "git reset",
+    "source": "workflow",
+    "checklist": "peel-split-last-commit",
+    "step_signature": "git reset --soft HEAD~1\ngit restore --staged app.js\ngit commit -m \"Fix typo\"\ngit add app.js\ngit commit -m \"Add login form\""
   },
   {
     "id": "progit-git-add-forgotten-file",
@@ -3599,7 +4551,9 @@
     "topic": "stage",
     "primary_example": "git add forgotten_file",
     "command": "git add",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git add forgotten_file"
   },
   {
     "id": "progit-git-add-lib-simplegit-rb",
@@ -3617,7 +4571,9 @@
     "topic": "stage",
     "primary_example": "git add lib/simplegit.rb",
     "command": "git add",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git add lib/simplegit.rb"
   },
   {
     "id": "progit-git-add-license",
@@ -3635,7 +4591,9 @@
     "topic": "stage",
     "primary_example": "git add LICENSE",
     "command": "git add",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git add LICENSE"
   },
   {
     "id": "progit-git-add-readme",
@@ -3653,7 +4611,9 @@
     "topic": "stage",
     "primary_example": "git add README",
     "command": "git add",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git add README"
   },
   {
     "id": "progit-git-checkout-b-iss53",
@@ -3671,7 +4631,9 @@
     "topic": "branch",
     "primary_example": "git checkout -b iss53",
     "command": "git checkout",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git checkout -b iss53"
   },
   {
     "id": "progit-git-clean-d-n",
@@ -3689,7 +4651,9 @@
     "topic": "advanced",
     "primary_example": "git clean -d -n",
     "command": "git clean",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git clean -d -n"
   },
   {
     "id": "progit-git-clean-n-d",
@@ -3707,7 +4671,9 @@
     "topic": "advanced",
     "primary_example": "git clean -n -d",
     "command": "git clean",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git clean -n -d"
   },
   {
     "id": "progit-git-clean-n-d-x",
@@ -3725,7 +4691,9 @@
     "topic": "advanced",
     "primary_example": "git clean -n -d -x",
     "command": "git clean",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git clean -n -d -x"
   },
   {
     "id": "progit-git-clean-x-i",
@@ -3743,7 +4711,9 @@
     "topic": "advanced",
     "primary_example": "git clean -x -i",
     "command": "git clean",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git clean -x -i"
   },
   {
     "id": "progit-git-clone-https-github-com-libgit2-libgit2",
@@ -3761,7 +4731,9 @@
     "topic": "create",
     "primary_example": "git clone https://github.com/libgit2/libgit2",
     "command": "git clone",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git clone https://github.com/libgit2/libgit2"
   },
   {
     "id": "progit-git-clone-https-github-com-libgit2-libgit2-mylibgit",
@@ -3779,7 +4751,9 @@
     "topic": "create",
     "primary_example": "git clone https://github.com/libgit2/libgit2 mylibgit",
     "command": "git clone",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git clone https://github.com/libgit2/libgit2 mylibgit"
   },
   {
     "id": "progit-git-clone-https-github-com-schacon-simplegit-progit",
@@ -3797,7 +4771,9 @@
     "topic": "create",
     "primary_example": "git clone https://github.com/schacon/simplegit-progit",
     "command": "git clone",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git clone https://github.com/schacon/simplegit-progit"
   },
   {
     "id": "progit-git-commit-a-m-add-new-benchmarks",
@@ -3815,7 +4791,9 @@
     "topic": "commit",
     "primary_example": "git commit -a -m 'Add new benchmarks'",
     "command": "git commit",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git commit -a -m 'Add new benchmarks'"
   },
   {
     "id": "progit-git-commit-a-m-create-new-footer-issue-53",
@@ -3833,7 +4811,9 @@
     "topic": "commit",
     "primary_example": "git commit -a -m 'Create new footer [issue 53]'",
     "command": "git commit",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git commit -a -m 'Create new footer [issue 53]'"
   },
   {
     "id": "progit-git-commit-a-m-finish-the-new-footer-issue-53",
@@ -3851,7 +4831,9 @@
     "topic": "commit",
     "primary_example": "git commit -a -m 'Finish the new footer [issue 53]'",
     "command": "git commit",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git commit -a -m 'Finish the new footer [issue 53]'"
   },
   {
     "id": "progit-git-commit-a-m-fix-broken-email-address",
@@ -3869,7 +4851,9 @@
     "topic": "commit",
     "primary_example": "git commit -a -m 'Fix broken email address'",
     "command": "git commit",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git commit -a -m 'Fix broken email address'"
   },
   {
     "id": "progit-git-commit-m-add-blame",
@@ -3887,7 +4871,9 @@
     "topic": "commit",
     "primary_example": "git commit -m 'Add blame'",
     "command": "git commit",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git commit -m 'Add blame'"
   },
   {
     "id": "progit-git-commit-m-initial-project-version",
@@ -3905,7 +4891,9 @@
     "topic": "commit",
     "primary_example": "git commit -m 'Initial project version'",
     "command": "git commit",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git commit -m 'Initial project version'"
   },
   {
     "id": "progit-git-commit-m-story-182-fix-benchmarks-for-speed",
@@ -3923,7 +4911,9 @@
     "topic": "commit",
     "primary_example": "git commit -m \"Story 182: fix benchmarks for speed\"",
     "command": "git commit",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git commit -m \"Story 182: fix benchmarks for speed\""
   },
   {
     "id": "progit-git-commit-m-update-readme-formatting",
@@ -3941,7 +4931,9 @@
     "topic": "commit",
     "primary_example": "git commit -m 'Update README formatting'",
     "command": "git commit",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git commit -m 'Update README formatting'"
   },
   {
     "id": "progit-git-filter-branch-commit-filter",
@@ -3959,7 +4951,9 @@
     "topic": "advanced",
     "primary_example": "git filter-branch --commit-filter '",
     "command": "git filter-branch",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git filter-branch --commit-filter '"
   },
   {
     "id": "progit-git-filter-branch-subdirectory-filter-trunk-head",
@@ -3977,7 +4971,9 @@
     "topic": "advanced",
     "primary_example": "git filter-branch --subdirectory-filter trunk HEAD",
     "command": "git filter-branch",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git filter-branch --subdirectory-filter trunk HEAD"
   },
   {
     "id": "progit-git-filter-branch-tree-filter-rm-f-passwords-txt-head",
@@ -3995,7 +4991,9 @@
     "topic": "advanced",
     "primary_example": "git filter-branch --tree-filter 'rm -f passwords.txt' HEAD",
     "command": "git filter-branch",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git filter-branch --tree-filter 'rm -f passwords.txt' HEAD"
   },
   {
     "id": "progit-git-log-experiment-master",
@@ -4013,7 +5011,9 @@
     "topic": "history",
     "primary_example": "git log experiment..master",
     "command": "git log",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git log experiment..master"
   },
   {
     "id": "progit-git-log-master-experiment",
@@ -4031,7 +5031,9 @@
     "topic": "history",
     "primary_example": "git log master..experiment",
     "command": "git log",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git log master..experiment"
   },
   {
     "id": "progit-git-log-master-experiment-git-log-master-e",
@@ -4049,7 +5051,9 @@
     "topic": "history",
     "primary_example": "git log master...experiment",
     "command": "git log",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git log master...experiment"
   },
   {
     "id": "progit-git-log-origin-master-head",
@@ -4067,7 +5071,9 @@
     "topic": "history",
     "primary_example": "git log origin/master..HEAD",
     "command": "git log",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git log origin/master..HEAD"
   },
   {
     "id": "progit-git-log-p-2",
@@ -4085,7 +5091,9 @@
     "topic": "history",
     "primary_example": "git log -p -2",
     "command": "git log",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git log -p -2"
   },
   {
     "id": "progit-git-log-path-to-file",
@@ -4103,7 +5111,9 @@
     "topic": "history",
     "primary_example": "git log -- path/to/file",
     "command": "git log",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git log -- path/to/file"
   },
   {
     "id": "progit-git-log-refa-refb",
@@ -4121,7 +5131,9 @@
     "topic": "history",
     "primary_example": "git log refA..refB",
     "command": "git log",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git log refA..refB"
   },
   {
     "id": "progit-git-log-refa-refb-git-log-refa-ref",
@@ -4139,7 +5151,9 @@
     "topic": "history",
     "primary_example": "git log ^refA refB",
     "command": "git log",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git log ^refA refB"
   },
   {
     "id": "progit-git-log-refa-refb-refc",
@@ -4157,7 +5171,9 @@
     "topic": "history",
     "primary_example": "git log refA refB ^refC",
     "command": "git log",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git log refA refB ^refC"
   },
   {
     "id": "progit-git-ls-files-s",
@@ -4175,7 +5191,9 @@
     "topic": "advanced",
     "primary_example": "git ls-files -s",
     "command": "git ls-files",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git ls-files -s"
   },
   {
     "id": "progit-git-merge-client",
@@ -4193,7 +5211,9 @@
     "topic": "merge",
     "primary_example": "git merge client",
     "command": "git merge",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git merge client"
   },
   {
     "id": "progit-git-merge-experiment",
@@ -4211,7 +5231,9 @@
     "topic": "merge",
     "primary_example": "git merge experiment",
     "command": "git merge",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git merge experiment"
   },
   {
     "id": "progit-git-merge-hotfix",
@@ -4229,7 +5251,9 @@
     "topic": "merge",
     "primary_example": "git merge hotfix",
     "command": "git merge",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git merge hotfix"
   },
   {
     "id": "progit-git-merge-iss53",
@@ -4247,7 +5271,9 @@
     "topic": "merge",
     "primary_example": "git merge iss53",
     "command": "git merge",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git merge iss53"
   },
   {
     "id": "progit-git-merge-server",
@@ -4265,7 +5291,9 @@
     "topic": "merge",
     "primary_example": "git merge server",
     "command": "git merge",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git merge server"
   },
   {
     "id": "progit-git-mergetool",
@@ -4283,7 +5311,9 @@
     "topic": "advanced",
     "primary_example": "git mergetool",
     "command": "git mergetool",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git mergetool"
   },
   {
     "id": "progit-git-mv-file-from-file-to",
@@ -4301,7 +5331,9 @@
     "topic": "advanced",
     "primary_example": "git mv file_from file_to",
     "command": "git mv",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git mv file_from file_to"
   },
   {
     "id": "progit-git-rebase-master",
@@ -4319,7 +5351,9 @@
     "topic": "rebase",
     "primary_example": "git rebase master",
     "command": "git rebase",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git rebase master"
   },
   {
     "id": "progit-git-rebase-master-server",
@@ -4337,7 +5371,9 @@
     "topic": "rebase",
     "primary_example": "git rebase master server",
     "command": "git rebase",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git rebase master server"
   },
   {
     "id": "progit-git-rebase-onto-master-server-client",
@@ -4355,7 +5391,9 @@
     "topic": "rebase",
     "primary_example": "git rebase --onto master server client",
     "command": "git rebase",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git rebase --onto master server client"
   },
   {
     "id": "progit-git-reset-head",
@@ -4373,7 +5411,9 @@
     "topic": "undo",
     "primary_example": "git reset HEAD^",
     "command": "git reset",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git reset HEAD^"
   },
   {
     "id": "progit-git-rev-parse-topic1",
@@ -4391,7 +5431,9 @@
     "topic": "advanced",
     "primary_example": "git rev-parse topic1",
     "command": "git rev-parse",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git rev-parse topic1"
   },
   {
     "id": "progit-git-rm",
@@ -4409,7 +5451,9 @@
     "topic": "advanced",
     "primary_example": "git rm \\*~",
     "command": "git rm",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git rm \\*~"
   },
   {
     "id": "progit-git-rm-cached-readme",
@@ -4427,7 +5471,9 @@
     "topic": "advanced",
     "primary_example": "git rm --cached README",
     "command": "git rm",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git rm --cached README"
   },
   {
     "id": "progit-git-rm-log-log",
@@ -4445,7 +5491,9 @@
     "topic": "advanced",
     "primary_example": "git rm log/\\*.log",
     "command": "git rm",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git rm log/\\*.log"
   },
   {
     "id": "progit-git-show-1c002d",
@@ -4463,7 +5511,9 @@
     "topic": "advanced",
     "primary_example": "git show 1c002d",
     "command": "git show",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git show 1c002d"
   },
   {
     "id": "progit-git-show-1c002dd4b536e7479f",
@@ -4481,7 +5531,9 @@
     "topic": "advanced",
     "primary_example": "git show 1c002dd4b536e7479f",
     "command": "git show",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git show 1c002dd4b536e7479f"
   },
   {
     "id": "progit-git-show-d921970-2",
@@ -4499,7 +5551,9 @@
     "topic": "advanced",
     "primary_example": "git show d921970^2",
     "command": "git show",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git show d921970^2"
   },
   {
     "id": "progit-git-show-head",
@@ -4517,7 +5571,9 @@
     "topic": "advanced",
     "primary_example": "git show HEAD^",
     "command": "git show",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git show HEAD^"
   },
   {
     "id": "progit-git-show-head-3",
@@ -4535,7 +5591,9 @@
     "topic": "advanced",
     "primary_example": "git show HEAD~3",
     "command": "git show",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git show HEAD~3"
   },
   {
     "id": "progit-git-show-head-5",
@@ -4553,7 +5611,9 @@
     "topic": "advanced",
     "primary_example": "git show HEAD@{5}",
     "command": "git show",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git show HEAD@{5}"
   },
   {
     "id": "progit-git-show-head-git-show-head",
@@ -4571,7 +5631,9 @@
     "topic": "advanced",
     "primary_example": "git show HEAD~~~",
     "command": "git show",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git show HEAD~~~"
   },
   {
     "id": "progit-git-show-master-yesterday",
@@ -4589,7 +5651,9 @@
     "topic": "advanced",
     "primary_example": "git show master@{yesterday}",
     "command": "git show",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git show master@{yesterday}"
   },
   {
     "id": "progit-git-show-topic1",
@@ -4607,7 +5671,9 @@
     "topic": "advanced",
     "primary_example": "git show topic1",
     "command": "git show",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git show topic1"
   },
   {
     "id": "progit-git-stash-apply",
@@ -4625,7 +5691,9 @@
     "topic": "stash",
     "primary_example": "git stash apply",
     "command": "git stash",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git stash apply"
   },
   {
     "id": "progit-git-stash-apply-index",
@@ -4643,7 +5711,9 @@
     "topic": "stash",
     "primary_example": "git stash apply --index",
     "command": "git stash",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git stash apply --index"
   },
   {
     "id": "progit-git-stash-branch-testchanges",
@@ -4661,7 +5731,9 @@
     "topic": "stash",
     "primary_example": "git stash branch testchanges",
     "command": "git stash",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git stash branch testchanges"
   },
   {
     "id": "progit-git-stash-drop-stash-0",
@@ -4679,7 +5751,9 @@
     "topic": "stash",
     "primary_example": "git stash drop stash@{0}",
     "command": "git stash",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git stash drop stash@{0}"
   },
   {
     "id": "progit-git-stash-patch",
@@ -4697,7 +5771,9 @@
     "topic": "stash",
     "primary_example": "git stash --patch",
     "command": "git stash",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git stash --patch"
   },
   {
     "id": "progit-git-stash-u",
@@ -4715,7 +5791,9 @@
     "topic": "stash",
     "primary_example": "git stash -u",
     "command": "git stash",
-    "source": "progit-single"
+    "source": "progit-single",
+    "checklist": "",
+    "step_signature": "git stash -u"
   },
   {
     "id": "publish-tags-that-aren-t-yet-in-the-remote-repository",
@@ -4733,7 +5811,9 @@
     "topic": "sync",
     "primary_example": "git push --tags",
     "command": "git push",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git push --tags"
   },
   {
     "id": "push-a-tag-to-remote",
@@ -4751,7 +5831,89 @@
     "topic": "sync",
     "primary_example": "git push origin tag upstream",
     "command": "git push",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git push origin tag upstream"
+  },
+  {
+    "id": "rebase-abort-clean",
+    "title": "Abort an in-progress rebase and verify clean state",
+    "commands": [
+      {
+        "run": "git rebase --abort",
+        "comment": "Abort the rebase"
+      },
+      {
+        "run": "git status -sb",
+        "comment": "Verify clean state"
+      },
+      {
+        "run": "git branch --show-current",
+        "comment": "Confirm current branch"
+      }
+    ],
+    "explanation": "Abort the current rebase operation and confirm the repository is back to a clean state.",
+    "intent_family": "rebase-abort",
+    "simplicity_rank": 2,
+    "usage": "git rebase --abort\nAbort the rebase → Verify clean state → Confirm current branch",
+    "topic": "rebase",
+    "primary_example": "git rebase --abort",
+    "command": "git rebase",
+    "source": "workflow",
+    "checklist": "rebase-abort",
+    "step_signature": "git rebase --abort\ngit status -sb\ngit branch --show-current"
+  },
+  {
+    "id": "rebase-abort-sequence",
+    "title": "Abort an in-progress rebase",
+    "commands": [
+      {
+        "run": "git rebase --abort",
+        "comment": "Abort rebase"
+      },
+      {
+        "run": "git status -sb",
+        "comment": "Verify"
+      }
+    ],
+    "explanation": "Stop the rebase and return to the original branch tip.",
+    "intent_family": "rebase-abort",
+    "simplicity_rank": 2,
+    "usage": "git rebase --abort\nAbort rebase → Verify",
+    "topic": "rebase",
+    "primary_example": "git rebase --abort",
+    "command": "git rebase",
+    "source": "workflow",
+    "checklist": "rebase-abort",
+    "step_signature": "git rebase --abort\ngit status -sb"
+  },
+  {
+    "id": "rebase-onto-main-push-lease",
+    "title": "Rebase onto main then force-with-lease push",
+    "commands": [
+      {
+        "run": "git fetch origin",
+        "comment": "Fetch"
+      },
+      {
+        "run": "git rebase origin/main",
+        "comment": "Rebase"
+      },
+      {
+        "run": "git push --force-with-lease",
+        "comment": "Publish rewritten history"
+      }
+    ],
+    "explanation": "Replay the branch onto updated main and publish carefully.",
+    "intent_family": "upstream-first-push",
+    "simplicity_rank": 3,
+    "usage": "git fetch origin\nFetch → Rebase → Publish rewritten history",
+    "topic": "rebase",
+    "primary_example": "git fetch origin",
+    "command": "git rebase",
+    "source": "workflow",
+    "checklist": "upstream-first-push",
+    "step_signature": "git fetch origin\ngit rebase origin/main\ngit push --force-with-lease"
   },
   {
     "id": "rebase-the-current-branch-on-top-of-another-specified-branch",
@@ -4769,7 +5931,9 @@
     "topic": "rebase",
     "primary_example": "git rebase upstream",
     "command": "git rebase",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git rebase upstream"
   },
   {
     "id": "recover-a-file-deleted-in-a-commit",
@@ -4787,7 +5951,9 @@
     "topic": "undo",
     "primary_example": "git checkout abc1234~1 -- app.js",
     "command": "git checkout abc1234~1 -- app.js",
-    "source": "ays"
+    "source": "ays",
+    "checklist": "",
+    "step_signature": "git checkout abc1234~1 -- app.js"
   },
   {
     "id": "recover-a-file-deleted-in-a-commit-and-restore-it",
@@ -4805,7 +5971,9 @@
     "topic": "undo",
     "primary_example": "git checkout HEAD~1 -- app.js",
     "command": "git checkout",
-    "source": "ays"
+    "source": "ays",
+    "checklist": "",
+    "step_signature": "git checkout HEAD~1 -- app.js"
   },
   {
     "id": "recover-stashed-changes-after-clearing-stash",
@@ -4831,7 +5999,9 @@
     "topic": "stash",
     "primary_example": "git fsck --unreachable",
     "command": "git fsck --unreachable",
-    "source": "ays"
+    "source": "ays",
+    "checklist": "",
+    "step_signature": "git fsck --unreachable\ngit show abc1234\ngit stash apply abc1234"
   },
   {
     "id": "reduce-the-repository-to-only-the-git-directory",
@@ -4849,7 +6019,33 @@
     "topic": "advanced",
     "primary_example": "git rm -r .",
     "command": "git rm",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git rm -r ."
+  },
+  {
+    "id": "reflog-reset-to-entry",
+    "title": "Find a tip in reflog and reset soft to it",
+    "commands": [
+      {
+        "run": "git reflog -n 20",
+        "comment": "Find entry"
+      },
+      {
+        "run": "git reset --soft HEAD@{1}",
+        "comment": "Move tip soft"
+      }
+    ],
+    "explanation": "Recover a previous tip softly using reflog.",
+    "intent_family": "soft-undo-recommit",
+    "simplicity_rank": 3,
+    "usage": "git reflog -n 20\nFind entry → Move tip soft",
+    "topic": "undo",
+    "primary_example": "git reflog -n 20",
+    "command": "git reflog",
+    "source": "workflow",
+    "checklist": "soft-undo-recommit",
+    "step_signature": "git reflog -n 20\ngit reset --soft HEAD@{1}"
   },
   {
     "id": "remove-a-remote",
@@ -4867,7 +6063,9 @@
     "topic": "remote",
     "primary_example": "git remote remove upstream",
     "command": "git remote",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git remote remove upstream"
   },
   {
     "id": "remove-metadata-for-a-worktree-directory-that-s-been-manually-deleted",
@@ -4885,7 +6083,9 @@
     "topic": "advanced",
     "primary_example": "git worktree prune",
     "command": "git worktree",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git worktree prune"
   },
   {
     "id": "remove-remote-branches-that-don-t-have-a-local-counterpart",
@@ -4903,7 +6103,9 @@
     "topic": "sync",
     "primary_example": "git push --prune upstream",
     "command": "git push",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git push --prune upstream"
   },
   {
     "id": "rename-a-remote",
@@ -4921,7 +6123,9 @@
     "topic": "remote",
     "primary_example": "git remote rename upstream upstream",
     "command": "git remote",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git remote rename upstream upstream"
   },
   {
     "id": "replay-a-bisect-log",
@@ -4939,7 +6143,33 @@
     "topic": "debug",
     "primary_example": "git bisect replay bisect.log",
     "command": "git bisect replay",
-    "source": "ays"
+    "source": "ays",
+    "checklist": "",
+    "step_signature": "git bisect replay bisect.log"
+  },
+  {
+    "id": "rescue-tip-then-reset-main",
+    "title": "Save tip on a branch then reset current branch back",
+    "commands": [
+      {
+        "run": "git branch backup/wip",
+        "comment": "Save current tip"
+      },
+      {
+        "run": "git reset --hard HEAD~1",
+        "comment": "Move branch back (destructive to tip)"
+      }
+    ],
+    "explanation": "Park the current tip on a backup branch, then move the branch pointer back one commit.",
+    "intent_family": "branch-from-parent",
+    "simplicity_rank": 3,
+    "usage": "git branch backup/wip\nSave current tip → Move branch back (destructive to tip)",
+    "topic": "branch",
+    "primary_example": "git branch backup/wip",
+    "command": "git branch",
+    "source": "workflow",
+    "checklist": "branch-from-parent",
+    "step_signature": "git branch backup/wip\ngit reset --hard HEAD~1"
   },
   {
     "id": "reset-the-repository-to-a-given-commit-discarding-committed-staged-and-uncommitt",
@@ -4957,7 +6187,9 @@
     "topic": "undo",
     "primary_example": "git reset --hard HEAD",
     "command": "git reset",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git reset --hard HEAD"
   },
   {
     "id": "resolve-merge-conflicts-using-ours-theirs",
@@ -4979,7 +6211,65 @@
     "topic": "merge",
     "primary_example": "git checkout --ours app.js",
     "command": "git checkout --ours app.js",
-    "source": "ays"
+    "source": "ays",
+    "checklist": "",
+    "step_signature": "git checkout --ours app.js\ngit add app.js"
+  },
+  {
+    "id": "resolve-ours-then-continue-merge",
+    "title": "Resolve conflict using ours then continue",
+    "commands": [
+      {
+        "run": "git checkout --ours app.js",
+        "comment": "Keep our side"
+      },
+      {
+        "run": "git add app.js",
+        "comment": "Mark resolved"
+      },
+      {
+        "run": "git commit",
+        "comment": "Finish merge commit"
+      }
+    ],
+    "explanation": "Keep our version of a conflicted file, mark resolved, continue.",
+    "intent_family": "conflict-abort-or-resolve",
+    "simplicity_rank": 2,
+    "usage": "git checkout --ours app.js\nKeep our side → Mark resolved → Finish merge commit",
+    "topic": "merge",
+    "primary_example": "git checkout --ours app.js",
+    "command": "git checkout",
+    "source": "workflow",
+    "checklist": "conflict-abort-or-resolve",
+    "step_signature": "git checkout --ours app.js\ngit add app.js\ngit commit"
+  },
+  {
+    "id": "resolve-theirs-continue-rebase",
+    "title": "Take theirs during rebase then continue",
+    "commands": [
+      {
+        "run": "git checkout --theirs app.js",
+        "comment": "Take upstream version"
+      },
+      {
+        "run": "git add app.js",
+        "comment": "Mark resolved"
+      },
+      {
+        "run": "git rebase --continue",
+        "comment": "Continue"
+      }
+    ],
+    "explanation": "Resolve a rebase conflict preferring upstream, then continue.",
+    "intent_family": "conflict-abort-or-resolve",
+    "simplicity_rank": 2,
+    "usage": "git checkout --theirs app.js\nTake upstream version → Mark resolved → Continue",
+    "topic": "rebase",
+    "primary_example": "git checkout --theirs app.js",
+    "command": "git checkout",
+    "source": "workflow",
+    "checklist": "conflict-abort-or-resolve",
+    "step_signature": "git checkout --theirs app.js\ngit add app.js\ngit rebase --continue"
   },
   {
     "id": "restore-a-file-from-a-specific-commit",
@@ -4997,7 +6287,9 @@
     "topic": "undo",
     "primary_example": "git restore --source=abc1234 app.js",
     "command": "git restore --source",
-    "source": "ays"
+    "source": "ays",
+    "checklist": "",
+    "step_signature": "git restore --source=abc1234 app.js"
   },
   {
     "id": "restore-a-file-from-a-stash-without-applying-the-whole-stash",
@@ -5015,7 +6307,9 @@
     "topic": "stash",
     "primary_example": "git checkout stash@{0} -- app.js",
     "command": "git checkout",
-    "source": "ays"
+    "source": "ays",
+    "checklist": "",
+    "step_signature": "git checkout stash@{0} -- app.js"
   },
   {
     "id": "restore-a-file-to-the-staged-version",
@@ -5033,7 +6327,61 @@
     "topic": "undo",
     "primary_example": "git restore --staged --worktree app.js",
     "command": "git restore --staged --worktree app.js",
-    "source": "ays"
+    "source": "ays",
+    "checklist": "",
+    "step_signature": "git restore --staged --worktree app.js"
+  },
+  {
+    "id": "restore-file-from-previous-commit",
+    "title": "Restore a file from HEAD~1 then commit",
+    "commands": [
+      {
+        "run": "git restore --source=HEAD~1 app.js",
+        "comment": "Take file from parent"
+      },
+      {
+        "run": "git add app.js",
+        "comment": "Stage"
+      },
+      {
+        "run": "git commit -m \"Restore app.js from prior commit\"",
+        "comment": "Commit"
+      }
+    ],
+    "explanation": "Bring back a path from the previous commit and commit it.",
+    "intent_family": "peel-split-last-commit",
+    "simplicity_rank": 2,
+    "usage": "git restore --source=HEAD~1 app.js\nTake file from parent → Stage → Commit",
+    "topic": "undo",
+    "primary_example": "git restore --source=HEAD~1 app.js",
+    "command": "git restore",
+    "source": "workflow",
+    "checklist": "peel-split-last-commit",
+    "step_signature": "git restore --source=HEAD~1 app.js\ngit add app.js\ngit commit -m \"Restore app.js from prior commit\""
+  },
+  {
+    "id": "restore-staged-then-commit-rest",
+    "title": "Unstage noise then commit the rest",
+    "commands": [
+      {
+        "run": "git restore --staged app.js",
+        "comment": "Unstage noise"
+      },
+      {
+        "run": "git commit -m \"Fix typo\"",
+        "comment": "Commit remaining"
+      }
+    ],
+    "explanation": "Remove unwanted paths from the index before committing.",
+    "intent_family": "amend-exclude-path",
+    "simplicity_rank": 2,
+    "usage": "git restore --staged app.js\nUnstage noise → Commit remaining",
+    "topic": "stage",
+    "primary_example": "git restore --staged app.js",
+    "command": "git restore",
+    "source": "workflow",
+    "checklist": "amend-exclude-path",
+    "step_signature": "git restore --staged app.js\ngit commit -m \"Fix typo\""
   },
   {
     "id": "revert-a-specific-commit",
@@ -5051,7 +6399,9 @@
     "topic": "undo",
     "primary_example": "git revert upstream",
     "command": "git revert",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git revert upstream"
   },
   {
     "id": "revert-the-5th-last-commit",
@@ -5069,7 +6419,9 @@
     "topic": "undo",
     "primary_example": "git revert HEAD~4",
     "command": "git revert",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git revert HEAD~4"
   },
   {
     "id": "revert-the-most-recent-commit",
@@ -5087,7 +6439,33 @@
     "topic": "undo",
     "primary_example": "git revert HEAD",
     "command": "git revert",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git revert HEAD"
+  },
+  {
+    "id": "revert-then-push",
+    "title": "Revert HEAD then push the revert",
+    "commands": [
+      {
+        "run": "git revert HEAD --no-edit",
+        "comment": "Revert tip"
+      },
+      {
+        "run": "git push",
+        "comment": "Publish revert"
+      }
+    ],
+    "explanation": "Create a revert commit and push it.",
+    "intent_family": "cherry-pick-or-revert-followup",
+    "simplicity_rank": 2,
+    "usage": "git revert HEAD --no-edit\nRevert tip → Publish revert",
+    "topic": "undo",
+    "primary_example": "git revert HEAD --no-edit",
+    "command": "git revert",
+    "source": "workflow",
+    "checklist": "cherry-pick-or-revert-followup",
+    "step_signature": "git revert HEAD --no-edit\ngit push"
   },
   {
     "id": "run-a-script-to-automate-bisect",
@@ -5105,7 +6483,33 @@
     "topic": "debug",
     "primary_example": "git bisect run app.js",
     "command": "git bisect run",
-    "source": "ays"
+    "source": "ays",
+    "checklist": "",
+    "step_signature": "git bisect run app.js"
+  },
+  {
+    "id": "safe-undo-commit-keep-files",
+    "title": "Soft reset and verify with status",
+    "commands": [
+      {
+        "run": "git reset --soft HEAD~1",
+        "comment": "Soft undo"
+      },
+      {
+        "run": "git status -sb",
+        "comment": "Verify staged"
+      }
+    ],
+    "explanation": "Undo the last commit keeping files, then confirm.",
+    "intent_family": "soft-undo-recommit",
+    "simplicity_rank": 2,
+    "usage": "git reset --soft HEAD~1\nSoft undo → Verify staged",
+    "topic": "undo",
+    "primary_example": "git reset --soft HEAD~1",
+    "command": "git reset",
+    "source": "workflow",
+    "checklist": "soft-undo-recommit",
+    "step_signature": "git reset --soft HEAD~1\ngit status -sb"
   },
   {
     "id": "send-changes-from-a-specific-local-branch-to-a-specific-remote-branch",
@@ -5123,7 +6527,9 @@
     "topic": "sync",
     "primary_example": "git push upstream upstream:upstream",
     "command": "git push",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git push upstream upstream:upstream"
   },
   {
     "id": "send-changes-from-a-specific-local-branch-to-its-remote-counterpart",
@@ -5141,7 +6547,9 @@
     "topic": "sync",
     "primary_example": "git push upstream upstream",
     "command": "git push",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git push upstream upstream"
   },
   {
     "id": "send-changes-on-all-local-branches-to-their-counterparts-in-a-given-remote-repos",
@@ -5159,7 +6567,9 @@
     "topic": "sync",
     "primary_example": "git push --all upstream",
     "command": "git push",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git push --all upstream"
   },
   {
     "id": "send-local-changes-in-the-current-branch-to-its-default-remote-counterpart",
@@ -5177,7 +6587,9 @@
     "topic": "sync",
     "primary_example": "git push",
     "command": "git push",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git push"
   },
   {
     "id": "set-sparse-checkout-patterns",
@@ -5195,7 +6607,33 @@
     "topic": "sparse",
     "primary_example": "git sparse-checkout set app.js src/index.ts",
     "command": "git sparse-checkout",
-    "source": "ays"
+    "source": "ays",
+    "checklist": "",
+    "step_signature": "git sparse-checkout set app.js src/index.ts"
+  },
+  {
+    "id": "set-upstream-and-push",
+    "title": "Set upstream and push the branch",
+    "commands": [
+      {
+        "run": "git push -u origin HEAD",
+        "comment": "Push and set upstream"
+      },
+      {
+        "run": "git status -sb",
+        "comment": "Confirm tracking"
+      }
+    ],
+    "explanation": "Publish the branch and record upstream tracking in one flow.",
+    "intent_family": "upstream-first-push",
+    "simplicity_rank": 2,
+    "usage": "git push -u origin HEAD\nPush and set upstream → Confirm tracking",
+    "topic": "sync",
+    "primary_example": "git push -u origin HEAD",
+    "command": "git push",
+    "source": "workflow",
+    "checklist": "upstream-first-push",
+    "step_signature": "git push -u origin HEAD\ngit status -sb"
   },
   {
     "id": "show-information-about-a-remote",
@@ -5213,7 +6651,9 @@
     "topic": "remote",
     "primary_example": "git remote show upstream",
     "command": "git remote",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git remote show upstream"
   },
   {
     "id": "show-information-about-the-3rd-commit-from-the-head-of-a-branch",
@@ -5231,7 +6671,9 @@
     "topic": "advanced",
     "primary_example": "git show main~upstream",
     "command": "git show",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git show main~upstream"
   },
   {
     "id": "show-information-about-the-latest-commit-hash-message-changes-and-other-metadata",
@@ -5249,7 +6691,9 @@
     "topic": "advanced",
     "primary_example": "git show",
     "command": "git show",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git show"
   },
   {
     "id": "show-remaining-candidate-commits-to-be-checked",
@@ -5267,7 +6711,9 @@
     "topic": "advanced",
     "primary_example": "git bisect visualize",
     "command": "git bisect",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git bisect visualize"
   },
   {
     "id": "show-the-name-of-the-current-branch",
@@ -5285,7 +6731,9 @@
     "topic": "branch",
     "primary_example": "git branch --show-current",
     "command": "git branch",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git branch --show-current"
   },
   {
     "id": "show-the-number-of-entries-currently-stashed-away",
@@ -5303,7 +6751,9 @@
     "topic": "status",
     "primary_example": "git status --show-stash",
     "command": "git status",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git status --show-stash"
   },
   {
     "id": "show-the-reflog-for-a-given-branch",
@@ -5321,7 +6771,9 @@
     "topic": "advanced",
     "primary_example": "git reflog upstream",
     "command": "git reflog",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git reflog upstream"
   },
   {
     "id": "show-the-reflog-for-head",
@@ -5339,7 +6791,9 @@
     "topic": "advanced",
     "primary_example": "git reflog",
     "command": "git reflog",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git reflog"
   },
   {
     "id": "show-the-sequence-of-commits-starting-from-the-current-one-in-reverse-chronologi",
@@ -5357,7 +6811,9 @@
     "topic": "history",
     "primary_example": "git log",
     "command": "git log",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git log"
   },
   {
     "id": "show-the-url-of-a-remote",
@@ -5375,7 +6831,9 @@
     "topic": "remote",
     "primary_example": "git remote get-url upstream",
     "command": "git remote",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git remote get-url upstream"
   },
   {
     "id": "show-unstaged-changes",
@@ -5393,7 +6851,9 @@
     "topic": "diff",
     "primary_example": "git diff",
     "command": "git diff",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git diff"
   },
   {
     "id": "show-what-a-stash-contains",
@@ -5411,7 +6871,9 @@
     "topic": "stash",
     "primary_example": "git stash show -p stash@{0}",
     "command": "git stash show",
-    "source": "ays"
+    "source": "ays",
+    "checklist": "",
+    "step_signature": "git stash show -p stash@{0}"
   },
   {
     "id": "skip-a-commit-during-a-bisect-e-g-one-that-fails-the-tests-due-to-a-different-is",
@@ -5429,7 +6891,149 @@
     "topic": "advanced",
     "primary_example": "git bisect skip",
     "command": "git bisect",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git bisect skip"
+  },
+  {
+    "id": "skip-rebase-commit",
+    "title": "Skip the current conflicting patch in a rebase",
+    "commands": [
+      {
+        "run": "git rebase --skip",
+        "comment": "Skip this commit"
+      },
+      {
+        "run": "git status -sb",
+        "comment": "See state"
+      }
+    ],
+    "explanation": "Drop the current commit from the rebase and continue.",
+    "intent_family": "rebase-abort",
+    "simplicity_rank": 2,
+    "usage": "git rebase --skip\nSkip this commit → See state",
+    "topic": "rebase",
+    "primary_example": "git rebase --skip",
+    "command": "git rebase",
+    "source": "workflow",
+    "checklist": "rebase-abort",
+    "step_signature": "git rebase --skip\ngit status -sb"
+  },
+  {
+    "id": "soft-undo-edit-then-recommit",
+    "title": "Soft-undo, tweak staged set, recommit",
+    "commands": [
+      {
+        "run": "git reset --soft HEAD~1",
+        "comment": "Keep changes staged"
+      },
+      {
+        "run": "git restore --staged app.js",
+        "comment": "Drop a file from the commit"
+      },
+      {
+        "run": "git commit -m \"Fix typo\"",
+        "comment": "Recommit without that file"
+      }
+    ],
+    "explanation": "Undo tip, adjust what is staged, then commit again.",
+    "intent_family": "soft-undo-recommit",
+    "simplicity_rank": 2,
+    "usage": "git reset --soft HEAD~1\nKeep changes staged → Drop a file from the commit → Recommit without that file",
+    "topic": "undo",
+    "primary_example": "git reset --soft HEAD~1",
+    "command": "git reset",
+    "source": "workflow",
+    "checklist": "soft-undo-recommit",
+    "step_signature": "git reset --soft HEAD~1\ngit restore --staged app.js\ngit commit -m \"Fix typo\""
+  },
+  {
+    "id": "soft-undo-recommit-all",
+    "title": "Soft undo last commit and recommit all changes",
+    "commands": [
+      {
+        "run": "git reset --soft HEAD~1",
+        "comment": "Undo last commit, keep changes staged"
+      },
+      {
+        "run": "git status -sb",
+        "comment": "Verify staged changes"
+      },
+      {
+        "run": "git commit -m \"Fix typo\"",
+        "comment": "Recommit with a new message"
+      }
+    ],
+    "explanation": "Undo the last commit while keeping all changes staged, then recommit with a new message.",
+    "intent_family": "soft-undo-recommit",
+    "simplicity_rank": 2,
+    "usage": "git reset --soft HEAD~1\nUndo last commit, keep changes staged → Verify staged changes → Recommit with a new message",
+    "topic": "undo",
+    "primary_example": "git reset --soft HEAD~1",
+    "command": "git reset",
+    "source": "workflow",
+    "checklist": "soft-undo-recommit",
+    "step_signature": "git reset --soft HEAD~1\ngit status -sb\ngit commit -m \"Fix typo\""
+  },
+  {
+    "id": "soft-undo-then-recommit-message",
+    "title": "Soft-undo last commit then recommit with a new message",
+    "commands": [
+      {
+        "run": "git reset --soft HEAD~1",
+        "comment": "Keep changes staged"
+      },
+      {
+        "run": "git commit -m \"Fix typo\"",
+        "comment": "Recommit with new message"
+      }
+    ],
+    "explanation": "Undo the tip softly and create a replacement commit with a better message.",
+    "intent_family": "soft-undo-recommit",
+    "simplicity_rank": 2,
+    "usage": "git reset --soft HEAD~1\nKeep changes staged → Recommit with new message",
+    "topic": "undo",
+    "primary_example": "git reset --soft HEAD~1",
+    "command": "git reset",
+    "source": "workflow",
+    "checklist": "soft-undo-recommit",
+    "step_signature": "git reset --soft HEAD~1\ngit commit -m \"Fix typo\""
+  },
+  {
+    "id": "split-last-commit-two-commits",
+    "title": "Split the last commit into two commits",
+    "commands": [
+      {
+        "run": "git reset --soft HEAD~1",
+        "comment": "Keep changes staged"
+      },
+      {
+        "run": "git restore --staged app.js",
+        "comment": "Unstage second logical change"
+      },
+      {
+        "run": "git commit -m \"first half\"",
+        "comment": "Commit remaining staged files"
+      },
+      {
+        "run": "git add app.js",
+        "comment": "Stage the other half"
+      },
+      {
+        "run": "git commit -m \"second half\"",
+        "comment": "Second commit"
+      }
+    ],
+    "explanation": "Soft reset, then create two smaller commits from the staged/unstaged split.",
+    "intent_family": "peel-split-last-commit",
+    "simplicity_rank": 2,
+    "usage": "git reset --soft HEAD~1\nKeep changes staged → Unstage second logical change → Commit remaining staged files → Stage the other half → Second commit",
+    "topic": "undo",
+    "primary_example": "git reset --soft HEAD~1",
+    "command": "git reset",
+    "source": "workflow",
+    "checklist": "peel-split-last-commit",
+    "step_signature": "git reset --soft HEAD~1\ngit restore --staged app.js\ngit commit -m \"first half\"\ngit add app.js\ngit commit -m \"second half\""
   },
   {
     "id": "start-a-bisect-session-on-a-commit-range-bounded-by-a-known-buggy-commit-and-a-k",
@@ -5447,7 +7051,9 @@
     "topic": "advanced",
     "primary_example": "git bisect start upstream upstream",
     "command": "git bisect",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git bisect start upstream upstream"
   },
   {
     "id": "stash-changes-including-untracked-files",
@@ -5465,7 +7071,121 @@
     "topic": "stash",
     "primary_example": "git stash push --include-untracked",
     "command": "git stash push --include-untracked",
-    "source": "ays"
+    "source": "ays",
+    "checklist": "",
+    "step_signature": "git stash push --include-untracked"
+  },
+  {
+    "id": "stash-include-untracked-switch",
+    "title": "Stash including untracked, switch, pop",
+    "commands": [
+      {
+        "run": "git stash push -u -m \"wip\"",
+        "comment": "Include untracked"
+      },
+      {
+        "run": "git switch feature/login",
+        "comment": "Switch"
+      },
+      {
+        "run": "git stash pop",
+        "comment": "Restore"
+      }
+    ],
+    "explanation": "Stash tracked+untracked, switch, then pop.",
+    "intent_family": "stash-switch-pop",
+    "simplicity_rank": 2,
+    "usage": "git stash push -u -m \"wip\"\nInclude untracked → Switch → Restore",
+    "topic": "stash",
+    "primary_example": "git stash push -u -m \"wip\"",
+    "command": "git stash",
+    "source": "workflow",
+    "checklist": "stash-switch-pop",
+    "step_signature": "git stash push -u -m \"wip\"\ngit switch feature/login\ngit stash pop"
+  },
+  {
+    "id": "stash-pull-pop",
+    "title": "Stash, pull, pop",
+    "commands": [
+      {
+        "run": "git stash push -m \"wip\"",
+        "comment": "Stash"
+      },
+      {
+        "run": "git pull --rebase",
+        "comment": "Update"
+      },
+      {
+        "run": "git stash pop",
+        "comment": "Restore"
+      }
+    ],
+    "explanation": "Park local edits, update branch, restore edits.",
+    "intent_family": "stash-switch-pop",
+    "simplicity_rank": 2,
+    "usage": "git stash push -m \"wip\"\nStash → Update → Restore",
+    "topic": "stash",
+    "primary_example": "git stash push -m \"wip\"",
+    "command": "git stash",
+    "source": "workflow",
+    "checklist": "stash-switch-pop",
+    "step_signature": "git stash push -m \"wip\"\ngit pull --rebase\ngit stash pop"
+  },
+  {
+    "id": "stash-switch-pop",
+    "title": "Stash work, switch branch, then reapply",
+    "commands": [
+      {
+        "run": "git stash push -m \"wip\"",
+        "comment": "Save local work"
+      },
+      {
+        "run": "git switch main",
+        "comment": "Change branch"
+      },
+      {
+        "run": "git stash pop",
+        "comment": "Reapply stash"
+      }
+    ],
+    "explanation": "Park local changes, change branches, restore the stash.",
+    "intent_family": "stash-switch-pop",
+    "simplicity_rank": 2,
+    "usage": "git stash push -m \"wip\"\nSave local work → Change branch → Reapply stash",
+    "topic": "stash",
+    "primary_example": "git stash push -m \"wip\"",
+    "command": "git stash",
+    "source": "workflow",
+    "checklist": "stash-switch-pop",
+    "step_signature": "git stash push -m \"wip\"\ngit switch main\ngit stash pop"
+  },
+  {
+    "id": "stash-switch-pop-untracked",
+    "title": "Stash including untracked files, switch branch, and pop",
+    "commands": [
+      {
+        "run": "git stash push -u -m \"wip\"",
+        "comment": "Stash changes including untracked"
+      },
+      {
+        "run": "git switch main",
+        "comment": "Switch to target branch"
+      },
+      {
+        "run": "git stash pop",
+        "comment": "Reapply stashed changes"
+      }
+    ],
+    "explanation": "Stash all changes including untracked files, switch to another branch, and reapply the stash.",
+    "intent_family": "stash-switch-pop",
+    "simplicity_rank": 2,
+    "usage": "git stash push -u -m \"wip\"\nStash changes including untracked → Switch to target branch → Reapply stashed changes",
+    "topic": "stash",
+    "primary_example": "git stash push -u -m \"wip\"",
+    "command": "git stash",
+    "source": "workflow",
+    "checklist": "stash-switch-pop",
+    "step_signature": "git stash push -u -m \"wip\"\ngit switch main\ngit stash pop"
   },
   {
     "id": "stash-the-current-uncommitted-changes",
@@ -5483,7 +7203,81 @@
     "topic": "stash",
     "primary_example": "git stash",
     "command": "git stash",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git stash"
+  },
+  {
+    "id": "submodule-init-update",
+    "title": "Initialize and update submodules",
+    "commands": [
+      {
+        "run": "git submodule update --init --recursive",
+        "comment": "Init and fetch"
+      },
+      {
+        "run": "git submodule status",
+        "comment": "List submodule SHAs"
+      }
+    ],
+    "explanation": "After clone, bring submodules to the recorded commits.",
+    "intent_family": "submodule-init",
+    "simplicity_rank": 2,
+    "usage": "git submodule update --init --recursive\nInit and fetch → List submodule SHAs",
+    "topic": "advanced",
+    "primary_example": "git submodule update --init --recursive",
+    "command": "git submodule",
+    "source": "workflow",
+    "checklist": "submodule-init",
+    "step_signature": "git submodule update --init --recursive\ngit submodule status"
+  },
+  {
+    "id": "submodule-init-update-recursive",
+    "title": "Initialize and update submodules recursively",
+    "commands": [
+      {
+        "run": "git submodule init",
+        "comment": "Initialize submodule configuration"
+      },
+      {
+        "run": "git submodule update --recursive",
+        "comment": "Update submodules recursively"
+      }
+    ],
+    "explanation": "Initialize and update all submodules recursively to ensure they are at the committed state.",
+    "intent_family": "submodule-init",
+    "simplicity_rank": 2,
+    "usage": "git submodule init\nInitialize submodule configuration → Update submodules recursively",
+    "topic": "submodule",
+    "primary_example": "git submodule init",
+    "command": "git submodule",
+    "source": "workflow",
+    "checklist": "submodule-init",
+    "step_signature": "git submodule init\ngit submodule update --recursive"
+  },
+  {
+    "id": "submodule-sync-update",
+    "title": "Sync submodule URLs then update",
+    "commands": [
+      {
+        "run": "git submodule sync --recursive",
+        "comment": "Sync URLs"
+      },
+      {
+        "run": "git submodule update --init --recursive",
+        "comment": "Update"
+      }
+    ],
+    "explanation": "Refresh submodule remote URLs and update checkouts.",
+    "intent_family": "submodule-init",
+    "simplicity_rank": 2,
+    "usage": "git submodule sync --recursive\nSync URLs → Update",
+    "topic": "advanced",
+    "primary_example": "git submodule sync --recursive",
+    "command": "git submodule",
+    "source": "workflow",
+    "checklist": "submodule-init",
+    "step_signature": "git submodule sync --recursive\ngit submodule update --init --recursive"
   },
   {
     "id": "switch-to-an-existing-branch",
@@ -5501,7 +7295,9 @@
     "topic": "branch",
     "primary_example": "git switch upstream",
     "command": "git switch",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git switch upstream"
   },
   {
     "id": "switch-to-an-existing-local-branch",
@@ -5519,7 +7315,9 @@
     "topic": "branch",
     "primary_example": "git checkout upstream",
     "command": "git checkout",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git checkout upstream"
   },
   {
     "id": "switch-to-the-previous-branch",
@@ -5537,7 +7335,9 @@
     "topic": "branch",
     "primary_example": "git switch -",
     "command": "git switch",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git switch -"
   },
   {
     "id": "switch-to-the-previously-checked-out-branch",
@@ -5555,7 +7355,33 @@
     "topic": "branch",
     "primary_example": "git checkout -",
     "command": "git checkout",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git checkout -"
+  },
+  {
+    "id": "tag-and-push-tag",
+    "title": "Annotate a tag and push it",
+    "commands": [
+      {
+        "run": "git tag -a v1.0.0 -m \"Fix typo\"",
+        "comment": "Annotated tag"
+      },
+      {
+        "run": "git push origin v1.0.0",
+        "comment": "Push tag"
+      }
+    ],
+    "explanation": "Create an annotated tag and publish it to origin.",
+    "intent_family": "upstream-first-push",
+    "simplicity_rank": 2,
+    "usage": "git tag -a v1.0.0 -m \"Fix typo\"\nAnnotated tag → Push tag",
+    "topic": "tag",
+    "primary_example": "git tag -a v1.0.0 -m \"Fix typo\"",
+    "command": "git tag",
+    "source": "workflow",
+    "checklist": "upstream-first-push",
+    "step_signature": "git tag -a v1.0.0 -m \"Fix typo\"\ngit push origin v1.0.0"
   },
   {
     "id": "temporarily-save-changes-including-untracked-files",
@@ -5573,7 +7399,9 @@
     "topic": "stash",
     "primary_example": "git stash push --include-untracked -m \"fix typo\"",
     "command": "git stash push --include-untracked",
-    "source": "ays"
+    "source": "ays",
+    "checklist": "",
+    "step_signature": "git stash push --include-untracked -m \"fix typo\""
   },
   {
     "id": "undo-a-commit-but-keep-changes-in-working-directory",
@@ -5591,7 +7419,9 @@
     "topic": "undo",
     "primary_example": "git reset --mixed HEAD~1",
     "command": "git reset --mixed",
-    "source": "ays"
+    "source": "ays",
+    "checklist": "",
+    "step_signature": "git reset --mixed HEAD~1"
   },
   {
     "id": "undo-a-git-clean-recover-deleted-untracked-files",
@@ -5609,7 +7439,9 @@
     "topic": "undo",
     "primary_example": "git fsck --lost-found",
     "command": "git fsck --lost-found",
-    "source": "ays"
+    "source": "ays",
+    "checklist": "",
+    "step_signature": "git fsck --lost-found"
   },
   {
     "id": "undo-a-merge-by-resetting-to-pre-merge-state",
@@ -5627,7 +7459,9 @@
     "topic": "undo",
     "primary_example": "git reset --merge ORIG_HEAD",
     "command": "git reset --merge ORIG_HEAD",
-    "source": "ays"
+    "source": "ays",
+    "checklist": "",
+    "step_signature": "git reset --merge ORIG_HEAD"
   },
   {
     "id": "undo-the-last-commit-keeping-its-changes-and-any-further-uncommitted-changes-in-",
@@ -5645,7 +7479,9 @@
     "topic": "undo",
     "primary_example": "git reset HEAD~",
     "command": "git reset",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git reset HEAD~"
   },
   {
     "id": "undo-the-last-two-commits-adding-their-changes-to-the-index-i-e-staged-for-commi",
@@ -5663,7 +7499,9 @@
     "topic": "undo",
     "primary_example": "git reset --soft HEAD~2",
     "command": "git reset",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git reset --soft HEAD~2"
   },
   {
     "id": "unstage-everything",
@@ -5681,7 +7519,113 @@
     "topic": "undo",
     "primary_example": "git reset",
     "command": "git reset",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git reset"
+  },
+  {
+    "id": "unstage-path-keep-worktree",
+    "title": "Unstage a path but keep worktree edits",
+    "commands": [
+      {
+        "run": "git restore --staged app.js",
+        "comment": "Unstage only"
+      },
+      {
+        "run": "git status -sb",
+        "comment": "Confirm still modified"
+      }
+    ],
+    "explanation": "Only unstage; leave the file modifications in the working tree.",
+    "intent_family": "unstage-vs-discard",
+    "simplicity_rank": 2,
+    "usage": "git restore --staged app.js\nUnstage only → Confirm still modified",
+    "topic": "stage",
+    "primary_example": "git restore --staged app.js",
+    "command": "git restore",
+    "source": "workflow",
+    "checklist": "unstage-vs-discard",
+    "step_signature": "git restore --staged app.js\ngit status -sb"
+  },
+  {
+    "id": "unstage-then-discard-path",
+    "title": "Unstage a path then discard its worktree changes",
+    "commands": [
+      {
+        "run": "git restore --staged app.js",
+        "comment": "Unstage"
+      },
+      {
+        "run": "git restore app.js",
+        "comment": "Discard worktree changes"
+      }
+    ],
+    "explanation": "Remove a path from the index, then throw away unstaged edits to that path.",
+    "intent_family": "unstage-vs-discard",
+    "simplicity_rank": 2,
+    "usage": "git restore --staged app.js\nUnstage → Discard worktree changes",
+    "topic": "undo",
+    "primary_example": "git restore --staged app.js",
+    "command": "git restore",
+    "source": "workflow",
+    "checklist": "unstage-vs-discard",
+    "step_signature": "git restore --staged app.js\ngit restore app.js"
+  },
+  {
+    "id": "unstage-vs-discard-full",
+    "title": "Unstage all files then discard worktree changes",
+    "commands": [
+      {
+        "run": "git restore --staged .",
+        "comment": "Unstage all files"
+      },
+      {
+        "run": "git restore .",
+        "comment": "Discard all worktree changes"
+      },
+      {
+        "run": "git status -sb",
+        "comment": "Verify clean state"
+      }
+    ],
+    "explanation": "Unstage everything and then discard all uncommitted changes to return to a clean state.",
+    "intent_family": "unstage-vs-discard",
+    "simplicity_rank": 2,
+    "usage": "git restore --staged .\nUnstage all files → Discard all worktree changes → Verify clean state",
+    "topic": "undo",
+    "primary_example": "git restore --staged .",
+    "command": "git restore",
+    "source": "workflow",
+    "checklist": "unstage-vs-discard",
+    "step_signature": "git restore --staged .\ngit restore .\ngit status -sb"
+  },
+  {
+    "id": "unstage-vs-discard-path",
+    "title": "Unstage a file and discard its worktree changes",
+    "commands": [
+      {
+        "run": "git restore --staged app.js",
+        "comment": "Unstage the file"
+      },
+      {
+        "run": "git restore app.js",
+        "comment": "Discard worktree changes"
+      },
+      {
+        "run": "git status -sb",
+        "comment": "Confirm clean state"
+      }
+    ],
+    "explanation": "Remove a file from the staging area and then discard its modifications in the working tree.",
+    "intent_family": "unstage-vs-discard",
+    "simplicity_rank": 2,
+    "usage": "git restore --staged app.js\nUnstage the file → Discard worktree changes → Confirm clean state",
+    "topic": "undo",
+    "primary_example": "git restore --staged app.js",
+    "command": "git restore",
+    "source": "workflow",
+    "checklist": "unstage-vs-discard",
+    "step_signature": "git restore --staged app.js\ngit restore app.js\ngit status -sb"
   },
   {
     "id": "update-the-last-commit-by-adding-the-currently-staged-changes-changing-the-commi",
@@ -5699,7 +7643,9 @@
     "topic": "commit",
     "primary_example": "git commit --amend",
     "command": "git commit",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git commit --amend"
   },
   {
     "id": "update-the-main-branch-without-switching-to-it-equivalent-to-git-pull",
@@ -5717,7 +7663,33 @@
     "topic": "sync",
     "primary_example": "git fetch upstream main:main",
     "command": "git fetch",
-    "source": "tldr"
+    "source": "tldr",
+    "checklist": "",
+    "step_signature": "git fetch upstream main:main"
+  },
+  {
+    "id": "upstream-first-push-force",
+    "title": "Force push with lease after rebase",
+    "commands": [
+      {
+        "run": "git push --force-with-lease",
+        "comment": "Force push safely"
+      },
+      {
+        "run": "git status -sb",
+        "comment": "Check branch status"
+      }
+    ],
+    "explanation": "After rebasing, force push the branch with lease to ensure no upstream changes are overwritten, then verify.",
+    "intent_family": "upstream-first-push",
+    "simplicity_rank": 2,
+    "usage": "git push --force-with-lease\nForce push safely → Check branch status",
+    "topic": "advanced",
+    "primary_example": "git push --force-with-lease",
+    "command": "git push --force-with-lease",
+    "source": "workflow",
+    "checklist": "upstream-first-push",
+    "step_signature": "git push --force-with-lease\ngit status -sb"
   },
   {
     "id": "verify-signed-tags",
@@ -5735,6 +7707,108 @@
     "topic": "security",
     "primary_example": "git tag -v v1.0.0",
     "command": "git tag",
-    "source": "ays"
+    "source": "ays",
+    "checklist": "",
+    "step_signature": "git tag -v v1.0.0"
+  },
+  {
+    "id": "worktree-add-and-switch",
+    "title": "Add a linked worktree and inspect it",
+    "commands": [
+      {
+        "run": "git worktree add ../hotfix feature/login",
+        "comment": "Linked worktree"
+      },
+      {
+        "run": "git worktree list",
+        "comment": "List worktrees"
+      }
+    ],
+    "explanation": "Create a sibling worktree for a branch and check it.",
+    "intent_family": "worktree-add",
+    "simplicity_rank": 2,
+    "usage": "git worktree add ../hotfix feature/login\nLinked worktree → List worktrees",
+    "topic": "advanced",
+    "primary_example": "git worktree add ../hotfix feature/login",
+    "command": "git worktree",
+    "source": "workflow",
+    "checklist": "worktree-add",
+    "step_signature": "git worktree add ../hotfix feature/login\ngit worktree list"
+  },
+  {
+    "id": "worktree-add-branch",
+    "title": "Add a worktree for a new branch",
+    "commands": [
+      {
+        "run": "git worktree add -b feature/login ../hotfix",
+        "comment": "Create worktree with new branch"
+      },
+      {
+        "run": "git worktree list",
+        "comment": "List all worktrees"
+      }
+    ],
+    "explanation": "Create a new linked worktree for a new branch to work on a feature in isolation.",
+    "intent_family": "worktree-add",
+    "simplicity_rank": 2,
+    "usage": "git worktree add -b feature/login ../hotfix\nCreate worktree with new branch → List all worktrees",
+    "topic": "worktree",
+    "primary_example": "git worktree add -b feature/login ../hotfix",
+    "command": "git worktree add",
+    "source": "workflow",
+    "checklist": "worktree-add",
+    "step_signature": "git worktree add -b feature/login ../hotfix\ngit worktree list"
+  },
+  {
+    "id": "worktree-add-remove",
+    "title": "Add a worktree, work in it, then remove",
+    "commands": [
+      {
+        "run": "git worktree add ../hotfix feature/login",
+        "comment": "Create worktree for feature/login branch"
+      },
+      {
+        "run": "git worktree list",
+        "comment": "List all worktrees"
+      },
+      {
+        "run": "git worktree remove ../hotfix",
+        "comment": "Remove the worktree after finishing"
+      }
+    ],
+    "explanation": "Create a linked worktree for a hotfix, perform work, then remove it when done.",
+    "intent_family": "worktree-add",
+    "simplicity_rank": 2,
+    "usage": "git worktree add ../hotfix feature/login\nCreate worktree for feature/login branch → List all worktrees → Remove the worktree after finishing",
+    "topic": "worktree",
+    "primary_example": "git worktree add ../hotfix feature/login",
+    "command": "git worktree",
+    "source": "workflow",
+    "checklist": "worktree-add",
+    "step_signature": "git worktree add ../hotfix feature/login\ngit worktree list\ngit worktree remove ../hotfix"
+  },
+  {
+    "id": "worktree-remove-after",
+    "title": "Remove a linked worktree when finished",
+    "commands": [
+      {
+        "run": "git worktree remove ../hotfix",
+        "comment": "Remove worktree"
+      },
+      {
+        "run": "git worktree list",
+        "comment": "Confirm"
+      }
+    ],
+    "explanation": "Clean up a linked worktree registration.",
+    "intent_family": "worktree-add",
+    "simplicity_rank": 2,
+    "usage": "git worktree remove ../hotfix\nRemove worktree → Confirm",
+    "topic": "advanced",
+    "primary_example": "git worktree remove ../hotfix",
+    "command": "git worktree",
+    "source": "workflow",
+    "checklist": "worktree-add",
+    "step_signature": "git worktree remove ../hotfix\ngit worktree list"
   }
 ]

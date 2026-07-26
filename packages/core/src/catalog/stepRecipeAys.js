@@ -9,6 +9,7 @@ import {
 import { materializePlaceholders, DEFAULT_GLOSSARY } from './step0Glossary.js';
 import { normalizeUsage } from '../db/utils.js';
 import { deriveCommandKey } from './stepRecipes.js';
+import { mergeRecipesBySignature, stepSignature } from './recipeIdentity.js';
 
 /**
  * System prompt: expand recipe catalog with edge / complex gaps.
@@ -43,7 +44,8 @@ Rules:
 - Every commands[].run MUST be a pasteable git invocation (starts with git, no shell operators && || | ; \` $()).
 - Use ONLY concrete glossary tokens (no <placeholders>): ${JSON.stringify(glossary || DEFAULT_GLOSSARY)}
 - topic must be one of: ${TOPIC_CHECKLIST.join(', ')}
-- Do NOT duplicate primary_example values already listed in the user payload.
+- Do NOT duplicate ordered command sequences already listed in the user payload.
+- Shared first commands across different workflows are OK when later steps differ.
 - Do NOT invent non-git tools or fake flags.
 - Aim for edge/complex coverage rather than more "git status" variants.`;
 }
@@ -100,6 +102,7 @@ export function materializeAysRecipe(draft, {
     primary_example: primary,
     command: normalizeExample(draft.command || deriveCommandKey(primary)),
     source,
+    step_signature: stepSignature(commands),
   };
 
   const check = validateRecipe(recipe, { validateFlags: validateFlags || undefined });
@@ -108,24 +111,10 @@ export function materializeAysRecipe(draft, {
 }
 
 /**
- * Merge recipes preferring earlier sources; skip duplicate primary_example / id.
+ * Merge recipes by id + step_signature (shared first run is allowed).
  */
 export function mergeRecipes(existing = [], incoming = []) {
-  const byExample = new Map();
-  const byId = new Map();
-  const out = [];
-  for (const r of [...existing, ...incoming]) {
-    if (!r?.primary_example || !r?.id) continue;
-    const ex = normalizeExample(r.primary_example);
-    if (byExample.has(ex)) continue;
-    let id = r.id;
-    if (byId.has(id)) id = `${id}-${commandSlug(ex).slice(0, 16)}`;
-    const recipe = { ...r, id };
-    byExample.set(ex, recipe);
-    byId.set(id, recipe);
-    out.push(recipe);
-  }
-  return out;
+  return mergeRecipesBySignature(existing, incoming);
 }
 
 /**

@@ -12,6 +12,7 @@ export function intentCountForRecipe(recipe) {
   const common = Number(recipe.simplicity_rank) === 1
     || recipe.source === 'cheat-sheet'
     || recipe.source === 'essential'
+    || recipe.source === 'workflow'
     || /^(git status|git commit|git branch|git push|git pull|git stash|git log|git diff|git add|git switch|git restore|git reset)\b/.test(recipe.command || '');
   return common ? 5 : 4;
 }
@@ -43,6 +44,11 @@ Rules:
 - Diversity: D1 paraphrases + D2 colloquial/non-git wording required; D4 misconception phrasings sparse (at most one per skill).
 - Tone matches skill name (non-technical colloquial → expert technical).
 - Stay faithful to the recipe; do not invent different commands.
+- MULTI-STEP recipes (2+ commands): every intent MUST describe the FULL outcome / sequenced goal.
+  Use multi-clause wording when natural ("…then…", "move X onto a branch", "undo and recommit without Y").
+  Do NOT write intents that would be fully satisfied by only the first command alone.
+  Prefer fewer purely atomic one-liners for non-technical on multi-step recipes.
+- SINGLE-STEP recipes: intents may be short and atomic as today.
 - Do NOT output risk_class or risks fields.
 - Glossary (context only): ${JSON.stringify(glossary || {})}`;
 }
@@ -75,6 +81,7 @@ Rules:
 - Do not repeat existing_intents (case-insensitive).
 - No shell operators in intent text.
 - Stay faithful to the given recipe commands.
+- If the recipe is multi-step, additional intents must still describe the full sequenced goal (not only the first step).
 - Glossary (context only): ${JSON.stringify(glossary || {})}`;
 }
 

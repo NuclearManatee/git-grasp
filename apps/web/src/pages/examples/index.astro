@@ -1,15 +1,15 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Footer from '../../components/Footer.astro';
-import { loadRecipes, listTags } from '../../lib/recipesCatalog.js';
+import { loadRecipes, listTags, catalogStats } from '../../lib/recipesCatalog.js';
 
 const recipes = loadRecipes();
 const tags = listTags(recipes);
-const total = recipes.length;
+const stats = catalogStats(recipes);
 ---
 <BaseLayout
   title="Examples · git-help"
-  description="Browse catalog recipes by topic — CLI-style snippets with comments."
+  description="Browse catalog recipes by topic — assess single-step vs multi-step workflows."
 >
   <header class="border-b border-gh-border">
     <div class="gh-container flex items-center justify-between gap-4 py-6">
@@ -25,8 +25,11 @@ const total = recipes.length;
     <h1 class="font-mono text-3xl font-semibold tracking-tight text-gh-fg sm:text-4xl">
       Examples
     </h1>
-    <p class="mt-3 max-w-xl text-gh-muted">
-      Catalog recipes grouped by topic. Open a tag for a CLI-style carousel, or browse everything.
+    <p class="mt-3 max-w-2xl text-gh-muted">
+      Catalog snapshot for review: {stats.total} recipes —
+      {stats.single} single-step, {stats.multi} multi-step ({stats.multiPct}%).
+      Use <span class="font-mono text-gh-fg">multi</span> /
+      <span class="font-mono text-gh-fg">workflow</span> to audit composite coverage.
     </p>
 
     <ul class="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -36,17 +39,44 @@ const total = recipes.length;
           class="flex items-baseline justify-between gap-3 rounded-lg border border-gh-accent/40 bg-gh-panel/90 px-4 py-3 transition hover:border-gh-accent"
         >
           <span class="font-mono text-sm font-medium text-gh-fg">all</span>
-          <span class="font-mono text-xs text-gh-muted">{total}</span>
+          <span class="font-mono text-xs text-gh-muted">{stats.total}</span>
         </a>
       </li>
-      {tags.map(({ tag, count }) => (
+      <li>
+        <a
+          href="/examples/multi"
+          class="flex items-baseline justify-between gap-3 rounded-lg border border-gh-border bg-gh-panel/80 px-4 py-3 transition hover:border-gh-accent"
+        >
+          <span class="font-mono text-sm font-medium text-gh-fg">multi</span>
+          <span class="font-mono text-xs text-gh-muted">{stats.multi} · 2+ steps</span>
+        </a>
+      </li>
+      <li>
+        <a
+          href="/examples/single"
+          class="flex items-baseline justify-between gap-3 rounded-lg border border-gh-border bg-gh-panel/80 px-4 py-3 transition hover:border-gh-accent"
+        >
+          <span class="font-mono text-sm font-medium text-gh-fg">single</span>
+          <span class="font-mono text-xs text-gh-muted">{stats.single}</span>
+        </a>
+      </li>
+      <li>
+        <a
+          href="/examples/workflow"
+          class="flex items-baseline justify-between gap-3 rounded-lg border border-gh-border bg-gh-panel/80 px-4 py-3 transition hover:border-gh-accent"
+        >
+          <span class="font-mono text-sm font-medium text-gh-fg">workflow</span>
+          <span class="font-mono text-xs text-gh-muted">source=workflow</span>
+        </a>
+      </li>
+      {tags.map(({ tag, count, multi }) => (
         <li>
           <a
             href={`/examples/${tag}`}
             class="flex items-baseline justify-between gap-3 rounded-lg border border-gh-border bg-gh-panel/80 px-4 py-3 transition hover:border-gh-accent"
           >
             <span class="font-mono text-sm font-medium text-gh-fg">{tag}</span>
-            <span class="font-mono text-xs text-gh-muted">{count}</span>
+            <span class="font-mono text-xs text-gh-muted">{count} · {multi} multi</span>
           </a>
         </li>
       ))}

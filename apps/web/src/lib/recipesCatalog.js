@@ -26,29 +26,62 @@ export function loadRecipes() {
   return JSON.parse(readFileSync(recipesPath(), 'utf8'));
 }
 
+export function stepCount(r) {
+  if (Array.isArray(r.commands) && r.commands.length) return r.commands.length;
+  return 1;
+}
+
+export function isMultiStep(r) {
+  return stepCount(r) >= 2;
+}
+
 /**
  * @param {object[]} [recipes]
- * @returns {{ tag: string, count: number }[]}
+ */
+export function catalogStats(recipes = loadRecipes()) {
+  const multi = recipes.filter(isMultiStep);
+  return {
+    total: recipes.length,
+    multi: multi.length,
+    single: recipes.length - multi.length,
+    multiPct: recipes.length ? Math.round((100 * multi.length) / recipes.length) : 0,
+  };
+}
+
+/**
+ * @param {object[]} [recipes]
+ * @returns {{ tag: string, count: number, multi: number }[]}
  */
 export function listTags(recipes = loadRecipes()) {
-  /** @type {Map<string, number>} */
+  /** @type {Map<string, { count: number, multi: number }>} */
   const counts = new Map();
   for (const r of recipes) {
     const tag = String(r.topic || 'untagged').toLowerCase();
-    counts.set(tag, (counts.get(tag) || 0) + 1);
+    const cur = counts.get(tag) || { count: 0, multi: 0 };
+    cur.count += 1;
+    if (isMultiStep(r)) cur.multi += 1;
+    counts.set(tag, cur);
   }
   return [...counts.entries()]
-    .map(([tag, count]) => ({ tag, count }))
+    .map(([tag, v]) => ({ tag, count: v.count, multi: v.multi }))
     .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag));
 }
+
+/**
+ * Reserved pseudo-tags for assessment browsing.
+ */
+export const SPECIAL_TAGS = Object.freeze(['all', 'multi', 'single', 'workflow']);
 
 /**
  * @param {string} tag
  * @param {object[]} [recipes]
  */
 export function recipesForTag(tag, recipes = loadRecipes()) {
-  if (tag === 'all') return recipes;
   const key = String(tag).toLowerCase();
+  if (key === 'all') return recipes;
+  if (key === 'multi') return recipes.filter(isMultiStep);
+  if (key === 'single') return recipes.filter((r) => !isMultiStep(r));
+  if (key === 'workflow') return recipes.filter((r) => String(r.source || '') === 'workflow');
   return recipes.filter((r) => String(r.topic || 'untagged').toLowerCase() === key);
 }
 
@@ -77,7 +110,9 @@ export function toCarouselPayload(recipes) {
     topic: r.topic || '',
     source: r.source || '',
     family: r.intent_family || '',
+    checklist: r.checklist || '',
     simplicity: r.simplicity_rank ?? 1,
+    stepCount: stepCount(r),
     explanation: r.explanation || '',
     steps: Array.isArray(r.commands)
       ? r.commands.map((c) => ({ run: c.run, comment: c.comment || '' }))

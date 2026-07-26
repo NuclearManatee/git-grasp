@@ -40,6 +40,9 @@ export function rankResults(rows, queryEmbedding, thresholds, { skillLevel = nul
   // Within score window of the head, prefer simplest in the same family.
   preferSimplestInFamily(scored, simplicityWindow);
 
+  // Prefer single-step over multi-step when scores are close (protects atomic queries).
+  preferFewerSteps(scored, simplicityWindow);
+
   const top = scored.slice(0, topK);
 
   if (top.length === 0) {
@@ -184,6 +187,35 @@ export function preferSimplestInFamily(scored, window = 0.08) {
     const rank = Number(cand.simplicity_rank ?? 1);
     if (rank < bestRank || (rank === bestRank && cand.score > scored[bestIdx].score)) {
       bestRank = rank;
+      bestIdx = i;
+    }
+  }
+  if (bestIdx > 0) {
+    const [picked] = scored.splice(bestIdx, 1);
+    scored.unshift(picked);
+  }
+  return scored;
+}
+
+function stepCount(r) {
+  if (Array.isArray(r.commands) && r.commands.length) return r.commands.length;
+  return 1;
+}
+
+/**
+ * Within score window, prefer fewer steps (single-command over workflows).
+ */
+export function preferFewerSteps(scored, window = 0.08) {
+  if (!Array.isArray(scored) || scored.length < 2) return scored;
+  const head = scored[0];
+  let bestIdx = 0;
+  let bestSteps = stepCount(head);
+  for (let i = 1; i < Math.min(scored.length, 40); i += 1) {
+    const cand = scored[i];
+    if (head.score - cand.score > window) break;
+    const steps = stepCount(cand);
+    if (steps < bestSteps || (steps === bestSteps && cand.score > scored[bestIdx].score)) {
+      bestSteps = steps;
       bestIdx = i;
     }
   }

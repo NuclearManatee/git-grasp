@@ -35,6 +35,25 @@ function listAcceptableExamples(c, glossary) {
 export function gradeCase(c, actual, glossary = DEFAULT_GLOSSARY) {
   const actualCommand = normalizeGoldenText(actual?.command || '', glossary);
   const actualExample = normalizeGoldenText(actual?.example || actual?.command || '', glossary);
+  const actualRecipeId = String(actual?.recipe_id || actual?.id || '').trim();
+
+  if (c.expectedRecipeId) {
+    const okIds = [
+      c.expectedRecipeId,
+      ...(c.acceptableRecipeIds || []),
+    ].map((x) => String(x).trim()).filter(Boolean);
+    if (actualRecipeId && okIds.includes(actualRecipeId)) {
+      return {
+        score: 5,
+        pass: true,
+        passAt3: true,
+        passAt5: true,
+        rationale: 'expectedRecipeId match',
+      };
+    }
+    // Fall through to example matching if id missing on actual (legacy rows)
+  }
+
   const okCommands = listAcceptableCommands(c, glossary);
   const okExamples = listAcceptableExamples(c, glossary);
   const expectedSimplest = normalizeGoldenText(

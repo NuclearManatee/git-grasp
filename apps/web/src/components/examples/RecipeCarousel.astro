@@ -138,11 +138,16 @@ const dataJson = JSON.stringify(recipes).replace(/</g, '\\u003c');
     next.disabled = index >= filtered.length - 1;
 
     root.querySelector('[data-tags]').innerHTML = [
+      r.stepCount > 1
+        ? '<span class="gh-badge">' + esc(r.stepCount) + ' steps</span>'
+        : '<span class="gh-badge">1 step</span>',
       r.command && '<span class="gh-badge">' + esc(r.command) + '</span>',
       r.topic && '<span class="gh-badge">' + esc(r.topic) + '</span>',
       r.family && '<span class="gh-badge">' + esc(r.family) + '</span>',
+      r.checklist && '<span class="gh-badge">' + esc(r.checklist) + '</span>',
       r.source && '<span class="gh-badge">' + esc(r.source) + '</span>',
       '<span class="gh-badge">simplicity ' + esc(r.simplicity) + '</span>',
+      r.id && '<span class="gh-badge">' + esc(r.id) + '</span>',
     ]
       .filter(Boolean)
       .join('');

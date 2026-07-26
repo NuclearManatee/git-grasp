@@ -34,6 +34,11 @@ const lim = createRateLimiter({
 });
 
 async function judgeCase(c, actual) {
+  // Deterministic recipe-id match (workflow goldens) — skip LLM.
+  if (c.expectedRecipeId) {
+    const det = gradeCase(c, actual, glossary);
+    if (det.pass) return det;
+  }
   if (useMockJudge) {
     return gradeCase(c, actual, glossary);
   }
@@ -47,6 +52,8 @@ async function judgeCase(c, actual) {
       role: 'user',
       content: JSON.stringify({
         query: c.query,
+        expectedRecipeId: c.expectedRecipeId,
+        acceptableRecipeIds: c.acceptableRecipeIds || [],
         expectedCommand: c.expectedCommand,
         expectedExample: c.expectedExample,
         acceptableCommands: c.acceptableCommands || [],
@@ -55,6 +62,7 @@ async function judgeCase(c, actual) {
         expectedSimplestExample: c.expectedSimplestExample,
         actualCommand: actual.command,
         actualExample: actual.example,
+        actualRecipeId: actual.recipe_id || actual.id,
         expectedSkillBand: c.expectedSkillBand,
         actualSkillLevel: actual.skill_level,
         judgeNotes: c.judgeNotes,
@@ -95,6 +103,9 @@ for (const c of cases) {
         skill_level: top.skill_level,
         intent_description: top.intent_description,
         simplicity_rank: top.simplicity_rank,
+        recipe_id: top.recipe_id || top.id,
+        id: top.recipe_id || top.id,
+        commands: top.commands,
       };
     }
   } catch (err) {

@@ -7,15 +7,17 @@ import {
   listTags,
   recipesForTag,
   toCarouselPayload,
+  SPECIAL_TAGS,
 } from '../../lib/recipesCatalog.js';
 
 export function getStaticPaths() {
   const recipes = loadRecipes();
   const tags = listTags(recipes);
-  return [
-    { params: { tag: 'all' } },
-    ...tags.map(({ tag }) => ({ params: { tag } })),
-  ];
+  const special = SPECIAL_TAGS.map((tag) => ({ params: { tag } }));
+  const topicPaths = tags
+    .filter(({ tag }) => !SPECIAL_TAGS.includes(tag))
+    .map(({ tag }) => ({ params: { tag } }));
+  return [...special, ...topicPaths];
 }
 
 const { tag } = Astro.params;

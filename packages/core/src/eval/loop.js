@@ -206,10 +206,13 @@ export async function runCaseSuite(cases, { searchFn, judgeFn }) {
       if (top) {
         actual = {
           command: top.command,
-          example: top.example ?? top.command,
+          example: top.example ?? top.primary_example ?? top.command,
           skill_level: top.skill_level,
           intent_description: top.intent_description,
           simplicity_rank: top.simplicity_rank,
+          recipe_id: top.recipe_id || top.id,
+          id: top.recipe_id || top.id,
+          commands: top.commands,
         };
       }
     } catch (e) {

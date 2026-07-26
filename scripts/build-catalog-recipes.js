@@ -6,7 +6,12 @@ import { expandRecipesWithAreYouSure } from '../packages/core/src/catalog/stepRe
 import {
   enrichRecipesFromEssentials,
   enrichRecipesFromGolden,
+  enrichRecipesFromWorkflows,
 } from '../packages/core/src/catalog/enrichRecipes.js';
+import {
+  expandWorkflowsWithLlm,
+  workflowCoverageReport,
+} from '../packages/core/src/catalog/stepRecipeWorkflows.js';
 import { DEFAULT_GLOSSARY } from '../packages/core/src/catalog/step0Glossary.js';
 import { loadManOracle, makeFlagValidator } from '../packages/core/src/catalog/sources/manOracle.js';
 import { PACKAGE_ROOT } from '../packages/core/src/lib/paths.js';
@@ -22,8 +27,11 @@ const glossary = existsSync(glossaryPath)
   : DEFAULT_GLOSSARY;
 
 const skipAys = process.argv.includes('--no-ays');
+const skipWorkflowExpand = process.argv.includes('--no-workflow-expand');
 const minRecipes = Number(process.env.GIT_HELP_MIN_RECIPES || 300);
 const maxRounds = Number(process.env.GIT_HELP_AYS_ROUNDS || 5);
+const minMulti = Number(process.env.GIT_HELP_MIN_MULTI || 80);
+const workflowRounds = Number(process.env.GIT_HELP_WORKFLOW_ROUNDS || 4);
 
 let recipes = synthesizeRecipes({ root: PACKAGE_ROOT, glossary });
 console.log(`Base recipes from sources: ${recipes.length}`);
@@ -35,7 +43,9 @@ if (existsSync(goldenPath)) {
   golden = JSON.parse(readFileSync(goldenPath, 'utf8'));
 }
 recipes = enrichRecipesFromGolden(recipes, golden, glossary);
-console.log(`After essentials+golden: ${recipes.length}`);
+recipes = enrichRecipesFromWorkflows(recipes, null, glossary);
+console.log(`After essentials+golden+workflows: ${recipes.length}`);
+console.log('  workflow coverage:', workflowCoverageReport(recipes));
 
 if (!skipAys) {
   requireLlmKey();
@@ -57,6 +67,26 @@ if (!skipAys) {
   });
   recipes = expanded.recipes;
   console.log(`After AYS: ${recipes.length} recipes (sure=${expanded.sure}, rounds=${expanded.rounds.length})`);
+}
+
+if (!skipWorkflowExpand) {
+  requireLlmKey();
+  const lim = createRateLimiter({
+    statePath: path.join(PACKAGE_ROOT, 'local', 'catalog', 'llm-day.json'),
+  });
+  const wf = await expandWorkflowsWithLlm(recipes, {
+    llmJson: llmJsonObject,
+    schedule: (fn, opts) => lim.schedule(fn, opts),
+    glossary,
+    maxRounds: workflowRounds,
+    minMulti,
+    judge: true,
+    onRound: (r) => console.log(
+      `  Workflow round ${r.round}: +${r.added}/${r.proposed} multi=${r.multiCount} missing=${(r.missing || []).join(',') || 'none'}`,
+    ),
+  });
+  recipes = wf.recipes;
+  console.log(`After workflow expand: ${recipes.length}`, workflowCoverageReport(recipes));
 }
 
 const dir = path.join(PACKAGE_ROOT, 'data', 'catalog');

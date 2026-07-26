@@ -2213,5 +2213,89 @@
       "git status"
     ],
     "expectedSimplestExample": "git status --ignored"
+  },
+  {
+    "id": "workflow-peel-file-branch",
+    "query": "remove only one file from my last commit and commit it to another branch",
+    "expectedRecipeId": "peel-file-from-last-commit-to-branch",
+    "expectedCommand": "git reset",
+    "expectedExample": "git reset --soft HEAD~1",
+    "acceptableExamples": [
+      "git reset --soft HEAD~1"
+    ],
+    "preferSimplest": false,
+    "expectedSkillBand": [2, 4],
+    "tags": ["workflow", "undo"],
+    "judgeNotes": "Composite peel-file workflow; match by expectedRecipeId"
+  },
+  {
+    "id": "workflow-stash-switch-pop",
+    "query": "stash my changes switch to main then bring the stash back",
+    "expectedRecipeId": "stash-switch-pop",
+    "expectedCommand": "git stash",
+    "expectedExample": "git stash push -m \"wip\"",
+    "preferSimplest": false,
+    "expectedSkillBand": [1, 3],
+    "tags": ["workflow", "stash"]
+  },
+  {
+    "id": "workflow-amend-forgotten",
+    "query": "I forgot to add a file to my last commit amend it in",
+    "expectedRecipeId": "amend-add-forgotten-file",
+    "expectedCommand": "git commit",
+    "expectedExample": "git add app.js",
+    "preferSimplest": false,
+    "expectedSkillBand": [2, 3],
+    "tags": ["workflow", "commit"]
+  },
+  {
+    "id": "workflow-unstage-discard",
+    "query": "unstage a file and throw away its local edits",
+    "expectedRecipeId": "unstage-then-discard-path",
+    "expectedCommand": "git restore",
+    "expectedExample": "git restore --staged app.js",
+    "preferSimplest": false,
+    "expectedSkillBand": [2, 3],
+    "tags": ["workflow", "undo"]
+  },
+  {
+    "id": "workflow-create-branch-push",
+    "query": "create a new branch and push it with upstream tracking",
+    "expectedRecipeId": "create-branch-push-upstream",
+    "expectedCommand": "git switch",
+    "expectedExample": "git switch -c feature/login",
+    "preferSimplest": false,
+    "expectedSkillBand": [1, 3],
+    "tags": ["workflow", "branch"]
+  },
+  {
+    "id": "workflow-merge-abort",
+    "query": "abort this conflicted merge and get back to where I was",
+    "expectedRecipeId": "merge-abort-clean",
+    "expectedCommand": "git merge",
+    "expectedExample": "git merge --abort",
+    "preferSimplest": false,
+    "expectedSkillBand": [2, 3],
+    "tags": ["workflow", "merge"]
+  },
+  {
+    "id": "workflow-rebase-lease-push",
+    "query": "rebase my branch onto origin main then force push safely",
+    "expectedRecipeId": "rebase-onto-main-push-lease",
+    "expectedCommand": "git rebase",
+    "expectedExample": "git fetch origin",
+    "preferSimplest": false,
+    "expectedSkillBand": [3, 4],
+    "tags": ["workflow", "rebase"]
+  },
+  {
+    "id": "workflow-submodule-init",
+    "query": "initialize and update all git submodules recursively",
+    "expectedRecipeId": "submodule-init-update",
+    "expectedCommand": "git submodule",
+    "expectedExample": "git submodule update --init --recursive",
+    "preferSimplest": false,
+    "expectedSkillBand": [2, 4],
+    "tags": ["workflow", "advanced"]
   }
 ]
