@@ -47,6 +47,12 @@ describe('source parsers', () => {
     expect(examples.some((e) => e.run.startsWith('git add'))).toBe(true);
   });
 
+  it('parses git lines from HTML pre blocks', async () => {
+    const { parseEverydayFromHtml } = await import('../../packages/core/src/catalog/sources/cheatSheet.js');
+    const examples = parseEverydayFromHtml('<pre>$ git status\n$ git add .\n</pre>');
+    expect(examples.some((e) => e.run === 'git status')).toBe(true);
+  });
+
   it('parses tldr pages', () => {
     const md = `# git status\n\n- Show status:\n\n\`git status\`\n`;
     const examples = parseTldrPage(md, 'git-status');

@@ -94,7 +94,16 @@ export function enrichIntentsFromGolden(intents, recipes, goldenCases = []) {
     const example = normalizeExample(g.expectedExample || '');
     const recipe = byExample.get(example);
     if (!recipe || !g.query) continue;
-    const skill = coerceSkillBandValue(g.expectedSkillBand) || 2;
+    const skill = (() => {
+      const band = g.expectedSkillBand;
+      try {
+        if (Array.isArray(band) && band.length) return coerceSkillBandValue(band[0]);
+        if (band != null) return coerceSkillBandValue(band);
+      } catch {
+        /* fall through */
+      }
+      return 2;
+    })();
     const key = `${recipe.id}|${String(g.query).toLowerCase()}`;
     if (seen.has(key)) continue;
     seen.add(key);

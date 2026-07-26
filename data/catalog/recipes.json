@@ -1,0 +1,4116 @@
+[
+  {
+    "id": "abort-the-process-of-applying-a-patch-file",
+    "title": "Abort the process of applying a patch file:",
+    "commands": [
+      {
+        "run": "git am --abort",
+        "comment": "Abort the process of applying a patch file:"
+      }
+    ],
+    "explanation": "Abort the process of applying a patch file:.",
+    "intent_family": "abort-patch-apply",
+    "simplicity_rank": 1,
+    "usage": "git am --abort\nAbort the process of applying a patch file:",
+    "topic": "advanced",
+    "primary_example": "git am --abort",
+    "command": "git am",
+    "source": "tldr"
+  },
+  {
+    "id": "add-a-new-worktree-directory-for-a-branch-with-the-same-name-created-if-missing",
+    "title": "Add a new worktree directory for a branch with the same name (created if missing):",
+    "commands": [
+      {
+        "run": "git worktree add main",
+        "comment": "Add a new worktree directory for a branch with the same name (created if missing):"
+      }
+    ],
+    "explanation": "Add a new worktree directory for a branch with the same name (created if missing):.",
+    "intent_family": "worktree-add",
+    "simplicity_rank": 1,
+    "usage": "git worktree add main\nAdd a new worktree directory for a branch with the same name (created if missing):",
+    "topic": "advanced",
+    "primary_example": "git worktree add main",
+    "command": "git worktree",
+    "source": "tldr"
+  },
+  {
+    "id": "add-a-remote",
+    "title": "Add a remote:",
+    "commands": [
+      {
+        "run": "git remote add upstream upstream",
+        "comment": "Add a remote:"
+      }
+    ],
+    "explanation": "Add a remote:.",
+    "intent_family": "remote-add",
+    "simplicity_rank": 1,
+    "usage": "git remote add upstream upstream\nAdd a remote:",
+    "topic": "remote",
+    "primary_example": "git remote add upstream upstream",
+    "command": "git remote",
+    "source": "tldr"
+  },
+  {
+    "id": "append-a-line-to-the-commit-message-to-indicate-that-the-commit-was-cherry-picke",
+    "title": "Append a line to the commit message to indicate that the commit was cherry-picked:",
+    "commands": [
+      {
+        "run": "git cherry-pick -x HEAD",
+        "comment": "Append a line to the commit message to indicate that the commit was cherry-picked:"
+      }
+    ],
+    "explanation": "Append a line to the commit message to indicate that the commit was cherry-picked:.",
+    "intent_family": "cherry-pick-commit",
+    "simplicity_rank": 2,
+    "usage": "git cherry-pick -x HEAD\nAppend a line to the commit message to indicate that the commit was cherry-picked:",
+    "topic": "advanced",
+    "primary_example": "git cherry-pick -x HEAD",
+    "command": "git cherry-pick",
+    "source": "tldr"
+  },
+  {
+    "id": "apply-a-commit-to-the-current-branch",
+    "title": "Apply a commit to the current branch:",
+    "commands": [
+      {
+        "run": "git cherry-pick HEAD",
+        "comment": "Apply a commit to the current branch:"
+      }
+    ],
+    "explanation": "Apply a commit to the current branch:.",
+    "intent_family": "cherry-pick-commit",
+    "simplicity_rank": 1,
+    "usage": "git cherry-pick HEAD\nApply a commit to the current branch:",
+    "topic": "advanced",
+    "primary_example": "git cherry-pick HEAD",
+    "command": "git cherry-pick",
+    "source": "tldr"
+  },
+  {
+    "id": "apply-a-range-of-commits-to-the-current-branch-see-also-git-rebase-onto",
+    "title": "Apply a range of commits to the current branch (see also: `git rebase --onto`):",
+    "commands": [
+      {
+        "run": "git cherry-pick upstream~..upstream",
+        "comment": "Apply a range of commits to the current branch (see also: `git rebase --onto`):"
+      }
+    ],
+    "explanation": "Apply a range of commits to the current branch (see also: `git rebase --onto`):.",
+    "intent_family": "cherry-pick-range",
+    "simplicity_rank": 1,
+    "usage": "git cherry-pick upstream~..upstream\nApply a range of commits to the current branch (see also: `git rebase --onto`):",
+    "topic": "advanced",
+    "primary_example": "git cherry-pick upstream~..upstream",
+    "command": "git cherry-pick",
+    "source": "tldr"
+  },
+  {
+    "id": "apply-a-stash-and-remove-it-from-the-stash-list-if-applying-doesn-t-cause-confli",
+    "title": "Apply a stash and remove it from the stash list if applying doesn't cause conflicts:",
+    "commands": [
+      {
+        "run": "git stash pop",
+        "comment": "Apply a stash and remove it from the stash list if applying doesn't cause conflicts:"
+      }
+    ],
+    "explanation": "Apply a stash and remove it from the stash list if applying doesn't cause conflicts:.",
+    "intent_family": "stash-pop",
+    "simplicity_rank": 1,
+    "usage": "git stash pop\nApply a stash and remove it from the stash list if applying doesn't cause conflicts:",
+    "topic": "stash",
+    "primary_example": "git stash pop",
+    "command": "git stash",
+    "source": "tldr"
+  },
+  {
+    "id": "book-02-git-basics-sections-getting-a-repository-asc-git-add-c",
+    "title": "Workflow: git add *.c",
+    "commands": [
+      {
+        "run": "git add *.c",
+        "comment": ""
+      },
+      {
+        "run": "git add LICENSE",
+        "comment": ""
+      },
+      {
+        "run": "git commit -m 'Initial project version'",
+        "comment": ""
+      }
+    ],
+    "explanation": "Multi-step workflow from Pro Git (book__02-git-basics__sections__getting-a-repository.asc).",
+    "intent_family": "stage-files",
+    "simplicity_rank": 1,
+    "usage": "git add *.c\nMulti-step Git workflow",
+    "topic": "stage",
+    "primary_example": "git add *.c",
+    "command": "git add",
+    "source": "progit"
+  },
+  {
+    "id": "book-02-git-basics-sections-recording-changes-asc-git-add-contributing-md",
+    "title": "Workflow: git add CONTRIBUTING.md",
+    "commands": [
+      {
+        "run": "git add CONTRIBUTING.md",
+        "comment": ""
+      },
+      {
+        "run": "git status",
+        "comment": ""
+      }
+    ],
+    "explanation": "Multi-step workflow from Pro Git (book__02-git-basics__sections__recording-changes.asc).",
+    "intent_family": "stage-file",
+    "simplicity_rank": 1,
+    "usage": "git add CONTRIBUTING.md\nMulti-step Git workflow",
+    "topic": "stage",
+    "primary_example": "git add CONTRIBUTING.md",
+    "command": "git add",
+    "source": "progit"
+  },
+  {
+    "id": "book-02-git-basics-sections-recording-changes-asc-git-mv-readme-md-readme",
+    "title": "Workflow: git mv README.md README",
+    "commands": [
+      {
+        "run": "git mv README.md README",
+        "comment": ""
+      },
+      {
+        "run": "git status",
+        "comment": ""
+      }
+    ],
+    "explanation": "Multi-step workflow from Pro Git (book__02-git-basics__sections__recording-changes.asc).",
+    "intent_family": "rename-file",
+    "simplicity_rank": 1,
+    "usage": "git mv README.md README\nMulti-step Git workflow",
+    "topic": "advanced",
+    "primary_example": "git mv README.md README",
+    "command": "git mv",
+    "source": "progit"
+  },
+  {
+    "id": "book-02-git-basics-sections-recording-changes-asc-git-rm-projects-md",
+    "title": "Workflow: git rm PROJECTS.md",
+    "commands": [
+      {
+        "run": "git rm PROJECTS.md",
+        "comment": ""
+      },
+      {
+        "run": "git status",
+        "comment": ""
+      }
+    ],
+    "explanation": "Multi-step workflow from Pro Git (book__02-git-basics__sections__recording-changes.asc).",
+    "intent_family": "remove-file",
+    "simplicity_rank": 1,
+    "usage": "git rm PROJECTS.md\nMulti-step Git workflow",
+    "topic": "advanced",
+    "primary_example": "git rm PROJECTS.md",
+    "command": "git rm",
+    "source": "progit"
+  },
+  {
+    "id": "book-02-git-basics-sections-recording-changes-asc-git-rm-readme-md",
+    "title": "Workflow: git rm README.md",
+    "commands": [
+      {
+        "run": "git rm README.md",
+        "comment": ""
+      },
+      {
+        "run": "git add README",
+        "comment": ""
+      }
+    ],
+    "explanation": "Multi-step workflow from Pro Git (book__02-git-basics__sections__recording-changes.asc).",
+    "intent_family": "remove-file",
+    "simplicity_rank": 1,
+    "usage": "git rm README.md\nMulti-step Git workflow",
+    "topic": "advanced",
+    "primary_example": "git rm README.md",
+    "command": "git rm",
+    "source": "progit"
+  },
+  {
+    "id": "book-02-git-basics-sections-undoing-asc-git-add",
+    "title": "Workflow: git add *",
+    "commands": [
+      {
+        "run": "git add *",
+        "comment": ""
+      },
+      {
+        "run": "git status",
+        "comment": ""
+      }
+    ],
+    "explanation": "Multi-step workflow from Pro Git (book__02-git-basics__sections__undoing.asc).",
+    "intent_family": "stage-changes",
+    "simplicity_rank": 1,
+    "usage": "git add *\nMulti-step Git workflow",
+    "topic": "stage",
+    "primary_example": "git add *",
+    "command": "git add",
+    "source": "progit"
+  },
+  {
+    "id": "book-02-git-basics-sections-undoing-asc-git-checkout-contributing-md",
+    "title": "Workflow: git checkout -- CONTRIBUTING.md",
+    "commands": [
+      {
+        "run": "git checkout -- CONTRIBUTING.md",
+        "comment": ""
+      },
+      {
+        "run": "git status",
+        "comment": ""
+      }
+    ],
+    "explanation": "Multi-step workflow from Pro Git (book__02-git-basics__sections__undoing.asc).",
+    "intent_family": "discard-changes",
+    "simplicity_rank": 2,
+    "usage": "git checkout -- CONTRIBUTING.md\nMulti-step Git workflow",
+    "topic": "branch",
+    "primary_example": "git checkout -- CONTRIBUTING.md",
+    "command": "git checkout",
+    "source": "progit"
+  },
+  {
+    "id": "book-02-git-basics-sections-undoing-asc-git-commit-m-initial-commit",
+    "title": "Workflow: git commit -m 'Initial commit'",
+    "commands": [
+      {
+        "run": "git commit -m 'Initial commit'",
+        "comment": ""
+      },
+      {
+        "run": "git add forgotten_file",
+        "comment": ""
+      },
+      {
+        "run": "git commit --amend",
+        "comment": ""
+      }
+    ],
+    "explanation": "Multi-step workflow from Pro Git (book__02-git-basics__sections__undoing.asc).",
+    "intent_family": "create-commit",
+    "simplicity_rank": 1,
+    "usage": "git commit -m 'Initial commit'\nMulti-step Git workflow",
+    "topic": "commit",
+    "primary_example": "git commit -m 'Initial commit'",
+    "command": "git commit",
+    "source": "progit"
+  },
+  {
+    "id": "book-02-git-basics-sections-undoing-asc-git-reset-head-contributing-md",
+    "title": "Workflow: git reset HEAD CONTRIBUTING.md",
+    "commands": [
+      {
+        "run": "git reset HEAD CONTRIBUTING.md",
+        "comment": ""
+      },
+      {
+        "run": "git status",
+        "comment": ""
+      }
+    ],
+    "explanation": "Multi-step workflow from Pro Git (book__02-git-basics__sections__undoing.asc).",
+    "intent_family": "unstage-file",
+    "simplicity_rank": 2,
+    "usage": "git reset HEAD CONTRIBUTING.md\nMulti-step Git workflow",
+    "topic": "undo",
+    "primary_example": "git reset HEAD CONTRIBUTING.md",
+    "command": "git reset",
+    "source": "progit"
+  },
+  {
+    "id": "book-02-git-basics-sections-undoing-asc-git-restore-contributing-md",
+    "title": "Workflow: git restore CONTRIBUTING.md",
+    "commands": [
+      {
+        "run": "git restore CONTRIBUTING.md",
+        "comment": ""
+      },
+      {
+        "run": "git status",
+        "comment": ""
+      }
+    ],
+    "explanation": "Multi-step workflow from Pro Git (book__02-git-basics__sections__undoing.asc).",
+    "intent_family": "discard-changes",
+    "simplicity_rank": 1,
+    "usage": "git restore CONTRIBUTING.md\nMulti-step Git workflow",
+    "topic": "undo",
+    "primary_example": "git restore CONTRIBUTING.md",
+    "command": "git restore",
+    "source": "progit"
+  },
+  {
+    "id": "book-02-git-basics-sections-undoing-asc-git-restore-staged-contributing-md",
+    "title": "Workflow: git restore --staged CONTRIBUTING.md",
+    "commands": [
+      {
+        "run": "git restore --staged CONTRIBUTING.md",
+        "comment": ""
+      },
+      {
+        "run": "git status",
+        "comment": ""
+      }
+    ],
+    "explanation": "Multi-step workflow from Pro Git (book__02-git-basics__sections__undoing.asc).",
+    "intent_family": "unstage-file",
+    "simplicity_rank": 1,
+    "usage": "git restore --staged CONTRIBUTING.md\nMulti-step Git workflow",
+    "topic": "undo",
+    "primary_example": "git restore --staged CONTRIBUTING.md",
+    "command": "git restore",
+    "source": "progit"
+  },
+  {
+    "id": "book-03-git-branching-sections-basic-branching-and-merging-asc-git-branch-iss53",
+    "title": "Workflow: git branch iss53",
+    "commands": [
+      {
+        "run": "git branch iss53",
+        "comment": ""
+      },
+      {
+        "run": "git checkout iss53",
+        "comment": ""
+      }
+    ],
+    "explanation": "Multi-step workflow from Pro Git (book__03-git-branching__sections__basic-branching-and-merging.asc).",
+    "intent_family": "create-branch",
+    "simplicity_rank": 1,
+    "usage": "git branch iss53\nMulti-step Git workflow",
+    "topic": "branch",
+    "primary_example": "git branch iss53",
+    "command": "git branch",
+    "source": "progit"
+  },
+  {
+    "id": "book-03-git-branching-sections-basic-branching-and-merging-asc-git-checkout-b-ho",
+    "title": "Workflow: git checkout -b hotfix",
+    "commands": [
+      {
+        "run": "git checkout -b hotfix",
+        "comment": ""
+      },
+      {
+        "run": "git commit -a -m 'Fix broken email address'",
+        "comment": ""
+      }
+    ],
+    "explanation": "Multi-step workflow from Pro Git (book__03-git-branching__sections__basic-branching-and-merging.asc).",
+    "intent_family": "create-and-switch-branch",
+    "simplicity_rank": 1,
+    "usage": "git checkout -b hotfix\nMulti-step Git workflow",
+    "topic": "branch",
+    "primary_example": "git checkout -b hotfix",
+    "command": "git checkout",
+    "source": "progit"
+  },
+  {
+    "id": "book-03-git-branching-sections-basic-branching-and-merging-asc-git-checkout-iss5",
+    "title": "Workflow: git checkout iss53",
+    "commands": [
+      {
+        "run": "git checkout iss53",
+        "comment": ""
+      },
+      {
+        "run": "git commit -a -m 'Finish the new footer [issue 53]'",
+        "comment": ""
+      }
+    ],
+    "explanation": "Multi-step workflow from Pro Git (book__03-git-branching__sections__basic-branching-and-merging.asc).",
+    "intent_family": "switch-branch",
+    "simplicity_rank": 1,
+    "usage": "git checkout iss53\nMulti-step Git workflow",
+    "topic": "branch",
+    "primary_example": "git checkout iss53",
+    "command": "git checkout",
+    "source": "progit"
+  },
+  {
+    "id": "book-03-git-branching-sections-rebasing-asc-git-checkout-experiment",
+    "title": "Workflow: git checkout experiment",
+    "commands": [
+      {
+        "run": "git checkout experiment",
+        "comment": ""
+      },
+      {
+        "run": "git rebase master",
+        "comment": ""
+      }
+    ],
+    "explanation": "Multi-step workflow from Pro Git (book__03-git-branching__sections__rebasing.asc).",
+    "intent_family": "switch-branch",
+    "simplicity_rank": 1,
+    "usage": "git checkout experiment\nMulti-step Git workflow",
+    "topic": "branch",
+    "primary_example": "git checkout experiment",
+    "command": "git checkout",
+    "source": "progit"
+  },
+  {
+    "id": "book-07-git-tools-sections-revision-selection-asc-git-show-1c002dd4b536e7479fe34",
+    "title": "Workflow: git show 1c002dd4b536e7479fe34593e72e6c6c1819e53b",
+    "commands": [
+      {
+        "run": "git show 1c002dd4b536e7479fe34593e72e6c6c1819e53b",
+        "comment": ""
+      },
+      {
+        "run": "git show 1c002dd4b536e7479f",
+        "comment": ""
+      },
+      {
+        "run": "git show 1c002d",
+        "comment": ""
+      }
+    ],
+    "explanation": "Multi-step workflow from Pro Git (book__07-git-tools__sections__revision-selection.asc).",
+    "intent_family": "show-commit",
+    "simplicity_rank": 1,
+    "usage": "git show 1c002dd4b536e7479fe34593e72e6c6c1819e53b\nMulti-step Git workflow",
+    "topic": "advanced",
+    "primary_example": "git show 1c002dd4b536e7479fe34593e72e6c6c1819e53b",
+    "command": "git show",
+    "source": "progit"
+  },
+  {
+    "id": "book-07-git-tools-sections-revision-selection-asc-git-show-ca82a6dff817ec66f4434",
+    "title": "Workflow: git show ca82a6dff817ec66f44342007202690a93763949",
+    "commands": [
+      {
+        "run": "git show ca82a6dff817ec66f44342007202690a93763949",
+        "comment": ""
+      },
+      {
+        "run": "git show topic1",
+        "comment": ""
+      }
+    ],
+    "explanation": "Multi-step workflow from Pro Git (book__07-git-tools__sections__revision-selection.asc).",
+    "intent_family": "show-commit",
+    "simplicity_rank": 1,
+    "usage": "git show ca82a6dff817ec66f44342007202690a93763949\nMulti-step Git workflow",
+    "topic": "advanced",
+    "primary_example": "git show ca82a6dff817ec66f44342007202690a93763949",
+    "command": "git show",
+    "source": "progit"
+  },
+  {
+    "id": "book-07-git-tools-sections-revision-selection-asc-git-show-d921970",
+    "title": "Workflow: git show d921970^",
+    "commands": [
+      {
+        "run": "git show d921970^",
+        "comment": ""
+      },
+      {
+        "run": "git show d921970^2",
+        "comment": ""
+      }
+    ],
+    "explanation": "Multi-step workflow from Pro Git (book__07-git-tools__sections__revision-selection.asc).",
+    "intent_family": "show-commit",
+    "simplicity_rank": 1,
+    "usage": "git show d921970^\nMulti-step Git workflow",
+    "topic": "advanced",
+    "primary_example": "git show d921970^",
+    "command": "git show",
+    "source": "progit"
+  },
+  {
+    "id": "book-07-git-tools-sections-revision-selection-asc-git-show-head-will-not-work-on",
+    "title": "Workflow: git show HEAD^ # will NOT work on Windows",
+    "commands": [
+      {
+        "run": "git show HEAD^ # will NOT work on Windows",
+        "comment": ""
+      },
+      {
+        "run": "git show HEAD^^ # OK",
+        "comment": ""
+      },
+      {
+        "run": "git show \"HEAD^\" # OK",
+        "comment": ""
+      }
+    ],
+    "explanation": "Multi-step workflow from Pro Git (book__07-git-tools__sections__revision-selection.asc).",
+    "intent_family": "show-commit",
+    "simplicity_rank": 1,
+    "usage": "git show HEAD^ # will NOT work on Windows\nMulti-step Git workflow",
+    "topic": "advanced",
+    "primary_example": "git show HEAD^ # will NOT work on Windows",
+    "command": "git show",
+    "source": "progit"
+  },
+  {
+    "id": "book-07-git-tools-sections-stashing-cleaning-asc-git-status-s",
+    "title": "Workflow: git status -s",
+    "commands": [
+      {
+        "run": "git status -s",
+        "comment": ""
+      },
+      {
+        "run": "git stash -u",
+        "comment": ""
+      },
+      {
+        "run": "git status -s",
+        "comment": ""
+      }
+    ],
+    "explanation": "Multi-step workflow from Pro Git (book__07-git-tools__sections__stashing-cleaning.asc).",
+    "intent_family": "check-status",
+    "simplicity_rank": 1,
+    "usage": "git status -s\nMulti-step Git workflow",
+    "topic": "status",
+    "primary_example": "git status -s",
+    "command": "git status",
+    "source": "progit"
+  },
+  {
+    "id": "cancel-a-git-revert-after-a-merge-conflict",
+    "title": "Cancel a Git revert after a merge conflict:",
+    "commands": [
+      {
+        "run": "git revert --abort",
+        "comment": "Cancel a Git revert after a merge conflict:"
+      }
+    ],
+    "explanation": "Cancel a Git revert after a merge conflict:.",
+    "intent_family": "abort-revert",
+    "simplicity_rank": 1,
+    "usage": "git revert --abort\nCancel a Git revert after a merge conflict:",
+    "topic": "undo",
+    "primary_example": "git revert --abort",
+    "command": "git revert",
+    "source": "tldr"
+  },
+  {
+    "id": "change-the-url-of-a-remote-use-add-to-keep-the-existing-url",
+    "title": "Change the URL of a remote (use `--add` to keep the existing URL):",
+    "commands": [
+      {
+        "run": "git remote set-url upstream upstream",
+        "comment": "Change the URL of a remote (use `--add` to keep the existing URL):"
+      }
+    ],
+    "explanation": "Change the URL of a remote (use `--add` to keep the existing URL):.",
+    "intent_family": "remote-set-url",
+    "simplicity_rank": 1,
+    "usage": "git remote set-url upstream upstream\nChange the URL of a remote (use `--add` to keep the existing URL):",
+    "topic": "remote",
+    "primary_example": "git remote set-url upstream upstream",
+    "command": "git remote",
+    "source": "tldr"
+  },
+  {
+    "id": "clone-an-existing-repository-only-fetching-the-10-most-recent-commits-on-the-def",
+    "title": "Clone an existing repository only fetching the 10 most recent commits on the default branch (useful to save time):",
+    "commands": [
+      {
+        "run": "git clone --depth 10 upstream",
+        "comment": "Clone an existing repository only fetching the 10 most recent commits on the default branch (useful to save time):"
+      }
+    ],
+    "explanation": "Clone an existing repository only fetching the 10 most recent commits on the default branch (useful to save time):.",
+    "intent_family": "shallow-clone",
+    "simplicity_rank": 1,
+    "usage": "git clone --depth 10 upstream\nClone an existing repository only fetching the 10 most recent commits on the default branch (useful to save time):",
+    "topic": "create",
+    "primary_example": "git clone --depth 10 upstream",
+    "command": "git clone",
+    "source": "tldr"
+  },
+  {
+    "id": "copy-the-state-of-a-branch-into-the-working-tree-and-stage-it-note-use-git-commi",
+    "title": "Copy the state of a branch into the working tree and stage it (Note: Use `git commit` to create the actual commit):",
+    "commands": [
+      {
+        "run": "git merge --squash upstream",
+        "comment": "Copy the state of a branch into the working tree and stage it (Note: Use `git commit` to create the actual commit):"
+      }
+    ],
+    "explanation": "Copy the state of a branch into the working tree and stage it (Note: Use `git commit` to create the actual commit):.",
+    "intent_family": "squash-merge",
+    "simplicity_rank": 1,
+    "usage": "git merge --squash upstream\nCopy the state of a branch into the working tree and stage it (Note: Use `git commit` to create the actual commit):",
+    "topic": "merge",
+    "primary_example": "git merge --squash upstream",
+    "command": "git merge",
+    "source": "tldr"
+  },
+  {
+    "id": "create-a-tag-with-the-given-name-pointing-to-a-given-commit",
+    "title": "Create a tag with the given name pointing to a given commit:",
+    "commands": [
+      {
+        "run": "git tag upstream HEAD",
+        "comment": "Create a tag with the given name pointing to a given commit:"
+      }
+    ],
+    "explanation": "Create a tag with the given name pointing to a given commit:.",
+    "intent_family": "create-tag",
+    "simplicity_rank": 2,
+    "usage": "git tag upstream HEAD\nCreate a tag with the given name pointing to a given commit:",
+    "topic": "tag",
+    "primary_example": "git tag upstream HEAD",
+    "command": "git tag",
+    "source": "tldr"
+  },
+  {
+    "id": "create-a-tag-with-the-given-name-pointing-to-the-current-commit",
+    "title": "Create a tag with the given name pointing to the current commit:",
+    "commands": [
+      {
+        "run": "git tag upstream",
+        "comment": "Create a tag with the given name pointing to the current commit:"
+      }
+    ],
+    "explanation": "Create a tag with the given name pointing to the current commit:.",
+    "intent_family": "create-tag",
+    "simplicity_rank": 1,
+    "usage": "git tag upstream\nCreate a tag with the given name pointing to the current commit:",
+    "topic": "tag",
+    "primary_example": "git tag upstream",
+    "command": "git tag",
+    "source": "tldr"
+  },
+  {
+    "id": "create-and-switch-to-a-new-branch",
+    "title": "Create and switch to a new branch:",
+    "commands": [
+      {
+        "run": "git checkout -b upstream",
+        "comment": "Create and switch to a new branch:"
+      }
+    ],
+    "explanation": "Create and switch to a new branch:.",
+    "intent_family": "create-and-switch-branch",
+    "simplicity_rank": 1,
+    "usage": "git checkout -b upstream\nCreate and switch to a new branch:",
+    "topic": "branch",
+    "primary_example": "git checkout -b upstream",
+    "command": "git checkout",
+    "source": "tldr"
+  },
+  {
+    "id": "create-and-switch-to-a-new-branch-based-on-a-specific-reference-branch-remote-br",
+    "title": "Create and switch to a new branch based on a specific reference (branch, remote/branch, tag are examples of valid references):",
+    "commands": [
+      {
+        "run": "git checkout -b upstream upstream",
+        "comment": "Create and switch to a new branch based on a specific reference (branch, remote/branch, tag are examples of valid references):"
+      }
+    ],
+    "explanation": "Create and switch to a new branch based on a specific reference (branch, remote/branch, tag are examples of valid references):.",
+    "intent_family": "create-and-switch-branch",
+    "simplicity_rank": 2,
+    "usage": "git checkout -b upstream upstream\nCreate and switch to a new branch based on a specific reference (branch, remote/branch, tag are examples of valid references):",
+    "topic": "branch",
+    "primary_example": "git checkout -b upstream upstream",
+    "command": "git checkout",
+    "source": "tldr"
+  },
+  {
+    "id": "create-new-branch-based-on-a-specific-commit",
+    "title": "Create new branch based on a specific commit:",
+    "commands": [
+      {
+        "run": "git branch upstream upstream",
+        "comment": "Create new branch based on a specific commit:"
+      }
+    ],
+    "explanation": "Create new branch based on a specific commit:.",
+    "intent_family": "create-branch",
+    "simplicity_rank": 1,
+    "usage": "git branch upstream upstream\nCreate new branch based on a specific commit:",
+    "topic": "branch",
+    "primary_example": "git branch upstream upstream",
+    "command": "git branch",
+    "source": "tldr"
+  },
+  {
+    "id": "delete-all-stashes",
+    "title": "Delete all stashes:",
+    "commands": [
+      {
+        "run": "git stash clear",
+        "comment": "Delete all stashes:"
+      }
+    ],
+    "explanation": "Delete all stashes:.",
+    "intent_family": "stash-clear",
+    "simplicity_rank": 1,
+    "usage": "git stash clear\nDelete all stashes:",
+    "topic": "stash",
+    "primary_example": "git stash clear",
+    "command": "git stash",
+    "source": "tldr"
+  },
+  {
+    "id": "delete-the-latest-stash",
+    "title": "Delete the latest stash:",
+    "commands": [
+      {
+        "run": "git stash drop",
+        "comment": "Delete the latest stash:"
+      }
+    ],
+    "explanation": "Delete the latest stash:.",
+    "intent_family": "stash-drop",
+    "simplicity_rank": 1,
+    "usage": "git stash drop\nDelete the latest stash:",
+    "topic": "stash",
+    "primary_example": "git stash drop",
+    "command": "git stash",
+    "source": "tldr"
+  },
+  {
+    "id": "discard-all-unstaged-changes-in-the-current-directory-see-git-reset-for-more-und",
+    "title": "Discard all unstaged changes in the current directory (see `git reset` for more undo-like commands):",
+    "commands": [
+      {
+        "run": "git checkout .",
+        "comment": "Discard all unstaged changes in the current directory (see `git reset` for more undo-like commands):"
+      }
+    ],
+    "explanation": "Discard all unstaged changes in the current directory (see `git reset` for more undo-like commands):.",
+    "intent_family": "discard-unstaged-changes",
+    "simplicity_rank": 1,
+    "usage": "git checkout .\nDiscard all unstaged changes in the current directory (see `git reset` for more undo-like commands):",
+    "topic": "branch",
+    "primary_example": "git checkout .",
+    "command": "git checkout",
+    "source": "tldr"
+  },
+  {
+    "id": "discard-all-unstaged-changes-to-tracked-files",
+    "title": "Discard all unstaged changes to tracked files:",
+    "commands": [
+      {
+        "run": "git restore :/",
+        "comment": "Discard all unstaged changes to tracked files:"
+      }
+    ],
+    "explanation": "Discard all unstaged changes to tracked files:.",
+    "intent_family": "discard-unstaged",
+    "simplicity_rank": 1,
+    "usage": "git restore :/\nDiscard all unstaged changes to tracked files:",
+    "topic": "undo",
+    "primary_example": "git restore :/",
+    "command": "git restore",
+    "source": "tldr"
+  },
+  {
+    "id": "discard-any-uncommitted-changes-staged-or-not-for-only-unstaged-changes-use-git-",
+    "title": "Discard any uncommitted changes, staged or not (for only unstaged changes, use `git checkout`):",
+    "commands": [
+      {
+        "run": "git reset --hard",
+        "comment": "Discard any uncommitted changes, staged or not (for only unstaged changes, use `git checkout`):"
+      }
+    ],
+    "explanation": "Discard any uncommitted changes, staged or not (for only unstaged changes, use `git checkout`):.",
+    "intent_family": "hard-reset",
+    "simplicity_rank": 1,
+    "usage": "git reset --hard\nDiscard any uncommitted changes, staged or not (for only unstaged changes, use `git checkout`):",
+    "topic": "undo",
+    "primary_example": "git reset --hard",
+    "command": "git reset",
+    "source": "tldr"
+  },
+  {
+    "id": "display-a-log-of-what-has-been-done-so-far",
+    "title": "Display a log of what has been done so far:",
+    "commands": [
+      {
+        "run": "git bisect log",
+        "comment": "Display a log of what has been done so far:"
+      }
+    ],
+    "explanation": "Display a log of what has been done so far:.",
+    "intent_family": "show-bisect-log",
+    "simplicity_rank": 1,
+    "usage": "git bisect log\nDisplay a log of what has been done so far:",
+    "topic": "advanced",
+    "primary_example": "git bisect log",
+    "command": "git bisect",
+    "source": "tldr"
+  },
+  {
+    "id": "download-changes-from-given-remote-repository-and-branch-then-merge-them-into-he",
+    "title": "Download changes from given remote repository and branch, then merge them into `HEAD`:",
+    "commands": [
+      {
+        "run": "git pull upstream main",
+        "comment": "Download changes from given remote repository and branch, then merge them into `HEAD`:"
+      }
+    ],
+    "explanation": "Download changes from given remote repository and branch, then merge them into `HEAD`:.",
+    "intent_family": "pull-specific",
+    "simplicity_rank": 1,
+    "usage": "git pull upstream main\nDownload changes from given remote repository and branch, then merge them into `HEAD`:",
+    "topic": "sync",
+    "primary_example": "git pull upstream main",
+    "command": "git pull",
+    "source": "tldr"
+  },
+  {
+    "id": "end-the-bisect-session-and-return-to-the-previous-branch",
+    "title": "End the bisect session and return to the previous branch:",
+    "commands": [
+      {
+        "run": "git bisect reset",
+        "comment": "End the bisect session and return to the previous branch:"
+      }
+    ],
+    "explanation": "End the bisect session and return to the previous branch:.",
+    "intent_family": "end-bisect",
+    "simplicity_rank": 1,
+    "usage": "git bisect reset\nEnd the bisect session and return to the previous branch:",
+    "topic": "advanced",
+    "primary_example": "git bisect reset",
+    "command": "git bisect",
+    "source": "tldr"
+  },
+  {
+    "id": "fetch-new-branches-from-a-specific-remote-upstream-repository",
+    "title": "Fetch new branches from a specific remote upstream repository:",
+    "commands": [
+      {
+        "run": "git fetch upstream",
+        "comment": "Fetch new branches from a specific remote upstream repository:"
+      }
+    ],
+    "explanation": "Fetch new branches from a specific remote upstream repository:.",
+    "intent_family": "fetch-specific-remote",
+    "simplicity_rank": 1,
+    "usage": "git fetch upstream\nFetch new branches from a specific remote upstream repository:",
+    "topic": "sync",
+    "primary_example": "git fetch upstream",
+    "command": "git fetch",
+    "source": "tldr"
+  },
+  {
+    "id": "fetch-the-latest-changes-from-the-default-remote-upstream-repository-if-set",
+    "title": "Fetch the latest changes from the default remote upstream repository (if set):",
+    "commands": [
+      {
+        "run": "git fetch",
+        "comment": "Fetch the latest changes from the default remote upstream repository (if set):"
+      }
+    ],
+    "explanation": "Fetch the latest changes from the default remote upstream repository (if set):.",
+    "intent_family": "fetch-default-remote",
+    "simplicity_rank": 1,
+    "usage": "git fetch\nFetch the latest changes from the default remote upstream repository (if set):",
+    "topic": "sync",
+    "primary_example": "git fetch",
+    "command": "git fetch",
+    "source": "tldr"
+  },
+  {
+    "id": "git-add",
+    "title": "git add .",
+    "commands": [
+      {
+        "run": "git add .",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git add .`.",
+    "intent_family": "stage-changes",
+    "simplicity_rank": 1,
+    "usage": "git add .",
+    "topic": "stage",
+    "primary_example": "git add .",
+    "command": "git add",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-add-app-js",
+    "title": "git add app.js",
+    "commands": [
+      {
+        "run": "git add app.js",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git add app.js",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git add app.js",
+    "topic": "stage",
+    "primary_example": "git add app.js",
+    "command": "git add",
+    "source": "essential"
+  },
+  {
+    "id": "git-add-curses-ux-audio-alsa-c",
+    "title": "git add curses/ux_audio_alsa.c",
+    "commands": [
+      {
+        "run": "git add curses/ux_audio_alsa.c",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git add curses/ux_audio_alsa.c`.",
+    "intent_family": "stage-file",
+    "simplicity_rank": 1,
+    "usage": "git add curses/ux_audio_alsa.c",
+    "topic": "stage",
+    "primary_example": "git add curses/ux_audio_alsa.c",
+    "command": "git add",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-add-p",
+    "title": "git add -p",
+    "commands": [
+      {
+        "run": "git add -p",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git add -p",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git add -p",
+    "topic": "stage",
+    "primary_example": "git add -p",
+    "command": "git add",
+    "source": "essential"
+  },
+  {
+    "id": "git-am-3-i",
+    "title": "git am -3 -i",
+    "commands": [
+      {
+        "run": "git am -3 -i -s ./+to-apply",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git am -3 -i -s ./+to-apply`.",
+    "intent_family": "apply-patches",
+    "simplicity_rank": 1,
+    "usage": "git am -3 -i -s ./+to-apply",
+    "topic": "advanced",
+    "primary_example": "git am -3 -i -s ./+to-apply",
+    "command": "git am",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-am-3-k",
+    "title": "git am -3 -k",
+    "commands": [
+      {
+        "run": "git am -3 -k",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git am -3 -k`.",
+    "intent_family": "apply-patches",
+    "simplicity_rank": 2,
+    "usage": "git am -3 -k",
+    "topic": "advanced",
+    "primary_example": "git am -3 -k",
+    "command": "git am",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-branch",
+    "title": "git branch",
+    "commands": [
+      {
+        "run": "git branch",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git branch",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git branch",
+    "topic": "branch",
+    "primary_example": "git branch",
+    "command": "git branch",
+    "source": "essential"
+  },
+  {
+    "id": "git-branch-no-merged-master",
+    "title": "git branch --no-merged master",
+    "commands": [
+      {
+        "run": "git branch --no-merged master",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git branch --no-merged master`.",
+    "intent_family": "list-unmerged-branches",
+    "simplicity_rank": 1,
+    "usage": "git branch --no-merged master",
+    "topic": "branch",
+    "primary_example": "git branch --no-merged master",
+    "command": "git branch",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-checkout-master",
+    "title": "git checkout master",
+    "commands": [
+      {
+        "run": "git checkout master",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git checkout master`.",
+    "intent_family": "switch-branch",
+    "simplicity_rank": 2,
+    "usage": "git checkout master",
+    "topic": "branch",
+    "primary_example": "git checkout master",
+    "command": "git checkout",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-cherry-pick-master-4",
+    "title": "git cherry-pick master~4",
+    "commands": [
+      {
+        "run": "git cherry-pick master~4",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git cherry-pick master~4`.",
+    "intent_family": "cherry-pick-single",
+    "simplicity_rank": 1,
+    "usage": "git cherry-pick master~4",
+    "topic": "advanced",
+    "primary_example": "git cherry-pick master~4",
+    "command": "git cherry-pick",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-cherry-pick-v2-6-14-private2-6-14",
+    "title": "git cherry-pick v2.6.14..private2.6.14",
+    "commands": [
+      {
+        "run": "git cherry-pick v2.6.14..private2.6.14",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git cherry-pick v2.6.14..private2.6.14`.",
+    "intent_family": "cherry-pick-range",
+    "simplicity_rank": 1,
+    "usage": "git cherry-pick v2.6.14..private2.6.14",
+    "topic": "advanced",
+    "primary_example": "git cherry-pick v2.6.14..private2.6.14",
+    "command": "git cherry-pick",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-clone-depth-1-https-github-com-example-repo-git",
+    "title": "git clone --depth 1 https://github.com/example/repo.git",
+    "commands": [
+      {
+        "run": "git clone --depth 1 https://github.com/example/repo.git",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git clone --depth 1 https://github.com/example/repo.git",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git clone --depth 1 https://github.com/example/repo.git",
+    "topic": "create",
+    "primary_example": "git clone --depth 1 https://github.com/example/repo.git",
+    "command": "git clone",
+    "source": "essential"
+  },
+  {
+    "id": "git-clone-git-git-kernel-org-pub-scm-torvalds-linux-2-6-my2-6",
+    "title": "git clone git://git.kernel.org/pub/scm/.../torvalds/linux-2.6 my2.6",
+    "commands": [
+      {
+        "run": "git clone git://git.kernel.org/pub/scm/.../torvalds/linux-2.6 my2.6",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git clone git://git.kernel.org/pub/scm/.../torvalds/linux-2.6 my2.6`.",
+    "intent_family": "clone-repo",
+    "simplicity_rank": 1,
+    "usage": "git clone git://git.kernel.org/pub/scm/.../torvalds/linux-2.6 my2.6",
+    "topic": "create",
+    "primary_example": "git clone git://git.kernel.org/pub/scm/.../torvalds/linux-2.6 my2.6",
+    "command": "git clone",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-clone-https-github-com-example-repo-git",
+    "title": "git clone https://github.com/example/repo.git",
+    "commands": [
+      {
+        "run": "git clone https://github.com/example/repo.git",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git clone https://github.com/example/repo.git",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git clone https://github.com/example/repo.git",
+    "topic": "create",
+    "primary_example": "git clone https://github.com/example/repo.git",
+    "command": "git clone",
+    "source": "essential"
+  },
+  {
+    "id": "git-commit-a-amend",
+    "title": "git commit -a --amend",
+    "commands": [
+      {
+        "run": "git commit -a --amend",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git commit -a --amend`.",
+    "intent_family": "amend-commit",
+    "simplicity_rank": 1,
+    "usage": "git commit -a --amend",
+    "topic": "commit",
+    "primary_example": "git commit -a --amend",
+    "command": "git commit",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-commit-a-s",
+    "title": "git commit -a -s",
+    "commands": [
+      {
+        "run": "git commit -a -s",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git commit -a -s`.",
+    "intent_family": "commit-all-with-signoff",
+    "simplicity_rank": 1,
+    "usage": "git commit -a -s",
+    "topic": "commit",
+    "primary_example": "git commit -a -s",
+    "command": "git commit",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-commit-am-fix-typo",
+    "title": "git commit -am \"Fix typo\"",
+    "commands": [
+      {
+        "run": "git commit -am \"Fix typo\"",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git commit -am \"Fix typo\"",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git commit -am \"Fix typo\"",
+    "topic": "commit",
+    "primary_example": "git commit -am \"Fix typo\"",
+    "command": "git commit",
+    "source": "essential"
+  },
+  {
+    "id": "git-commit-m-fix-typo",
+    "title": "git commit -m \"Fix typo\"",
+    "commands": [
+      {
+        "run": "git commit -m \"Fix typo\"",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git commit -m \"Fix typo\"",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git commit -m \"Fix typo\"",
+    "topic": "commit",
+    "primary_example": "git commit -m \"Fix typo\"",
+    "command": "git commit",
+    "source": "essential"
+  },
+  {
+    "id": "git-commit-m-import",
+    "title": "git commit -m \"import",
+    "commands": [
+      {
+        "run": "git commit -m \"import of frotz source tree.\"",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git commit -m \"import of frotz source tree.\"`.",
+    "intent_family": "commit",
+    "simplicity_rank": 1,
+    "usage": "git commit -m \"import of frotz source tree.\"",
+    "topic": "commit",
+    "primary_example": "git commit -m \"import of frotz source tree.\"",
+    "command": "git commit",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-config-global-user-email-dev-example-com",
+    "title": "git config --global user.email \"dev@example.com\"",
+    "commands": [
+      {
+        "run": "git config --global user.email \"dev@example.com\"",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git config --global user.email \"dev@example.com\"",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git config --global user.email \"dev@example.com\"",
+    "topic": "config",
+    "primary_example": "git config --global user.email \"dev@example.com\"",
+    "command": "git config",
+    "source": "essential"
+  },
+  {
+    "id": "git-config-list",
+    "title": "git config --list",
+    "commands": [
+      {
+        "run": "git config --list",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git config --list",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git config --list",
+    "topic": "config",
+    "primary_example": "git config --list",
+    "command": "git config",
+    "source": "essential"
+  },
+  {
+    "id": "git-config-user-name-alice",
+    "title": "git config user.name \"alice\"",
+    "commands": [
+      {
+        "run": "git config user.name \"alice\"",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git config user.name \"alice\"",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git config user.name \"alice\"",
+    "topic": "config",
+    "primary_example": "git config user.name \"alice\"",
+    "command": "git config",
+    "source": "essential"
+  },
+  {
+    "id": "git-diff-head",
+    "title": "git diff HEAD",
+    "commands": [
+      {
+        "run": "git diff HEAD",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git diff HEAD`.",
+    "intent_family": "show-staged-and-unstaged-diff",
+    "simplicity_rank": 1,
+    "usage": "git diff HEAD",
+    "topic": "diff",
+    "primary_example": "git diff HEAD",
+    "command": "git diff",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-diff-head-git-diff-head",
+    "title": "git diff HEAD^",
+    "commands": [
+      {
+        "run": "git diff HEAD^",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git diff HEAD^`.",
+    "intent_family": "diff-against-parent",
+    "simplicity_rank": 1,
+    "usage": "git diff HEAD^",
+    "topic": "diff",
+    "primary_example": "git diff HEAD^",
+    "command": "git diff",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-fetch-origin",
+    "title": "git fetch origin",
+    "commands": [
+      {
+        "run": "git fetch origin",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git fetch origin",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git fetch origin",
+    "topic": "remote",
+    "primary_example": "git fetch origin",
+    "command": "git fetch",
+    "source": "essential"
+  },
+  {
+    "id": "git-format-patch-master",
+    "title": "git format-patch master",
+    "commands": [
+      {
+        "run": "git format-patch master",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git format-patch master`.",
+    "intent_family": "format-patch",
+    "simplicity_rank": 1,
+    "usage": "git format-patch master",
+    "topic": "advanced",
+    "primary_example": "git format-patch master",
+    "command": "git format-patch",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-gc",
+    "title": "git gc",
+    "commands": [
+      {
+        "run": "git gc",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git gc`.",
+    "intent_family": "garbage-collect",
+    "simplicity_rank": 1,
+    "usage": "git gc",
+    "topic": "advanced",
+    "primary_example": "git gc",
+    "command": "git gc",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-grep-i-todo",
+    "title": "git grep -i \"todo\"",
+    "commands": [
+      {
+        "run": "git grep -i \"todo\"",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git grep -i \"todo\"",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git grep -i \"todo\"",
+    "topic": "search",
+    "primary_example": "git grep -i \"todo\"",
+    "command": "git grep",
+    "source": "essential"
+  },
+  {
+    "id": "git-grep-n-fixme",
+    "title": "git grep -n \"FIXME\"",
+    "commands": [
+      {
+        "run": "git grep -n \"FIXME\"",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git grep -n \"FIXME\"",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git grep -n \"FIXME\"",
+    "topic": "search",
+    "primary_example": "git grep -n \"FIXME\"",
+    "command": "git grep",
+    "source": "essential"
+  },
+  {
+    "id": "git-grep-todo",
+    "title": "git grep \"TODO\"",
+    "commands": [
+      {
+        "run": "git grep \"TODO\"",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git grep \"TODO\"",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git grep \"TODO\"",
+    "topic": "search",
+    "primary_example": "git grep \"TODO\"",
+    "command": "git grep",
+    "source": "essential"
+  },
+  {
+    "id": "git-init",
+    "title": "git init",
+    "commands": [
+      {
+        "run": "git init",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git init`.",
+    "intent_family": "init-repo",
+    "simplicity_rank": 1,
+    "usage": "git init",
+    "topic": "create",
+    "primary_example": "git init",
+    "command": "git init",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-log-p",
+    "title": "git log -p",
+    "commands": [
+      {
+        "run": "git log -p",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git log -p",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git log -p",
+    "topic": "history",
+    "primary_example": "git log -p",
+    "command": "git log",
+    "source": "essential"
+  },
+  {
+    "id": "git-log-p-orig-head",
+    "title": "git log -p ORIG_HEAD..",
+    "commands": [
+      {
+        "run": "git log -p ORIG_HEAD.. arch/i386 include/asm-i386",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git log -p ORIG_HEAD.. arch/i386 include/asm-i386`.",
+    "intent_family": "log-range",
+    "simplicity_rank": 2,
+    "usage": "git log -p ORIG_HEAD.. arch/i386 include/asm-i386",
+    "topic": "history",
+    "primary_example": "git log -p ORIG_HEAD.. arch/i386 include/asm-i386",
+    "command": "git log",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-log-v2-43-curses",
+    "title": "git log v2.43.. curses/",
+    "commands": [
+      {
+        "run": "git log v2.43.. curses/",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git log v2.43.. curses/`.",
+    "intent_family": "log-range",
+    "simplicity_rank": 1,
+    "usage": "git log v2.43.. curses/",
+    "topic": "history",
+    "primary_example": "git log v2.43.. curses/",
+    "command": "git log",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-ls-remote-heads-http-git-kernel-org-jgarzik-libata-dev-git",
+    "title": "git ls-remote --heads http://git.kernel.org/.../jgarzik/libata-dev.git",
+    "commands": [
+      {
+        "run": "git ls-remote --heads http://git.kernel.org/.../jgarzik/libata-dev.git",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git ls-remote --heads http://git.kernel.org/.../jgarzik/libata-dev.git`.",
+    "intent_family": "list-remote-refs",
+    "simplicity_rank": 1,
+    "usage": "git ls-remote --heads http://git.kernel.org/.../jgarzik/libata-dev.git",
+    "topic": "advanced",
+    "primary_example": "git ls-remote --heads http://git.kernel.org/.../jgarzik/libata-dev.git",
+    "command": "git ls-remote",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-merge-alsa-audio",
+    "title": "git merge alsa-audio",
+    "commands": [
+      {
+        "run": "git merge alsa-audio",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git merge alsa-audio`.",
+    "intent_family": "merge-branch",
+    "simplicity_rank": 1,
+    "usage": "git merge alsa-audio",
+    "topic": "merge",
+    "primary_example": "git merge alsa-audio",
+    "command": "git merge",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-merge-main",
+    "title": "git merge main",
+    "commands": [
+      {
+        "run": "git merge main",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git merge main",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git merge main",
+    "topic": "merge",
+    "primary_example": "git merge main",
+    "command": "git merge",
+    "source": "essential"
+  },
+  {
+    "id": "git-pull",
+    "title": "git pull",
+    "commands": [
+      {
+        "run": "git pull",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git pull`.",
+    "intent_family": "pull-default",
+    "simplicity_rank": 1,
+    "usage": "git pull",
+    "topic": "sync",
+    "primary_example": "git pull",
+    "command": "git pull",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-pull-fetches-from",
+    "title": "git pull fetches from",
+    "commands": [
+      {
+        "run": "git pull fetches from origin by default and merges into the",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git pull fetches from origin by default and merges into the`.",
+    "intent_family": "pull-remote",
+    "simplicity_rank": 2,
+    "usage": "git pull fetches from origin by default and merges into the",
+    "topic": "sync",
+    "primary_example": "git pull fetches from origin by default and merges into the",
+    "command": "git pull",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-pull-git-git-kernel-org-pub-jgarzik-libata-dev-git-all",
+    "title": "git pull git://git.kernel.org/pub/.../jgarzik/libata-dev.git ALL",
+    "commands": [
+      {
+        "run": "git pull git://git.kernel.org/pub/.../jgarzik/libata-dev.git ALL",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git pull git://git.kernel.org/pub/.../jgarzik/libata-dev.git ALL`.",
+    "intent_family": "pull-remote",
+    "simplicity_rank": 1,
+    "usage": "git pull git://git.kernel.org/pub/.../jgarzik/libata-dev.git ALL",
+    "topic": "sync",
+    "primary_example": "git pull git://git.kernel.org/pub/.../jgarzik/libata-dev.git ALL",
+    "command": "git pull",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-pull-origin-main",
+    "title": "git pull origin main",
+    "commands": [
+      {
+        "run": "git pull origin main",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git pull origin main",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git pull origin main",
+    "topic": "remote",
+    "primary_example": "git pull origin main",
+    "command": "git pull",
+    "source": "essential"
+  },
+  {
+    "id": "git-push-follow-tags-ko",
+    "title": "git push --follow-tags ko",
+    "commands": [
+      {
+        "run": "git push --follow-tags ko",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git push --follow-tags ko`.",
+    "intent_family": "push-with-tags",
+    "simplicity_rank": 1,
+    "usage": "git push --follow-tags ko",
+    "topic": "sync",
+    "primary_example": "git push --follow-tags ko",
+    "command": "git push",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-push-u-origin-head",
+    "title": "git push -u origin HEAD",
+    "commands": [
+      {
+        "run": "git push -u origin HEAD",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git push -u origin HEAD",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git push -u origin HEAD",
+    "topic": "remote",
+    "primary_example": "git push -u origin HEAD",
+    "command": "git push",
+    "source": "essential"
+  },
+  {
+    "id": "git-rebase-main",
+    "title": "git rebase main",
+    "commands": [
+      {
+        "run": "git rebase main",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git rebase main",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git rebase main",
+    "topic": "rebase",
+    "primary_example": "git rebase main",
+    "command": "git rebase",
+    "source": "essential"
+  },
+  {
+    "id": "git-remote-add-origin-https-github-com-example-repo-git",
+    "title": "git remote add origin https://github.com/example/repo.git",
+    "commands": [
+      {
+        "run": "git remote add origin https://github.com/example/repo.git",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git remote add origin https://github.com/example/repo.git",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git remote add origin https://github.com/example/repo.git",
+    "topic": "remote",
+    "primary_example": "git remote add origin https://github.com/example/repo.git",
+    "command": "git remote",
+    "source": "essential"
+  },
+  {
+    "id": "git-remote-remove-origin",
+    "title": "git remote remove origin",
+    "commands": [
+      {
+        "run": "git remote remove origin",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git remote remove origin",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git remote remove origin",
+    "topic": "remote",
+    "primary_example": "git remote remove origin",
+    "command": "git remote",
+    "source": "essential"
+  },
+  {
+    "id": "git-remote-v",
+    "title": "git remote -v",
+    "commands": [
+      {
+        "run": "git remote -v",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git remote -v",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git remote -v",
+    "topic": "remote",
+    "primary_example": "git remote -v",
+    "command": "git remote",
+    "source": "essential"
+  },
+  {
+    "id": "git-request-pull-or-pull-request",
+    "title": "git request-pull or pull-request",
+    "commands": [
+      {
+        "run": "git request-pull or pull-request mechanisms (e.g. as used on",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git request-pull or pull-request mechanisms (e.g. as used on`.",
+    "intent_family": "request-pull",
+    "simplicity_rank": 1,
+    "usage": "git request-pull or pull-request mechanisms (e.g. as used on",
+    "topic": "advanced",
+    "primary_example": "git request-pull or pull-request mechanisms (e.g. as used on",
+    "command": "git request-pull",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-reset-hard-head-1",
+    "title": "git reset --hard HEAD~1",
+    "commands": [
+      {
+        "run": "git reset --hard HEAD~1",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git reset --hard HEAD~1",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git reset --hard HEAD~1",
+    "topic": "undo",
+    "primary_example": "git reset --hard HEAD~1",
+    "command": "git reset",
+    "source": "essential"
+  },
+  {
+    "id": "git-reset-hard-orig-head",
+    "title": "git reset --hard ORIG_HEAD",
+    "commands": [
+      {
+        "run": "git reset --hard ORIG_HEAD",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git reset --hard ORIG_HEAD`.",
+    "intent_family": "hard-reset",
+    "simplicity_rank": 1,
+    "usage": "git reset --hard ORIG_HEAD",
+    "topic": "undo",
+    "primary_example": "git reset --hard ORIG_HEAD",
+    "command": "git reset",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-reset-head-app-js",
+    "title": "git reset HEAD app.js",
+    "commands": [
+      {
+        "run": "git reset HEAD app.js",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git reset HEAD app.js",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git reset HEAD app.js",
+    "topic": "undo",
+    "primary_example": "git reset HEAD app.js",
+    "command": "git reset",
+    "source": "essential"
+  },
+  {
+    "id": "git-reset-soft-head-1",
+    "title": "git reset --soft HEAD~1",
+    "commands": [
+      {
+        "run": "git reset --soft HEAD~1",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git reset --soft HEAD~1",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git reset --soft HEAD~1",
+    "topic": "undo",
+    "primary_example": "git reset --soft HEAD~1",
+    "command": "git reset",
+    "source": "essential"
+  },
+  {
+    "id": "git-restore-app-js",
+    "title": "git restore app.js",
+    "commands": [
+      {
+        "run": "git restore app.js",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git restore app.js",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git restore app.js",
+    "topic": "undo",
+    "primary_example": "git restore app.js",
+    "command": "git restore",
+    "source": "essential"
+  },
+  {
+    "id": "git-restore-curses-ux-audio-oss-c",
+    "title": "git restore curses/ux_audio_oss.c",
+    "commands": [
+      {
+        "run": "git restore curses/ux_audio_oss.c",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git restore curses/ux_audio_oss.c`.",
+    "intent_family": "restore-file",
+    "simplicity_rank": 1,
+    "usage": "git restore curses/ux_audio_oss.c",
+    "topic": "undo",
+    "primary_example": "git restore curses/ux_audio_oss.c",
+    "command": "git restore",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-restore-source-head-1-app-js",
+    "title": "git restore --source=HEAD~1 app.js",
+    "commands": [
+      {
+        "run": "git restore --source=HEAD~1 app.js",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git restore --source=HEAD~1 app.js",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git restore --source=HEAD~1 app.js",
+    "topic": "undo",
+    "primary_example": "git restore --source=HEAD~1 app.js",
+    "command": "git restore",
+    "source": "essential"
+  },
+  {
+    "id": "git-restore-staged-app-js",
+    "title": "git restore --staged app.js",
+    "commands": [
+      {
+        "run": "git restore --staged app.js",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git restore --staged app.js",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git restore --staged app.js",
+    "topic": "undo",
+    "primary_example": "git restore --staged app.js",
+    "command": "git restore",
+    "source": "essential"
+  },
+  {
+    "id": "git-revert-abc1234",
+    "title": "git revert abc1234",
+    "commands": [
+      {
+        "run": "git revert abc1234",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git revert abc1234",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git revert abc1234",
+    "topic": "undo",
+    "primary_example": "git revert abc1234",
+    "command": "git revert",
+    "source": "essential"
+  },
+  {
+    "id": "git-rm-app-js",
+    "title": "git rm app.js",
+    "commands": [
+      {
+        "run": "git rm app.js",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git rm app.js",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git rm app.js",
+    "topic": "stage",
+    "primary_example": "git rm app.js",
+    "command": "git rm",
+    "source": "essential"
+  },
+  {
+    "id": "git-rm-cached-app-js",
+    "title": "git rm --cached app.js",
+    "commands": [
+      {
+        "run": "git rm --cached app.js",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git rm --cached app.js",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git rm --cached app.js",
+    "topic": "stage",
+    "primary_example": "git rm --cached app.js",
+    "command": "git rm",
+    "source": "essential"
+  },
+  {
+    "id": "git-rm-r-src",
+    "title": "git rm -r src",
+    "commands": [
+      {
+        "run": "git rm -r src",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git rm -r src",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git rm -r src",
+    "topic": "stage",
+    "primary_example": "git rm -r src",
+    "command": "git rm",
+    "source": "essential"
+  },
+  {
+    "id": "git-show-branch-ko-branch-branch",
+    "title": "git show-branch ko/$branch $branch",
+    "commands": [
+      {
+        "run": "git show-branch ko/$branch $branch",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git show-branch ko/$branch $branch`.",
+    "intent_family": "compare-branches",
+    "simplicity_rank": 1,
+    "usage": "git show-branch ko/$branch $branch",
+    "topic": "advanced",
+    "primary_example": "git show-branch ko/$branch $branch",
+    "command": "git show-branch",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-stash-u",
+    "title": "git stash -u",
+    "commands": [
+      {
+        "run": "git stash -u",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git stash -u",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git stash -u",
+    "topic": "stash",
+    "primary_example": "git stash -u",
+    "command": "git stash",
+    "source": "essential"
+  },
+  {
+    "id": "git-status",
+    "title": "git status",
+    "commands": [
+      {
+        "run": "git status",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git status`.",
+    "intent_family": "view-status",
+    "simplicity_rank": 1,
+    "usage": "git status",
+    "topic": "status",
+    "primary_example": "git status",
+    "command": "git status",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-status-sb",
+    "title": "git status -sb",
+    "commands": [
+      {
+        "run": "git status -sb",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git status -sb",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git status -sb",
+    "topic": "status",
+    "primary_example": "git status -sb",
+    "command": "git status",
+    "source": "essential"
+  },
+  {
+    "id": "git-submodule-add-https-github-com-example-repo-git",
+    "title": "git submodule add https://github.com/example/repo.git",
+    "commands": [
+      {
+        "run": "git submodule add https://github.com/example/repo.git",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git submodule add https://github.com/example/repo.git",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git submodule add https://github.com/example/repo.git",
+    "topic": "submodule",
+    "primary_example": "git submodule add https://github.com/example/repo.git",
+    "command": "git submodule",
+    "source": "essential"
+  },
+  {
+    "id": "git-submodule-status",
+    "title": "git submodule status",
+    "commands": [
+      {
+        "run": "git submodule status",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git submodule status",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git submodule status",
+    "topic": "submodule",
+    "primary_example": "git submodule status",
+    "command": "git submodule",
+    "source": "essential"
+  },
+  {
+    "id": "git-switch-c-alsa-audio",
+    "title": "git switch -c alsa-audio",
+    "commands": [
+      {
+        "run": "git switch -c alsa-audio",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git switch -c alsa-audio`.",
+    "intent_family": "create-branch",
+    "simplicity_rank": 1,
+    "usage": "git switch -c alsa-audio",
+    "topic": "branch",
+    "primary_example": "git switch -c alsa-audio",
+    "command": "git switch",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-switch-c-feature-login",
+    "title": "git switch -c feature/login",
+    "commands": [
+      {
+        "run": "git switch -c feature/login",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git switch -c feature/login",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git switch -c feature/login",
+    "topic": "branch",
+    "primary_example": "git switch -c feature/login",
+    "command": "git switch",
+    "source": "essential"
+  },
+  {
+    "id": "git-switch-c-mine",
+    "title": "git switch -c mine",
+    "commands": [
+      {
+        "run": "git switch -c mine master",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git switch -c mine master`.",
+    "intent_family": "create-branch",
+    "simplicity_rank": 1,
+    "usage": "git switch -c mine master",
+    "topic": "branch",
+    "primary_example": "git switch -c mine master",
+    "command": "git switch",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-switch-c-private2-6-14",
+    "title": "git switch -c private2.6.14",
+    "commands": [
+      {
+        "run": "git switch -c private2.6.14 v2.6.14",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git switch -c private2.6.14 v2.6.14`.",
+    "intent_family": "create-branch",
+    "simplicity_rank": 1,
+    "usage": "git switch -c private2.6.14 v2.6.14",
+    "topic": "branch",
+    "primary_example": "git switch -c private2.6.14 v2.6.14",
+    "command": "git switch",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-switch-c-seen",
+    "title": "git switch -C seen",
+    "commands": [
+      {
+        "run": "git switch -C seen next",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git switch -C seen next`.",
+    "intent_family": "force-create-branch",
+    "simplicity_rank": 1,
+    "usage": "git switch -C seen next",
+    "topic": "branch",
+    "primary_example": "git switch -C seen next",
+    "command": "git switch",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-switch-c-topic-one",
+    "title": "git switch -c topic/one",
+    "commands": [
+      {
+        "run": "git switch -c topic/one master",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git switch -c topic/one master`.",
+    "intent_family": "create-branch",
+    "simplicity_rank": 1,
+    "usage": "git switch -c topic/one master",
+    "topic": "branch",
+    "primary_example": "git switch -c topic/one master",
+    "command": "git switch",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-switch-main",
+    "title": "git switch main",
+    "commands": [
+      {
+        "run": "git switch main",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git switch main",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git switch main",
+    "topic": "branch",
+    "primary_example": "git switch main",
+    "command": "git switch",
+    "source": "essential"
+  },
+  {
+    "id": "git-switch-maint",
+    "title": "git switch maint",
+    "commands": [
+      {
+        "run": "git switch maint",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git switch maint`.",
+    "intent_family": "switch-branch",
+    "simplicity_rank": 1,
+    "usage": "git switch maint",
+    "topic": "branch",
+    "primary_example": "git switch maint",
+    "command": "git switch",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-switch-master",
+    "title": "git switch master",
+    "commands": [
+      {
+        "run": "git switch master",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git switch master`.",
+    "intent_family": "switch-branch",
+    "simplicity_rank": 1,
+    "usage": "git switch master",
+    "topic": "branch",
+    "primary_example": "git switch master",
+    "command": "git switch",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-tag-a-v1-0-0-m-fix-typo",
+    "title": "git tag -a v1.0.0 -m \"Fix typo\"",
+    "commands": [
+      {
+        "run": "git tag -a v1.0.0 -m \"Fix typo\"",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git tag -a v1.0.0 -m \"Fix typo\"",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git tag -a v1.0.0 -m \"Fix typo\"",
+    "topic": "tag",
+    "primary_example": "git tag -a v1.0.0 -m \"Fix typo\"",
+    "command": "git tag",
+    "source": "essential"
+  },
+  {
+    "id": "git-tag-l",
+    "title": "git tag -l",
+    "commands": [
+      {
+        "run": "git tag -l",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git tag -l",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git tag -l",
+    "topic": "tag",
+    "primary_example": "git tag -l",
+    "command": "git tag",
+    "source": "essential"
+  },
+  {
+    "id": "git-tag-s-m",
+    "title": "git tag -s -m",
+    "commands": [
+      {
+        "run": "git tag -s -m \"GIT 0.99.9x\" v0.99.9x",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git tag -s -m \"GIT 0.99.9x\" v0.99.9x`.",
+    "intent_family": "create-signed-tag",
+    "simplicity_rank": 1,
+    "usage": "git tag -s -m \"GIT 0.99.9x\" v0.99.9x",
+    "topic": "tag",
+    "primary_example": "git tag -s -m \"GIT 0.99.9x\" v0.99.9x",
+    "command": "git tag",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-tag-v1-0-0",
+    "title": "git tag v1.0.0",
+    "commands": [
+      {
+        "run": "git tag v1.0.0",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git tag v1.0.0",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git tag v1.0.0",
+    "topic": "tag",
+    "primary_example": "git tag v1.0.0",
+    "command": "git tag",
+    "source": "essential"
+  },
+  {
+    "id": "git-tag-v2-43",
+    "title": "git tag v2.43",
+    "commands": [
+      {
+        "run": "git tag v2.43",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git tag v2.43`.",
+    "intent_family": "create-tag",
+    "simplicity_rank": 1,
+    "usage": "git tag v2.43",
+    "topic": "tag",
+    "primary_example": "git tag v2.43",
+    "command": "git tag",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-version",
+    "title": "git --version",
+    "commands": [
+      {
+        "run": "git --version",
+        "comment": ""
+      }
+    ],
+    "explanation": "Runs `git --version`.",
+    "intent_family": "show-version",
+    "simplicity_rank": 1,
+    "usage": "git --version",
+    "topic": "advanced",
+    "primary_example": "git --version",
+    "command": "git",
+    "source": "cheat-sheet"
+  },
+  {
+    "id": "git-worktree-add-hotfix-feature-login",
+    "title": "git worktree add ../hotfix feature/login",
+    "commands": [
+      {
+        "run": "git worktree add ../hotfix feature/login",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git worktree add ../hotfix feature/login",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git worktree add ../hotfix feature/login",
+    "topic": "worktree",
+    "primary_example": "git worktree add ../hotfix feature/login",
+    "command": "git worktree",
+    "source": "essential"
+  },
+  {
+    "id": "git-worktree-remove-hotfix",
+    "title": "git worktree remove ../hotfix",
+    "commands": [
+      {
+        "run": "git worktree remove ../hotfix",
+        "comment": ""
+      }
+    ],
+    "explanation": "Essential: git worktree remove ../hotfix",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git worktree remove ../hotfix",
+    "topic": "worktree",
+    "primary_example": "git worktree remove ../hotfix",
+    "command": "git worktree",
+    "source": "essential"
+  },
+  {
+    "id": "golden-git-add",
+    "title": "Golden: git add",
+    "commands": [
+      {
+        "run": "git add",
+        "comment": "Patch add"
+      }
+    ],
+    "explanation": "Patch add",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git add",
+    "topic": "golden",
+    "primary_example": "git add",
+    "command": "git add",
+    "source": "golden:add-patch-01"
+  },
+  {
+    "id": "golden-git-add-a",
+    "title": "Golden: git add -A",
+    "commands": [
+      {
+        "run": "git add -A",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case add-03",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git add -A",
+    "topic": "golden",
+    "primary_example": "git add -A",
+    "command": "git add",
+    "source": "golden:add-03"
+  },
+  {
+    "id": "golden-git-annotate",
+    "title": "Golden: git annotate",
+    "commands": [
+      {
+        "run": "git annotate",
+        "comment": "Blame"
+      }
+    ],
+    "explanation": "Blame",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git annotate",
+    "topic": "golden",
+    "primary_example": "git annotate",
+    "command": "git blame",
+    "source": "golden:blame-01"
+  },
+  {
+    "id": "golden-git-annotate-app-js",
+    "title": "Golden: git annotate app.js",
+    "commands": [
+      {
+        "run": "git annotate app.js",
+        "comment": "Blame"
+      }
+    ],
+    "explanation": "Blame",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git annotate app.js",
+    "topic": "golden",
+    "primary_example": "git annotate app.js",
+    "command": "git blame",
+    "source": "golden:blame-01"
+  },
+  {
+    "id": "golden-git-archive-format-zip-head-o-repo-zip",
+    "title": "Golden: git archive --format=zip HEAD -o repo.zip",
+    "commands": [
+      {
+        "run": "git archive --format=zip HEAD -o repo.zip",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case archive-01",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git archive --format=zip HEAD -o repo.zip",
+    "topic": "golden",
+    "primary_example": "git archive --format=zip HEAD -o repo.zip",
+    "command": "git archive",
+    "source": "golden:archive-01"
+  },
+  {
+    "id": "golden-git-bisect-start",
+    "title": "Golden: git bisect start",
+    "commands": [
+      {
+        "run": "git bisect start",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case bisect-01",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git bisect start",
+    "topic": "golden",
+    "primary_example": "git bisect start",
+    "command": "git bisect",
+    "source": "golden:bisect-01"
+  },
+  {
+    "id": "golden-git-blame",
+    "title": "Golden: git blame",
+    "commands": [
+      {
+        "run": "git blame",
+        "comment": "Blame"
+      }
+    ],
+    "explanation": "Blame",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git blame",
+    "topic": "golden",
+    "primary_example": "git blame",
+    "command": "git blame",
+    "source": "golden:blame-01"
+  },
+  {
+    "id": "golden-git-blame-app-js",
+    "title": "Golden: git blame app.js",
+    "commands": [
+      {
+        "run": "git blame app.js",
+        "comment": "Blame"
+      }
+    ],
+    "explanation": "Blame",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git blame app.js",
+    "topic": "golden",
+    "primary_example": "git blame app.js",
+    "command": "git blame",
+    "source": "golden:blame-01"
+  },
+  {
+    "id": "golden-git-branch-a",
+    "title": "Golden: git branch -a",
+    "commands": [
+      {
+        "run": "git branch -a",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case branch-list-01",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git branch -a",
+    "topic": "golden",
+    "primary_example": "git branch -a",
+    "command": "git branch",
+    "source": "golden:branch-list-01"
+  },
+  {
+    "id": "golden-git-bundle-create-repo-bundle-all",
+    "title": "Golden: git bundle create repo.bundle --all",
+    "commands": [
+      {
+        "run": "git bundle create repo.bundle --all",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case bundle-01",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git bundle create repo.bundle --all",
+    "topic": "golden",
+    "primary_example": "git bundle create repo.bundle --all",
+    "command": "git bundle",
+    "source": "golden:bundle-01"
+  },
+  {
+    "id": "golden-git-check-ignore-app-js",
+    "title": "Golden: git check-ignore app.js",
+    "commands": [
+      {
+        "run": "git check-ignore app.js",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case check-ignore-01",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git check-ignore app.js",
+    "topic": "golden",
+    "primary_example": "git check-ignore app.js",
+    "command": "git check-ignore",
+    "source": "golden:check-ignore-01"
+  },
+  {
+    "id": "golden-git-check-ignore-v-app-js",
+    "title": "Golden: git check-ignore -v app.js",
+    "commands": [
+      {
+        "run": "git check-ignore -v app.js",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case check-ignore-01",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git check-ignore -v app.js",
+    "topic": "golden",
+    "primary_example": "git check-ignore -v app.js",
+    "command": "git check-ignore",
+    "source": "golden:check-ignore-01"
+  },
+  {
+    "id": "golden-git-checkout",
+    "title": "Golden: git checkout",
+    "commands": [
+      {
+        "run": "git checkout",
+        "comment": "New branch"
+      }
+    ],
+    "explanation": "New branch",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git checkout",
+    "topic": "golden",
+    "primary_example": "git checkout",
+    "command": "git switch",
+    "source": "golden:branch-create-01"
+  },
+  {
+    "id": "golden-git-checkout-app-js",
+    "title": "Golden: git checkout -- app.js",
+    "commands": [
+      {
+        "run": "git checkout -- app.js",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case restore-02",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git checkout -- app.js",
+    "topic": "golden",
+    "primary_example": "git checkout -- app.js",
+    "command": "git restore",
+    "source": "golden:restore-02"
+  },
+  {
+    "id": "golden-git-checkout-b-feature",
+    "title": "Golden: git checkout -b feature",
+    "commands": [
+      {
+        "run": "git checkout -b feature",
+        "comment": "New branch"
+      }
+    ],
+    "explanation": "New branch",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git checkout -b feature",
+    "topic": "golden",
+    "primary_example": "git checkout -b feature",
+    "command": "git switch",
+    "source": "golden:branch-create-01"
+  },
+  {
+    "id": "golden-git-checkout-main",
+    "title": "Golden: git checkout main",
+    "commands": [
+      {
+        "run": "git checkout main",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case switch-02",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git checkout main",
+    "topic": "golden",
+    "primary_example": "git checkout main",
+    "command": "git switch",
+    "source": "golden:switch-02"
+  },
+  {
+    "id": "golden-git-cherry-pick",
+    "title": "Golden: git cherry-pick",
+    "commands": [
+      {
+        "run": "git cherry-pick",
+        "comment": "Cherry-pick"
+      }
+    ],
+    "explanation": "Cherry-pick",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git cherry-pick",
+    "topic": "golden",
+    "primary_example": "git cherry-pick",
+    "command": "git cherry-pick",
+    "source": "golden:cherry-pick-01"
+  },
+  {
+    "id": "golden-git-cherry-pick-abc1234",
+    "title": "Golden: git cherry-pick abc1234",
+    "commands": [
+      {
+        "run": "git cherry-pick abc1234",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case cherry-01",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git cherry-pick abc1234",
+    "topic": "golden",
+    "primary_example": "git cherry-pick abc1234",
+    "command": "git cherry-pick",
+    "source": "golden:cherry-01"
+  },
+  {
+    "id": "golden-git-clean-n",
+    "title": "Golden: git clean -n",
+    "commands": [
+      {
+        "run": "git clean -n",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case clean-01",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git clean -n",
+    "topic": "golden",
+    "primary_example": "git clean -n",
+    "command": "git clean",
+    "source": "golden:clean-01"
+  },
+  {
+    "id": "golden-git-commit-am-fix-typo",
+    "title": "Golden: git commit -am \"fix typo\"",
+    "commands": [
+      {
+        "run": "git commit -am \"fix typo\"",
+        "comment": "Commit"
+      }
+    ],
+    "explanation": "Commit",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git commit -am \"fix typo\"",
+    "topic": "golden",
+    "primary_example": "git commit -am \"fix typo\"",
+    "command": "git commit",
+    "source": "golden:commit-01"
+  },
+  {
+    "id": "golden-git-commit-m-fix-typo",
+    "title": "Golden: git commit -m \"fix typo\"",
+    "commands": [
+      {
+        "run": "git commit -m \"fix typo\"",
+        "comment": "Commit"
+      }
+    ],
+    "explanation": "Commit",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git commit -m \"fix typo\"",
+    "topic": "golden",
+    "primary_example": "git commit -m \"fix typo\"",
+    "command": "git commit",
+    "source": "golden:commit-01"
+  },
+  {
+    "id": "golden-git-config",
+    "title": "Golden: git config",
+    "commands": [
+      {
+        "run": "git config",
+        "comment": "Config email"
+      }
+    ],
+    "explanation": "Config email",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git config",
+    "topic": "golden",
+    "primary_example": "git config",
+    "command": "git config",
+    "source": "golden:config-user-01"
+  },
+  {
+    "id": "golden-git-config-global-user-name-alice",
+    "title": "Golden: git config --global user.name \"alice\"",
+    "commands": [
+      {
+        "run": "git config --global user.name \"alice\"",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case config-02",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git config --global user.name \"alice\"",
+    "topic": "golden",
+    "primary_example": "git config --global user.name \"alice\"",
+    "command": "git config",
+    "source": "golden:config-02"
+  },
+  {
+    "id": "golden-git-describe",
+    "title": "Golden: git describe",
+    "commands": [
+      {
+        "run": "git describe",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case describe-01",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git describe",
+    "topic": "golden",
+    "primary_example": "git describe",
+    "command": "git describe",
+    "source": "golden:describe-01"
+  },
+  {
+    "id": "golden-git-describe-tags",
+    "title": "Golden: git describe --tags",
+    "commands": [
+      {
+        "run": "git describe --tags",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case describe-01",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git describe --tags",
+    "topic": "golden",
+    "primary_example": "git describe --tags",
+    "command": "git describe",
+    "source": "golden:describe-01"
+  },
+  {
+    "id": "golden-git-fsck",
+    "title": "Golden: git fsck",
+    "commands": [
+      {
+        "run": "git fsck",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case fsck-01",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git fsck",
+    "topic": "golden",
+    "primary_example": "git fsck",
+    "command": "git fsck",
+    "source": "golden:fsck-01"
+  },
+  {
+    "id": "golden-git-gc-prune-now",
+    "title": "Golden: git gc --prune=now",
+    "commands": [
+      {
+        "run": "git gc --prune=now",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case gc-01",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git gc --prune=now",
+    "topic": "golden",
+    "primary_example": "git gc --prune=now",
+    "command": "git gc",
+    "source": "golden:gc-01"
+  },
+  {
+    "id": "golden-git-grep-n-todo",
+    "title": "Golden: git grep -n \"TODO\"",
+    "commands": [
+      {
+        "run": "git grep -n \"TODO\"",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case grep-01",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git grep -n \"TODO\"",
+    "topic": "golden",
+    "primary_example": "git grep -n \"TODO\"",
+    "command": "git grep",
+    "source": "golden:grep-01"
+  },
+  {
+    "id": "golden-git-help-commit",
+    "title": "Golden: git help commit",
+    "commands": [
+      {
+        "run": "git help commit",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case help-01",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git help commit",
+    "topic": "golden",
+    "primary_example": "git help commit",
+    "command": "git help",
+    "source": "golden:help-01"
+  },
+  {
+    "id": "golden-git-ls-files",
+    "title": "Golden: git ls-files",
+    "commands": [
+      {
+        "run": "git ls-files",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case ls-files-01",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git ls-files",
+    "topic": "golden",
+    "primary_example": "git ls-files",
+    "command": "git ls-files",
+    "source": "golden:ls-files-01"
+  },
+  {
+    "id": "golden-git-mv-app-js-src-index-ts",
+    "title": "Golden: git mv app.js src/index.ts",
+    "commands": [
+      {
+        "run": "git mv app.js src/index.ts",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case mv-01",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git mv app.js src/index.ts",
+    "topic": "golden",
+    "primary_example": "git mv app.js src/index.ts",
+    "command": "git mv",
+    "source": "golden:mv-01"
+  },
+  {
+    "id": "golden-git-notes-add-m-fix-typo",
+    "title": "Golden: git notes add -m \"Fix typo\"",
+    "commands": [
+      {
+        "run": "git notes add -m \"Fix typo\"",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case notes-01",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git notes add -m \"Fix typo\"",
+    "topic": "golden",
+    "primary_example": "git notes add -m \"Fix typo\"",
+    "command": "git notes",
+    "source": "golden:notes-01"
+  },
+  {
+    "id": "golden-git-remote",
+    "title": "Golden: git remote",
+    "commands": [
+      {
+        "run": "git remote",
+        "comment": "Remotes"
+      }
+    ],
+    "explanation": "Remotes",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git remote",
+    "topic": "golden",
+    "primary_example": "git remote",
+    "command": "git remote",
+    "source": "golden:remote-v-01"
+  },
+  {
+    "id": "golden-git-restore",
+    "title": "Golden: git restore",
+    "commands": [
+      {
+        "run": "git restore",
+        "comment": "Unstage"
+      }
+    ],
+    "explanation": "Unstage",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git restore",
+    "topic": "golden",
+    "primary_example": "git restore",
+    "command": "git restore",
+    "source": "golden:restore-staged-01"
+  },
+  {
+    "id": "golden-git-rev-parse-abbrev-ref-head",
+    "title": "Golden: git rev-parse --abbrev-ref HEAD",
+    "commands": [
+      {
+        "run": "git rev-parse --abbrev-ref HEAD",
+        "comment": "Prefer porcelain simplest"
+      }
+    ],
+    "explanation": "Prefer porcelain simplest",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git rev-parse --abbrev-ref HEAD",
+    "topic": "golden",
+    "primary_example": "git rev-parse --abbrev-ref HEAD",
+    "command": "git branch",
+    "source": "golden:branch-current-01"
+  },
+  {
+    "id": "golden-git-revert",
+    "title": "Golden: git revert",
+    "commands": [
+      {
+        "run": "git revert",
+        "comment": "Revert not reset"
+      }
+    ],
+    "explanation": "Revert not reset",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git revert",
+    "topic": "golden",
+    "primary_example": "git revert",
+    "command": "git revert",
+    "source": "golden:revert-01"
+  },
+  {
+    "id": "golden-git-shortlog",
+    "title": "Golden: git shortlog",
+    "commands": [
+      {
+        "run": "git shortlog",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case shortlog-01",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git shortlog",
+    "topic": "golden",
+    "primary_example": "git shortlog",
+    "command": "git shortlog",
+    "source": "golden:shortlog-01"
+  },
+  {
+    "id": "golden-git-shortlog-sn",
+    "title": "Golden: git shortlog -sn",
+    "commands": [
+      {
+        "run": "git shortlog -sn",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case shortlog-01",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git shortlog -sn",
+    "topic": "golden",
+    "primary_example": "git shortlog -sn",
+    "command": "git shortlog",
+    "source": "golden:shortlog-01"
+  },
+  {
+    "id": "golden-git-show-abc1234",
+    "title": "Golden: git show abc1234",
+    "commands": [
+      {
+        "run": "git show abc1234",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case show-02",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git show abc1234",
+    "topic": "golden",
+    "primary_example": "git show abc1234",
+    "command": "git show",
+    "source": "golden:show-02"
+  },
+  {
+    "id": "golden-git-show-head",
+    "title": "Golden: git show HEAD",
+    "commands": [
+      {
+        "run": "git show HEAD",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case show-01",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git show HEAD",
+    "topic": "golden",
+    "primary_example": "git show HEAD",
+    "command": "git show",
+    "source": "golden:show-01"
+  },
+  {
+    "id": "golden-git-stash-include-untracked",
+    "title": "Golden: git stash --include-untracked",
+    "commands": [
+      {
+        "run": "git stash --include-untracked",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case stash-03",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git stash --include-untracked",
+    "topic": "golden",
+    "primary_example": "git stash --include-untracked",
+    "command": "git stash",
+    "source": "golden:stash-03"
+  },
+  {
+    "id": "golden-git-stash-push-m-fix-typo",
+    "title": "Golden: git stash push -m \"fix typo\"",
+    "commands": [
+      {
+        "run": "git stash push -m \"fix typo\"",
+        "comment": "Stash"
+      }
+    ],
+    "explanation": "Stash",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git stash push -m \"fix typo\"",
+    "topic": "golden",
+    "primary_example": "git stash push -m \"fix typo\"",
+    "command": "git stash",
+    "source": "golden:stash-01"
+  },
+  {
+    "id": "golden-git-switch",
+    "title": "Golden: git switch",
+    "commands": [
+      {
+        "run": "git switch",
+        "comment": "New branch"
+      }
+    ],
+    "explanation": "New branch",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git switch",
+    "topic": "golden",
+    "primary_example": "git switch",
+    "command": "git switch",
+    "source": "golden:branch-create-01"
+  },
+  {
+    "id": "golden-git-switch-c-feature",
+    "title": "Golden: git switch -c feature",
+    "commands": [
+      {
+        "run": "git switch -c feature",
+        "comment": "New branch"
+      }
+    ],
+    "explanation": "New branch",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git switch -c feature",
+    "topic": "golden",
+    "primary_example": "git switch -c feature",
+    "command": "git switch",
+    "source": "golden:branch-create-01"
+  },
+  {
+    "id": "golden-git-symbolic-ref-head",
+    "title": "Golden: git symbolic-ref HEAD",
+    "commands": [
+      {
+        "run": "git symbolic-ref HEAD",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case expert-01",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git symbolic-ref HEAD",
+    "topic": "golden",
+    "primary_example": "git symbolic-ref HEAD",
+    "command": "git symbolic-ref",
+    "source": "golden:expert-01"
+  },
+  {
+    "id": "golden-git-symbolic-ref-short-head",
+    "title": "Golden: git symbolic-ref --short HEAD",
+    "commands": [
+      {
+        "run": "git symbolic-ref --short HEAD",
+        "comment": "Prefer porcelain simplest"
+      }
+    ],
+    "explanation": "Prefer porcelain simplest",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git symbolic-ref --short HEAD",
+    "topic": "golden",
+    "primary_example": "git symbolic-ref --short HEAD",
+    "command": "git branch",
+    "source": "golden:branch-current-01"
+  },
+  {
+    "id": "golden-git-version",
+    "title": "Golden: git version",
+    "commands": [
+      {
+        "run": "git version",
+        "comment": ""
+      }
+    ],
+    "explanation": "Golden case version-01",
+    "intent_family": "",
+    "simplicity_rank": 1,
+    "usage": "git version",
+    "topic": "golden",
+    "primary_example": "git version",
+    "command": "git --version",
+    "source": "golden:version-01"
+  },
+  {
+    "id": "initialize-a-barebones-repository-suitable-for-use-as-a-remote-over-ssh",
+    "title": "Initialize a barebones repository, suitable for use as a remote over SSH:",
+    "commands": [
+      {
+        "run": "git init --bare",
+        "comment": "Initialize a barebones repository, suitable for use as a remote over SSH:"
+      }
+    ],
+    "explanation": "Initialize a barebones repository, suitable for use as a remote over SSH:.",
+    "intent_family": "init-bare-repo",
+    "simplicity_rank": 1,
+    "usage": "git init --bare\nInitialize a barebones repository, suitable for use as a remote over SSH:",
+    "topic": "create",
+    "primary_example": "git init --bare",
+    "command": "git init",
+    "source": "tldr"
+  },
+  {
+    "id": "initialize-a-repository-using-sha256-for-object-hashes-requires-git-version-2-29",
+    "title": "Initialize a repository using SHA256 for object hashes (requires Git version 2.29+):",
+    "commands": [
+      {
+        "run": "git init --object-format sha256",
+        "comment": "Initialize a repository using SHA256 for object hashes (requires Git version 2.29+):"
+      }
+    ],
+    "explanation": "Initialize a repository using SHA256 for object hashes (requires Git version 2.29+):.",
+    "intent_family": "init-repo",
+    "simplicity_rank": 2,
+    "usage": "git init --object-format sha256\nInitialize a repository using SHA256 for object hashes (requires Git version 2.29+):",
+    "topic": "create",
+    "primary_example": "git init --object-format sha256",
+    "command": "git init",
+    "source": "tldr"
+  },
+  {
+    "id": "list-all-stashes",
+    "title": "List all stashes:",
+    "commands": [
+      {
+        "run": "git stash list",
+        "comment": "List all stashes:"
+      }
+    ],
+    "explanation": "List all stashes:.",
+    "intent_family": "stash-list",
+    "simplicity_rank": 1,
+    "usage": "git stash list\nList all stashes:",
+    "topic": "stash",
+    "primary_example": "git stash list",
+    "command": "git stash",
+    "source": "tldr"
+  },
+  {
+    "id": "list-all-tags",
+    "title": "List all tags:",
+    "commands": [
+      {
+        "run": "git tag",
+        "comment": "List all tags:"
+      }
+    ],
+    "explanation": "List all tags:.",
+    "intent_family": "list-tags",
+    "simplicity_rank": 1,
+    "usage": "git tag\nList all tags:",
+    "topic": "tag",
+    "primary_example": "git tag",
+    "command": "git tag",
+    "source": "tldr"
+  },
+  {
+    "id": "list-all-tags-which-contain-a-given-commit-head-if-not-specified",
+    "title": "List all tags which contain a given commit (`HEAD` if not specified):",
+    "commands": [
+      {
+        "run": "git tag --contains HEAD",
+        "comment": "List all tags which contain a given commit (`HEAD` if not specified):"
+      }
+    ],
+    "explanation": "List all tags which contain a given commit (`HEAD` if not specified):.",
+    "intent_family": "list-tags-containing",
+    "simplicity_rank": 1,
+    "usage": "git tag --contains HEAD\nList all tags which contain a given commit (`HEAD` if not specified):",
+    "topic": "tag",
+    "primary_example": "git tag --contains HEAD",
+    "command": "git tag",
+    "source": "tldr"
+  },
+  {
+    "id": "list-all-the-working-directories-including-the-primary-one",
+    "title": "List all the working directories (including the primary one):",
+    "commands": [
+      {
+        "run": "git worktree list",
+        "comment": "List all the working directories (including the primary one):"
+      }
+    ],
+    "explanation": "List all the working directories (including the primary one):.",
+    "intent_family": "worktree-list",
+    "simplicity_rank": 1,
+    "usage": "git worktree list\nList all the working directories (including the primary one):",
+    "topic": "advanced",
+    "primary_example": "git worktree list",
+    "command": "git worktree",
+    "source": "tldr"
+  },
+  {
+    "id": "move-part-of-the-current-branch-onto-a-new-base-providing-the-old-base-to-start-",
+    "title": "Move part of the current branch onto a new base, providing the old base to start from:",
+    "commands": [
+      {
+        "run": "git rebase --onto upstream upstream",
+        "comment": "Move part of the current branch onto a new base, providing the old base to start from:"
+      }
+    ],
+    "explanation": "Move part of the current branch onto a new base, providing the old base to start from:.",
+    "intent_family": "rebase-onto",
+    "simplicity_rank": 1,
+    "usage": "git rebase --onto upstream upstream\nMove part of the current branch onto a new base, providing the old base to start from:",
+    "topic": "rebase",
+    "primary_example": "git rebase --onto upstream upstream",
+    "command": "git rebase",
+    "source": "tldr"
+  },
+  {
+    "id": "open-an-editor-to-write-a-message-and-commit-staged-files-to-the-repository",
+    "title": "Open an editor to write a message and commit staged files to the repository:",
+    "commands": [
+      {
+        "run": "git commit",
+        "comment": "Open an editor to write a message and commit staged files to the repository:"
+      }
+    ],
+    "explanation": "Open an editor to write a message and commit staged files to the repository:.",
+    "intent_family": "commit-staged",
+    "simplicity_rank": 1,
+    "usage": "git commit\nOpen an editor to write a message and commit staged files to the repository:",
+    "topic": "commit",
+    "primary_example": "git commit",
+    "command": "git commit",
+    "source": "tldr"
+  },
+  {
+    "id": "publish-tags-that-aren-t-yet-in-the-remote-repository",
+    "title": "Publish tags that aren't yet in the remote repository:",
+    "commands": [
+      {
+        "run": "git push --tags",
+        "comment": "Publish tags that aren't yet in the remote repository:"
+      }
+    ],
+    "explanation": "Publish tags that aren't yet in the remote repository:.",
+    "intent_family": "push-tags",
+    "simplicity_rank": 1,
+    "usage": "git push --tags\nPublish tags that aren't yet in the remote repository:",
+    "topic": "sync",
+    "primary_example": "git push --tags",
+    "command": "git push",
+    "source": "tldr"
+  },
+  {
+    "id": "push-a-tag-to-remote",
+    "title": "Push a tag to remote:",
+    "commands": [
+      {
+        "run": "git push origin tag upstream",
+        "comment": "Push a tag to remote:"
+      }
+    ],
+    "explanation": "Push a tag to remote:.",
+    "intent_family": "push-tag",
+    "simplicity_rank": 1,
+    "usage": "git push origin tag upstream\nPush a tag to remote:",
+    "topic": "sync",
+    "primary_example": "git push origin tag upstream",
+    "command": "git push",
+    "source": "tldr"
+  },
+  {
+    "id": "rebase-the-current-branch-on-top-of-another-specified-branch",
+    "title": "Rebase the current branch on top of another specified branch:",
+    "commands": [
+      {
+        "run": "git rebase upstream",
+        "comment": "Rebase the current branch on top of another specified branch:"
+      }
+    ],
+    "explanation": "Rebase the current branch on top of another specified branch:.",
+    "intent_family": "rebase-branch",
+    "simplicity_rank": 1,
+    "usage": "git rebase upstream\nRebase the current branch on top of another specified branch:",
+    "topic": "rebase",
+    "primary_example": "git rebase upstream",
+    "command": "git rebase",
+    "source": "tldr"
+  },
+  {
+    "id": "reduce-the-repository-to-only-the-git-directory",
+    "title": "Reduce the repository to only the `.git` directory:",
+    "commands": [
+      {
+        "run": "git rm -r .",
+        "comment": "Reduce the repository to only the `.git` directory:"
+      }
+    ],
+    "explanation": "Reduce the repository to only the `.git` directory:.",
+    "intent_family": "remove-working-tree",
+    "simplicity_rank": 1,
+    "usage": "git rm -r .\nReduce the repository to only the `.git` directory:",
+    "topic": "advanced",
+    "primary_example": "git rm -r .",
+    "command": "git rm",
+    "source": "tldr"
+  },
+  {
+    "id": "remove-a-remote",
+    "title": "Remove a remote:",
+    "commands": [
+      {
+        "run": "git remote remove upstream",
+        "comment": "Remove a remote:"
+      }
+    ],
+    "explanation": "Remove a remote:.",
+    "intent_family": "remote-remove",
+    "simplicity_rank": 1,
+    "usage": "git remote remove upstream\nRemove a remote:",
+    "topic": "remote",
+    "primary_example": "git remote remove upstream",
+    "command": "git remote",
+    "source": "tldr"
+  },
+  {
+    "id": "remove-metadata-for-a-worktree-directory-that-s-been-manually-deleted",
+    "title": "Remove metadata for a worktree directory that's been manually deleted:",
+    "commands": [
+      {
+        "run": "git worktree prune",
+        "comment": "Remove metadata for a worktree directory that's been manually deleted:"
+      }
+    ],
+    "explanation": "Remove metadata for a worktree directory that's been manually deleted:.",
+    "intent_family": "worktree-prune",
+    "simplicity_rank": 1,
+    "usage": "git worktree prune\nRemove metadata for a worktree directory that's been manually deleted:",
+    "topic": "advanced",
+    "primary_example": "git worktree prune",
+    "command": "git worktree",
+    "source": "tldr"
+  },
+  {
+    "id": "remove-remote-branches-that-don-t-have-a-local-counterpart",
+    "title": "Remove remote branches that don't have a local counterpart:",
+    "commands": [
+      {
+        "run": "git push --prune upstream",
+        "comment": "Remove remote branches that don't have a local counterpart:"
+      }
+    ],
+    "explanation": "Remove remote branches that don't have a local counterpart:.",
+    "intent_family": "prune-remote-branches",
+    "simplicity_rank": 1,
+    "usage": "git push --prune upstream\nRemove remote branches that don't have a local counterpart:",
+    "topic": "sync",
+    "primary_example": "git push --prune upstream",
+    "command": "git push",
+    "source": "tldr"
+  },
+  {
+    "id": "rename-a-remote",
+    "title": "Rename a remote:",
+    "commands": [
+      {
+        "run": "git remote rename upstream upstream",
+        "comment": "Rename a remote:"
+      }
+    ],
+    "explanation": "Rename a remote:.",
+    "intent_family": "remote-rename",
+    "simplicity_rank": 1,
+    "usage": "git remote rename upstream upstream\nRename a remote:",
+    "topic": "remote",
+    "primary_example": "git remote rename upstream upstream",
+    "command": "git remote",
+    "source": "tldr"
+  },
+  {
+    "id": "reset-the-repository-to-a-given-commit-discarding-committed-staged-and-uncommitt",
+    "title": "Reset the repository to a given commit, discarding committed, staged, and uncommitted changes since then:",
+    "commands": [
+      {
+        "run": "git reset --hard HEAD",
+        "comment": "Reset the repository to a given commit, discarding committed, staged, and uncommitted changes since then:"
+      }
+    ],
+    "explanation": "Reset the repository to a given commit, discarding committed, staged, and uncommitted changes since then:.",
+    "intent_family": "hard-reset",
+    "simplicity_rank": 2,
+    "usage": "git reset --hard HEAD\nReset the repository to a given commit, discarding committed, staged, and uncommitted changes since then:",
+    "topic": "undo",
+    "primary_example": "git reset --hard HEAD",
+    "command": "git reset",
+    "source": "tldr"
+  },
+  {
+    "id": "revert-a-specific-commit",
+    "title": "Revert a specific commit:",
+    "commands": [
+      {
+        "run": "git revert upstream",
+        "comment": "Revert a specific commit:"
+      }
+    ],
+    "explanation": "Revert a specific commit:.",
+    "intent_family": "revert-commit",
+    "simplicity_rank": 3,
+    "usage": "git revert upstream\nRevert a specific commit:",
+    "topic": "undo",
+    "primary_example": "git revert upstream",
+    "command": "git revert",
+    "source": "tldr"
+  },
+  {
+    "id": "revert-the-5th-last-commit",
+    "title": "Revert the 5th last commit:",
+    "commands": [
+      {
+        "run": "git revert HEAD~4",
+        "comment": "Revert the 5th last commit:"
+      }
+    ],
+    "explanation": "Revert the 5th last commit:.",
+    "intent_family": "revert-commit",
+    "simplicity_rank": 2,
+    "usage": "git revert HEAD~4\nRevert the 5th last commit:",
+    "topic": "undo",
+    "primary_example": "git revert HEAD~4",
+    "command": "git revert",
+    "source": "tldr"
+  },
+  {
+    "id": "revert-the-most-recent-commit",
+    "title": "Revert the most recent commit:",
+    "commands": [
+      {
+        "run": "git revert HEAD",
+        "comment": "Revert the most recent commit:"
+      }
+    ],
+    "explanation": "Revert the most recent commit:.",
+    "intent_family": "revert-commit",
+    "simplicity_rank": 1,
+    "usage": "git revert HEAD\nRevert the most recent commit:",
+    "topic": "undo",
+    "primary_example": "git revert HEAD",
+    "command": "git revert",
+    "source": "tldr"
+  },
+  {
+    "id": "send-changes-from-a-specific-local-branch-to-a-specific-remote-branch",
+    "title": "Send changes from a specific local branch to a specific remote branch:",
+    "commands": [
+      {
+        "run": "git push upstream upstream:upstream",
+        "comment": "Send changes from a specific local branch to a specific remote branch:"
+      }
+    ],
+    "explanation": "Send changes from a specific local branch to a specific remote branch:.",
+    "intent_family": "push-branch-to-remote",
+    "simplicity_rank": 1,
+    "usage": "git push upstream upstream:upstream\nSend changes from a specific local branch to a specific remote branch:",
+    "topic": "sync",
+    "primary_example": "git push upstream upstream:upstream",
+    "command": "git push",
+    "source": "tldr"
+  },
+  {
+    "id": "send-changes-from-a-specific-local-branch-to-its-remote-counterpart",
+    "title": "Send changes from a specific local branch to its remote counterpart:",
+    "commands": [
+      {
+        "run": "git push upstream upstream",
+        "comment": "Send changes from a specific local branch to its remote counterpart:"
+      }
+    ],
+    "explanation": "Send changes from a specific local branch to its remote counterpart:.",
+    "intent_family": "push-branch",
+    "simplicity_rank": 1,
+    "usage": "git push upstream upstream\nSend changes from a specific local branch to its remote counterpart:",
+    "topic": "sync",
+    "primary_example": "git push upstream upstream",
+    "command": "git push",
+    "source": "tldr"
+  },
+  {
+    "id": "send-changes-on-all-local-branches-to-their-counterparts-in-a-given-remote-repos",
+    "title": "Send changes on all local branches to their counterparts in a given remote repository:",
+    "commands": [
+      {
+        "run": "git push --all upstream",
+        "comment": "Send changes on all local branches to their counterparts in a given remote repository:"
+      }
+    ],
+    "explanation": "Send changes on all local branches to their counterparts in a given remote repository:.",
+    "intent_family": "push-all-branches",
+    "simplicity_rank": 1,
+    "usage": "git push --all upstream\nSend changes on all local branches to their counterparts in a given remote repository:",
+    "topic": "sync",
+    "primary_example": "git push --all upstream",
+    "command": "git push",
+    "source": "tldr"
+  },
+  {
+    "id": "send-local-changes-in-the-current-branch-to-its-default-remote-counterpart",
+    "title": "Send local changes in the current branch to its default remote counterpart:",
+    "commands": [
+      {
+        "run": "git push",
+        "comment": "Send local changes in the current branch to its default remote counterpart:"
+      }
+    ],
+    "explanation": "Send local changes in the current branch to its default remote counterpart:.",
+    "intent_family": "push-default",
+    "simplicity_rank": 1,
+    "usage": "git push\nSend local changes in the current branch to its default remote counterpart:",
+    "topic": "sync",
+    "primary_example": "git push",
+    "command": "git push",
+    "source": "tldr"
+  },
+  {
+    "id": "show-information-about-a-remote",
+    "title": "Show information about a remote:",
+    "commands": [
+      {
+        "run": "git remote show upstream",
+        "comment": "Show information about a remote:"
+      }
+    ],
+    "explanation": "Show information about a remote:.",
+    "intent_family": "remote-info",
+    "simplicity_rank": 1,
+    "usage": "git remote show upstream\nShow information about a remote:",
+    "topic": "remote",
+    "primary_example": "git remote show upstream",
+    "command": "git remote",
+    "source": "tldr"
+  },
+  {
+    "id": "show-information-about-the-3rd-commit-from-the-head-of-a-branch",
+    "title": "Show information about the 3rd commit from the `HEAD` of a branch:",
+    "commands": [
+      {
+        "run": "git show main~upstream",
+        "comment": "Show information about the 3rd commit from the `HEAD` of a branch:"
+      }
+    ],
+    "explanation": "Show information about the 3rd commit from the `HEAD` of a branch:.",
+    "intent_family": "show-commit",
+    "simplicity_rank": 2,
+    "usage": "git show main~upstream\nShow information about the 3rd commit from the `HEAD` of a branch:",
+    "topic": "advanced",
+    "primary_example": "git show main~upstream",
+    "command": "git show",
+    "source": "tldr"
+  },
+  {
+    "id": "show-information-about-the-latest-commit-hash-message-changes-and-other-metadata",
+    "title": "Show information about the latest commit (hash, message, changes, and other metadata):",
+    "commands": [
+      {
+        "run": "git show",
+        "comment": "Show information about the latest commit (hash, message, changes, and other metadata):"
+      }
+    ],
+    "explanation": "Show information about the latest commit (hash, message, changes, and other metadata):.",
+    "intent_family": "show-commit",
+    "simplicity_rank": 1,
+    "usage": "git show\nShow information about the latest commit (hash, message, changes, and other metadata):",
+    "topic": "advanced",
+    "primary_example": "git show",
+    "command": "git show",
+    "source": "tldr"
+  },
+  {
+    "id": "show-remaining-candidate-commits-to-be-checked",
+    "title": "Show remaining candidate commits to be checked:",
+    "commands": [
+      {
+        "run": "git bisect visualize",
+        "comment": "Show remaining candidate commits to be checked:"
+      }
+    ],
+    "explanation": "Show remaining candidate commits to be checked:.",
+    "intent_family": "visualize-bisect",
+    "simplicity_rank": 1,
+    "usage": "git bisect visualize\nShow remaining candidate commits to be checked:",
+    "topic": "advanced",
+    "primary_example": "git bisect visualize",
+    "command": "git bisect",
+    "source": "tldr"
+  },
+  {
+    "id": "show-the-name-of-the-current-branch",
+    "title": "Show the name of the current branch:",
+    "commands": [
+      {
+        "run": "git branch --show-current",
+        "comment": "Show the name of the current branch:"
+      }
+    ],
+    "explanation": "Show the name of the current branch:.",
+    "intent_family": "show-current-branch",
+    "simplicity_rank": 1,
+    "usage": "git branch --show-current\nShow the name of the current branch:",
+    "topic": "branch",
+    "primary_example": "git branch --show-current",
+    "command": "git branch",
+    "source": "tldr"
+  },
+  {
+    "id": "show-the-number-of-entries-currently-stashed-away",
+    "title": "Show the number of entries currently stashed away:",
+    "commands": [
+      {
+        "run": "git status --show-stash",
+        "comment": "Show the number of entries currently stashed away:"
+      }
+    ],
+    "explanation": "Show the number of entries currently stashed away:.",
+    "intent_family": "view-status",
+    "simplicity_rank": 2,
+    "usage": "git status --show-stash\nShow the number of entries currently stashed away:",
+    "topic": "status",
+    "primary_example": "git status --show-stash",
+    "command": "git status",
+    "source": "tldr"
+  },
+  {
+    "id": "show-the-reflog-for-a-given-branch",
+    "title": "Show the reflog for a given branch:",
+    "commands": [
+      {
+        "run": "git reflog upstream",
+        "comment": "Show the reflog for a given branch:"
+      }
+    ],
+    "explanation": "Show the reflog for a given branch:.",
+    "intent_family": "view-reflog",
+    "simplicity_rank": 2,
+    "usage": "git reflog upstream\nShow the reflog for a given branch:",
+    "topic": "advanced",
+    "primary_example": "git reflog upstream",
+    "command": "git reflog",
+    "source": "tldr"
+  },
+  {
+    "id": "show-the-reflog-for-head",
+    "title": "Show the reflog for `HEAD`:",
+    "commands": [
+      {
+        "run": "git reflog",
+        "comment": "Show the reflog for `HEAD`:"
+      }
+    ],
+    "explanation": "Show the reflog for `HEAD`:.",
+    "intent_family": "view-reflog",
+    "simplicity_rank": 1,
+    "usage": "git reflog\nShow the reflog for `HEAD`:",
+    "topic": "advanced",
+    "primary_example": "git reflog",
+    "command": "git reflog",
+    "source": "tldr"
+  },
+  {
+    "id": "show-the-sequence-of-commits-starting-from-the-current-one-in-reverse-chronologi",
+    "title": "Show the sequence of commits starting from the current one, in reverse chronological order of the Git repository in the current working directory:",
+    "commands": [
+      {
+        "run": "git log",
+        "comment": "Show the sequence of commits starting from the current one, in reverse chronological order of the Git repository in the current working directory:"
+      }
+    ],
+    "explanation": "Show the sequence of commits starting from the current one, in reverse chronological order of the Git repository in the current working directory:.",
+    "intent_family": "show-commit-log",
+    "simplicity_rank": 1,
+    "usage": "git log\nShow the sequence of commits starting from the current one, in reverse chronological order of the Git repository in the current working directory:",
+    "topic": "history",
+    "primary_example": "git log",
+    "command": "git log",
+    "source": "tldr"
+  },
+  {
+    "id": "show-the-url-of-a-remote",
+    "title": "Show the URL of a remote:",
+    "commands": [
+      {
+        "run": "git remote get-url upstream",
+        "comment": "Show the URL of a remote:"
+      }
+    ],
+    "explanation": "Show the URL of a remote:.",
+    "intent_family": "remote-get-url",
+    "simplicity_rank": 1,
+    "usage": "git remote get-url upstream\nShow the URL of a remote:",
+    "topic": "remote",
+    "primary_example": "git remote get-url upstream",
+    "command": "git remote",
+    "source": "tldr"
+  },
+  {
+    "id": "show-unstaged-changes",
+    "title": "Show unstaged changes:",
+    "commands": [
+      {
+        "run": "git diff",
+        "comment": "Show unstaged changes:"
+      }
+    ],
+    "explanation": "Show unstaged changes:.",
+    "intent_family": "show-unstaged-diff",
+    "simplicity_rank": 1,
+    "usage": "git diff\nShow unstaged changes:",
+    "topic": "diff",
+    "primary_example": "git diff",
+    "command": "git diff",
+    "source": "tldr"
+  },
+  {
+    "id": "skip-a-commit-during-a-bisect-e-g-one-that-fails-the-tests-due-to-a-different-is",
+    "title": "Skip a commit during a bisect (e.g. one that fails the tests due to a different issue):",
+    "commands": [
+      {
+        "run": "git bisect skip",
+        "comment": "Skip a commit during a bisect (e.g. one that fails the tests due to a different issue):"
+      }
+    ],
+    "explanation": "Skip a commit during a bisect (e.g. one that fails the tests due to a different issue):.",
+    "intent_family": "skip-bisect-commit",
+    "simplicity_rank": 1,
+    "usage": "git bisect skip\nSkip a commit during a bisect (e.g. one that fails the tests due to a different issue):",
+    "topic": "advanced",
+    "primary_example": "git bisect skip",
+    "command": "git bisect",
+    "source": "tldr"
+  },
+  {
+    "id": "start-a-bisect-session-on-a-commit-range-bounded-by-a-known-buggy-commit-and-a-k",
+    "title": "Start a bisect session on a commit range bounded by a known buggy commit, and a known clean (typically older) one:",
+    "commands": [
+      {
+        "run": "git bisect start upstream upstream",
+        "comment": "Start a bisect session on a commit range bounded by a known buggy commit, and a known clean (typically older) one:"
+      }
+    ],
+    "explanation": "Start a bisect session on a commit range bounded by a known buggy commit, and a known clean (typically older) one:.",
+    "intent_family": "start-bisect",
+    "simplicity_rank": 1,
+    "usage": "git bisect start upstream upstream\nStart a bisect session on a commit range bounded by a known buggy commit, and a known clean (typically older) one:",
+    "topic": "advanced",
+    "primary_example": "git bisect start upstream upstream",
+    "command": "git bisect",
+    "source": "tldr"
+  },
+  {
+    "id": "stash-the-current-uncommitted-changes",
+    "title": "Stash the current uncommitted changes:",
+    "commands": [
+      {
+        "run": "git stash",
+        "comment": "Stash the current uncommitted changes:"
+      }
+    ],
+    "explanation": "Stash the current uncommitted changes:.",
+    "intent_family": "stash-save",
+    "simplicity_rank": 1,
+    "usage": "git stash\nStash the current uncommitted changes:",
+    "topic": "stash",
+    "primary_example": "git stash",
+    "command": "git stash",
+    "source": "tldr"
+  },
+  {
+    "id": "switch-to-an-existing-branch",
+    "title": "Switch to an existing branch:",
+    "commands": [
+      {
+        "run": "git switch upstream",
+        "comment": "Switch to an existing branch:"
+      }
+    ],
+    "explanation": "Switch to an existing branch:.",
+    "intent_family": "switch-branch",
+    "simplicity_rank": 1,
+    "usage": "git switch upstream\nSwitch to an existing branch:",
+    "topic": "branch",
+    "primary_example": "git switch upstream",
+    "command": "git switch",
+    "source": "tldr"
+  },
+  {
+    "id": "switch-to-an-existing-local-branch",
+    "title": "Switch to an existing local branch:",
+    "commands": [
+      {
+        "run": "git checkout upstream",
+        "comment": "Switch to an existing local branch:"
+      }
+    ],
+    "explanation": "Switch to an existing local branch:.",
+    "intent_family": "switch-branch",
+    "simplicity_rank": 1,
+    "usage": "git checkout upstream\nSwitch to an existing local branch:",
+    "topic": "branch",
+    "primary_example": "git checkout upstream",
+    "command": "git checkout",
+    "source": "tldr"
+  },
+  {
+    "id": "switch-to-the-previous-branch",
+    "title": "Switch to the previous branch:",
+    "commands": [
+      {
+        "run": "git switch -",
+        "comment": "Switch to the previous branch:"
+      }
+    ],
+    "explanation": "Switch to the previous branch:.",
+    "intent_family": "switch-branch",
+    "simplicity_rank": 2,
+    "usage": "git switch -\nSwitch to the previous branch:",
+    "topic": "branch",
+    "primary_example": "git switch -",
+    "command": "git switch",
+    "source": "tldr"
+  },
+  {
+    "id": "switch-to-the-previously-checked-out-branch",
+    "title": "Switch to the previously checked out branch:",
+    "commands": [
+      {
+        "run": "git checkout -",
+        "comment": "Switch to the previously checked out branch:"
+      }
+    ],
+    "explanation": "Switch to the previously checked out branch:.",
+    "intent_family": "switch-branch",
+    "simplicity_rank": 2,
+    "usage": "git checkout -\nSwitch to the previously checked out branch:",
+    "topic": "branch",
+    "primary_example": "git checkout -",
+    "command": "git checkout",
+    "source": "tldr"
+  },
+  {
+    "id": "undo-the-last-commit-keeping-its-changes-and-any-further-uncommitted-changes-in-",
+    "title": "Undo the last commit, keeping its changes (and any further uncommitted changes) in the filesystem:",
+    "commands": [
+      {
+        "run": "git reset HEAD~",
+        "comment": "Undo the last commit, keeping its changes (and any further uncommitted changes) in the filesystem:"
+      }
+    ],
+    "explanation": "Undo the last commit, keeping its changes (and any further uncommitted changes) in the filesystem:.",
+    "intent_family": "soft-undo",
+    "simplicity_rank": 1,
+    "usage": "git reset HEAD~\nUndo the last commit, keeping its changes (and any further uncommitted changes) in the filesystem:",
+    "topic": "undo",
+    "primary_example": "git reset HEAD~",
+    "command": "git reset",
+    "source": "tldr"
+  },
+  {
+    "id": "undo-the-last-two-commits-adding-their-changes-to-the-index-i-e-staged-for-commi",
+    "title": "Undo the last two commits, adding their changes to the index, i.e. staged for commit:",
+    "commands": [
+      {
+        "run": "git reset --soft HEAD~2",
+        "comment": "Undo the last two commits, adding their changes to the index, i.e. staged for commit:"
+      }
+    ],
+    "explanation": "Undo the last two commits, adding their changes to the index, i.e. staged for commit:.",
+    "intent_family": "soft-undo",
+    "simplicity_rank": 2,
+    "usage": "git reset --soft HEAD~2\nUndo the last two commits, adding their changes to the index, i.e. staged for commit:",
+    "topic": "undo",
+    "primary_example": "git reset --soft HEAD~2",
+    "command": "git reset",
+    "source": "tldr"
+  },
+  {
+    "id": "unstage-everything",
+    "title": "Unstage everything:",
+    "commands": [
+      {
+        "run": "git reset",
+        "comment": "Unstage everything:"
+      }
+    ],
+    "explanation": "Unstage everything:.",
+    "intent_family": "unstage-all",
+    "simplicity_rank": 1,
+    "usage": "git reset\nUnstage everything:",
+    "topic": "undo",
+    "primary_example": "git reset",
+    "command": "git reset",
+    "source": "tldr"
+  },
+  {
+    "id": "update-the-last-commit-by-adding-the-currently-staged-changes-changing-the-commi",
+    "title": "Update the last commit by adding the currently staged changes, changing the commit's hash and open an editor to change the message:",
+    "commands": [
+      {
+        "run": "git commit --amend",
+        "comment": "Update the last commit by adding the currently staged changes, changing the commit's hash and open an editor to change the message:"
+      }
+    ],
+    "explanation": "Update the last commit by adding the currently staged changes, changing the commit's hash and open an editor to change the message:.",
+    "intent_family": "amend-commit",
+    "simplicity_rank": 1,
+    "usage": "git commit --amend\nUpdate the last commit by adding the currently staged changes, changing the commit's hash and open an editor to change the message:",
+    "topic": "commit",
+    "primary_example": "git commit --amend",
+    "command": "git commit",
+    "source": "tldr"
+  },
+  {
+    "id": "update-the-main-branch-without-switching-to-it-equivalent-to-git-pull",
+    "title": "Update the `main` branch without switching to it (equivalent to `git pull`):",
+    "commands": [
+      {
+        "run": "git fetch upstream main:main",
+        "comment": "Update the `main` branch without switching to it (equivalent to `git pull`):"
+      }
+    ],
+    "explanation": "Update the `main` branch without switching to it (equivalent to `git pull`):.",
+    "intent_family": "fetch-update-branch",
+    "simplicity_rank": 1,
+    "usage": "git fetch upstream main:main\nUpdate the `main` branch without switching to it (equivalent to `git pull`):",
+    "topic": "sync",
+    "primary_example": "git fetch upstream main:main",
+    "command": "git fetch",
+    "source": "tldr"
+  }
+]
