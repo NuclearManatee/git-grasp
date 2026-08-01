@@ -1,0 +1,312 @@
+{
+  "version": 1,
+  "generated_at": "2026-08-01T15:32:16.225Z",
+  "cells": [
+    {
+      "skill_level": "nontechnical",
+      "intent_category": "goal",
+      "description": "Nontechnical users with a goal intent describe what they want to achieve in plain, everyday language, often without any Git-specific terms. They might say 'I want to save my work' or 'I need to get my files back to how they were yesterday.' Their queries are forward-looking and outcome-focused, but they lack the vocabulary to specify Git commands or flags.",
+      "dos": [
+        "Use plain, everyday language that describes the desired outcome, e.g., 'save my work', 'undo my last change', 'get my project back to a working state'.",
+        "Focus on the goal itself, not the steps or tools, e.g., 'I want to share my code with a teammate' instead of 'push to remote'.",
+        "Include context about the situation if it helps clarify the goal, e.g., 'I made a mistake and want to go back'.",
+        "Use natural phrasing that a nontechnical person would use when asking for help, e.g., 'How do I...' or 'I need to...'.",
+        "Keep the query concise and to the point, avoiding any technical jargon or command syntax."
+      ],
+      "donts": [
+        "Do not use Git-specific terms like 'commit', 'branch', 'merge', 'rebase', 'stash', or 'checkout'.",
+        "Do not mention specific commands or flags, e.g., 'git reset --hard' or 'git log --oneline'.",
+        "Do not describe the problem in terms of Git internals, e.g., 'my HEAD is detached' or 'I have a merge conflict'.",
+        "Do not use a frustrated or panicked tone that might obscure the actual goal, e.g., 'I messed everything up, fix it!'.",
+        "Do not assume knowledge of version control concepts like 'remote', 'repository', or 'working directory'."
+      ]
+    },
+    {
+      "skill_level": "nontechnical",
+      "intent_category": "error_message",
+      "description": "Nontechnical users encountering a Git error describe the problem in plain, everyday language, often quoting the error text verbatim or paraphrasing it with emotional context. They focus on the immediate symptom and what they were trying to do, without using Git-specific terms.",
+      "dos": [
+        "Use plain, everyday words to describe the error symptom (e.g., 'it says fatal: not a git repository').",
+        "Include the exact error message text if known, even if you don't understand it.",
+        "Mention what you were trying to do when the error appeared (e.g., 'I was trying to save my work').",
+        "Express urgency or confusion naturally (e.g., 'help!', 'why is this happening?').",
+        "Keep the query short and focused on the immediate problem."
+      ],
+      "donts": [
+        "Do not use Git jargon like 'branch', 'commit', 'merge', 'remote', or 'index'.",
+        "Do not mention specific Git commands or flags (e.g., 'git push -f').",
+        "Do not speculate about causes or solutions using technical terms.",
+        "Do not provide a long history of actions; stick to the current error.",
+        "Do not use formal or precise technical language; keep it conversational."
+      ]
+    },
+    {
+      "skill_level": "nontechnical",
+      "intent_category": "symptom",
+      "description": "Nontechnical users describe the broken state in plain, everyday language, focusing on what they see or what went wrong, without using Git terms. They might say 'I lost my work' or 'It says merge conflict' rather than naming a command.",
+      "dos": [
+        "Use plain, everyday words to describe the symptom (e.g., 'lost', 'stuck', 'error', 'wrong').",
+        "Mention the exact error message or visible behavior if known.",
+        "Include what you were trying to do just before the problem.",
+        "Keep it short and focused on the symptom, not the solution.",
+        "Use natural phrasing as if speaking to a colleague."
+      ],
+      "donts": [
+        "Do not use Git jargon like 'commit', 'branch', 'rebase', 'checkout'.",
+        "Do not guess or include commands you think might fix it.",
+        "Do not describe the desired outcome instead of the symptom.",
+        "Do not include excessive detail about unrelated steps.",
+        "Do not use technical terms like 'HEAD', 'index', 'working tree'."
+      ]
+    },
+    {
+      "skill_level": "nontechnical",
+      "intent_category": "conversational",
+      "description": "Nontechnical users in the conversational category type natural, chatty, or incomplete phrases as if speaking to a human. They describe their problem in plain language, often with emotional cues or urgency, and expect the tool to understand intent without formal Git terminology.",
+      "dos": [
+        "Use plain, everyday language to describe the goal or problem.",
+        "Include emotional or urgency cues like 'help', 'lost', 'accidentally', 'please'.",
+        "Phrase as a complete question or statement, as if asking a colleague.",
+        "Mention the outcome you want, not the Git command.",
+        "Keep it short and natural; avoid technical jargon.",
+        "Use conversational connectors like 'I need to', 'I want to', 'how do I'."
+      ],
+      "donts": [
+        "Do not use Git-specific terms like 'commit', 'branch', 'merge', 'rebase'.",
+        "Do not mention flags or options (e.g., '--hard', '-f').",
+        "Do not paste a command or error message verbatim.",
+        "Do not use formal or imperative phrasing like 'Show me the log'.",
+        "Do not assume knowledge of repositories or remotes.",
+        "Do not mix multiple intents in one query."
+      ]
+    },
+    {
+      "skill_level": "beginner",
+      "intent_category": "goal",
+      "description": "A beginner with a goal in mind describes the desired outcome in plain, everyday language, often using 'I want to' or 'I need to' phrasing. They focus on the end result rather than the specific Git commands, expecting the tool to translate their intent into actionable steps.",
+      "dos": [
+        "Use natural, conversational language that states the desired outcome clearly, e.g., 'I want to save my work to the cloud.'",
+        "Include the object of the goal (e.g., 'my changes', 'this branch') to provide context.",
+        "Use verbs that describe the outcome, like 'save', 'share', 'undo', 'update', 'remove'.",
+        "Keep the query concise and focused on a single goal to avoid ambiguity.",
+        "If unsure about terminology, describe the situation in your own words; the tool should understand common phrases."
+      ],
+      "donts": [
+        "Do not use Git jargon or command names (e.g., 'commit', 'push', 'rebase') unless you are certain of their meaning.",
+        "Do not include multiple goals in one query; break them into separate requests.",
+        "Do not use vague phrases like 'do something with my code' without specifying the outcome.",
+        "Do not mention flags or options (e.g., '--force', '-a') as you may not know their purpose.",
+        "Do not paste a command you found online; describe the goal instead."
+      ]
+    },
+    {
+      "skill_level": "beginner",
+      "intent_category": "error_message",
+      "description": "A beginner encountering a Git error will describe the error in plain terms, often quoting the message verbatim or paraphrasing it simply. They may include the command that caused it and ask for a fix, expecting a step-by-step explanation.",
+      "dos": [
+        "Quote the exact error message or a close paraphrase to ensure the search tool matches the relevant context.",
+        "Include the command that triggered the error, e.g., 'git push' or 'git merge'.",
+        "Use simple, everyday language to describe the problem, like 'it says' or 'I got an error'.",
+        "Mention the specific Git noun involved, such as 'branch', 'commit', or 'remote'.",
+        "Ask for a fix or explanation directly, e.g., 'what does this mean?' or 'how do I fix it?'"
+      ],
+      "donts": [
+        "Avoid using advanced Git terminology or workflow jargon like 'rebase', 'cherry-pick', or 'detached HEAD'.",
+        "Do not omit the error message or replace it with a vague description like 'something went wrong'.",
+        "Do not paste the entire terminal output or stack trace; focus on the error line.",
+        "Do not ask for a solution without providing the error context, as the tool needs the message to identify the issue.",
+        "Avoid mixing multiple errors or commands in one query; keep it focused on a single problem."
+      ]
+    },
+    {
+      "skill_level": "beginner",
+      "intent_category": "symptom",
+      "description": "Beginners describing a broken state use plain, observable language about what they see or what went wrong, often with emotional or temporal context, without knowing the underlying command. They phrase queries as 'I did X and now Y happens' or 'Z is not working'.",
+      "dos": [
+        "Describe the observable symptom in plain words (e.g., 'my commit is missing', 'the branch shows wrong files').",
+        "Mention the action that preceded the problem (e.g., 'after I merged, I see...').",
+        "Use everyday vocabulary over Git jargon (e.g., 'files disappeared' instead of 'index mismatch').",
+        "Include error messages or unexpected output verbatim if present.",
+        "State the desired outcome implicitly (e.g., 'I want to get back to the state before...')."
+      ],
+      "donts": [
+        "Do not name the command you think might fix it (e.g., 'how to reset --hard?').",
+        "Do not use advanced Git terminology (e.g., 'detached HEAD', 'rebase conflict').",
+        "Do not paste a full command or script as the query.",
+        "Do not describe the symptom in abstract terms without context (e.g., 'it's broken').",
+        "Do not ask for a general tutorial; focus on the specific broken state."
+      ]
+    },
+    {
+      "skill_level": "beginner",
+      "intent_category": "conversational",
+      "description": "A beginner using conversational phrasing types natural, chatty questions or commands as if talking to a person, often incomplete or with filler words. They rely on plain language and may not know exact Git terms, so they describe what they want in everyday words.",
+      "dos": [
+        "Use natural, full sentences or questions like 'how do I save my changes?'",
+        "Include context words like 'my', 'this', 'that' to refer to the current situation.",
+        "Use common verbs like 'save', 'undo', 'see', 'go back' instead of Git-specific ones.",
+        "Keep it short and informal, as if texting a friend.",
+        "Mention the goal or outcome, not the command, e.g., 'I want to get rid of my last change'."
+      ],
+      "donts": [
+        "Avoid using Git jargon like 'commit', 'stash', 'revert' unless you know them.",
+        "Don't write full command syntax with flags (e.g., 'git commit -m') — that's for other intents.",
+        "Don't be overly formal or technical; that's not conversational.",
+        "Don't assume knowledge of concepts like HEAD, index, or working tree.",
+        "Don't paste a command you found online; describe what you want to do."
+      ]
+    },
+    {
+      "skill_level": "intermediate",
+      "intent_category": "goal",
+      "description": "Intermediate users with a goal intent phrase queries as clear, outcome-oriented objectives, often including the specific Git command or action they want to perform. They use natural language but expect the tool to understand Git-specific terms and context.",
+      "dos": [
+        "State the desired outcome directly, e.g., 'show the last commit that changed this file'.",
+        "Use Git terminology accurately, e.g., 'stash', 'cherry-pick', 'rebase'.",
+        "Include relevant context like branch names, file paths, or commit messages when needed.",
+        "Keep queries concise but complete, avoiding unnecessary words.",
+        "Use imperative or question form, e.g., 'how do I undo the last commit?' or 'undo last commit'."
+      ],
+      "donts": [
+        "Avoid vague or ambiguous phrasing like 'fix my repo' without specifics.",
+        "Do not paste full commands with flags; describe the goal instead.",
+        "Avoid mixing multiple unrelated goals in one query.",
+        "Do not use overly technical jargon that obscures the intent, e.g., 'reflog manipulation'.",
+        "Avoid assuming the tool knows your exact repository state; provide necessary context."
+      ]
+    },
+    {
+      "skill_level": "intermediate",
+      "intent_category": "error_message",
+      "description": "Intermediate users encountering a Git error will phrase queries by quoting or paraphrasing the exact error text, often adding context about the operation they were performing. They expect the tool to recognize the error and provide a targeted fix or explanation.",
+      "dos": [
+        "Quote the error message verbatim or closely paraphrase it, including key terms like 'fatal', 'error', 'warning', or 'hint'.",
+        "Include the Git command that triggered the error (e.g., 'git push', 'git merge') to provide context.",
+        "Mention the specific repository state or operation (e.g., 'during rebase', 'when pulling') if relevant.",
+        "Use natural language that mirrors the error's phrasing, such as 'not a git repository' or 'uncommitted changes'.",
+        "Keep the query concise, focusing on the error and its immediate context."
+      ],
+      "donts": [
+        "Do not paste the entire terminal output or stack trace; extract the core error message.",
+        "Do not use vague descriptions like 'something went wrong' or 'it doesn't work' without quoting the error.",
+        "Do not ask for a general tutorial on the operation; focus on resolving the specific error.",
+        "Do not use overly technical jargon beyond the error message itself, unless necessary for clarity.",
+        "Do not omit the command that caused the error, as it is crucial for diagnosis."
+      ]
+    },
+    {
+      "skill_level": "intermediate",
+      "intent_category": "symptom",
+      "description": "Intermediate users describing a symptom will name the observed broken state in plain terms, often mentioning the command they were running or the error message they saw, but they won't know the exact fix. They might say 'I got a merge conflict' or 'my commit disappeared'.",
+      "dos": [
+        "Describe the symptom as you see it, e.g., 'merge conflict', 'commit missing', 'branch not showing'.",
+        "Mention the command you were running when the symptom occurred, e.g., 'after git pull'.",
+        "Include any error message or part of it, e.g., 'error: failed to push some refs'.",
+        "Use natural language, not technical jargon.",
+        "State the impact if relevant, e.g., 'I can't push my changes'."
+      ],
+      "donts": [
+        "Don't guess the root cause or suggest a fix in the query.",
+        "Don't use vague terms like 'something went wrong' without specifics.",
+        "Don't paste entire command output or stack traces.",
+        "Don't use advanced Git terminology like 'reflog' or 'cherry-pick' unless you're sure.",
+        "Don't ask for a specific command like 'how to undo a commit' if you're not sure that's the fix."
+      ]
+    },
+    {
+      "skill_level": "intermediate",
+      "intent_category": "conversational",
+      "description": "Intermediate users in conversational mode type quick, natural questions or commands as if chatting with a colleague. They mix Git jargon with everyday language, often omitting 'git' and using contractions or shorthand. Their queries are direct but informal, seeking quick answers or confirmations.",
+      "dos": [
+        "Use natural, chatty phrasing: 'how do I undo that last commit?'",
+        "Include enough context: 'my branch is behind, how do I sync?'",
+        "Use common Git terms loosely: 'merge', 'rebase', 'stash'.",
+        "Ask for a single action or explanation: 'what's the command to see changes?'",
+        "Use contractions and informal connectors: 'can't', 'wanna', 'so'."
+      ],
+      "donts": [
+        "Avoid formal, complete sentences: 'I would like to know the command to...'",
+        "Don't paste raw command output or error messages.",
+        "Don't use advanced jargon without explanation: 'cherry-pick', 'reflog'.",
+        "Don't ask multi-step workflows: 'how do I rebase and then push?'",
+        "Don't use flag soup: 'git log --oneline --graph --all --decorate'."
+      ]
+    },
+    {
+      "skill_level": "expert",
+      "intent_category": "goal",
+      "description": "Expert users state a clear objective, using precise Git terminology and minimal words. They expect the tool to infer the necessary steps and flags, focusing on the end state rather than the process.",
+      "dos": [
+        "Use imperative verbs that describe the desired outcome, e.g., 'undo last commit', 'recover deleted branch'.",
+        "Include specific Git objects or refs when relevant, e.g., 'show diff between HEAD~2 and HEAD'.",
+        "Mention the target state or condition, e.g., 'list commits not pushed to origin'.",
+        "Use standard Git vocabulary without over-explaining, e.g., 'stash only unstaged changes'.",
+        "Keep queries concise; omit filler words like 'I want to' or 'please'."
+      ],
+      "donts": [
+        "Avoid describing the steps or commands to achieve the goal, e.g., 'run git log with --oneline'.",
+        "Do not use vague language like 'find something about my commits'.",
+        "Avoid mixing multiple unrelated goals in one query.",
+        "Do not include unnecessary flags or options; let the tool decide the best approach.",
+        "Avoid asking for a tutorial or explanation; state the outcome directly."
+      ]
+    },
+    {
+      "skill_level": "expert",
+      "intent_category": "error_message",
+      "description": "Expert users searching by error message use precise, terse phrasing that mirrors the exact or near-exact Git error text, often including key flags or terms from the message. They may abbreviate or paraphrase but retain the core error signature.",
+      "dos": [
+        "Use the exact or near-exact error message text, e.g., 'fatal: not a git repository'.",
+        "Include key terms from the error, such as 'unmerged', 'detached HEAD', 'refusing to merge unrelated histories'.",
+        "Use Git's own vocabulary and abbreviations (e.g., 'HEAD', 'index', 'reflog') without explanation.",
+        "Keep the query short and high-signal; omit filler words like 'how to fix' unless needed.",
+        "If the error is long, use a distinctive substring that uniquely identifies it."
+      ],
+      "donts": [
+        "Do not paraphrase into natural language like 'why can't I commit?' when the error text is known.",
+        "Do not include unrelated flags or options that are not part of the error message.",
+        "Do not paste the entire command that caused the error; focus on the error itself.",
+        "Do not use vague terms like 'error' or 'problem' without the specific message.",
+        "Do not add politeness or conversational phrasing; be direct and technical."
+      ]
+    },
+    {
+      "skill_level": "expert",
+      "intent_category": "symptom",
+      "description": "Expert users describing a symptom use precise Git terminology and observable state details, often including error messages or unexpected behavior, without naming the fix command. They expect the tool to infer the underlying issue and suggest the appropriate remedy.",
+      "dos": [
+        "Use exact Git terms and concepts (e.g., 'detached HEAD', 'unmerged paths', 'index differs from HEAD').",
+        "Include specific error messages or status output snippets verbatim.",
+        "Mention the context: branch, commit, file paths, or operation that preceded the symptom.",
+        "Describe the expected vs actual behavior concisely.",
+        "Use standard Git flags and abbreviations naturally (e.g., '--oneline', 'HEAD~3')."
+      ],
+      "donts": [
+        "Do not name the command that fixes the issue (e.g., avoid 'how to reset' or 'use git revert').",
+        "Avoid vague descriptions like 'something is wrong' or 'it broke' without specifics.",
+        "Do not paste entire command outputs or logs; summarize the relevant parts.",
+        "Avoid mixing unrelated symptoms or multiple issues in one query.",
+        "Do not use beginner-friendly phrasing or explain basic Git concepts."
+      ]
+    },
+    {
+      "skill_level": "expert",
+      "intent_category": "conversational",
+      "description": "An expert user in conversational mode writes terse, natural-language queries that assume deep Git knowledge, often omitting explicit verbs or relying on implied context. They may use shorthand like 'undo last commit' or 'show reflog for yesterday' and expect the tool to infer the exact command.",
+      "dos": [
+        "Use natural, abbreviated phrasing that mirrors spoken or quickly typed language, e.g., 'how to unstage that file'.",
+        "Lean on Git jargon and flag names without explanation, e.g., 'rebase onto origin/main'.",
+        "Reference specific objects or states implicitly, e.g., 'what changed in HEAD~3'.",
+        "Ask for a single action or piece of information in a direct, informal tone.",
+        "Incorporate time or recency cues conversationally, e.g., 'show commits from last week'."
+      ],
+      "donts": [
+        "Do not spell out every Git concept or define terms; that is novice behavior.",
+        "Avoid overly polite or verbose phrasing like 'Could you please show me the log of the last five commits?'.",
+        "Do not include unnecessary flags or options that are not part of the natural query.",
+        "Do not paste a full command line; instead, describe the intent in your own words.",
+        "Do not mix multiple unrelated operations in one query; keep it focused on a single intent."
+      ]
+    }
+  ]
+}

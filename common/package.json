@@ -27,7 +27,7 @@
     "./lib/validator.js": "./src/lib/validator.ts",
     "./build/orchestrator.js": "./src/build/orchestrator.ts",
     "./build/prepare.js": "./src/build/prepare.ts",
-    "./build/taxonomyPins.js": "./src/build/taxonomyPins.ts",
+    "./build/intentMatrix.js": "./src/build/intentMatrix.ts",
     "./catalog/sources/ingest.js": "./src/catalog/sources/ingest.ts",
     "./catalog/sources/manOracle.js": "./src/catalog/sources/manOracle.ts",
     "./catalog/docs.js": "./src/catalog/docs.ts",

@@ -6,10 +6,10 @@ Project guidance for AI assistants working in this repo.
 
 The shipped Git catalog is **LLM-built from authoritative sources**, not hand-curated at each pipeline stage.
 
-- **Sources in, intuition through:** prepare → ground → evolve → intents → eval artifacts must be produced by models operating on scraped/docs/`git -h`/taxonomy inputs. Do **not** design steps that require a human to author pins, goldens, allowlists-of-goals, or per-verb recipe lists as the normal path.
+- **Sources in, intuition through:** prepare → ground → evolve → intents → eval artifacts must be produced by models operating on scraped/docs/`git -h`/taxonomy inputs. Do **not** design steps that require a human to author goldens, allowlists-of-goals, or per-verb recipe lists as the normal path.
 - **Code may constrain; humans must not fill the catalog:** Zod schemas, caps, sandbox rules, and structural validators are fine. Checked-in **content** that is the catalog itself (canonical recipes, seed intents, adversarial queries) should be **LLM-generated** from sources (and regenerable), not maintained as a curated encyclopedia.
 - **Follow-up LLM passes are encouraged** when they replace curation: completeness (“what goals are still missing given the taxonomy/sources?”), prune/repair against validators, or self-critique. Prefer machine-checkable prompts over open-ended chat.
-- **Exceptions:** small frozen taxonomies that define the *language* of the system (`skill_level.md`, `intent_category.md`, role enums, scrape-derived `git_commands.json` command list) are infrastructure, not catalog content. Prefer regenerating scrape/LLM artifacts over growing hand-written JSON.
+- **Exceptions:** small frozen taxonomies that define the *language* of the system (skill/category enums, LLM-built `intent_matrix.json`, scrape-derived `git_commands.json` command list) are infrastructure, not catalog content. Prefer regenerating scrape/LLM artifacts over growing hand-written JSON.
 
 ## Stack
 

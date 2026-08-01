@@ -219,54 +219,7 @@ export function activeEvaluationBank(opts = {}) {
   if (kinds.has('scrambled')) {
     out.push(...loadBank('scrambled.jsonl').map((r) => ({ ...r, kind: 'scrambled' })));
   }
-  if (kinds.has('pin_nl')) {
-    out.push(...loadBank('pin-nl.jsonl').map((r) => ({ ...r, kind: 'pin_nl' })));
-  }
   return out;
-}
-
-/**
- * Write adversarial NL bank from canonical pin seed intents.
- * @param {{ goal_id: string, verb: string, goal_roles: string[], seed_intents: string[] }[]} pins
- * @param {Map<string, number>|Record<string, number>} [goalIdToCommandId]
- */
-export function writePinNlBank(pins, goalIdToCommandId = {}) {
-  const map =
-    goalIdToCommandId instanceof Map
-      ? goalIdToCommandId
-      : new Map(Object.entries(goalIdToCommandId || {}));
-  const rows = [];
-  for (const pin of pins || []) {
-    const command_id = map.get(pin.goal_id);
-    if (command_id == null) continue;
-    for (const intent of pin.seed_intents || []) {
-      rows.push({
-        query_text: intent,
-        command_id,
-        kind: 'pin_nl',
-        goal_id: pin.goal_id,
-        primary_verb: pin.verb,
-        goal_roles: pin.goal_roles,
-      });
-    }
-  }
-  writeBank('pin-nl.jsonl', rows);
-  return rows.length;
-}
-
-/**
- * Evaluate pin NL bank with Hit@display / verb Pass B (hard).
- */
-export async function evaluatePinNlBank(searchFn, opts = {}) {
-  const bank = loadBank('pin-nl.jsonl');
-  if (!bank.length) {
-    return { ok: true, skipped: true, total: 0, hitRate: 1, verbRate: 1 };
-  }
-  return evaluateBank(bank, searchFn, {
-    ...opts,
-    minHitAtDisplayRate: opts.minHitAtDisplayRate ?? EVAL_MIN_HIT_AT_DISPLAY_RATE,
-    minPassRate: opts.minPassRate ?? EVAL_MIN_HIT_AT_DISPLAY_RATE, // pin NL uses Hit@display floor as Pass A too when judge optional
-  });
 }
 
 /** Primary verb (`git <cmd>`) from a recipe row. */
@@ -301,6 +254,13 @@ export function appendEvolveGolden(commandRow, goldenQuery) {
 
 export async function generateGoldenQuery(commandRow, commandId, opts = {}) {
   const call = opts.llmJsonObject || llmJsonObject;
+  if (!commandRow) {
+    return {
+      query_text: `how do I use command ${commandId}`,
+      command_id: commandId,
+      kind: 'golden',
+    };
+  }
   const steps = parseCommands(commandRow.command_recipe ?? commandRow);
   const listing = steps.map((s) => s.command).join('\n');
   const primary = steps[0]?.command || '';

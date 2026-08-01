@@ -77,13 +77,14 @@ describe('v6 command schemas', () => {
 });
 
 describe('taxonomy + skill enums', () => {
-  it('ships skill_level.md, intent_category.md, and git_commands.json', () => {
+  it('ships intent_matrix.json and git_commands.json', () => {
     const dir = path.join(PACKAGE_ROOT, 'common', 'taxonomy');
-    expect(existsSync(path.join(dir, 'skill_level.md'))).toBe(true);
-    expect(existsSync(path.join(dir, 'intent_category.md'))).toBe(true);
+    expect(existsSync(path.join(dir, 'intent_matrix.json'))).toBe(true);
     expect(existsSync(path.join(dir, 'git_commands.json'))).toBe(true);
-    expect(readFileSync(path.join(dir, 'skill_level.md'), 'utf8')).toMatch(/nontechnical/);
-    expect(readFileSync(path.join(dir, 'intent_category.md'), 'utf8')).toMatch(/error_message/);
+    const matrix = JSON.parse(readFileSync(path.join(dir, 'intent_matrix.json'), 'utf8'));
+    expect(matrix.cells).toHaveLength(16);
+    expect(matrix.cells.some((c) => c.skill_level === 'nontechnical')).toBe(true);
+    expect(matrix.cells.some((c) => c.intent_category === 'error_message')).toBe(true);
   });
 
   it('exhausts skill and category enums', () => {

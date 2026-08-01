@@ -1,177 +1,171 @@
-{"query_text":"git backfill didn't work, how do I fill in missing commits?","command_id":3,"kind":"extended"}
-{"query_text":"How do I use git backfill to fill in missing commits?","command_id":3,"kind":"extended"}
-{"query_text":"git backfill missing commits","command_id":3,"kind":"extended"}
-{"query_text":"My repo is acting weird, how do I get a full diagnostic report from git?","command_id":1,"kind":"extended"}
-{"query_text":"What command do I run to generate a git diagnostic report?","command_id":1,"kind":"extended"}
-{"query_text":"git diagnose report","command_id":1,"kind":"extended"}
-{"query_text":"Why does git annotate show the same commit for every line?","command_id":4,"kind":"extended"}
-{"query_text":"How do I see who last changed each line in a file using git?","command_id":4,"kind":"extended"}
-{"query_text":"git annotate blame per line","command_id":4,"kind":"extended"}
-{"query_text":"Why is my Git commit showing the wrong author name? Fix it with git config user.name.","command_id":8,"kind":"extended"}
-{"query_text":"How do I set my Git username for commits using git config user.name?","command_id":8,"kind":"extended"}
-{"query_text":"git config user.name set username","command_id":8,"kind":"extended"}
-{"query_text":"Why isn't my file being tracked? I ran git add but nothing happened.","command_id":9,"kind":"extended"}
-{"query_text":"How do I stage just one file in git?","command_id":9,"kind":"extended"}
-{"query_text":"git add single file","command_id":9,"kind":"extended"}
-{"query_text":"Why is git archive not creating a zip file? I ran git archive --format zip HEAD but nothing happened.","command_id":6,"kind":"extended"}
-{"query_text":"How do I create a zip archive of the current commit using git archive?","command_id":6,"kind":"extended"}
-{"query_text":"git archive --format zip HEAD","command_id":6,"kind":"extended"}
-{"query_text":"I'm stuck on master and need to get to my feature branch, what's the command?","command_id":15,"kind":"extended"}
-{"query_text":"How do I use git checkout to switch to a feature branch?","command_id":15,"kind":"extended"}
-{"query_text":"git checkout feature","command_id":15,"kind":"extended"}
-{"query_text":"Why does this line keep breaking? Who touched it last?","command_id":16,"kind":"extended"}
-{"query_text":"How can I find out who last modified each line in a file using git?","command_id":16,"kind":"extended"}
-{"query_text":"git blame file.txt","command_id":16,"kind":"extended"}
-{"query_text":"I keep getting 'nothing to commit' but I need a commit for CI, how do I force an empty one?","command_id":11,"kind":"extended"}
-{"query_text":"How do I create a commit with no changes using git commit?","command_id":11,"kind":"extended"}
-{"query_text":"git commit --allow-empty -m","command_id":11,"kind":"extended"}
-{"query_text":"git am keeps failing, how do I apply a patch from a mailbox?","command_id":13,"kind":"extended"}
-{"query_text":"How to apply patches from an mbox file using git am?","command_id":13,"kind":"extended"}
-{"query_text":"git am apply mailbox patch","command_id":13,"kind":"extended"}
-{"query_text":"I'm trying to import a repo from a fast-import stream but it's not working, what's the command?","command_id":14,"kind":"extended"}
-{"query_text":"How do I use git fast-import to load a fast-import stream?","command_id":14,"kind":"extended"}
-{"query_text":"git fast-import stream import","command_id":14,"kind":"extended"}
-{"query_text":"git bisect is driving me crazy, how do I find the bad commit between HEAD and HEAD~2?","command_id":17,"kind":"extended"}
-{"query_text":"How do I use git bisect to narrow down which commit broke my code?","command_id":17,"kind":"extended"}
-{"query_text":"git bisect start HEAD HEAD~2","command_id":17,"kind":"extended"}
-{"query_text":"why does git clone . cloned-repo not work for me?","command_id":18,"kind":"extended"}
-{"query_text":"how do I clone a local directory into a new folder?","command_id":18,"kind":"extended"}
-{"query_text":"git clone local repo to new dir","command_id":18,"kind":"extended"}
-{"query_text":"I accidentally committed to the wrong branch, how do I move that commit over to my current branch?","command_id":19,"kind":"extended"}
-{"query_text":"What's the command to apply a commit from another branch without merging the whole branch?","command_id":19,"kind":"extended"}
-{"query_text":"git cherry-pick feature","command_id":19,"kind":"extended"}
-{"query_text":"git branch is confusing, how do I list all my branches?","command_id":10,"kind":"extended"}
-{"query_text":"How do I create a new branch with git branch?","command_id":10,"kind":"extended"}
-{"query_text":"git branch list","command_id":10,"kind":"extended"}
-{"query_text":"why does git count-objects show so many loose objects?","command_id":5,"kind":"extended"}
-{"query_text":"can you explain how to run git count-objects?","command_id":5,"kind":"extended"}
-{"query_text":"git count-objects quick check","command_id":5,"kind":"extended"}
-{"query_text":"Why is my working tree showing no changes when I know I edited files? git diff shows nothing","command_id":20,"kind":"extended"}
-{"query_text":"How do I check what's different in my files since the last commit?","command_id":20,"kind":"extended"}
-{"query_text":"git diff working tree vs HEAD","command_id":20,"kind":"extended"}
-{"query_text":"git describe shows weird hash instead of tag name, how do I get the tag?","command_id":21,"kind":"extended"}
-{"query_text":"How can I find the closest tag to my current commit using git?","command_id":21,"kind":"extended"}
-{"query_text":"git describe nearest tag","command_id":21,"kind":"extended"}
-{"query_text":"Why is my local repo not showing remote changes? I ran git fetch but nothing updated.","command_id":22,"kind":"extended"}
-{"query_text":"How do I download new commits from the remote without merging them into my branch?","command_id":22,"kind":"extended"}
-{"query_text":"git fetch remote updates","command_id":22,"kind":"extended"}
-{"query_text":"I accidentally made a commit and need to share it as a patch file, but I don't remember the exact command. Can you help me generate a patch for the last commit using git format-patch?","command_id":23,"kind":"extended"}
-{"query_text":"What is the command to create a patch file for the most recent commit using git format-patch?","command_id":23,"kind":"extended"}
-{"query_text":"git format-patch for last commit","command_id":23,"kind":"extended"}
-{"query_text":"My git repo might be corrupted, how do I check it?","command_id":24,"kind":"extended"}
-{"query_text":"How can I verify the integrity of my git repository?","command_id":24,"kind":"extended"}
-{"query_text":"git fsck integrity check","command_id":24,"kind":"extended"}
-{"query_text":"I accidentally committed with a bad message, how do I change it for all commits using git filter-branch?","command_id":25,"kind":"extended"}
-{"query_text":"Can I use git filter-branch to replace every commit message with 'rewritten'?","command_id":25,"kind":"extended"}
-{"query_text":"git filter-branch --msg-filter rewrite all messages","command_id":25,"kind":"extended"}
-{"query_text":"why does git log show nothing","command_id":30,"kind":"extended"}
-{"query_text":"how do I see the commit history in git","command_id":30,"kind":"extended"}
-{"query_text":"git log basics","command_id":30,"kind":"extended"}
-{"query_text":"I can't find where this string is in my repo, how do I search all files?","command_id":27,"kind":"extended"}
-{"query_text":"How do I use git grep to search for a string in all files?","command_id":27,"kind":"extended"}
-{"query_text":"git grep search all files","command_id":27,"kind":"extended"}
-{"query_text":"My repo is getting slow and bloated, how do I clean it up with git gc?","command_id":26,"kind":"extended"}
-{"query_text":"What does git gc do and how do I run it to optimize my local repository?","command_id":26,"kind":"extended"}
-{"query_text":"git gc cleanup","command_id":26,"kind":"extended"}
-{"query_text":"I keep getting 'not a git repository' errors, how do I start one?","command_id":29,"kind":"extended"}
-{"query_text":"What command do I run to set up a new Git repo in my project folder?","command_id":29,"kind":"extended"}
-{"query_text":"git init basics","command_id":29,"kind":"extended"}
-{"query_text":"I'm stuck and can't remember git commands, how do I get help?","command_id":28,"kind":"extended"}
-{"query_text":"What is the command to view git documentation and usage instructions?","command_id":28,"kind":"extended"}
-{"query_text":"git help usage","command_id":28,"kind":"extended"}
-{"query_text":"I keep losing context on my commits, how do I attach notes to them in git?","command_id":34,"kind":"extended"}
-{"query_text":"What's the command to add a note to a git commit?","command_id":34,"kind":"extended"}
-{"query_text":"git notes add","command_id":34,"kind":"extended"}
-{"query_text":"Is there a way to see what a merge would do without actually merging? I don't want to mess up my working directory.","command_id":33,"kind":"extended"}
-{"query_text":"How can I preview the result of a merge using git merge-tree without touching my files?","command_id":33,"kind":"extended"}
-{"query_text":"git merge-tree --write-tree HEAD HEAD","command_id":33,"kind":"extended"}
-{"query_text":"My git repo is getting slow, how do I set up automatic maintenance so I don't have to think about it?","command_id":32,"kind":"extended"}
-{"query_text":"What's the command to enable background git maintenance for a repository?","command_id":32,"kind":"extended"}
+{"query_text":"why does git branch show nothing when I have branches","command_id":1,"kind":"extended"}
+{"query_text":"how do I see all the branches in my git repository","command_id":1,"kind":"extended"}
+{"query_text":"git branch list","command_id":1,"kind":"extended"}
+{"query_text":"I'm stuck on a different branch and can't get back to my main one, how do I switch using git checkout?","command_id":3,"kind":"extended"}
+{"query_text":"What is the command to switch to another branch in git?","command_id":3,"kind":"extended"}
+{"query_text":"git checkout branch switch","command_id":3,"kind":"extended"}
+{"query_text":"git am keeps failing, how do I apply this patch file?","command_id":4,"kind":"extended"}
+{"query_text":"How to apply a patch from an email with git am?","command_id":4,"kind":"extended"}
+{"query_text":"git am apply mailbox patch","command_id":4,"kind":"extended"}
+{"query_text":"My repo is acting weird and I need to figure out what's wrong. How can I get a full diagnostic report from git?","command_id":2,"kind":"extended"}
+{"query_text":"What's the command to generate a diagnostic report for my git repository?","command_id":2,"kind":"extended"}
+{"query_text":"git diagnose: generate repo diagnostic report","command_id":2,"kind":"extended"}
+{"query_text":"I'm trying to find which commit broke my code, how do I begin using git bisect?","command_id":5,"kind":"extended"}
+{"query_text":"Starting a git bisect session to locate the buggy commit, what's the first command?","command_id":5,"kind":"extended"}
+{"query_text":"git bisect start to begin binary search for the breaking change","command_id":5,"kind":"extended"}
+{"query_text":"Why are my commits missing and how do I fix them with git backfill?","command_id":6,"kind":"extended"}
+{"query_text":"Can you explain how to run git backfill to restore missing commits?","command_id":6,"kind":"extended"}
+{"query_text":"git backfill usage","command_id":6,"kind":"extended"}
+{"query_text":"Why is my file not showing as staged? I ran git add but it's still untracked.","command_id":7,"kind":"extended"}
+{"query_text":"How do I stage just one file like file.txt in git?","command_id":7,"kind":"extended"}
+{"query_text":"git add file.txt","command_id":7,"kind":"extended"}
+{"query_text":"Why won't git commit let me make an empty commit? I just want a placeholder commit.","command_id":11,"kind":"extended"}
+{"query_text":"How do I create an empty commit in git with a message?","command_id":11,"kind":"extended"}
+{"query_text":"git commit --allow-empty -m test","command_id":11,"kind":"extended"}
+{"query_text":"git archive keeps failing, how do I just get a tar of the current commit?","command_id":15,"kind":"extended"}
+{"query_text":"What's the command to create a tar archive from the latest commit?","command_id":15,"kind":"extended"}
+{"query_text":"git archive -o archive.tar HEAD","command_id":15,"kind":"extended"}
+{"query_text":"Who do I blame for this mess in file.txt?","command_id":14,"kind":"extended"}
+{"query_text":"How can I find out who last changed each line in file.txt using git?","command_id":14,"kind":"extended"}
+{"query_text":"git blame file.txt","command_id":14,"kind":"extended"}
+{"query_text":"Why does git annotate show the same commit for every line of my file?","command_id":13,"kind":"extended"}
+{"query_text":"How can I see who last changed each line in a file using git annotate?","command_id":13,"kind":"extended"}
+{"query_text":"git annotate blame per line","command_id":13,"kind":"extended"}
+{"query_text":"Why does git clone . cloned-repo keep failing? I just want to copy my current project into a new folder.","command_id":12,"kind":"extended"}
+{"query_text":"How can I make a copy of my local repo into a new directory using git clone?","command_id":12,"kind":"extended"}
+{"query_text":"git clone . cloned-repo","command_id":12,"kind":"extended"}
+{"query_text":"I need to get my entire git history out of this repo, but fast-export keeps failing. What's the exact command to export everything?","command_id":10,"kind":"extended"}
+{"query_text":"How do I use git fast-export to dump the complete history of a repository?","command_id":10,"kind":"extended"}
+{"query_text":"git fast-export --all","command_id":10,"kind":"extended"}
+{"query_text":"My repo is a mess and I need to back it up, how do I bundle everything into one file?","command_id":9,"kind":"extended"}
+{"query_text":"What's the command to create a git bundle that includes all branches and history?","command_id":9,"kind":"extended"}
+{"query_text":"git bundle create repo.bundle --all","command_id":9,"kind":"extended"}
+{"query_text":"I accidentally committed with a bad message, how do I change it for all commits using git filter-branch?","command_id":19,"kind":"extended"}
+{"query_text":"Can you show me the command to rewrite every commit message to 'rewritten' with git filter-branch?","command_id":19,"kind":"extended"}
+{"query_text":"git filter-branch --msg-filter 'echo rewritten' HEAD","command_id":19,"kind":"extended"}
+{"query_text":"Will git clean -n delete my untracked files or just show them?","command_id":17,"kind":"extended"}
+{"query_text":"How can I see a preview of untracked files before removing them with git clean?","command_id":17,"kind":"extended"}
+{"query_text":"git clean dry run","command_id":17,"kind":"extended"}
+{"query_text":"I need to import a huge git history fast, but git fast-import is confusing. How do I use it?","command_id":16,"kind":"extended"}
+{"query_text":"What's the command to quickly import a large history into git?","command_id":16,"kind":"extended"}
+{"query_text":"git fast-import bulk import","command_id":16,"kind":"extended"}
+{"query_text":"I accidentally committed to the wrong branch, how do I move just that one commit to my current branch?","command_id":18,"kind":"extended"}
+{"query_text":"What's the command to apply a single commit from another branch without merging the whole branch?","command_id":18,"kind":"extended"}
+{"query_text":"git cherry-pick <branch>","command_id":18,"kind":"extended"}
+{"query_text":"I need to send my last commit to a colleague, how do I create a patch file for it?","command_id":20,"kind":"extended"}
+{"query_text":"What's the command to generate a patch for the most recent commit?","command_id":20,"kind":"extended"}
+{"query_text":"git format-patch for last commit","command_id":20,"kind":"extended"}
+{"query_text":"Why is my local repo not showing remote changes? I ran git fetch origin but nothing updated.","command_id":21,"kind":"extended"}
+{"query_text":"How do I download the latest changes from the remote repository using git fetch?","command_id":21,"kind":"extended"}
+{"query_text":"git fetch origin","command_id":21,"kind":"extended"}
+{"query_text":"My git repo seems corrupted, how can I verify its integrity?","command_id":22,"kind":"extended"}
+{"query_text":"How do I check if my Git repository is healthy using git fsck?","command_id":22,"kind":"extended"}
+{"query_text":"git fsck repository integrity check","command_id":22,"kind":"extended"}
+{"query_text":"Why does git count-objects show so many loose objects?","command_id":8,"kind":"extended"}
+{"query_text":"Can you explain how to check the number of loose objects in a git repository?","command_id":8,"kind":"extended"}
+{"query_text":"git count-objects usage","command_id":8,"kind":"extended"}
+{"query_text":"why is my git history not showing all commits","command_id":26,"kind":"extended"}
+{"query_text":"how do I see the commit history in git","command_id":26,"kind":"extended"}
+{"query_text":"git log show commits","command_id":26,"kind":"extended"}
+{"query_text":"Why can't I find this string in my repo? git grep hello isn't working","command_id":24,"kind":"extended"}
+{"query_text":"How do I search for a specific word in all files using git grep?","command_id":24,"kind":"extended"}
+{"query_text":"git grep hello","command_id":24,"kind":"extended"}
+{"query_text":"my git repo is getting slow and bloated, how do I clean it up?","command_id":23,"kind":"extended"}
+{"query_text":"What does git gc do and when should I run it?","command_id":23,"kind":"extended"}
+{"query_text":"git gc cleanup","command_id":23,"kind":"extended"}
+{"query_text":"why does git refs list show nothing","command_id":34,"kind":"extended"}
+{"query_text":"how do i see all git refs","command_id":34,"kind":"extended"}
+{"query_text":"git refs list","command_id":34,"kind":"extended"}
+{"query_text":"My repo is bloated with unreachable objects, how do I clean it up with git prune?","command_id":30,"kind":"extended"}
+{"query_text":"What does git prune do and how do I use it to remove dangling objects?","command_id":30,"kind":"extended"}
+{"query_text":"git prune cleanup unreachable objects","command_id":30,"kind":"extended"}
+{"query_text":"I keep getting 'not a git repository' errors, how do I start one?","command_id":25,"kind":"extended"}
+{"query_text":"What is the command to create a new git repository?","command_id":25,"kind":"extended"}
+{"query_text":"git init basics","command_id":25,"kind":"extended"}
+{"query_text":"Is there a way to see merge conflicts before merging without messing up my working directory?","command_id":33,"kind":"extended"}
+{"query_text":"How do I preview merge conflicts using git merge-tree?","command_id":33,"kind":"extended"}
+{"query_text":"git merge-tree --write-tree","command_id":33,"kind":"extended"}
+{"query_text":"I accidentally merged the wrong branch, how do I undo it?","command_id":27,"kind":"extended"}
+{"query_text":"How do I merge a feature branch into my current branch?","command_id":27,"kind":"extended"}
+{"query_text":"git merge feature","command_id":27,"kind":"extended"}
+{"query_text":"My repo keeps getting slow and bloated, is there a way to set up automatic optimization?","command_id":32,"kind":"extended"}
+{"query_text":"How can I enable git maintenance to automatically keep my repository optimized?","command_id":32,"kind":"extended"}
 {"query_text":"git maintenance start","command_id":32,"kind":"extended"}
-{"query_text":"I accidentally named a file wrong, how do I rename it in git without losing history?","command_id":36,"kind":"extended"}
-{"query_text":"What's the command to rename a file in a git repository?","command_id":36,"kind":"extended"}
-{"query_text":"git mv rename file","command_id":36,"kind":"extended"}
-{"query_text":"My repo is bloated with unreachable objects, how do I clean it up with git prune?","command_id":37,"kind":"extended"}
-{"query_text":"What does git prune do and how can I use it to remove dangling objects?","command_id":37,"kind":"extended"}
-{"query_text":"git prune cleanup unreachable objects","command_id":37,"kind":"extended"}
-{"query_text":"My branch is behind master, how do I move my commits on top of it?","command_id":39,"kind":"extended"}
-{"query_text":"Rebase current branch onto master","command_id":39,"kind":"extended"}
-{"query_text":"I need to update my feature branch with the latest master changes, what's the command?","command_id":39,"kind":"extended"}
-{"query_text":"I keep messing up merging branches, what's the command to merge a feature branch into the current one?","command_id":31,"kind":"extended"}
-{"query_text":"How do I merge a branch called 'feature' into my current branch using git merge?","command_id":31,"kind":"extended"}
-{"query_text":"git merge feature","command_id":31,"kind":"extended"}
-{"query_text":"I lost my branch after a reset, how do I find the old commit with git reflog?","command_id":40,"kind":"extended"}
-{"query_text":"How can I see the history of my branch references using git reflog?","command_id":40,"kind":"extended"}
-{"query_text":"git reflog show branch history","command_id":40,"kind":"extended"}
-{"query_text":"Why does my branch show so many changes after rebase? I need to see what actually differs between the old and new versions of my feature branch compared to master.","command_id":38,"kind":"extended"}
-{"query_text":"How can I compare the changes between two commit ranges in git, like the difference between the original feature branch and the rebased one, using the range-diff command?","command_id":38,"kind":"extended"}
-{"query_text":"git range-diff master...feature","command_id":38,"kind":"extended"}
-{"query_text":"Why is my local repo behind? I just want to get the latest changes from remote, but git pull isn't working. What's the correct way to do it?","command_id":42,"kind":"extended"}
-{"query_text":"How do I update my local branch with the latest changes from the remote repository using git pull?","command_id":42,"kind":"extended"}
-{"query_text":"git pull to sync with remote","command_id":42,"kind":"extended"}
-{"query_text":"Why does git remote show nothing when I try to list my remotes?","command_id":41,"kind":"extended"}
-{"query_text":"How do I view the remote repositories connected to my local Git repo?","command_id":41,"kind":"extended"}
-{"query_text":"git remote list remotes","command_id":41,"kind":"extended"}
-{"query_text":"Why are my refs so slow to load? I want to pack them all at once.","command_id":35,"kind":"extended"}
-{"query_text":"How do I pack all my git refs into a single file?","command_id":35,"kind":"extended"}
-{"query_text":"Pack all refs now.","command_id":35,"kind":"extended"}
-{"query_text":"My repo is huge, how do I shrink it with git repack?","command_id":43,"kind":"extended"}
-{"query_text":"What's the command to repack all Git objects for better performance?","command_id":43,"kind":"extended"}
-{"query_text":"git repack to optimize storage","command_id":43,"kind":"extended"}
-{"query_text":"git rerere keeps reusing my old conflict fixes, how do I stop it?","command_id":45,"kind":"extended"}
-{"query_text":"How do I enable git rerere to automatically resolve recurring merge conflicts?","command_id":45,"kind":"extended"}
-{"query_text":"git rerere conflict resolution cache","command_id":45,"kind":"extended"}
-{"query_text":"I'm trying to see what changed in a commit but git show isn't working, what am I doing wrong?","command_id":50,"kind":"extended"}
-{"query_text":"How do I view the details of a specific commit using git show?","command_id":50,"kind":"extended"}
-{"query_text":"git show commit details","command_id":50,"kind":"extended"}
-{"query_text":"Why is my repo cloning everything? I just want a partial checkout.","command_id":49,"kind":"extended"}
-{"query_text":"How do I set up sparse checkout for a git repository?","command_id":49,"kind":"extended"}
-{"query_text":"git sparse-checkout init","command_id":49,"kind":"extended"}
-{"query_text":"Why does git show-branch show nothing? I just want to see my branches and their commits.","command_id":47,"kind":"extended"}
-{"query_text":"How can I display all branches and their commit history using git show-branch?","command_id":47,"kind":"extended"}
-{"query_text":"git show-branch: list branches with commits","command_id":47,"kind":"extended"}
-{"query_text":"Why does git replace -l show nothing even though I created replacements?","command_id":44,"kind":"extended"}
-{"query_text":"How do I list all git replace references in my repository?","command_id":44,"kind":"extended"}
-{"query_text":"git replace -l list all replacements","command_id":44,"kind":"extended"}
-{"query_text":"I accidentally messed up file.txt and want to undo my changes, how do I get it back to how it was before?","command_id":46,"kind":"extended"}
-{"query_text":"How can I use git restore to revert file.txt to its last committed version?","command_id":46,"kind":"extended"}
-{"query_text":"git restore file.txt","command_id":46,"kind":"extended"}
-{"query_text":"I accidentally committed a file and now it's stuck in my repo, how do I get rid of it from both my working directory and the index?","command_id":48,"kind":"extended"}
-{"query_text":"What's the command to delete a file from the repository and stop tracking it?","command_id":48,"kind":"extended"}
-{"query_text":"git rm file.txt","command_id":48,"kind":"extended"}
-{"query_text":"Why does my git log show no summary of commits per author?","command_id":51,"kind":"extended"}
-{"query_text":"How do I get a quick summary of commits grouped by author in git?","command_id":51,"kind":"extended"}
-{"query_text":"git shortlog commit summary","command_id":51,"kind":"extended"}
-{"query_text":"I keep messing up my releases, how do I just create a simple git tag?","command_id":55,"kind":"extended"}
-{"query_text":"What's the command to create a git tag?","command_id":55,"kind":"extended"}
-{"query_text":"git tag create","command_id":55,"kind":"extended"}
-{"query_text":"I accidentally committed and need to undo it, what's the command to revert the last commit?","command_id":52,"kind":"extended"}
-{"query_text":"How can I revert the most recent commit in Git?","command_id":52,"kind":"extended"}
-{"query_text":"git revert HEAD","command_id":52,"kind":"extended"}
-{"query_text":"why does git status show nothing when I have changes","command_id":56,"kind":"extended"}
-{"query_text":"how do I see the current state of my working directory in git","command_id":56,"kind":"extended"}
-{"query_text":"git status quick check","command_id":56,"kind":"extended"}
-{"query_text":"I accidentally started editing files in the wrong branch, how can I quickly set them aside without committing?","command_id":53,"kind":"extended"}
-{"query_text":"What's the command to temporarily shelve my current work so I can switch branches?","command_id":53,"kind":"extended"}
-{"query_text":"git stash","command_id":53,"kind":"extended"}
-{"query_text":"why is my git repo so messy i need to survey it","command_id":58,"kind":"extended"}
-{"query_text":"how do i survey a git repository","command_id":58,"kind":"extended"}
-{"query_text":"git survey","command_id":58,"kind":"extended"}
-{"query_text":"why does git version not show the version number","command_id":60,"kind":"extended"}
-{"query_text":"how do I find the installed git version","command_id":60,"kind":"extended"}
-{"query_text":"git version check","command_id":60,"kind":"extended"}
-{"query_text":"I'm stuck on the wrong branch and can't figure out how to get to my feature branch without messing things up. What's the command to just switch over?","command_id":57,"kind":"extended"}
-{"query_text":"How do I switch to a branch called 'feature' using git switch? I want to move my working directory to that branch.","command_id":57,"kind":"extended"}
-{"query_text":"git switch feature","command_id":57,"kind":"extended"}
-{"query_text":"I keep getting errors when trying to add a worktree, what's the correct syntax?","command_id":61,"kind":"extended"}
-{"query_text":"How do I create a new working directory linked to my repo with git worktree?","command_id":61,"kind":"extended"}
-{"query_text":"git worktree add wt","command_id":61,"kind":"extended"}
-{"query_text":"I accidentally committed and want to undo it, how do I use git reset?","command_id":59,"kind":"extended"}
-{"query_text":"What's the command to unstage or undo a commit with git reset?","command_id":59,"kind":"extended"}
-{"query_text":"git reset to undo last commit","command_id":59,"kind":"extended"}
-{"query_text":"why does git whatchanged show nothing for my recent commits","command_id":62,"kind":"extended"}
-{"query_text":"how do I view the history of file changes with git whatchanged","command_id":62,"kind":"extended"}
-{"query_text":"git whatchanged file history","command_id":62,"kind":"extended"}
-{"query_text":"Why is my git submodule not working? I keep getting errors when trying to add one.","command_id":54,"kind":"extended"}
-{"query_text":"How do I add a submodule to my repository using git submodule?","command_id":54,"kind":"extended"}
-{"query_text":"git submodule add","command_id":54,"kind":"extended"}
+{"query_text":"My branch is behind master, how do I move my commits on top of it?","command_id":31,"kind":"extended"}
+{"query_text":"Rebase my current branch onto master","command_id":31,"kind":"extended"}
+{"query_text":"git rebase master to update branch","command_id":31,"kind":"extended"}
+{"query_text":"I accidentally reset my branch and lost commits, how do I find the old commit hashes?","command_id":35,"kind":"extended"}
+{"query_text":"How can I see the history of where my branch pointers have been in git?","command_id":35,"kind":"extended"}
+{"query_text":"show reflog","command_id":35,"kind":"extended"}
+{"query_text":"I keep forgetting what a commit was about, is there a way to attach a note to it in git?","command_id":29,"kind":"extended"}
+{"query_text":"How do I add a note to a git commit using the command line?","command_id":29,"kind":"extended"}
+{"query_text":"git notes add","command_id":29,"kind":"extended"}
+{"query_text":"I keep getting an error when trying to add a remote, what's the correct syntax?","command_id":36,"kind":"extended"}
+{"query_text":"How do I list all the remote repositories connected to my project?","command_id":36,"kind":"extended"}
+{"query_text":"git remote -v","command_id":36,"kind":"extended"}
+{"query_text":"My git repo is huge, how do I shrink it?","command_id":38,"kind":"extended"}
+{"query_text":"How do I run git repack to optimize my repository storage?","command_id":38,"kind":"extended"}
+{"query_text":"git repack for repo size","command_id":38,"kind":"extended"}
+{"query_text":"I accidentally committed and want to undo it, how do I use git reset?","command_id":39,"kind":"extended"}
+{"query_text":"What's the command to unstage my last commit using git reset?","command_id":39,"kind":"extended"}
+{"query_text":"git reset to undo last commit","command_id":39,"kind":"extended"}
+{"query_text":"I accidentally named a file wrong, how do I rename it in git without losing history?","command_id":37,"kind":"extended"}
+{"query_text":"What's the command to rename a file in a git repository?","command_id":37,"kind":"extended"}
+{"query_text":"git mv rename file","command_id":37,"kind":"extended"}
+{"query_text":"why is git replace showing nothing when i run --list","command_id":40,"kind":"extended"}
+{"query_text":"how do i see all the git replace refs i've created","command_id":40,"kind":"extended"}
+{"query_text":"git replace --list","command_id":40,"kind":"extended"}
+{"query_text":"I keep resolving the same merge conflicts over and over, how do I make git remember my resolutions?","command_id":41,"kind":"extended"}
+{"query_text":"How can I use git rerere to automatically reuse my conflict resolutions?","command_id":41,"kind":"extended"}
+{"query_text":"git rerere reuse conflict resolutions","command_id":41,"kind":"extended"}
+{"query_text":"I'm trying to see what changed between two branches but I only care about the commits in a specific range, not the whole branch. How do I compare just those ranges with git range-diff?","command_id":42,"kind":"extended"}
+{"query_text":"What's the command to diff two commit ranges, like from one point to another, using git range-diff? I need to compare the changes between master..old and master..new.","command_id":42,"kind":"extended"}
+{"query_text":"git range-diff: compare two commit ranges","command_id":42,"kind":"extended"}
+{"query_text":"I accidentally committed and need to undo it, what's the git command?","command_id":43,"kind":"extended"}
+{"query_text":"How can I revert the most recent commit in Git?","command_id":43,"kind":"extended"}
+{"query_text":"git revert HEAD usage","command_id":43,"kind":"extended"}
+{"query_text":"Why are my git refs so slow to load? I need to pack them all at once.","command_id":28,"kind":"extended"}
+{"query_text":"How do I pack all refs in a git repository using git pack-refs?","command_id":28,"kind":"extended"}
+{"query_text":"pack all refs","command_id":28,"kind":"extended"}
+{"query_text":"Why does git show-branch show nothing?","command_id":47,"kind":"extended"}
+{"query_text":"How do I use git show-branch to see branch commits?","command_id":47,"kind":"extended"}
+{"query_text":"git show-branch usage","command_id":47,"kind":"extended"}
+{"query_text":"I'm lost in this repo, how do I get a quick overview of the whole git history?","command_id":48,"kind":"extended"}
+{"query_text":"What's the command to survey a git repository and see its overall structure?","command_id":48,"kind":"extended"}
+{"query_text":"git survey overview","command_id":48,"kind":"extended"}
+{"query_text":"I accidentally committed a file I don't need anymore, how do I delete it from the repo?","command_id":44,"kind":"extended"}
+{"query_text":"What's the command to remove a tracked file from the repository?","command_id":44,"kind":"extended"}
+{"query_text":"git rm file.txt","command_id":44,"kind":"extended"}
+{"query_text":"Why does my git log show no summary of commits per author?","command_id":45,"kind":"extended"}
+{"query_text":"How can I get a quick summary of commits grouped by author in git?","command_id":45,"kind":"extended"}
+{"query_text":"git shortlog author summary","command_id":45,"kind":"extended"}
+{"query_text":"I accidentally deleted a file and need to see what a commit changed, but git show isn't working. What am I doing wrong?","command_id":46,"kind":"extended"}
+{"query_text":"How do I use git show to display the details of a specific commit?","command_id":46,"kind":"extended"}
+{"query_text":"git show commit details","command_id":46,"kind":"extended"}
+{"query_text":"why does git version not work on my machine","command_id":52,"kind":"extended"}
+{"query_text":"how do I find the installed git version","command_id":52,"kind":"extended"}
+{"query_text":"git version check","command_id":52,"kind":"extended"}
+{"query_text":"why does my terminal say nothing to commit, working tree clean","command_id":53,"kind":"extended"}
+{"query_text":"how do I see which files are staged or unstaged in git","command_id":53,"kind":"extended"}
+{"query_text":"git status short output","command_id":53,"kind":"extended"}
+{"query_text":"I'm stuck on the wrong branch and can't get to the feature branch, what's the command to switch?","command_id":50,"kind":"extended"}
+{"query_text":"How do I change to a different branch with git switch?","command_id":50,"kind":"extended"}
+{"query_text":"git switch to another branch","command_id":50,"kind":"extended"}
+{"query_text":"Why is my repo cloning everything? I just want a partial checkout.","command_id":55,"kind":"extended"}
+{"query_text":"How do I set up sparse checkout in an existing Git repo?","command_id":55,"kind":"extended"}
+{"query_text":"git sparse-checkout init","command_id":55,"kind":"extended"}
+{"query_text":"I keep messing up my main checkout, how do I create a separate worktree for a new branch?","command_id":54,"kind":"extended"}
+{"query_text":"How do I use git worktree add to set up an additional working directory?","command_id":54,"kind":"extended"}
+{"query_text":"git worktree add ../wt","command_id":54,"kind":"extended"}
+{"query_text":"I need to put my work aside for a moment without committing, how do I do that?","command_id":56,"kind":"extended"}
+{"query_text":"How can I temporarily set aside my uncommitted changes in git?","command_id":56,"kind":"extended"}
+{"query_text":"stash current changes","command_id":56,"kind":"extended"}
+{"query_text":"Why does git whatchanged need --i-still-use-this? I just want to see what changed in each commit.","command_id":57,"kind":"extended"}
+{"query_text":"How can I view the files changed in each commit using git whatchanged with the legacy flag?","command_id":57,"kind":"extended"}
+{"query_text":"git whatchanged --i-still-use-this usage","command_id":57,"kind":"extended"}
+{"query_text":"Why does my git submodule keep showing as modified?","command_id":49,"kind":"extended"}
+{"query_text":"How do I add and update a git submodule?","command_id":49,"kind":"extended"}
+{"query_text":"git submodule sync","command_id":49,"kind":"extended"}
+{"query_text":"git tag keeps saying nothing, how do I list tags","command_id":51,"kind":"extended"}
+{"query_text":"how to create a tag in git","command_id":51,"kind":"extended"}
+{"query_text":"git tag list","command_id":51,"kind":"extended"}

@@ -30,7 +30,6 @@ import {
   buildCacheDir,
   semanticBlocksPath,
   defaultThresholdsPath,
-  canonicalPinsPath,
 } from '../lib/paths.js';
 import {
   BUILD_CONCURRENCY,
@@ -47,16 +46,10 @@ import {
   META_BUILD_LOOP_MAX_ITERATIONS,
 } from '../db/constants.js';
 import { prepareSemanticBlocks, readSemanticBlocks, loadGitCommandTaxonomy } from './prepare.js';
+import { isUnsignedVerifySkip } from './taxonomyScrape.js';
 import { generateAndValidate } from './validate.js';
 import { expandIntentsForRecipe, evolveByKind } from './generate.js';
 import { dedupDecision, findCommandByFingerprint, recipeFingerprint } from './dedup.js';
-import {
-  loadCanonicalPinsFile,
-  validatePinForGround,
-  emptyPinGroundStats,
-  bumpSkip,
-} from './pinGround.js';
-import { CRITICAL_PIN_ROLES } from '../schemas/taxonomyPins.js';
 import { createWriterQueue } from './writerQueue.js';
 import {
   appendBank,
@@ -80,7 +73,6 @@ import {
   formatEvolveTiming,
   JUDGE_SYSTEM_PROMPT,
   resolveEvalConcurrency,
-  writePinNlBank,
   isFallbackGoldenQuery,
 } from './evalGate.js';
 import {
@@ -435,16 +427,54 @@ export async function runGroundStep(opts = {}) {
   if (!groups) {
     if (!existsSync(semanticBlocksPath())) {
       throw new Error(
-        `Missing Step âˆ’1 artifact at ${semanticBlocksPath()}. Run: bun run build:prepare`,
+        `Missing Step −1 artifact at ${semanticBlocksPath()}. Run: bun run build:prepare`,
       );
     }
     groups = readSemanticBlocks();
     if (!groups.length) {
       throw new Error(
-        `Step âˆ’1 artifact is empty at ${semanticBlocksPath()}. Re-run: bun run build:prepare --force`,
+        `Step −1 artifact is empty at ${semanticBlocksPath()}. Re-run: bun run build:prepare --force`,
       );
     }
   }
+
+  // Skip unavailable / verify-unsigned even if stale prepare blocks remain.
+  const taxonomy = opts.skipAvailabilityFilter
+    ? null
+    : (() => {
+        try {
+          return loadGitCommandTaxonomy();
+        } catch {
+          return null;
+        }
+      })();
+  const availabilityByCommand = new Map();
+  if (taxonomy?.commands) {
+    for (const c of taxonomy.commands) {
+      availabilityByCommand.set(c.command, c);
+    }
+  }
+  const skips = [];
+  const filteredGroups = [];
+  for (let idx = 0; idx < groups.length; idx += 1) {
+    const group = groups[idx];
+    const cmd = group.command || '';
+    const meta = availabilityByCommand.get(cmd);
+    if (meta && meta.available === false) {
+      skips.push({ idx, command: cmd, reason: 'unavailable' });
+      continue;
+    }
+    if (isUnsignedVerifySkip(cmd) && !opts.allowUnsignedVerify) {
+      skips.push({ idx, command: cmd, reason: 'verify_unsigned' });
+      continue;
+    }
+    filteredGroups.push({ group, idx });
+  }
+  if (skips.length) {
+    log(`ground skip ${skips.length}: ${skips.map((s) => `${s.command}:${s.reason}`).join(', ')}`);
+  }
+  groups = filteredGroups.map((x) => x.group);
+  const indexMap = filteredGroups.map((x) => x.idx);
 
   const concurrency = opts.concurrency ?? BUILD_CONCURRENCY;
   log(`ground start groups=${groups.length} concurrency=${concurrency}`);
@@ -454,14 +484,15 @@ export async function runGroundStep(opts = {}) {
   let done = 0;
 
   await Promise.all(
-    groups.map((group, idx) =>
+    groups.map((group, i) =>
       limit(async () => {
+        const idx = indexMap[i] ?? i;
         if (countCommands(db) >= MAX_COMMANDS || countIntents(db) >= MAX_INTENTS) return;
         const label = group.command || `group-${idx}`;
         try {
-          log(`ground[${idx + 1}/${groups.length}] generate+validate "${label}"`);
+          log(`ground[${i + 1}/${groups.length}] generate+validate "${label}"`);
           const validated = await generateAndValidate(group, {
-            workerId: idx % concurrency,
+            workerId: i % concurrency,
             jobId: `ground-${idx}`,
             llmJsonObject: opts.llmJsonObject,
             generate: opts.generate,
@@ -469,10 +500,10 @@ export async function runGroundStep(opts = {}) {
           });
           if (!validated.ok) {
             errors.push({ idx, reason: validated.reason });
-            log(`ground[${idx + 1}/${groups.length}] FAIL validate reason=${validated.reason}`);
+            log(`ground[${i + 1}/${groups.length}] FAIL validate reason=${validated.reason}`);
             return;
           }
-          log(`ground[${idx + 1}/${groups.length}] expand intents`);
+          log(`ground[${i + 1}/${groups.length}] expand intents`);
           const intents = opts.expandIntents
             ? await opts.expandIntents(validated)
             : await expandIntentsForRecipe(validated, { llmJsonObject: opts.llmJsonObject });
@@ -485,9 +516,16 @@ export async function runGroundStep(opts = {}) {
           );
           if (persisted.inserted) {
             inserted.push(persisted.row_id);
-            log(`ground[${idx + 1}/${groups.length}] INSERT row_id=${persisted.row_id} intents=${list.length}`);
+            log(`ground[${i + 1}/${groups.length}] INSERT row_id=${persisted.row_id} intents=${list.length}`);
             if (!opts.skipEvalBanks) {
-              const row = getCommand(db, persisted.row_id);
+              const row =
+                getCommand(db, persisted.row_id) ||
+                {
+                  row_id: persisted.row_id,
+                  initial_state: validated.initial_state,
+                  command_recipe: validated.command_recipe,
+                  mutation_kind: null,
+                };
               const goldenRaw = opts.generateGolden
                 ? await opts.generateGolden(row, persisted.row_id)
                 : await generateGoldenQuery(row, persisted.row_id, {
@@ -505,20 +543,20 @@ export async function runGroundStep(opts = {}) {
               appendBank('extended.jsonl', extended);
               appendBank(
                 'scrambled.jsonl',
-                extended.map((e, i) => ({
-                  query_text: scrambleQuery(e.query_text, persisted.row_id + i),
+                extended.map((e, j) => ({
+                  query_text: scrambleQuery(e.query_text, persisted.row_id + j),
                   command_id: persisted.row_id,
                   kind: 'scrambled',
                 })),
               );
-              log(`ground[${idx + 1}/${groups.length}] eval banks +golden +${extended.length} extended`);
+              log(`ground[${i + 1}/${groups.length}] eval banks +golden +${extended.length} extended`);
             }
           } else {
-            log(`ground[${idx + 1}/${groups.length}] DEDUP keep existing row_id=${persisted.row_id}`);
+            log(`ground[${i + 1}/${groups.length}] DEDUP keep existing row_id=${persisted.row_id}`);
           }
         } catch (e) {
           errors.push({ idx, reason: e?.message || String(e) });
-          log(`ground[${idx + 1}/${groups.length}] ERROR ${e?.message || e}`);
+          log(`ground[${i + 1}/${groups.length}] ERROR ${e?.message || e}`);
         } finally {
           done += 1;
           if (done % 5 === 0 || done === groups.length) {
@@ -528,177 +566,6 @@ export async function runGroundStep(opts = {}) {
       }),
     ),
   );
-
-  // Thin wire-up: inject canonical pins after vanilla ground groups.
-  const pinStats = emptyPinGroundStats();
-  const pinsPath = opts.pinsPath || canonicalPinsPath();
-  let pins = [];
-  try {
-    pins = opts.skipPins ? [] : loadCanonicalPinsFile(pinsPath);
-  } catch (e) {
-    log(`pins load ERROR ${e?.message || e}`);
-  }
-  pinStats.pins_total = pins.length;
-  if (pins.length) {
-    const taxonomyVerbs = new Set(
-      opts.taxonomyVerbs ||
-        loadGitCommandTaxonomy().commands.map((c) => c.command),
-    );
-    log(`pins ground start count=${pins.length} from ${pinsPath}`);
-    const pinLimit = pLimit(Math.min(8, concurrency));
-    const pinGoalToRow = new Map();
-    await Promise.all(
-      pins.map((pin, pIdx) =>
-        pinLimit(async () => {
-          if (countCommands(db) >= MAX_COMMANDS || countIntents(db) >= MAX_INTENTS) return;
-          pinStats.pins_attempted += 1;
-          try {
-            const validated = validatePinForGround(pin, {
-              taxonomyVerbs,
-              workerId: pIdx % concurrency,
-              jobId: `pin-${pin.goal_id}`,
-              validate: opts.validate,
-            });
-            if (!validated.ok) {
-              bumpSkip(pinStats, validated.reason);
-              log(`pins[${pIdx + 1}/${pins.length}] SKIP ${pin.goal_id} reason=${validated.reason}`);
-              return;
-            }
-            let intents = validated.intents;
-            if (!opts.skipPinIntentExpand) {
-              try {
-                const expanded = await expandIntentsForRecipe(
-                  {
-                    initial_state: validated.candidate.initial_state,
-                    command_recipe: validated.candidate.command_recipe,
-                  },
-                  { llmJsonObject: opts.llmJsonObject },
-                );
-                const seen = new Set(intents.map((i) => i.intent_text.toLowerCase().trim()));
-                for (const e of expanded || []) {
-                  const key = String(e.intent_text || '')
-                    .toLowerCase()
-                    .trim();
-                  if (!key || seen.has(key)) continue;
-                  seen.add(key);
-                  intents.push(e);
-                }
-              } catch (e) {
-                log(`pins[${pIdx + 1}/${pins.length}] intent expand warn: ${e?.message || e}`);
-              }
-            }
-            const persisted = await persistAccepted(
-              db,
-              writer,
-              {
-                initial_state: validated.candidate.initial_state,
-                command_recipe: validated.candidate.command_recipe,
-                risk: validated.candidate.risk,
-                initial_state_physical_hash: validated.initial_state_physical_hash,
-                final_state_physical_hash: validated.final_state_physical_hash,
-                intents,
-                mutation_kind: null,
-                parent_row_id: null,
-              },
-              embedder,
-            );
-            pinGoalToRow.set(pin.goal_id, persisted.row_id);
-            if (persisted.inserted) {
-              pinStats.pins_inserted += 1;
-              for (const r of pin.goal_roles || []) pinStats.accepted_roles.push(r);
-              inserted.push(persisted.row_id);
-              log(
-                `pins[${pIdx + 1}/${pins.length}] INSERT ${pin.goal_id} row_id=${persisted.row_id} intents=${intents.length}`,
-              );
-              if (!opts.skipEvalBanks) {
-                const row = getCommand(db, persisted.row_id);
-                const seedQ = validated.pin.seed_intents[0];
-                const golden = tagGolden(
-                  {
-                    query_text: seedQ || `goal ${pin.goal_id}`,
-                    command_id: persisted.row_id,
-                    kind: 'golden',
-                  },
-                  {
-                    mutation_kind: 'ground',
-                    primary_verb: primaryVerbFromRecipe(row),
-                  },
-                );
-                appendBank('golden.jsonl', [golden]);
-              }
-            } else {
-              pinStats.pins_dedup_merged += 1;
-              for (const r of pin.goal_roles || []) pinStats.accepted_roles.push(r);
-              const rawDb = db._db ?? db;
-              const existingTexts = new Set(
-                rawDb
-                  .prepare(`SELECT intent_text FROM intents WHERE command_id = ?`)
-                  .all(persisted.row_id)
-                  .map((r) =>
-                    String(r.intent_text || '')
-                      .toLowerCase()
-                      .trim(),
-                  ),
-              );
-              let added = 0;
-              await writer.run(async (d) => {
-                for (const intent of validated.intents) {
-                  const key = intent.intent_text.toLowerCase().trim();
-                  if (!key || existingTexts.has(key)) continue;
-                  existingTexts.add(key);
-                  const emb = await embedder.embed(intent.intent_text);
-                  insertIntentWithEmbedding(d, {
-                    command_id: persisted.row_id,
-                    skill_level: intent.skill_level,
-                    intent_category: intent.intent_category,
-                    intent_text: intent.intent_text,
-                    embedding: emb,
-                  });
-                  added += 1;
-                }
-              });
-              log(
-                `pins[${pIdx + 1}/${pins.length}] DEDUP merge ${pin.goal_id} â†’ row_id=${persisted.row_id} +${added} seed intents`,
-              );
-            }
-          } catch (e) {
-            bumpSkip(pinStats, 'error');
-            log(`pins[${pIdx + 1}/${pins.length}] ERROR ${pin.goal_id}: ${e?.message || e}`);
-          }
-        }),
-      ),
-    );
-    const pinNlCount = writePinNlBank(pins, pinGoalToRow);
-    log(`pins NL bank wrote ${pinNlCount} queries`);
-    log(
-      `pins ground done inserted=${pinStats.pins_inserted} merged=${pinStats.pins_dedup_merged} skipped=${pinStats.pins_skipped} reasons=${JSON.stringify(pinStats.skip_reasons)}`,
-    );
-
-    const coveredRoles = new Set(pinStats.accepted_roles || []);
-    const missingCritical = [...CRITICAL_PIN_ROLES].filter((r) => !coveredRoles.has(r));
-    if (missingCritical.length && !opts.skipPinRoleGate) {
-      const cmdCount = countCommands(db);
-      log(`pins ROLE GATE FAIL missing=${missingCritical.join(',')}`);
-      db.close();
-      return {
-        ok: false,
-        inserted: inserted.length,
-        errors: [
-          ...errors,
-          { idx: -1, reason: `pin_role_gate:${missingCritical.join(',')}` },
-        ],
-        stagingPath: resolvedStaging,
-        eval: { ok: false, skipped: true },
-        commands: cmdCount,
-        pins: { ...pinStats, critical_missing: missingCritical },
-      };
-    }
-    if (missingCritical.length) {
-      log(`pins ROLE GATE WARN (skipped) missing=${missingCritical.join(',')}`);
-    }
-  } else {
-    log(`pins ground skip (no pins at ${pinsPath})`);
-  }
 
   let evalResult = { ok: true, skipped: true };
   if (!opts.skipEval && inserted.length) {
@@ -722,29 +589,6 @@ export async function runGroundStep(opts = {}) {
     });
     log(formatEvalReport(evalResult));
     if (typeof opts.onEvalReport === 'function') opts.onEvalReport(evalResult, { phase: 'ground' });
-
-    if (!opts.skipPinNlEval) {
-      const pinBank = activeEvaluationBank({ kinds: ['pin_nl'], excludeFallbacks: false });
-      if (pinBank.length) {
-        log(`ground pin-nl eval bank size=${pinBank.length}`);
-        const pinNl = await runBankEval(pinBank, resolvedStaging, {
-          llmJsonObject: opts.llmJsonObject,
-          minPassRate: minHitAtDisplayRate,
-          minHitAtDisplayRate,
-          verbLookup,
-          searchFn: opts.searchFn,
-          evalConcurrency: opts.evalConcurrency,
-        });
-        log(
-          `ground pin-nl ok=${pinNl.ok} hit@display=${(pinNl.hitRate ?? 0).toFixed(2)} passA=${(pinNl.rate ?? 0).toFixed(2)}`,
-        );
-        if (pinNl.ok === false) {
-          evalResult = { ...evalResult, ok: false, pinNl };
-        } else {
-          evalResult = { ...evalResult, pinNl };
-        }
-      }
-    }
   }
 
   const cmdCount = countCommands(db);
@@ -754,15 +598,15 @@ export async function runGroundStep(opts = {}) {
     (inserted.length > 0 || groups.length === 0) &&
     (evalResult.ok !== false) &&
     errors.length < groups.length;
-  log(`ground done ok=${ok} commands=${cmdCount} intents=${intentCount} inserted=${inserted.length} errors=${errors.length}`);
+  log(`ground done ok=${ok} commands=${cmdCount} intents=${intentCount} inserted=${inserted.length} errors=${errors.length} skips=${skips.length}`);
   return {
     ok,
     inserted: inserted.length,
     errors,
+    skips,
     stagingPath: resolvedStaging,
     eval: evalResult,
     commands: cmdCount,
-    pins: pinStats,
   };
 }
 

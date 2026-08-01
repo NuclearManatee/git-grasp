@@ -40,7 +40,6 @@ describe('ground + loop helpers (mocked)', () => {
       mock: true,
       skipEval: true,
       skipEvalBanks: true,
-      skipPins: true,
       concurrency: 2,
       groups: [
         {
@@ -91,8 +90,6 @@ describe('ground + loop helpers (mocked)', () => {
       mock: true,
       skipEval: false,
       skipEvalBanks: false,
-      skipPins: true,
-      skipPinNlEval: true,
       concurrency: 1,
       minPassRate: 0,
       groups: [
@@ -135,6 +132,67 @@ describe('ground + loop helpers (mocked)', () => {
     expect(bank.length).toBeGreaterThanOrEqual(1);
     expect(bank[0].mutation_kind).toBe('ground');
     expect(bank[0].primary_verb).toBe('git status');
+    try {
+      rmSync(dir, { recursive: true, force: true });
+    } catch {
+      /* */
+    }
+  });
+
+  it('skips unavailable and verify-unsigned without regen_exhausted', async () => {
+    process.env.GIT_GRASP_MOCK_EMBEDDINGS = '1';
+    const dir = mkdtempSync(path.join(tmpdir(), 'gh-ground-skip-'));
+    const stagingPath = path.join(dir, 'staging.db');
+    let generateCalls = 0;
+
+    const result = await runGroundStep({
+      stagingPath,
+      fresh: true,
+      mock: true,
+      skipEval: true,
+      skipEvalBanks: true,
+      concurrency: 1,
+      groups: [
+        {
+          command: 'git citool',
+          blocks: [{ metadata_source: 'f', content: 'gui' }],
+        },
+        {
+          command: 'git verify-commit',
+          blocks: [{ metadata_source: 'f', content: 'verify' }],
+        },
+        {
+          command: 'git status',
+          blocks: [{ metadata_source: 'f', content: 'status' }],
+        },
+      ],
+      generate: async () => {
+        generateCalls += 1;
+        return {
+          initial_state: 'git commit --allow-empty -m init\n',
+          command_recipe: { commands: [{ command: 'git status' }] },
+          risk: 0.05,
+        };
+      },
+      validate: (g) => validateInSandboxAndDestroy(g),
+      expandIntents: async () => [
+        {
+          skill_level: 'beginner',
+          intent_category: 'goal',
+          intent_text: 'show status',
+        },
+      ],
+    });
+
+    expect(result.skips?.some((s) => s.reason === 'unavailable' && s.command === 'git citool')).toBe(
+      true,
+    );
+    expect(
+      result.skips?.some((s) => s.reason === 'verify_unsigned' && s.command === 'git verify-commit'),
+    ).toBe(true);
+    expect(generateCalls).toBe(1);
+    expect(result.inserted).toBeGreaterThanOrEqual(1);
+    expect(result.errors?.every((e) => e.reason !== 'regen_exhausted')).toBe(true);
     try {
       rmSync(dir, { recursive: true, force: true });
     } catch {

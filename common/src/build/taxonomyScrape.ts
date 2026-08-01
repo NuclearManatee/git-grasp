@@ -2,7 +2,12 @@
 /**
  * Parse `git help -a` text into Main Porcelain + Ancillary taxonomy.
  * Keeps only the first three sections; stops at "Interacting with Others".
+ * Capability probe: help-listed names may not be runnable as `git <name>`.
  */
+import { existsSync } from 'node:fs';
+import path from 'node:path';
+import { spawnSync } from 'node:child_process';
+import { spawnGit } from './gitExec.js';
 
 export const TAXONOMY_SECTION_NAMES = [
   'Main Porcelain Commands',
@@ -12,9 +17,11 @@ export const TAXONOMY_SECTION_NAMES = [
 
 const STOP_SECTION = 'Interacting with Others';
 
+/** Standalone binaries that appear in help but are not always `git <name>`. */
+export const STANDALONE_GIT_TOOLS = new Set(['gitk', 'scalar']);
+
 /**
  * @param {string} text raw `git help -a` stdout
- * @returns {{ sections: { name: string, commands: { name: string, summary: string, command: string }[] }[], commands: { name: string, summary: string, command: string, section: string }[] }}
  */
 export function parseGitHelpAll(text) {
   const lines = text.replace(/\r\n/g, '\n').split('\n');
@@ -42,7 +49,6 @@ export function parseGitHelpAll(text) {
 
     if (!pastIntro || !current) continue;
 
-    // "   add                     Add file contents..."
     const m = trimmed.match(/^([a-z][a-z0-9._-]*)\s{2,}(.+)$/i);
     if (!m) continue;
     const name = m[1];
@@ -62,29 +68,203 @@ export function parseGitHelpAll(text) {
 }
 
 /**
- * @param {{ sections: ReturnType<typeof parseGitHelpAll>['sections'], scraped_at?: string }} opts
+ * True if a resolved standalone path is a trusted Git-related binary
+ * (rejects Windows CiTool.exe false positives for "citool").
+ * @param {string} resolvedPath
+ * @param {string} name help verb name
+ */
+export function isTrustedStandalonePath(resolvedPath, name) {
+  const p = path.resolve(String(resolvedPath || ''));
+  if (!p || !existsSync(p)) return false;
+  const lower = p.toLowerCase().replace(/\//g, '\\');
+  // Reject System32 / Windows false positives (e.g. CiTool.exe)
+  if (lower.includes('\\windows\\system32\\') || lower.includes('\\windows\\syswow64\\')) {
+    return false;
+  }
+  const base = path.basename(p).toLowerCase();
+  const want = String(name || '').toLowerCase();
+  if (base === want || base === `${want}.exe` || base === `${want}.cmd`) return true;
+  // Under a Git install prefix
+  if (lower.includes('\\git\\') || lower.includes('/git/')) return true;
+  return false;
+}
+
+/**
+ * Resolve standalone tool on PATH (where/which style).
+ * @param {string} name
+ * @returns {string|null}
+ */
+export function resolveStandaloneOnPath(name) {
+  if (process.platform === 'win32') {
+    const r = spawnSync('where.exe', [name], {
+      encoding: 'utf8',
+      windowsHide: true,
+      shell: false,
+    });
+    const line = String(r.stdout || '')
+      .split(/\r?\n/)
+      .map((l) => l.trim())
+      .find(Boolean);
+    return line || null;
+  }
+  const r = spawnSync('which', [name], { encoding: 'utf8' });
+  const line = String(r.stdout || '').trim().split(/\n/)[0];
+  return line || null;
+}
+
+/**
+ * Probe whether a help-listed verb is runnable on this machine.
+ * @param {string} name e.g. "status", "scalar", "gitk"
+ * @param {{ spawnGit?: typeof spawnGit, resolveStandalone?: typeof resolveStandaloneOnPath }} [deps]
+ * @returns {{
+ *   name: string,
+ *   available: boolean,
+ *   runner: 'git'|'standalone'|null,
+ *   command: string,
+ *   detail?: string,
+ * }}
+ */
+export function probeGitCommandAvailability(name, deps = {}) {
+  const callGit = deps.spawnGit || spawnGit;
+  const resolveStandalone = deps.resolveStandalone || resolveStandaloneOnPath;
+  const n = String(name || '').trim();
+  if (!n) {
+    return { name: n, available: false, runner: null, command: `git ${n}`, detail: 'empty' };
+  }
+
+  const r = callGit([n, '-h'], { timeout: 4000 });
+  const err = `${r.stderr || ''}${r.stdout || ''}`;
+  const notCmd = /is not a git command/i.test(err);
+  if (!notCmd && (r.status === 0 || r.status === 129 || r.status === 259)) {
+    return {
+      name: n,
+      available: true,
+      runner: 'git',
+      command: `git ${n}`,
+    };
+  }
+  // Timed out / GUI opened without "not a command" → still a git subcommand
+  if (!notCmd && (r.error?.code === 'ETIMEDOUT' || r.signal === 'SIGTERM' || r.status === null)) {
+    return {
+      name: n,
+      available: true,
+      runner: 'git',
+      command: `git ${n}`,
+      detail: 'gui_or_timeout',
+    };
+  }
+
+  if (STANDALONE_GIT_TOOLS.has(n) || !notCmd) {
+    const standalone = resolveStandalone(n);
+    if (standalone && isTrustedStandalonePath(standalone, n)) {
+      return {
+        name: n,
+        available: true,
+        runner: 'standalone',
+        command: n,
+        detail: standalone,
+      };
+    }
+  }
+
+  return {
+    name: n,
+    available: false,
+    runner: null,
+    command: `git ${n}`,
+    detail: notCmd ? 'not_a_git_command' : `exit_${r.status}`,
+  };
+}
+
+/**
+ * Enrich parsed sections with availability probes.
+ * @param {{ name: string, commands: { name: string, summary: string, command: string }[] }[]} sections
+ * @param {{ probe?: typeof probeGitCommandAvailability }} [opts]
+ */
+export function enrichSectionsWithAvailability(sections, opts = {}) {
+  const probe = opts.probe || probeGitCommandAvailability;
+  return sections.map((sec) => ({
+    ...sec,
+    commands: sec.commands.map((c) => {
+      const p = probe(c.name);
+      return {
+        ...c,
+        command: p.command,
+        available: p.available,
+        runner: p.runner,
+        ...(p.detail ? { probe_detail: p.detail } : {}),
+      };
+    }),
+  }));
+}
+
+/**
+ * @param {{
+ *   sections: ReturnType<typeof parseGitHelpAll>['sections'],
+ *   scraped_at?: string,
+ *   probe?: boolean | typeof probeGitCommandAvailability,
+ * }} opts
  */
 export function buildGitCommandsTaxonomy(opts) {
-  const { sections } = opts;
+  let { sections } = opts;
+  const doProbe = opts.probe !== false;
+  if (doProbe) {
+    const probeFn = typeof opts.probe === 'function' ? opts.probe : probeGitCommandAvailability;
+    sections = enrichSectionsWithAvailability(sections, { probe: probeFn });
+  } else {
+    // Default available=true for fixtures that skip probing
+    sections = sections.map((sec) => ({
+      ...sec,
+      commands: sec.commands.map((c) => ({
+        ...c,
+        available: c.available !== false,
+        runner: c.runner || 'git',
+      })),
+    }));
+  }
   const commands = sections.flatMap((s) =>
     s.commands.map((c) => ({ ...c, section: s.name })),
   );
+  const available = commands.filter((c) => c.available).length;
+  const unavailable = commands.length - available;
+  const standalone = commands.filter((c) => c.runner === 'standalone').length;
   return {
-    version: 1,
+    version: 2,
     scraped_at: opts.scraped_at || new Date().toISOString(),
     sections,
     commands,
+    availability: { available, unavailable, standalone, total: commands.length },
   };
 }
 
 /**
  * Embed text for a taxonomy anchor.
- * Includes the short `git help -a` summary when present.
- * @param {string} command e.g. `git commit`
+ * @param {string} command e.g. `git commit` or `gitk`
  * @param {string} [summary]
  */
 export function taxonomyEmbedText(command, summary = '') {
   const base = `[command] ${command}`;
   const s = (summary || '').trim();
   return s ? `${base}\n${s}` : base;
+}
+
+/**
+ * Verbs that require signed objects — skip unsigned ground (no GPG fixture in v1).
+ * @param {string} command e.g. `git verify-commit`
+ */
+export function isUnsignedVerifySkip(command) {
+  const c = String(command || '').toLowerCase();
+  return /\bverify-commit\b/.test(c) || /\bverify-tag\b/.test(c);
+}
+
+/**
+ * Groundable taxonomy commands (available and not verify-unsigned skips).
+ * @param {{ commands?: { command: string, available?: boolean, name?: string }[] }} taxonomy
+ */
+export function groundableTaxonomyCommands(taxonomy) {
+  return (taxonomy.commands || []).filter((c) => {
+    if (c.available === false) return false;
+    if (isUnsignedVerifySkip(c.command || `git ${c.name}`)) return false;
+    return true;
+  });
 }

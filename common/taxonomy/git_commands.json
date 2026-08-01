@@ -1,6 +1,6 @@
 {
-  "version": 1,
-  "scraped_at": "2026-07-30T20:22:14.215Z",
+  "version": 2,
+  "scraped_at": "2026-08-01T19:17:13.635Z",
   "sections": [
     {
       "name": "Main Porcelain Commands",
@@ -8,237 +8,335 @@
         {
           "name": "add",
           "summary": "Add file contents to the index",
-          "command": "git add"
+          "command": "git add",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "am",
           "summary": "Apply a series of patches from a mailbox",
-          "command": "git am"
+          "command": "git am",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "archive",
           "summary": "Create an archive of files from a named tree",
-          "command": "git archive"
+          "command": "git archive",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "backfill",
           "summary": "Download missing objects in a partial clone",
-          "command": "git backfill"
+          "command": "git backfill",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "bisect",
           "summary": "Use binary search to find the commit that introduced a bug",
-          "command": "git bisect"
+          "command": "git bisect",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "branch",
           "summary": "List, create, or delete branches",
-          "command": "git branch"
+          "command": "git branch",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "bundle",
           "summary": "Move objects and refs by archive",
-          "command": "git bundle"
+          "command": "git bundle",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "checkout",
           "summary": "Switch branches or restore working tree files",
-          "command": "git checkout"
+          "command": "git checkout",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "cherry-pick",
           "summary": "Apply the changes introduced by some existing commits",
-          "command": "git cherry-pick"
+          "command": "git cherry-pick",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "citool",
           "summary": "Graphical alternative to git-commit",
-          "command": "git citool"
+          "command": "git citool",
+          "available": false,
+          "runner": null,
+          "probe_detail": "exit_1"
         },
         {
           "name": "clean",
           "summary": "Remove untracked files from the working tree",
-          "command": "git clean"
+          "command": "git clean",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "clone",
           "summary": "Clone a repository into a new directory",
-          "command": "git clone"
+          "command": "git clone",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "commit",
           "summary": "Record changes to the repository",
-          "command": "git commit"
+          "command": "git commit",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "describe",
           "summary": "Give an object a human readable name based on an available ref",
-          "command": "git describe"
+          "command": "git describe",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "diff",
           "summary": "Show changes between commits, commit and working tree, etc",
-          "command": "git diff"
+          "command": "git diff",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "fetch",
           "summary": "Download objects and refs from another repository",
-          "command": "git fetch"
+          "command": "git fetch",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "format-patch",
           "summary": "Prepare patches for e-mail submission",
-          "command": "git format-patch"
+          "command": "git format-patch",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "gc",
           "summary": "Cleanup unnecessary files and optimize the local repository",
-          "command": "git gc"
+          "command": "git gc",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "gitk",
           "summary": "The Git repository browser",
-          "command": "git gitk"
+          "command": "gitk",
+          "available": true,
+          "runner": "standalone",
+          "probe_detail": "C:\\Program Files\\Git\\cmd\\gitk.exe"
         },
         {
           "name": "grep",
           "summary": "Print lines matching a pattern",
-          "command": "git grep"
+          "command": "git grep",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "gui",
           "summary": "A portable graphical interface to Git",
-          "command": "git gui"
+          "command": "git gui",
+          "available": true,
+          "runner": "git",
+          "probe_detail": "gui_or_timeout"
         },
         {
           "name": "history",
           "summary": "EXPERIMENTAL: Rewrite history",
-          "command": "git history"
+          "command": "git history",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "init",
           "summary": "Create an empty Git repository or reinitialize an existing one",
-          "command": "git init"
+          "command": "git init",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "log",
           "summary": "Show commit logs",
-          "command": "git log"
+          "command": "git log",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "maintenance",
           "summary": "Run tasks to optimize Git repository data",
-          "command": "git maintenance"
+          "command": "git maintenance",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "merge",
           "summary": "Join two or more development histories together",
-          "command": "git merge"
+          "command": "git merge",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "mv",
           "summary": "Move or rename a file, a directory, or a symlink",
-          "command": "git mv"
+          "command": "git mv",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "notes",
           "summary": "Add or inspect object notes",
-          "command": "git notes"
+          "command": "git notes",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "pull",
           "summary": "Fetch from and integrate with another repository or a local branch",
-          "command": "git pull"
+          "command": "git pull",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "push",
           "summary": "Update remote refs along with associated objects",
-          "command": "git push"
+          "command": "git push",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "range-diff",
           "summary": "Compare two commit ranges (e.g. two versions of a branch)",
-          "command": "git range-diff"
+          "command": "git range-diff",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "rebase",
           "summary": "Reapply commits on top of another base tip",
-          "command": "git rebase"
+          "command": "git rebase",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "reset",
           "summary": "Set `HEAD` or the index to a known state",
-          "command": "git reset"
+          "command": "git reset",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "restore",
           "summary": "Restore working tree files",
-          "command": "git restore"
+          "command": "git restore",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "revert",
           "summary": "Revert some existing commits",
-          "command": "git revert"
+          "command": "git revert",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "rm",
           "summary": "Remove files from the working tree and from the index",
-          "command": "git rm"
+          "command": "git rm",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "scalar",
           "summary": "A tool for managing large Git repositories",
-          "command": "git scalar"
+          "command": "scalar",
+          "available": true,
+          "runner": "standalone",
+          "probe_detail": "C:\\Program Files\\Git\\cmd\\scalar.exe"
         },
         {
           "name": "shortlog",
           "summary": "Summarize `git log` output",
-          "command": "git shortlog"
+          "command": "git shortlog",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "show",
           "summary": "Show various types of objects",
-          "command": "git show"
+          "command": "git show",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "sparse-checkout",
           "summary": "Reduce your working tree to a subset of tracked files",
-          "command": "git sparse-checkout"
+          "command": "git sparse-checkout",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "stash",
           "summary": "Stash the changes in a dirty working directory away",
-          "command": "git stash"
+          "command": "git stash",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "status",
           "summary": "Show the working tree status",
-          "command": "git status"
+          "command": "git status",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "submodule",
           "summary": "Initialize, update or inspect submodules",
-          "command": "git submodule"
+          "command": "git submodule",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "survey",
           "summary": "EXPERIMENTAL: Measure various repository dimensions of scale",
-          "command": "git survey"
+          "command": "git survey",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "switch",
           "summary": "Switch branches",
-          "command": "git switch"
+          "command": "git switch",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "tag",
           "summary": "Create, list, delete or verify tags",
-          "command": "git tag"
+          "command": "git tag",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "worktree",
           "summary": "Manage multiple working trees",
-          "command": "git worktree"
+          "command": "git worktree",
+          "available": true,
+          "runner": "git"
         }
       ]
     },
@@ -248,62 +346,87 @@
         {
           "name": "config",
           "summary": "Get and set repository or global options",
-          "command": "git config"
+          "command": "git config",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "fast-export",
           "summary": "Git data exporter",
-          "command": "git fast-export"
+          "command": "git fast-export",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "fast-import",
           "summary": "Backend for fast Git data importers",
-          "command": "git fast-import"
+          "command": "git fast-import",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "filter-branch",
           "summary": "Rewrite branches",
-          "command": "git filter-branch"
+          "command": "git filter-branch",
+          "available": true,
+          "runner": "git",
+          "probe_detail": "gui_or_timeout"
         },
         {
           "name": "mergetool",
           "summary": "Run merge conflict resolution tools to resolve merge conflicts",
-          "command": "git mergetool"
+          "command": "git mergetool",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "pack-refs",
           "summary": "Pack heads and tags for efficient repository access",
-          "command": "git pack-refs"
+          "command": "git pack-refs",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "prune",
           "summary": "Prune all unreachable objects from the object database",
-          "command": "git prune"
+          "command": "git prune",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "reflog",
           "summary": "Manage reflog information",
-          "command": "git reflog"
+          "command": "git reflog",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "refs",
           "summary": "Low-level access to refs",
-          "command": "git refs"
+          "command": "git refs",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "remote",
           "summary": "Manage set of tracked repositories",
-          "command": "git remote"
+          "command": "git remote",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "repack",
           "summary": "Pack unpacked objects in a repository",
-          "command": "git repack"
+          "command": "git repack",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "replace",
           "summary": "Create, list, delete refs to replace objects",
-          "command": "git replace"
+          "command": "git replace",
+          "available": true,
+          "runner": "git"
         }
       ]
     },
@@ -313,87 +436,123 @@
         {
           "name": "annotate",
           "summary": "Annotate file lines with commit information",
-          "command": "git annotate"
+          "command": "git annotate",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "blame",
           "summary": "Show what revision and author last modified each line of a file",
-          "command": "git blame"
+          "command": "git blame",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "bugreport",
           "summary": "Collect information for user to file a bug report",
-          "command": "git bugreport"
+          "command": "git bugreport",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "count-objects",
           "summary": "Count unpacked number of objects and their disk consumption",
-          "command": "git count-objects"
+          "command": "git count-objects",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "diagnose",
           "summary": "Generate a zip archive of diagnostic information",
-          "command": "git diagnose"
+          "command": "git diagnose",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "difftool",
           "summary": "Show changes using common diff tools",
-          "command": "git difftool"
+          "command": "git difftool",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "fsck",
           "summary": "Verifies the connectivity and validity of the objects in the database",
-          "command": "git fsck"
+          "command": "git fsck",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "gitweb",
           "summary": "Git web interface (web frontend to Git repositories)",
-          "command": "git gitweb"
+          "command": "git gitweb",
+          "available": false,
+          "runner": null,
+          "probe_detail": "not_a_git_command"
         },
         {
           "name": "help",
           "summary": "Display help information about Git",
-          "command": "git help"
+          "command": "git help",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "instaweb",
           "summary": "Instantly browse your working repository in gitweb",
-          "command": "git instaweb"
+          "command": "git instaweb",
+          "available": false,
+          "runner": null,
+          "probe_detail": "not_a_git_command"
         },
         {
           "name": "merge-tree",
           "summary": "Perform merge without touching index or working tree",
-          "command": "git merge-tree"
+          "command": "git merge-tree",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "rerere",
           "summary": "Reuse recorded resolution of conflicted merges",
-          "command": "git rerere"
+          "command": "git rerere",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "show-branch",
           "summary": "Show branches and their commits",
-          "command": "git show-branch"
+          "command": "git show-branch",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "verify-commit",
           "summary": "Check the GPG signature of commits",
-          "command": "git verify-commit"
+          "command": "git verify-commit",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "verify-tag",
           "summary": "Check the GPG signature of tags",
-          "command": "git verify-tag"
+          "command": "git verify-tag",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "version",
           "summary": "Display version information about Git",
-          "command": "git version"
+          "command": "git version",
+          "available": true,
+          "runner": "git"
         },
         {
           "name": "whatchanged",
           "summary": "Show logs with differences each commit introduces",
-          "command": "git whatchanged"
+          "command": "git whatchanged",
+          "available": true,
+          "runner": "git"
         }
       ]
     }
@@ -403,457 +562,622 @@
       "name": "add",
       "summary": "Add file contents to the index",
       "command": "git add",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "am",
       "summary": "Apply a series of patches from a mailbox",
       "command": "git am",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "archive",
       "summary": "Create an archive of files from a named tree",
       "command": "git archive",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "backfill",
       "summary": "Download missing objects in a partial clone",
       "command": "git backfill",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "bisect",
       "summary": "Use binary search to find the commit that introduced a bug",
       "command": "git bisect",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "branch",
       "summary": "List, create, or delete branches",
       "command": "git branch",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "bundle",
       "summary": "Move objects and refs by archive",
       "command": "git bundle",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "checkout",
       "summary": "Switch branches or restore working tree files",
       "command": "git checkout",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "cherry-pick",
       "summary": "Apply the changes introduced by some existing commits",
       "command": "git cherry-pick",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "citool",
       "summary": "Graphical alternative to git-commit",
       "command": "git citool",
+      "available": false,
+      "runner": null,
+      "probe_detail": "exit_1",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "clean",
       "summary": "Remove untracked files from the working tree",
       "command": "git clean",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "clone",
       "summary": "Clone a repository into a new directory",
       "command": "git clone",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "commit",
       "summary": "Record changes to the repository",
       "command": "git commit",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "describe",
       "summary": "Give an object a human readable name based on an available ref",
       "command": "git describe",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "diff",
       "summary": "Show changes between commits, commit and working tree, etc",
       "command": "git diff",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "fetch",
       "summary": "Download objects and refs from another repository",
       "command": "git fetch",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "format-patch",
       "summary": "Prepare patches for e-mail submission",
       "command": "git format-patch",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "gc",
       "summary": "Cleanup unnecessary files and optimize the local repository",
       "command": "git gc",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "gitk",
       "summary": "The Git repository browser",
-      "command": "git gitk",
+      "command": "gitk",
+      "available": true,
+      "runner": "standalone",
+      "probe_detail": "C:\\Program Files\\Git\\cmd\\gitk.exe",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "grep",
       "summary": "Print lines matching a pattern",
       "command": "git grep",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "gui",
       "summary": "A portable graphical interface to Git",
       "command": "git gui",
+      "available": true,
+      "runner": "git",
+      "probe_detail": "gui_or_timeout",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "history",
       "summary": "EXPERIMENTAL: Rewrite history",
       "command": "git history",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "init",
       "summary": "Create an empty Git repository or reinitialize an existing one",
       "command": "git init",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "log",
       "summary": "Show commit logs",
       "command": "git log",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "maintenance",
       "summary": "Run tasks to optimize Git repository data",
       "command": "git maintenance",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "merge",
       "summary": "Join two or more development histories together",
       "command": "git merge",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "mv",
       "summary": "Move or rename a file, a directory, or a symlink",
       "command": "git mv",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "notes",
       "summary": "Add or inspect object notes",
       "command": "git notes",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "pull",
       "summary": "Fetch from and integrate with another repository or a local branch",
       "command": "git pull",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "push",
       "summary": "Update remote refs along with associated objects",
       "command": "git push",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "range-diff",
       "summary": "Compare two commit ranges (e.g. two versions of a branch)",
       "command": "git range-diff",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "rebase",
       "summary": "Reapply commits on top of another base tip",
       "command": "git rebase",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "reset",
       "summary": "Set `HEAD` or the index to a known state",
       "command": "git reset",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "restore",
       "summary": "Restore working tree files",
       "command": "git restore",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "revert",
       "summary": "Revert some existing commits",
       "command": "git revert",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "rm",
       "summary": "Remove files from the working tree and from the index",
       "command": "git rm",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "scalar",
       "summary": "A tool for managing large Git repositories",
-      "command": "git scalar",
+      "command": "scalar",
+      "available": true,
+      "runner": "standalone",
+      "probe_detail": "C:\\Program Files\\Git\\cmd\\scalar.exe",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "shortlog",
       "summary": "Summarize `git log` output",
       "command": "git shortlog",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "show",
       "summary": "Show various types of objects",
       "command": "git show",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "sparse-checkout",
       "summary": "Reduce your working tree to a subset of tracked files",
       "command": "git sparse-checkout",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "stash",
       "summary": "Stash the changes in a dirty working directory away",
       "command": "git stash",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "status",
       "summary": "Show the working tree status",
       "command": "git status",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "submodule",
       "summary": "Initialize, update or inspect submodules",
       "command": "git submodule",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "survey",
       "summary": "EXPERIMENTAL: Measure various repository dimensions of scale",
       "command": "git survey",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "switch",
       "summary": "Switch branches",
       "command": "git switch",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "tag",
       "summary": "Create, list, delete or verify tags",
       "command": "git tag",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "worktree",
       "summary": "Manage multiple working trees",
       "command": "git worktree",
+      "available": true,
+      "runner": "git",
       "section": "Main Porcelain Commands"
     },
     {
       "name": "config",
       "summary": "Get and set repository or global options",
       "command": "git config",
+      "available": true,
+      "runner": "git",
       "section": "Ancillary Commands / Manipulators"
     },
     {
       "name": "fast-export",
       "summary": "Git data exporter",
       "command": "git fast-export",
+      "available": true,
+      "runner": "git",
       "section": "Ancillary Commands / Manipulators"
     },
     {
       "name": "fast-import",
       "summary": "Backend for fast Git data importers",
       "command": "git fast-import",
+      "available": true,
+      "runner": "git",
       "section": "Ancillary Commands / Manipulators"
     },
     {
       "name": "filter-branch",
       "summary": "Rewrite branches",
       "command": "git filter-branch",
+      "available": true,
+      "runner": "git",
+      "probe_detail": "gui_or_timeout",
       "section": "Ancillary Commands / Manipulators"
     },
     {
       "name": "mergetool",
       "summary": "Run merge conflict resolution tools to resolve merge conflicts",
       "command": "git mergetool",
+      "available": true,
+      "runner": "git",
       "section": "Ancillary Commands / Manipulators"
     },
     {
       "name": "pack-refs",
       "summary": "Pack heads and tags for efficient repository access",
       "command": "git pack-refs",
+      "available": true,
+      "runner": "git",
       "section": "Ancillary Commands / Manipulators"
     },
     {
       "name": "prune",
       "summary": "Prune all unreachable objects from the object database",
       "command": "git prune",
+      "available": true,
+      "runner": "git",
       "section": "Ancillary Commands / Manipulators"
     },
     {
       "name": "reflog",
       "summary": "Manage reflog information",
       "command": "git reflog",
+      "available": true,
+      "runner": "git",
       "section": "Ancillary Commands / Manipulators"
     },
     {
       "name": "refs",
       "summary": "Low-level access to refs",
       "command": "git refs",
+      "available": true,
+      "runner": "git",
       "section": "Ancillary Commands / Manipulators"
     },
     {
       "name": "remote",
       "summary": "Manage set of tracked repositories",
       "command": "git remote",
+      "available": true,
+      "runner": "git",
       "section": "Ancillary Commands / Manipulators"
     },
     {
       "name": "repack",
       "summary": "Pack unpacked objects in a repository",
       "command": "git repack",
+      "available": true,
+      "runner": "git",
       "section": "Ancillary Commands / Manipulators"
     },
     {
       "name": "replace",
       "summary": "Create, list, delete refs to replace objects",
       "command": "git replace",
+      "available": true,
+      "runner": "git",
       "section": "Ancillary Commands / Manipulators"
     },
     {
       "name": "annotate",
       "summary": "Annotate file lines with commit information",
       "command": "git annotate",
+      "available": true,
+      "runner": "git",
       "section": "Ancillary Commands / Interrogators"
     },
     {
       "name": "blame",
       "summary": "Show what revision and author last modified each line of a file",
       "command": "git blame",
+      "available": true,
+      "runner": "git",
       "section": "Ancillary Commands / Interrogators"
     },
     {
       "name": "bugreport",
       "summary": "Collect information for user to file a bug report",
       "command": "git bugreport",
+      "available": true,
+      "runner": "git",
       "section": "Ancillary Commands / Interrogators"
     },
     {
       "name": "count-objects",
       "summary": "Count unpacked number of objects and their disk consumption",
       "command": "git count-objects",
+      "available": true,
+      "runner": "git",
       "section": "Ancillary Commands / Interrogators"
     },
     {
       "name": "diagnose",
       "summary": "Generate a zip archive of diagnostic information",
       "command": "git diagnose",
+      "available": true,
+      "runner": "git",
       "section": "Ancillary Commands / Interrogators"
     },
     {
       "name": "difftool",
       "summary": "Show changes using common diff tools",
       "command": "git difftool",
+      "available": true,
+      "runner": "git",
       "section": "Ancillary Commands / Interrogators"
     },
     {
       "name": "fsck",
       "summary": "Verifies the connectivity and validity of the objects in the database",
       "command": "git fsck",
+      "available": true,
+      "runner": "git",
       "section": "Ancillary Commands / Interrogators"
     },
     {
       "name": "gitweb",
       "summary": "Git web interface (web frontend to Git repositories)",
       "command": "git gitweb",
+      "available": false,
+      "runner": null,
+      "probe_detail": "not_a_git_command",
       "section": "Ancillary Commands / Interrogators"
     },
     {
       "name": "help",
       "summary": "Display help information about Git",
       "command": "git help",
+      "available": true,
+      "runner": "git",
       "section": "Ancillary Commands / Interrogators"
     },
     {
       "name": "instaweb",
       "summary": "Instantly browse your working repository in gitweb",
       "command": "git instaweb",
+      "available": false,
+      "runner": null,
+      "probe_detail": "not_a_git_command",
       "section": "Ancillary Commands / Interrogators"
     },
     {
       "name": "merge-tree",
       "summary": "Perform merge without touching index or working tree",
       "command": "git merge-tree",
+      "available": true,
+      "runner": "git",
       "section": "Ancillary Commands / Interrogators"
     },
     {
       "name": "rerere",
       "summary": "Reuse recorded resolution of conflicted merges",
       "command": "git rerere",
+      "available": true,
+      "runner": "git",
       "section": "Ancillary Commands / Interrogators"
     },
     {
       "name": "show-branch",
       "summary": "Show branches and their commits",
       "command": "git show-branch",
+      "available": true,
+      "runner": "git",
       "section": "Ancillary Commands / Interrogators"
     },
     {
       "name": "verify-commit",
       "summary": "Check the GPG signature of commits",
       "command": "git verify-commit",
+      "available": true,
+      "runner": "git",
       "section": "Ancillary Commands / Interrogators"
     },
     {
       "name": "verify-tag",
       "summary": "Check the GPG signature of tags",
       "command": "git verify-tag",
+      "available": true,
+      "runner": "git",
       "section": "Ancillary Commands / Interrogators"
     },
     {
       "name": "version",
       "summary": "Display version information about Git",
       "command": "git version",
+      "available": true,
+      "runner": "git",
       "section": "Ancillary Commands / Interrogators"
     },
     {
       "name": "whatchanged",
       "summary": "Show logs with differences each commit introduces",
       "command": "git whatchanged",
+      "available": true,
+      "runner": "git",
       "section": "Ancillary Commands / Interrogators"
     }
-  ]
+  ],
+  "availability": {
+    "available": 73,
+    "unavailable": 3,
+    "standalone": 2,
+    "total": 76
+  }
 }

@@ -2,13 +2,17 @@
 import { readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { taxonomyDir } from '../lib/paths.js';
+import { intentMatrixPath, taxonomyDir } from '../lib/paths.js';
 import { renderPrompt, renderPromptRole } from '../lib/prompts.js';
 import { llmJsonObject } from '../lib/llm.js';
 import {
   GenerationLlmResponseSchema,
   IntentExpansionLlmResponseSchema,
 } from '../schemas/command.js';
+import {
+  IntentMatrixFileSchema,
+  formatIntentMatrixForPrompt,
+} from '../schemas/intentMatrix.js';
 import { parseCommands } from '../db/recipeFormat.js';
 import { assertEvolveMutation } from './evolveGuards.js';
 import { parseFlagsFromHelp } from './coverage.js';
@@ -16,16 +20,29 @@ import { fetchGitShortHelp } from './gitShortHelp.js';
 import { filterIntentsForRecipe, primaryStepListing } from './intentFidelity.js';
 import { INTENT_EXPAND_CAP } from '../db/constants.js';
 
-function taxonomyPath(name) {
-  const a = path.join(taxonomyDir(), name);
+function resolveMatrixPath(explicit = null) {
+  if (explicit) return explicit;
+  const a = intentMatrixPath();
   if (existsSync(a)) return a;
-  return path.join(path.dirname(fileURLToPath(import.meta.url)), '../../taxonomy', name);
+  return path.join(path.dirname(fileURLToPath(import.meta.url)), '../../taxonomy', 'intent_matrix.json');
 }
 
-export function loadTaxonomy() {
-  const skill = readFileSync(taxonomyPath('skill_level.md'), 'utf8');
-  const category = readFileSync(taxonomyPath('intent_category.md'), 'utf8');
-  return { skill, category };
+/**
+ * Load intent matrix and format for expand-intents.
+ * @param {{ matrix?: object, matrixPath?: string }} [opts]
+ * @returns {{ matrix: object, matrixText: string }}
+ */
+export function loadTaxonomy(opts = {}) {
+  if (opts.matrix) {
+    const matrix = IntentMatrixFileSchema.parse(opts.matrix);
+    return { matrix, matrixText: formatIntentMatrixForPrompt(matrix) };
+  }
+  const filePath = resolveMatrixPath(opts.matrixPath);
+  let rawText = readFileSync(filePath, 'utf8');
+  if (rawText.charCodeAt(0) === 0xfeff) rawText = rawText.slice(1);
+  const raw = JSON.parse(rawText);
+  const matrix = IntentMatrixFileSchema.parse(raw);
+  return { matrix, matrixText: formatIntentMatrixForPrompt(matrix) };
 }
 
 /**
@@ -66,12 +83,14 @@ export async function generateRecipeFromSemanticBlock(block, opts = {}) {
  */
 export async function expandIntentsForRecipe(recipe, opts = {}) {
   const call = opts.llmJsonObject || llmJsonObject;
-  const { skill, category } = loadTaxonomy();
+  const { matrixText } = loadTaxonomy({
+    matrix: opts.matrix,
+    matrixPath: opts.matrixPath,
+  });
   const { primary, listing } = primaryStepListing(recipe);
 
   const { messages } = renderPrompt('build/expand-intents', {
-    skill,
-    category,
+    matrix: matrixText,
     primary,
     listing,
     initial_state: recipe.initial_state,

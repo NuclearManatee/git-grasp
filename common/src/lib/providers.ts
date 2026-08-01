@@ -3,10 +3,17 @@
  * Central LLM provider registry.
  * DeepSeek V4 Flash is the default chat model (OpenAI-compatible chat completions).
  * Official API slug: `deepseek-v4-flash` (see Models & Pricing docs).
+ * Matrix judge uses Pro explicitly; catalog ground/loop stay on Flash.
  * @see https://api-docs.deepseek.com/
  * @see https://api-docs.deepseek.com/quick_start/pricing/
  * @see https://api-docs.deepseek.com/quick_start/rate_limit/
  */
+
+/** Default catalog / generation model. */
+export const DEEPSEEK_FLASH_MODEL = 'deepseek-v4-flash';
+
+/** Intent-matrix blind judge only. */
+export const DEEPSEEK_PRO_MODEL = 'deepseek-v4-pro';
 
 export const PROVIDERS = Object.freeze({
   deepseek: Object.freeze({
@@ -15,7 +22,7 @@ export const PROVIDERS = Object.freeze({
     envKey: 'DEEPSEEK_API_KEY',
     baseUrl: 'https://api.deepseek.com',
     chatPath: '/chat/completions',
-    defaultModel: 'deepseek-v4-flash',
+    defaultModel: DEEPSEEK_FLASH_MODEL,
     /** Account concurrency cap for deepseek-v4-flash (official docs). */
     concurrencyLimit: 2500,
     /** Safe default for this project (well under account cap). */

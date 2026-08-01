@@ -93,7 +93,7 @@ bun run test:telemetry-e2e
 |--------|---------|
 | `bun run rebuild` | Full catalog build loop + seed DB (`build:loop`) |
 | `bun run taxonomy:scrape` | One-shot `git help -a` → `git_commands.json` |
-| `bun run taxonomy:pins` | LLM passes A–D → `git_commands.roles.json` + `canonical_pins.json` |
+| `bun run taxonomy:matrix` | Flash draft + Pro judge → `intent_matrix.json` (all 16 cells) |
 | `bun run build:prepare` | Step −1 source scrape into cache |
 | `bun run build:ground` | Ground catalog from prepare artifacts |
 | `bun run build:loop` | Interactive build + eval loop |

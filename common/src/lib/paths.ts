@@ -98,16 +98,17 @@ export function gitCommandsTaxonomyPath() {
   return path.join(taxonomyDir(), 'git_commands.json');
 }
 
-export function gitCommandsRolesPath() {
-  return path.join(taxonomyDir(), 'git_commands.roles.json');
-}
-
-export function canonicalPinsPath() {
-  return path.join(taxonomyDir(), 'canonical_pins.json');
+export function intentMatrixPath() {
+  return path.join(taxonomyDir(), 'intent_matrix.json');
 }
 
 export function taxonomyDir() {
   return path.join(commonDir(), 'taxonomy');
+}
+
+/** Intent-matrix builder reports (gitignored under local/). */
+export function intentMatrixEvalDir() {
+  return path.join(localDir(), 'eval', 'intent-matrix');
 }
 
 export function promptsRootDir() {

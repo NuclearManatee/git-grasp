@@ -1,6 +1,7 @@
 // @ts-nocheck
 /**
  * One-shot: scrape `git help -a` → common/taxonomy/git_commands.json
+ * Probes each verb for local availability (git subcommand vs standalone vs missing).
  * Not re-run by build:prepare.
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -34,13 +35,28 @@ if (parsed.commands.length < 20) {
   process.exit(1);
 }
 
+console.log(`Probing ${parsed.commands.length} commands for local availability…`);
 const taxonomy = buildGitCommandsTaxonomy({
   sections: parsed.sections,
   scraped_at: new Date().toISOString(),
+  probe: true,
 });
 
 mkdirSync(path.dirname(outPath), { recursive: true });
 writeFileSync(outPath, `${JSON.stringify(taxonomy, null, 2)}\n`);
+
+const a = taxonomy.availability || {};
 console.log(
   `Wrote ${taxonomy.commands.length} commands in ${taxonomy.sections.length} sections → ${outPath}`,
 );
+console.log(
+  `Availability: available=${a.available} unavailable=${a.unavailable} standalone=${a.standalone} total=${a.total}`,
+);
+const missing = taxonomy.commands.filter((c) => !c.available).map((c) => c.name);
+if (missing.length) {
+  console.log(`Unavailable here: ${missing.join(', ')}`);
+}
+const solo = taxonomy.commands.filter((c) => c.runner === 'standalone');
+if (solo.length) {
+  console.log(`Standalone runners: ${solo.map((c) => `${c.name}→${c.command}`).join(', ')}`);
+}

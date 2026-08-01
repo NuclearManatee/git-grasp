@@ -4,6 +4,8 @@ import {
   createSandboxDirs,
   destroySandbox,
   addLocalRemote,
+  readShimLog,
+  sandboxSpawnEnv,
 } from '../../common/src/build/sandbox.js';
 import { computePhysicalHash, gitInRepo } from '../../common/src/build/physicalHash.js';
 import { writeFileSync } from 'node:fs';
@@ -62,16 +64,108 @@ describe('sandbox + physical hash', () => {
     expect(hashes.size).toBeGreaterThanOrEqual(1);
   });
 
-  it('blocks GUI commands without spawning a window', () => {
-    const started = Date.now();
+  it('accepts GUI recipes via PATH shims without hanging', () => {
+    for (const command of ['git gui', 'git citool', 'gitk', 'git difftool', 'git mergetool']) {
+      const started = Date.now();
+      const result = validateInSandboxAndDestroy({
+        initial_state: 'git commit --allow-empty -m "init"\n',
+        command_recipe: { commands: [{ command }] },
+        workerId: 'gui',
+        jobId: command.replace(/\s+/g, '-'),
+      });
+      expect(result.ok).toBe(true);
+      expect(Date.now() - started).toBeLessThan(10_000);
+    }
+  });
+
+  it('blockGui opt-in still fails closed', () => {
     const result = validateInSandboxAndDestroy({
       initial_state: 'git commit --allow-empty -m "init"\n',
       command_recipe: { commands: [{ command: 'git citool' }] },
+      blockGui: true,
       workerId: 'gui',
-      jobId: 'citool',
+      jobId: 'block',
     });
     expect(result.ok).toBe(false);
     expect(result.reason).toBe('sandbox_gui_blocked');
-    expect(Date.now() - started).toBeLessThan(5_000);
+  });
+
+  it('push/pull with $GIT_GRASP_REMOTES', () => {
+    const result = validateInSandboxAndDestroy({
+      initial_state: [
+        'git commit --allow-empty -m init',
+        'git init --bare "$GIT_GRASP_REMOTES/origin.git"',
+        'git remote add origin "$GIT_GRASP_REMOTES/origin.git"',
+        'git push -u origin HEAD',
+      ].join('\n'),
+      command_recipe: { commands: [{ command: 'git pull' }] },
+      workerId: 'remote',
+      jobId: 'pull',
+    });
+    expect(result.ok).toBe(true);
+  });
+
+  it('describe --always succeeds', () => {
+    const result = validateInSandboxAndDestroy({
+      initial_state: 'git commit --allow-empty -m init\n',
+      command_recipe: { commands: [{ command: 'git describe --always' }] },
+      workerId: 'desc',
+      jobId: '1',
+    });
+    expect(result.ok).toBe(true);
+  });
+
+  it('restore with path succeeds', () => {
+    const result = validateInSandboxAndDestroy({
+      initial_state: [
+        'git commit --allow-empty -m init',
+        'echo hi > f.txt',
+        'git add f.txt',
+        'git commit -m add',
+        'echo bye > f.txt',
+      ].join('\n'),
+      command_recipe: { commands: [{ command: 'git restore f.txt' }] },
+      workerId: 'restore',
+      jobId: '1',
+    });
+    expect(result.ok).toBe(true);
+  });
+
+  it('bugreport does not fail on EDITOR unset', () => {
+    const result = validateInSandboxAndDestroy({
+      initial_state: 'git commit --allow-empty -m init\n',
+      command_recipe: {
+        commands: [{ command: 'git bugreport --output-directory .' }],
+      },
+      workerId: 'bug',
+      jobId: '1',
+    });
+    expect(result.ok).toBe(true);
+  });
+
+  it('hung shim is killed by timeout', () => {
+    const started = Date.now();
+    const result = validateInSandboxAndDestroy({
+      initial_state: 'git commit --allow-empty -m init\n',
+      command_recipe: { commands: [{ command: 'git gui' }] },
+      hangShims: true,
+      commandTimeoutMs: 800,
+      workerId: 'hang',
+      jobId: '1',
+    });
+    expect(result.ok).toBe(false);
+    expect(result.reason).toBe('sandbox_timeout');
+    expect(Date.now() - started).toBeLessThan(15_000);
+  });
+
+  it('sets EDITOR family on spawn env', () => {
+    const s = createSandboxDirs({ workerId: 'ed', jobId: '1' });
+    try {
+      const env = sandboxSpawnEnv(s);
+      expect(env.GIT_EDITOR).toContain('grasp-editor');
+      expect(env.EDITOR).toBe(env.GIT_EDITOR);
+    } finally {
+      destroySandbox(s);
+    }
   });
 });

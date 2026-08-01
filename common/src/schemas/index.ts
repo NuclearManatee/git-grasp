@@ -81,27 +81,22 @@ export {
 } from './io.js';
 
 export {
-  GOAL_ROLES,
-  PIN_WORTHY_ROLES,
-  CRITICAL_PIN_ROLES,
-  GoalRoleSchema,
-  RecipeSketchStepSchema,
-  RecipeSketchSchema,
-  CanonicalPinSchema,
-  CanonicalPinsFileSchema,
-  CommandRolesSchema,
-  TagRolesLlmResponseSchema,
-  DraftPinsLlmResponseSchema,
-  GapFillLlmResponseSchema,
-  RepairPinsLlmResponseSchema,
-  RolesFileCommandSchema,
-  RolesFileSchema,
-  type GoalRole,
-  type CanonicalPin,
-  type CanonicalPinsFile,
-  type RolesFile,
-  type CommandRoles,
-} from './taxonomyPins.js';
+  SKILL_LEVELS,
+  INTENT_CATEGORIES,
+  IntentMatrixCellSchema,
+  IntentMatrixFileSchema,
+  DraftMatrixCellLlmSchema,
+  RewriteMatrixCellLlmSchema,
+  MatrixJudgeCellResultSchema,
+  MatrixJudgeLlmResponseSchema,
+  cellKey,
+  allCellKeys,
+  getMatrixCell,
+  formatIntentMatrixForPrompt,
+  formatCellGuidance,
+  type IntentMatrixCell,
+  type IntentMatrixFile,
+} from './intentMatrix.js';
 
 export * from './llmResponses/catalog.js';
 

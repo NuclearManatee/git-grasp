@@ -12,11 +12,10 @@ import {
   gitCommandsTaxonomyPath,
   sourcesCacheRoot,
   catalogDir,
-  gitCommandsRolesPath,
 } from '../lib/paths.js';
 import { createOpenAIEmbedder, cosineSimilarity } from './openaiEmbed.js';
 import { SemanticBlocksFileSchema } from '../schemas/command.js';
-import { taxonomyEmbedText } from './taxonomyScrape.js';
+import { taxonomyEmbedText, groundableTaxonomyCommands } from './taxonomyScrape.js';
 import { buildDefaultHelpBlock } from './gitShortHelp.js';
 
 export const ROUTE_SIM_FLOOR = 0.75;
@@ -186,20 +185,17 @@ export function assembleSemanticBlocks(chunks, assignments) {
  */
 export function ensureDefaultHelpBlocks(taxEntries, routedBlocks, opts = {}) {
   const buildDefault = opts.buildDefault || buildDefaultHelpBlock;
-  const rolesByCommand = opts.rolesByCommand || new Map();
   const routed = new Map(routedBlocks.map((b) => [b.command, b.blocks]));
   return taxEntries
     .map((entry) => {
       const def = buildDefault(entry);
       const rest = routed.get(entry.command) || [];
       const filtered = rest.filter((b) => b.metadata_source !== def.metadata_source);
-      const roles = rolesByCommand.get(entry.command) || [];
       const goalStub = {
         metadata_source: `goal-stub/${entry.command.replace(/^git\s+/, '')}`,
         content: [
           `[goal stub > ${entry.command}]`,
           entry.summary || `Work with ${entry.command}`,
-          roles.length ? `goal_roles: ${roles.join(', ')}` : '',
         ]
           .filter(Boolean)
           .join('\n'),
@@ -216,21 +212,17 @@ export function ensureDefaultHelpBlocks(taxEntries, routedBlocks, opts = {}) {
     .sort((a, b) => a.command.localeCompare(b.command));
 }
 
-/** Pin-worthy roles with no routed prose beyond -h / goal stub. */
-export function buildGoalGapsReport(blocks, rolesByCommand) {
+/** Commands with no routed prose beyond -h / goal stub. */
+export function buildGoalGapsReport(blocks) {
   const gaps = [];
   for (const b of blocks || []) {
-    const roles = rolesByCommand.get(b.command) || [];
     const docBlocks = (b.blocks || []).filter(
       (x) =>
         !String(x.metadata_source || '').startsWith('git/-h/') &&
         !String(x.metadata_source || '').startsWith('goal-stub/'),
     );
-    const worthy = roles.some((r) =>
-      ['identity', 'authorship', 'history_bisect', 'recovery', 'remotes', 'history_search'].includes(r),
-    );
-    if (worthy && docBlocks.length === 0) {
-      gaps.push({ command: b.command, goal_roles: roles, reason: 'no_routed_prose' });
+    if (docBlocks.length === 0) {
+      gaps.push({ command: b.command, reason: 'no_routed_prose' });
     }
   }
   return gaps;
@@ -299,7 +291,12 @@ export async function prepareSemanticBlocks(opts = {}) {
   const log = opts.log || ((m) => console.log(m));
   log(`prepare: start`);
   const taxonomy = loadGitCommandTaxonomy(opts.taxonomyPath);
-  const taxEntries = taxonomy.commands.map((c) => ({
+  const groundable = groundableTaxonomyCommands(taxonomy);
+  const skipped = (taxonomy.commands || []).length - groundable.length;
+  if (skipped > 0) {
+    log(`prepare: skipping ${skipped} unavailable/verify-unsigned taxonomy verbs`);
+  }
+  const taxEntries = groundable.map((c) => ({
     command: c.command,
     summary: c.summary || '',
   }));
@@ -344,29 +341,17 @@ export async function prepareSemanticBlocks(opts = {}) {
 
   const routed = assembleSemanticBlocks(allChunks, assignments);
   const buildDefault = opts.buildDefaultHelp || buildDefaultHelpBlock;
-  const rolesByCommand = new Map();
-  try {
-    const rolesPath = gitCommandsRolesPath();
-    if (existsSync(rolesPath)) {
-      const rolesFile = JSON.parse(readFileSync(rolesPath, 'utf8'));
-      for (const c of rolesFile.commands || []) {
-        rolesByCommand.set(c.command, c.goal_roles || []);
-      }
-    }
-  } catch {
-    /* optional */
-  }
-  const blocks = ensureDefaultHelpBlocks(taxEntries, routed, { buildDefault, rolesByCommand });
+  const blocks = ensureDefaultHelpBlocks(taxEntries, routed, { buildDefault });
   const parsed = SemanticBlocksFileSchema.parse(blocks);
 
   const outPath = opts.outPath || semanticBlocksPath();
   mkdirSync(path.dirname(outPath), { recursive: true });
   writeFileSync(outPath, `${JSON.stringify(parsed, null, 2)}\n`);
 
-  const gaps = buildGoalGapsReport(parsed, rolesByCommand);
+  const gaps = buildGoalGapsReport(parsed);
   const gapsPath = opts.goalGapsPath || path.join(path.dirname(outPath), 'goal_gaps.json');
   writeFileSync(gapsPath, `${JSON.stringify({ generated_at: new Date().toISOString(), gaps }, null, 2)}\n`);
-  log(`prepare: goal_gaps=${gaps.length} â†’ ${gapsPath}`);
+  log(`prepare: goal_gaps=${gaps.length} → ${gapsPath}`);
 
   const unroutedPath = opts.unroutedPath || unroutedChunksPath();
   const unroutedRows = unrouted.map((i) => ({

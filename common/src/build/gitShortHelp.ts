@@ -3,6 +3,7 @@
  * Fetch short usage via `git <cmd> -h` (no browser / no man viewer).
  * Plain `git help <cmd>` must not be used at build time â€” it often opens HTML.
  */
+import { spawnSync } from 'node:child_process';
 import { spawnGit } from './gitExec.js';
 
 /** @type {Map<string, { ok: boolean, text: string, metadata_source: string }>} */
@@ -26,7 +27,34 @@ export function fetchGitShortHelp(command, opts = {}) {
     .trim()
     .split(/\s+/)
     .filter(Boolean);
-  if (parts.length < 2 || parts[0] !== 'git') {
+  if (parts.length < 1) {
+    return { ok: false, text: '', metadata_source: 'git/-h/unknown' };
+  }
+
+  // Standalone tools (gitk, scalar): `<bin> -h` — not `git <name> -h`.
+  if (parts[0] !== 'git') {
+    const bin = parts[0];
+    const metadata_source = `git/-h/${bin}`;
+    const cacheKey = `standalone:${bin}`.toLowerCase();
+    if (useCache && helpCache.has(cacheKey)) {
+      return helpCache.get(cacheKey);
+    }
+    const r = spawnSync(bin, ['-h'], {
+      encoding: 'utf8',
+      timeout: timeoutMs,
+      windowsHide: true,
+      shell: false,
+      maxBuffer: 2 * 1024 * 1024,
+    });
+    const text = `${r.stdout || ''}${r.stderr || ''}`.trim();
+    const result = !text
+      ? { ok: false, text: '', metadata_source }
+      : { ok: true, text, metadata_source };
+    if (useCache) helpCache.set(cacheKey, result);
+    return result;
+  }
+
+  if (parts.length < 2) {
     return { ok: false, text: '', metadata_source: 'git/-h/unknown' };
   }
   const name = parts.slice(1).join(' ');
