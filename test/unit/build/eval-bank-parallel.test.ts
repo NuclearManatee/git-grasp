@@ -45,8 +45,13 @@ describe('evaluateBank parallel', () => {
     const searchFn = async (q) => {
       await new Promise((r) => setTimeout(r, 5 + Math.random() * 10));
       const id = Number(String(q).replace(/\D/g, '')) % 2 === 0 ? 1 : 2;
+      const hit = { command_id: id, example: 'git status', snippet: '' };
       return {
-        results: [{ command_id: id, example: 'git status', snippet: '' }],
+        results: [hit],
+        displayResults: [hit],
+        status: 'ok',
+        alert: 'none',
+        confidence: 0.95,
       };
     };
 
@@ -56,8 +61,8 @@ describe('evaluateBank parallel', () => {
       progressEvery: 5,
       progressHeartbeatMs: 60_000,
       onProgress: (p) => progress.push({ ...p }),
-      // Force Hit@3 only path (no judge) by making misses fail without LLM:
-      llmJsonObject: async () => ({ confidence: 0.1, reason: 'no' }),
+      // Force Hit@display only path (no judge) by making misses fail without LLM:
+      llmJsonObject: async () => ({ utility: 0.1, reason: 'no' }),
     });
 
     expect(out.total).toBe(20);
@@ -87,7 +92,7 @@ describe('evaluateBank parallel', () => {
     });
     expect(s).toMatch(/eval progress 10\/100/);
     expect(s).toMatch(/passA=0\.80/);
-    expect(s).toMatch(/hit@3=0\.70/);
+    expect(s).toMatch(/hit@display=0\.70/);
     expect(s).toMatch(/hit=7/);
     expect(s).toMatch(/concurrency=12/);
   });

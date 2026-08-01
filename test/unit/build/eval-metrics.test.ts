@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
-  hitAt3,
-  hitAt3Verb,
+  hitAtDisplay,
+  hitAtDisplayVerb,
   evaluateQuery,
   evaluateBank,
   stratifyResultsByMutationKind,
@@ -10,25 +10,25 @@ import {
 } from '../../../packages/core/src/build/evalGate.ts';
 import {
   EVAL_MIN_PASS_RATE,
-  EVAL_MIN_HIT_AT3_RATE,
+  EVAL_MIN_HIT_AT_DISPLAY_RATE,
 } from '../../../packages/core/src/db/constants.ts';
 
 describe('eval metrics', () => {
-  it('hitAt3 matches command_id', () => {
-    expect(hitAt3([{ command_id: 1 }, { command_id: 7 }], 7)).toBe(true);
-    expect(hitAt3([{ command_id: 1 }], 7)).toBe(false);
+  it('hitAtDisplay matches command_id', () => {
+    expect(hitAtDisplay([{ command_id: 1 }, { command_id: 7 }], 7)).toBe(true);
+    expect(hitAtDisplay([{ command_id: 1 }], 7)).toBe(false);
   });
 
-  it('hitAt3Verb matches primary verb via lookup', () => {
+  it('hitAtDisplayVerb matches primary verb via lookup', () => {
     const hits = [{ command_id: 2 }, { command_id: 3 }];
     const lookup = { 2: 'git status', 3: 'git log' };
-    expect(hitAt3Verb(hits, 'git status', lookup)).toBe(true);
-    expect(hitAt3Verb(hits, 'git rebase', lookup)).toBe(false);
+    expect(hitAtDisplayVerb(hits, 'git status', lookup)).toBe(true);
+    expect(hitAtDisplayVerb(hits, 'git rebase', lookup)).toBe(false);
   });
 
-  it('hitAt3Verb can read verb from snippet', () => {
+  it('hitAtDisplayVerb can read verb from snippet', () => {
     const hits = [{ command_id: 9, snippet: 'git stash\ngit rebase' }];
-    expect(hitAt3Verb(hits, 'git rebase', {})).toBe(true);
+    expect(hitAtDisplayVerb(hits, 'git rebase', {})).toBe(true);
   });
 
   it('evaluateQuery returns passVerb alongside pass', async () => {
@@ -37,7 +37,7 @@ describe('eval metrics', () => {
       async () => [{ command_id: 1, snippet: 'git status' }],
       {
         verbLookup: { 1: 'git status' },
-        llmJsonObject: async () => ({ confidence: 0.2, reason: 'no' }),
+        llmJsonObject: async () => ({ utility: 0.2, reason: 'no' }),
       },
     );
     expect(r.pass).toBe(false);
@@ -59,11 +59,11 @@ describe('eval metrics', () => {
       },
       {
         minPassRate: EVAL_MIN_PASS_RATE,
-        minHitAt3Rate: EVAL_MIN_HIT_AT3_RATE,
+        minHitAtDisplayRate: EVAL_MIN_HIT_AT_DISPLAY_RATE,
         verbLookup: { 1: 'git status', 99: 'git log' },
         llmJsonObject: async () => {
           llmCalls += 1;
-          return { confidence: 0.1, reason: 'wrong recipe' };
+          return { utility: 0.1, reason: 'wrong recipe' };
         },
         onSkipJudge: (info) => {
           skipInfo = info;
@@ -84,7 +84,7 @@ describe('eval metrics', () => {
     expect(formatEvalReport(out)).toMatch(/timing eval/);
   });
 
-  it('evaluateBank ok when hit@3 and passA both clear gates', async () => {
+  it('evaluateBank ok when hit@display and passA both clear gates', async () => {
     const bank = [
       { query_text: 'a', command_id: 1, mutation_kind: 'ground', primary_verb: 'git status' },
       { query_text: 'b', command_id: 2, mutation_kind: 'flag', primary_verb: 'git log' },
@@ -92,7 +92,7 @@ describe('eval metrics', () => {
       { query_text: 'd', command_id: 4, mutation_kind: 'flag', primary_verb: 'git stash' },
     ];
     let llmCalls = 0;
-    // 3/4 hit@3 (=0.75>=0.7); 4th rescued by judge → passA=1.0>=0.9
+    // 3/4 hit@display (=0.75>=0.7); 4th rescued by judge → passA=1.0>=0.9
     const out = await evaluateBank(
       bank,
       async (q) => {
@@ -103,10 +103,10 @@ describe('eval metrics', () => {
       },
       {
         minPassRate: EVAL_MIN_PASS_RATE,
-        minHitAt3Rate: EVAL_MIN_HIT_AT3_RATE,
+        minHitAtDisplayRate: EVAL_MIN_HIT_AT_DISPLAY_RATE,
         llmJsonObject: async () => {
           llmCalls += 1;
-          return { confidence: 0.95, reason: 'solves stash query' };
+          return { utility: 0.95, reason: 'helpful for stash query' };
         },
       },
     );
@@ -120,7 +120,7 @@ describe('eval metrics', () => {
     expect(out.skippedJudge).toBe(false);
   });
 
-  it('evaluateBank Phase2 only runs after hit@3 clears', async () => {
+  it('evaluateBank Phase2 only runs after hit@display clears', async () => {
     const bank = Array.from({ length: 10 }, (_, i) => ({
       query_text: `q${i}`,
       command_id: i + 1,
@@ -138,10 +138,10 @@ describe('eval metrics', () => {
       },
       {
         minPassRate: EVAL_MIN_PASS_RATE,
-        minHitAt3Rate: EVAL_MIN_HIT_AT3_RATE,
+        minHitAtDisplayRate: EVAL_MIN_HIT_AT_DISPLAY_RATE,
         llmJsonObject: async () => {
           llmCalls += 1;
-          return { confidence: 0.96, reason: 'clearly solves' };
+          return { utility: 0.96, reason: 'helpful toward intent' };
         },
       },
     );
@@ -150,8 +150,9 @@ describe('eval metrics', () => {
   });
 
   it('exports judge criteria prompt', () => {
-    expect(JUDGE_SYSTEM_PROMPT).toMatch(/confidence/i);
+    expect(JUDGE_SYSTEM_PROMPT).toMatch(/utility/i);
     expect(JUDGE_SYSTEM_PROMPT).toMatch(/reason/i);
+    expect(JUDGE_SYSTEM_PROMPT).toMatch(/abstain/i);
   });
 
   it('stratifyResultsByMutationKind groups rows', () => {

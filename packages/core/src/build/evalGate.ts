@@ -1,5 +1,5 @@
 /**
- * Eval banks + Hit@3 / judge-confidence gate (schema v7).
+ * Eval banks + Hit@display / judge-utility gate (schema v7).
  */
 import { mkdirSync, appendFileSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
@@ -11,8 +11,8 @@ import { primaryCommand, parseCommands } from '../db/recipeFormat.js';
 import pLimit from 'p-limit';
 import {
   EVAL_MIN_PASS_RATE,
-  EVAL_MIN_HIT_AT3_RATE,
-  EVAL_JUDGE_CONFIDENCE_THRESHOLD,
+  EVAL_MIN_HIT_AT_DISPLAY_RATE,
+  EVAL_JUDGE_UTILITY_THRESHOLD,
   EVAL_COVERAGE_WARN_VERB_MIN,
   EVAL_COVERAGE_WARN_FRACTION,
   EVAL_CONCURRENCY,
@@ -24,11 +24,11 @@ import { verbFromCommandLine, buildVerbCoverage } from './coverage.js';
 import { z } from 'zod';
 
 /**
- * System prompt for the build-time relevance judge (Pass A fallback).
+ * System prompt for the build-time utility judge (Pass A fallback).
  * Loaded from packages/core/prompts/build/judge.md.
  */
 export const JUDGE_SYSTEM_PROMPT = renderPromptRole('build/judge', 'system', {
-  threshold: EVAL_JUDGE_CONFIDENCE_THRESHOLD,
+  threshold: EVAL_JUDGE_UTILITY_THRESHOLD,
 });
 
 /** Resolve eval bank concurrency (opts > env > default). */
@@ -259,7 +259,7 @@ export function writePinNlBank(pins, goalIdToCommandId = {}) {
 }
 
 /**
- * Evaluate pin NL bank with Hit@3 / verb Pass B (hard).
+ * Evaluate pin NL bank with Hit@display / verb Pass B (hard).
  */
 export async function evaluatePinNlBank(searchFn, opts = {}) {
   const bank = loadBank('pin-nl.jsonl');
@@ -268,8 +268,8 @@ export async function evaluatePinNlBank(searchFn, opts = {}) {
   }
   return evaluateBank(bank, searchFn, {
     ...opts,
-    minHitAt3Rate: opts.minHitAt3Rate ?? EVAL_MIN_HIT_AT3_RATE,
-    minPassRate: opts.minPassRate ?? EVAL_MIN_HIT_AT3_RATE, // pin NL uses Hit@3 floor as Pass A too when judge optional
+    minHitAtDisplayRate: opts.minHitAtDisplayRate ?? EVAL_MIN_HIT_AT_DISPLAY_RATE,
+    minPassRate: opts.minPassRate ?? EVAL_MIN_HIT_AT_DISPLAY_RATE, // pin NL uses Hit@display floor as Pass A too when judge optional
   });
 }
 
@@ -359,27 +359,46 @@ export async function expandQueries(seed, commandRow, opts = {}) {
 }
 
 /**
- * Gate: Hit@3 exact command_id on **internal** ranked results (pre-display-gate).
- * Miss → strict judge; Pass if confidence > 0.9.
+ * Gate: Hit@display exact command_id on CLI-shown `displayResults`.
+ * Miss → strict utility judge; Pass if utility > 0.9.
  *
  * searchFn may return either:
- * - HybridSearchResult `{ results, displayResults, ... }` (preferred)
- * - Or a bare hit array (legacy)
+ * - SearchHybridResult `{ results, displayResults, alert, status, ... }` (preferred)
+ * - Or a bare hit array (legacy — treated as already-displayed)
  */
-export function top3FromSearchOutput(hitsOrResult) {
-  if (Array.isArray(hitsOrResult)) return hitsOrResult.slice(0, 3);
-  const internal = hitsOrResult?.results;
-  if (Array.isArray(internal)) return internal.slice(0, 3);
+export function displayMetaFromSearchOutput(hitsOrResult) {
+  if (Array.isArray(hitsOrResult)) {
+    return { displayed: hitsOrResult.slice(0, 3), alert: undefined, status: undefined };
+  }
   const display = hitsOrResult?.displayResults;
-  if (Array.isArray(display)) return display.slice(0, 3);
-  return [];
+  const displayed = Array.isArray(display) ? display.slice(0, 3) : [];
+  return {
+    displayed,
+    alert: hitsOrResult?.alert,
+    status: hitsOrResult?.status,
+  };
 }
 
-export function hitAt3(hitsOrResult, commandId) {
-  const top3 = top3FromSearchOutput(hitsOrResult);
-  return top3.some(
+/** CLI-shown hits from search output (displayResults, or bare array legacy). */
+export function displayedFromSearchOutput(hitsOrResult) {
+  return displayMetaFromSearchOutput(hitsOrResult).displayed;
+}
+
+/** @deprecated use displayedFromSearchOutput */
+export function top3FromSearchOutput(hitsOrResult) {
+  return displayedFromSearchOutput(hitsOrResult);
+}
+
+export function hitAtDisplay(hitsOrResult, commandId) {
+  const displayed = displayedFromSearchOutput(hitsOrResult);
+  return displayed.some(
     (h) => Number(h.command_id ?? h.recipe_id) === Number(commandId),
   );
+}
+
+/** @deprecated use hitAtDisplay */
+export function hitAt3(hitsOrResult, commandId) {
+  return hitAtDisplay(hitsOrResult, commandId);
 }
 
 /** Verbs present on a search hit (lookup map and/or snippet/example parse). */
@@ -399,51 +418,87 @@ export function verbsFromHit(hit, verbLookup = {}) {
 }
 
 /**
- * Pass B: expected primary verb appears among top-3 hit verbs.
+ * Pass B: expected primary verb appears among displayed hit verbs.
  * @param {*} hitsOrResult
  * @param {string} expectedPrimaryVerb
  * @param {Record<string|number, string>} [recipeLookup] command_id → primary_verb
  */
-export function hitAt3Verb(hitsOrResult, expectedPrimaryVerb, recipeLookup = {}) {
+export function hitAtDisplayVerb(hitsOrResult, expectedPrimaryVerb, recipeLookup = {}) {
   if (!expectedPrimaryVerb) return false;
   const expected = String(expectedPrimaryVerb).toLowerCase();
-  const top3 = top3FromSearchOutput(hitsOrResult);
-  return top3.some((h) =>
+  const displayed = displayedFromSearchOutput(hitsOrResult);
+  return displayed.some((h) =>
     verbsFromHit(h, recipeLookup).some((v) => String(v).toLowerCase() === expected),
   );
 }
 
+/** @deprecated use hitAtDisplayVerb */
+export function hitAt3Verb(hitsOrResult, expectedPrimaryVerb, recipeLookup = {}) {
+  return hitAtDisplayVerb(hitsOrResult, expectedPrimaryVerb, recipeLookup);
+}
+
 export async function evaluateQuery(query, searchFn, opts = {}) {
-  const threshold = opts.confidenceThreshold ?? EVAL_JUDGE_CONFIDENCE_THRESHOLD;
+  const threshold = opts.utilityThreshold ?? EVAL_JUDGE_UTILITY_THRESHOLD;
   const verbLookup = opts.verbLookup || {};
   const tSearch = Date.now();
   const raw = await searchFn(query.query_text, { limit: 3 });
   const searchMs = Date.now() - tSearch;
-  const top3 = top3FromSearchOutput(raw);
-  const passVerb = hitAt3Verb(raw, query.primary_verb, verbLookup);
+  const meta = displayMetaFromSearchOutput(raw);
+  const displayed = meta.displayed;
+  const passVerb = hitAtDisplayVerb(raw, query.primary_verb, verbLookup);
 
-  if (hitAt3(raw, query.command_id)) {
-    return { pass: true, passVerb, via: 'hit@3', top3, query, searchMs, judgeMs: 0 };
+  if (hitAtDisplay(raw, query.command_id)) {
+    return {
+      pass: true,
+      passVerb,
+      via: 'hit@display',
+      displayed,
+      alert: meta.alert,
+      status: meta.status,
+      query,
+      searchMs,
+      judgeMs: 0,
+    };
   }
 
   if (opts.searchOnly) {
-    return { pass: false, passVerb, via: 'miss', top3, query, searchMs, judgeMs: 0 };
+    return {
+      pass: false,
+      passVerb,
+      via: 'miss',
+      displayed,
+      alert: meta.alert,
+      status: meta.status,
+      query,
+      searchMs,
+      judgeMs: 0,
+    };
   }
 
   return judgeQueryMiss(
-    { pass: false, passVerb, via: 'miss', top3, query, searchMs, judgeMs: 0 },
-    { ...opts, confidenceThreshold: threshold },
+    {
+      pass: false,
+      passVerb,
+      via: 'miss',
+      displayed,
+      alert: meta.alert,
+      status: meta.status,
+      query,
+      searchMs,
+      judgeMs: 0,
+    },
+    { ...opts, utilityThreshold: threshold },
   );
 }
 
 /**
- * LLM judge for a Phase-1 miss (top3 already retrieved).
- * @param {{ query: object, top3: object[], passVerb: boolean, searchMs?: number }} miss
+ * LLM judge for a Phase-1 miss (displayed set already retrieved).
+ * @param {{ query: object, displayed: object[], alert?: string, status?: string, passVerb: boolean, searchMs?: number }} miss
  */
 export async function judgeQueryMiss(miss, opts = {}) {
-  const threshold = opts.confidenceThreshold ?? EVAL_JUDGE_CONFIDENCE_THRESHOLD;
+  const threshold = opts.utilityThreshold ?? EVAL_JUDGE_UTILITY_THRESHOLD;
   const call = opts.llmJsonObject || llmJsonObject;
-  const top = miss.top3?.[0];
+  const displayed = miss.displayed ?? [];
   const tJudge = Date.now();
   let judge;
   try {
@@ -452,13 +507,13 @@ export async function judgeQueryMiss(miss, opts = {}) {
       user_json: JSON.stringify({
         query: miss.query.query_text,
         expected_command_id: miss.query.command_id,
-        top_hit: top
-          ? {
-              command_id: top.command_id,
-              example: top.example,
-              snippet: top.snippet,
-            }
-          : null,
+        alert: miss.alert ?? null,
+        status: miss.status ?? null,
+        display_results: displayed.map((h) => ({
+          command_id: h.command_id ?? h.recipe_id,
+          example: h.example,
+          snippet: h.snippet,
+        })),
       }),
     });
     judge = await call({
@@ -471,7 +526,9 @@ export async function judgeQueryMiss(miss, opts = {}) {
       passVerb: miss.passVerb,
       via: 'judge_error',
       reason: e?.message || String(e),
-      top3: miss.top3,
+      displayed,
+      alert: miss.alert,
+      status: miss.status,
       query: miss.query,
       searchMs: miss.searchMs ?? 0,
       judgeMs: Date.now() - tJudge,
@@ -481,12 +538,14 @@ export async function judgeQueryMiss(miss, opts = {}) {
   }
 
   const vote = {
-    pass: judge.confidence > threshold,
+    pass: judge.utility > threshold,
     passVerb: miss.passVerb,
-    via: judge.confidence > threshold ? 'judge' : 'ko',
-    confidence: judge.confidence,
+    via: judge.utility > threshold ? 'judge' : 'ko',
+    utility: judge.utility,
     reason: judge.reason,
-    top3: miss.top3,
+    displayed,
+    alert: miss.alert,
+    status: miss.status,
     query: miss.query,
     searchMs: miss.searchMs ?? 0,
     judgeMs: Date.now() - tJudge,
@@ -523,12 +582,12 @@ export function minCountForRate(minRate, total) {
 
 /**
  * Evaluate golden bank in two phases:
- * 1) Search-only Hit@3 (early-exit if gate already impossible)
- * 2) LLM judge on misses only (skipped entirely if Hit@3 gate fails)
+ * 1) Search-only Hit@display (early-exit if gate already impossible)
+ * 2) LLM judge on misses only (skipped entirely if Hit@display gate fails)
  *
  * Dual hard gate:
- * - Hit@3-only rate >= minHitAt3Rate (before LLM)
- * - Pass A (Hit@3 OR judge) rate >= minPassRate (after LLM)
+ * - Hit@display-only rate >= minHitAtDisplayRate (before LLM)
+ * - Pass A (Hit@display OR judge) rate >= minPassRate (after LLM)
  *
  * @param {object[]} bank
  * @param {(q: string, opts?: object) => Promise<*>} searchFn
@@ -536,7 +595,7 @@ export function minCountForRate(minRate, total) {
  */
 export async function evaluateBank(bank, searchFn, opts = {}) {
   const minPassRate = opts.minPassRate ?? EVAL_MIN_PASS_RATE;
-  const minHitAt3Rate = opts.minHitAt3Rate ?? EVAL_MIN_HIT_AT3_RATE;
+  const minHitAtDisplayRate = opts.minHitAtDisplayRate ?? EVAL_MIN_HIT_AT_DISPLAY_RATE;
   const concurrency = resolveEvalConcurrency(opts);
   const progressEvery = opts.progressEvery ?? EVAL_PROGRESS_EVERY;
   const heartbeatMs = opts.progressHeartbeatMs ?? EVAL_PROGRESS_HEARTBEAT_MS;
@@ -546,7 +605,7 @@ export async function evaluateBank(bank, searchFn, opts = {}) {
   const total = bank.length;
   const results = new Array(total);
   const startedAt = Date.now();
-  const minHitsNeeded = minCountForRate(minHitAt3Rate, total);
+  const minHitsNeeded = minCountForRate(minHitAtDisplayRate, total);
   const minPassNeeded = minCountForRate(minPassRate, total);
 
   let completed = 0;
@@ -619,7 +678,7 @@ export async function evaluateBank(bank, searchFn, opts = {}) {
             pass: false,
             passVerb: false,
             via: 'skipped',
-            top3: [],
+            displayed: [],
             query: q,
             searchMs: 0,
             judgeMs: 0,
@@ -637,7 +696,7 @@ export async function evaluateBank(bank, searchFn, opts = {}) {
         results[i] = r;
         searchMsTotal += r.searchMs || 0;
         completed += 1;
-        if (r.via === 'hit@3') {
+        if (r.via === 'hit@display') {
           hit += 1;
           passedSoFar += 1;
         }
@@ -652,9 +711,9 @@ export async function evaluateBank(bank, searchFn, opts = {}) {
   const phase1Ms = Date.now() - phase1Started;
   emitProgress(true, 'search');
 
-  const hitPassed = results.filter((r) => r.via === 'hit@3').length;
+  const hitPassed = results.filter((r) => r.via === 'hit@display').length;
   const hitRate = total ? hitPassed / total : 1;
-  const okHit = hitRate + 1e-9 >= minHitAt3Rate;
+  const okHit = hitRate + 1e-9 >= minHitAtDisplayRate;
 
   if (!okHit) {
     skippedJudge = true;
@@ -664,7 +723,7 @@ export async function evaluateBank(bank, searchFn, opts = {}) {
           pass: false,
           passVerb: false,
           via: 'skipped',
-          top3: [],
+          displayed: [],
           query: bank[i],
           searchMs: 0,
           judgeMs: 0,
@@ -672,7 +731,7 @@ export async function evaluateBank(bank, searchFn, opts = {}) {
       }
     }
     if (onSkipJudge) {
-      onSkipJudge({ hitRate, hitPassed, total, minHitAt3Rate, phase1Abort });
+      onSkipJudge({ hitRate, hitPassed, total, minHitAtDisplayRate, phase1Abort });
     }
     const verbPassed = results.filter((r) => r.passVerb).length;
     return {
@@ -686,7 +745,7 @@ export async function evaluateBank(bank, searchFn, opts = {}) {
       rate: total ? hitPassed / total : 1,
       hitRate,
       minPassRate,
-      minHitAt3Rate,
+      minHitAtDisplayRate,
       verbPassed,
       verbTotal: total,
       verbRate: total ? verbPassed / total : 1,
@@ -773,7 +832,7 @@ export async function evaluateBank(bank, searchFn, opts = {}) {
     rate,
     hitRate,
     minPassRate,
-    minHitAt3Rate,
+    minHitAtDisplayRate,
     verbPassed,
     verbTotal,
     verbRate,
@@ -823,7 +882,7 @@ export function formatEvalProgress(p) {
   const hitRate = (p.hitRate ?? 0).toFixed(2);
   const phase = p.phase ? ` phase=${p.phase}` : '';
   return (
-    `eval progress ${p.done}/${p.total} passA=${rate} hit@3=${hitRate}` +
+    `eval progress ${p.done}/${p.total} passA=${rate} hit@display=${hitRate}` +
     ` hit=${p.hit ?? 0} judge=${p.judge ?? 0}` +
     ` ko=${p.ko ?? 0} judge_error=${p.judgeError ?? 0} elapsed=${p.elapsedSec ?? 0}s` +
     ` concurrency=${p.concurrency ?? '?'}${phase}`
@@ -856,16 +915,16 @@ export function formatEvalReport(evalResult) {
   const rate = (evalResult.rate ?? 0).toFixed(2);
   const hitRate = (evalResult.hitRate ?? 0).toFixed(2);
   const lines = [
-    `eval hit@3=${hitRate} (${evalResult.hitPassed ?? 0}/${evalResult.total})` +
-      ` okHit=${evalResult.okHit} minHitAt3=${evalResult.minHitAt3Rate ?? EVAL_MIN_HIT_AT3_RATE}`,
+    `eval hit@display=${hitRate} (${evalResult.hitPassed ?? 0}/${evalResult.total})` +
+      ` okHit=${evalResult.okHit} minHitAtDisplay=${evalResult.minHitAtDisplayRate ?? EVAL_MIN_HIT_AT_DISPLAY_RATE}`,
     `eval passA=${rate} (${evalResult.passed}/${evalResult.total})` +
       ` okPass=${evalResult.okPass} minPassRate=${evalResult.minPassRate}` +
       ` (hit=${evalResult.hitPassed ?? 0} judge=${evalResult.judgePassed ?? 0})`,
-    `eval overall ok=${evalResult.ok} (requires hit@3>=min AND passA>=min)`,
+    `eval overall ok=${evalResult.ok} (requires hit@display>=min AND passA>=min)`,
   ];
   if (evalResult.skippedJudge) {
     lines.push(
-      `eval skipJudge hitRate=${hitRate} < minHitAt3=${evalResult.minHitAt3Rate ?? EVAL_MIN_HIT_AT3_RATE}`,
+      `eval skipJudge hitRate=${hitRate} < minHitAtDisplay=${evalResult.minHitAtDisplayRate ?? EVAL_MIN_HIT_AT_DISPLAY_RATE}`,
     );
   }
   const by = evalResult.byMutationKind || {};
@@ -898,11 +957,11 @@ export function formatEvalReport(evalResult) {
 
 /** Format a single judge vote for live logs. */
 export function formatJudgeVote(vote) {
-  const conf =
-    vote.confidence == null ? '-' : Number(vote.confidence).toFixed(2);
+  const util =
+    vote.utility == null ? '-' : Number(vote.utility).toFixed(2);
   const q = String(vote.query?.query_text || '').slice(0, 60);
   const reason = String(vote.reason || '').replace(/\s+/g, ' ').slice(0, 140);
-  return `eval judge vote=${vote.via} conf=${conf} pass=${vote.pass} q="${q}" reason="${reason}"`;
+  return `eval judge vote=${vote.via} utility=${util} pass=${vote.pass} q="${q}" reason="${reason}"`;
 }
 
 /**

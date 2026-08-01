@@ -42,7 +42,8 @@ describe('prompt loader', () => {
     });
     expect(out.messages).toHaveLength(2);
     expect(out.messages[0].role).toBe('system');
-    expect(out.messages[0].content).toMatch(/confidence > 0\.9/);
+    expect(out.messages[0].content).toMatch(/utility > 0\.9/);
+    expect(out.messages[0].content).toMatch(/abstain/i);
     expect(out.messages[1].role).toBe('user');
     expect(out.messages[1].content).toContain('{"query":"status"}');
   });

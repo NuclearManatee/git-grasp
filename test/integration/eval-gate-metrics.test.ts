@@ -5,11 +5,11 @@ import {
 } from '../../packages/core/src/build/evalGate.js';
 import {
   EVAL_MIN_PASS_RATE,
-  EVAL_MIN_HIT_AT3_RATE,
+  EVAL_MIN_HIT_AT_DISPLAY_RATE,
 } from '../../packages/core/src/db/constants.js';
 
 describe('eval gate metrics (integration-style)', () => {
-  it('fails dual gate when hit@3 is below 0.7 and never calls judge', async () => {
+  it('fails dual gate when hit@display is below 0.7 and never calls judge', async () => {
     const bank = [
       {
         query_text: 'show status',
@@ -32,7 +32,7 @@ describe('eval gate metrics (integration-style)', () => {
     ];
 
     let llmCalls = 0;
-    // Hit@3: 2/3 ≈ 0.67 < 0.7 → okHit false; Phase 2 skipped
+    // Hit@display: 2/3 ≈ 0.67 < 0.7 → okHit false; Phase 2 skipped
     const searchFn = async (q) => {
       if (q.includes('status')) return [{ command_id: 1, snippet: 'git status' }];
       if (q.includes('log')) return [{ command_id: 2, snippet: 'git log --oneline' }];
@@ -41,7 +41,7 @@ describe('eval gate metrics (integration-style)', () => {
 
     const out = await evaluateBank(bank, searchFn, {
       minPassRate: EVAL_MIN_PASS_RATE,
-      minHitAt3Rate: EVAL_MIN_HIT_AT3_RATE,
+      minHitAtDisplayRate: EVAL_MIN_HIT_AT_DISPLAY_RATE,
       verbLookup: {
         1: 'git status',
         2: 'git log',
@@ -49,7 +49,7 @@ describe('eval gate metrics (integration-style)', () => {
       },
       llmJsonObject: async () => {
         llmCalls += 1;
-        return { confidence: 0.95, reason: 'top hit is rebase' };
+        return { utility: 0.95, reason: 'top hit is rebase' };
       },
     });
 
@@ -75,15 +75,15 @@ describe('eval gate metrics (integration-style)', () => {
       async () => [{ command_id: 99, snippet: 'git status\ngit log' }],
       {
         minPassRate: EVAL_MIN_PASS_RATE,
-        minHitAt3Rate: EVAL_MIN_HIT_AT3_RATE,
+        minHitAtDisplayRate: EVAL_MIN_HIT_AT_DISPLAY_RATE,
         verbLookup: { 99: 'git status' },
         llmJsonObject: async () => {
           llmCalls += 1;
-          return { confidence: 0.05, reason: 'no' };
+          return { utility: 0.05, reason: 'no' };
         },
       },
     );
-    // Hit@3 = 0 → Phase1 KO → no judge
+    // Hit@display = 0 → Phase1 KO → no judge
     expect(llmCalls).toBe(0);
     expect(out.passed).toBe(0);
     expect(out.hitRate).toBe(0);
@@ -93,7 +93,7 @@ describe('eval gate metrics (integration-style)', () => {
     expect(out.skippedJudge).toBe(true);
   });
 
-  it('passes dual gate when hit@3>=0.7 and passA>=0.9', async () => {
+  it('passes dual gate when hit@display>=0.7 and passA>=0.9', async () => {
     const bank = Array.from({ length: 10 }, (_, i) => ({
       query_text: `q${i}`,
       command_id: i + 1,
@@ -101,7 +101,7 @@ describe('eval gate metrics (integration-style)', () => {
       primary_verb: 'git status',
     }));
     let llmCalls = 0;
-    // 8/10 hit@3; 2 rescued by judge → hit=0.8 passA=1.0
+    // 8/10 hit@display; 2 rescued by judge → hit=0.8 passA=1.0
     const out = await evaluateBank(
       bank,
       async (q) => {
@@ -111,10 +111,10 @@ describe('eval gate metrics (integration-style)', () => {
       },
       {
         minPassRate: EVAL_MIN_PASS_RATE,
-        minHitAt3Rate: EVAL_MIN_HIT_AT3_RATE,
+        minHitAtDisplayRate: EVAL_MIN_HIT_AT_DISPLAY_RATE,
         llmJsonObject: async () => {
           llmCalls += 1;
-          return { confidence: 0.96, reason: 'clearly solves' };
+          return { utility: 0.96, reason: 'helpful toward intent' };
         },
       },
     );

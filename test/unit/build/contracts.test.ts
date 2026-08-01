@@ -45,8 +45,8 @@ describe('v6 command schemas', () => {
   });
 
   it('parses strict judge', () => {
-    const j = StrictJudgeSchema.parse({ confidence: 0.95, reason: 'aligned' });
-    expect(j.confidence).toBeGreaterThan(0.9);
+    const j = StrictJudgeSchema.parse({ utility: 0.95, reason: 'aligned' });
+    expect(j.utility).toBeGreaterThan(0.9);
   });
 
   it('parses semantic_block', () => {

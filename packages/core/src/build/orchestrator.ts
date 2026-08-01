@@ -38,8 +38,8 @@ import {
   MAX_COMMANDS,
   MAX_INTENTS,
   EVAL_MIN_PASS_RATE,
-  EVAL_MIN_HIT_AT3_RATE,
-  EVAL_JUDGE_CONFIDENCE_THRESHOLD,
+  EVAL_MIN_HIT_AT_DISPLAY_RATE,
+  EVAL_JUDGE_UTILITY_THRESHOLD,
   EVAL_SEARCH_POOL_SIZE,
   META_BUILD_LOOP_ITERATION,
   META_BUILD_LOOP_ZERO_STREAK,
@@ -251,7 +251,7 @@ function loadLoopProgress(db) {
 
 async function runBankEval(bank, stagingPath, opts = {}) {
   const minPassRate = opts.minPassRate ?? EVAL_MIN_PASS_RATE;
-  const minHitAt3Rate = opts.minHitAt3Rate ?? EVAL_MIN_HIT_AT3_RATE;
+  const minHitAtDisplayRate = opts.minHitAtDisplayRate ?? EVAL_MIN_HIT_AT_DISPLAY_RATE;
   const verbLookup = opts.verbLookup;
   const onProgress =
     opts.onProgress ||
@@ -267,19 +267,19 @@ async function runBankEval(bank, stagingPath, opts = {}) {
     opts.onSkipJudge ||
     ((info) => {
       log(
-        `eval skipJudge hitRate=${(info.hitRate ?? 0).toFixed(2)} < minHitAt3=${info.minHitAt3Rate}`,
+        `eval skipJudge hitRate=${(info.hitRate ?? 0).toFixed(2)} < minHitAtDisplay=${info.minHitAtDisplayRate}`,
       );
     });
 
   log(
-    `eval criteria hit@3>=${minHitAt3Rate} passA>=${minPassRate} judgeConf>${EVAL_JUDGE_CONFIDENCE_THRESHOLD}`,
+    `eval criteria hit@display>=${minHitAtDisplayRate} passA>=${minPassRate} judgeUtil>${EVAL_JUDGE_UTILITY_THRESHOLD}`,
   );
   log(`eval judgePrompt ${JUDGE_SYSTEM_PROMPT.replace(/\s+/g, ' ').trim()}`);
 
   const evalOpts = {
     llmJsonObject: opts.llmJsonObject,
     minPassRate,
-    minHitAt3Rate,
+    minHitAtDisplayRate,
     verbLookup,
     concurrency: opts.evalConcurrency,
     onProgress,
@@ -704,15 +704,15 @@ export async function runGroundStep(opts = {}) {
     // Hard gate on golden only (exclude fallback "how do I use git X").
     const bank = activeEvaluationBank({ kinds: ['golden'], excludeFallbacks: true });
     const minPassRate = opts.minPassRate ?? EVAL_MIN_PASS_RATE;
-    const minHitAt3Rate = opts.minHitAt3Rate ?? EVAL_MIN_HIT_AT3_RATE;
+    const minHitAtDisplayRate = opts.minHitAtDisplayRate ?? EVAL_MIN_HIT_AT_DISPLAY_RATE;
     log(
-      `ground eval bank size=${bank.length} minHitAt3=${minHitAt3Rate} minPassRate=${minPassRate}`,
+      `ground eval bank size=${bank.length} minHitAtDisplay=${minHitAtDisplayRate} minPassRate=${minPassRate}`,
     );
     const verbLookup = verbLookupFromRows(listCommands(db));
     evalResult = await runBankEval(bank, resolvedStaging, {
       llmJsonObject: opts.llmJsonObject,
       minPassRate,
-      minHitAt3Rate,
+      minHitAtDisplayRate,
       verbLookup,
       searchFn: opts.searchFn,
       evalConcurrency: opts.evalConcurrency,
@@ -728,14 +728,14 @@ export async function runGroundStep(opts = {}) {
         log(`ground pin-nl eval bank size=${pinBank.length}`);
         const pinNl = await runBankEval(pinBank, resolvedStaging, {
           llmJsonObject: opts.llmJsonObject,
-          minPassRate: minHitAt3Rate,
-          minHitAt3Rate,
+          minPassRate: minHitAtDisplayRate,
+          minHitAtDisplayRate,
           verbLookup,
           searchFn: opts.searchFn,
           evalConcurrency: opts.evalConcurrency,
         });
         log(
-          `ground pin-nl ok=${pinNl.ok} hit@3=${(pinNl.hitRate ?? 0).toFixed(2)} passA=${(pinNl.rate ?? 0).toFixed(2)}`,
+          `ground pin-nl ok=${pinNl.ok} hit@display=${(pinNl.hitRate ?? 0).toFixed(2)} passA=${(pinNl.rate ?? 0).toFixed(2)}`,
         );
         if (pinNl.ok === false) {
           evalResult = { ...evalResult, ok: false, pinNl };
@@ -1030,15 +1030,15 @@ export async function runBuildLoop(opts = {}) {
 
     const bank = activeEvaluationBank({ kinds: ['golden'], excludeFallbacks: true });
     const minPassRate = opts.minPassRate ?? EVAL_MIN_PASS_RATE;
-    const minHitAt3Rate = opts.minHitAt3Rate ?? EVAL_MIN_HIT_AT3_RATE;
+    const minHitAtDisplayRate = opts.minHitAtDisplayRate ?? EVAL_MIN_HIT_AT_DISPLAY_RATE;
     log(
-      `loop iter=${iteration} evolve done ok=${evolvedOk} fail=${evolvedFail} newUnique=${newUnique}; eval bank=${bank.length} minHitAt3=${minHitAt3Rate} minPassRate=${minPassRate}`,
+      `loop iter=${iteration} evolve done ok=${evolvedOk} fail=${evolvedFail} newUnique=${newUnique}; eval bank=${bank.length} minHitAtDisplay=${minHitAtDisplayRate} minPassRate=${minPassRate}`,
     );
     const verbLookup = verbLookupFromRows(listCommands(db));
     const evalResult = await runBankEval(bank, stagingPath, {
       llmJsonObject: opts.llmJsonObject,
       minPassRate,
-      minHitAt3Rate,
+      minHitAtDisplayRate,
       verbLookup,
       searchFn: opts.searchFn,
       evalConcurrency: opts.evalConcurrency,
@@ -1075,7 +1075,7 @@ export async function runBuildLoop(opts = {}) {
           rate: evalResult.rate,
           hitRate: evalResult.hitRate,
           minPassRate: evalResult.minPassRate,
-          minHitAt3Rate: evalResult.minHitAt3Rate,
+          minHitAtDisplayRate: evalResult.minHitAtDisplayRate,
           verbRate: evalResult.verbRate,
           byMutationKind: evalResult.byMutationKind,
           judgeSummary: evalResult.judgeSummary,

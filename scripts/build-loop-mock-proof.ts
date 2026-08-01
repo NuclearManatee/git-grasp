@@ -69,10 +69,10 @@ const result = await runBuildLoop({
   }),
   llmJsonObject: async ({ schema }) => {
     // strict judge fallback
-    if (schema?.shape?.confidence) {
-      return { confidence: 0.95, reason: 'mock pass' };
+    if (schema?.shape?.utility) {
+      return { utility: 0.95, reason: 'mock pass' };
     }
-    return { confidence: 0.95, reason: 'mock' };
+    return { utility: 0.95, reason: 'mock' };
   },
 });
 

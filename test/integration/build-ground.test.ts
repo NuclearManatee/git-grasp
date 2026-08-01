@@ -123,7 +123,7 @@ describe('ground + loop helpers (mocked)', () => {
       }),
       expandQueries: async () => [],
       searchFn: async () => [{ command_id: 1, snippet: 'git status' }],
-      llmJsonObject: async () => ({ confidence: 0.1, reason: 'no' }),
+      llmJsonObject: async () => ({ utility: 0.1, reason: 'no' }),
     });
 
     expect(result.inserted).toBeGreaterThanOrEqual(1);

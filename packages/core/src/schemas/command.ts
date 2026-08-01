@@ -76,7 +76,7 @@ export const IntentExpansionArraySchema = z
   .max(16);
 
 export const StrictJudgeSchema = z.object({
-  confidence: z.number().min(0).max(1),
+  utility: z.number().min(0).max(1),
   reason: z.string().min(1),
 });
 

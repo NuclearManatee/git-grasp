@@ -39,33 +39,33 @@ describe('eval gate', () => {
     expect(a.split(/\s+/).length).toBeGreaterThanOrEqual(3);
   });
 
-  it('Hit@3 passes without judge', async () => {
+  it('Hit@display passes without judge', async () => {
     const r = await evaluateQuery(
       { query_text: 'undo', command_id: 7 },
       async () => [{ command_id: 7 }, { command_id: 1 }, { command_id: 2 }],
     );
     expect(r.pass).toBe(true);
-    expect(r.via).toBe('hit@3');
+    expect(r.via).toBe('hit@display');
   });
 
-  it('miss + high confidence judge passes', async () => {
+  it('miss + high utility judge passes', async () => {
     const r = await evaluateQuery(
       { query_text: 'undo', command_id: 7 },
       async () => [{ command_id: 1 }],
       {
-        llmJsonObject: async () => ({ confidence: 0.95, reason: 'close enough' }),
+        llmJsonObject: async () => ({ utility: 0.95, reason: 'helpful next step' }),
       },
     );
     expect(r.pass).toBe(true);
     expect(r.via).toBe('judge');
   });
 
-  it('miss + low confidence fails', async () => {
+  it('miss + low utility fails', async () => {
     const r = await evaluateQuery(
       { query_text: 'undo', command_id: 7 },
       async () => [{ command_id: 1 }],
       {
-        llmJsonObject: async () => ({ confidence: 0.5, reason: 'wrong' }),
+        llmJsonObject: async () => ({ utility: 0.5, reason: 'wrong' }),
       },
     );
     expect(r.pass).toBe(false);

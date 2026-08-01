@@ -28,12 +28,12 @@ export const INTENT_EXPAND_CAP = 6;
 export const LOOP_STATE_BUCKET_FLOOR = 3;
 
 /** Build-time evaluation (dual gate). */
-/** Hard gate: Hit@3-only rate (before LLM judge). */
-export const EVAL_MIN_HIT_AT3_RATE = 0.7;
-/** Hard gate: Pass A rate after Hit@3 OR judge (confidence > 0.9). */
+/** Hard gate: Hit@display-only rate (before LLM judge). */
+export const EVAL_MIN_HIT_AT_DISPLAY_RATE = 0.7;
+/** Hard gate: Pass A rate after Hit@display OR judge (utility > 0.9). */
 export const EVAL_MIN_PASS_RATE = 0.9;
-/** Per-query judge pass threshold (confidence must be strictly greater). */
-export const EVAL_JUDGE_CONFIDENCE_THRESHOLD = 0.9;
+/** Per-query judge pass threshold (utility must be strictly greater). */
+export const EVAL_JUDGE_UTILITY_THRESHOLD = 0.9;
 export const EVAL_COVERAGE_WARN_VERB_MIN = 3;
 export const EVAL_COVERAGE_WARN_FRACTION = 0.8;
 
