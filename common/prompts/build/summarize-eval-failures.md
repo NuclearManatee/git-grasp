@@ -19,6 +19,7 @@ Rules:
 - Cluster by confusion type (wrong sibling verb, empty display, undo trap, synonym, etc.).
 - Do not invent queries or command_ids not present in the input.
 - Prefer at most 12 clusters; merge tiny one-offs into an "other" cluster if needed.
+- Per cluster: at most **6** example_queries and at most **16** command_ids (truncate if needed).
 - Do not propose fixes or rules — summarize only.
 
 ## user

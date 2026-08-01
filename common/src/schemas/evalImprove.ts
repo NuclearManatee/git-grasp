@@ -61,12 +61,18 @@ export const EvalFailureClusterSchema = z.object({
     .array(
       z.object({
         label: z.string().min(1).max(200),
-        pattern: z.string().min(1).max(500),
-        example_queries: z.array(z.string()).max(6),
-        command_ids: z.array(z.number().int().positive()).max(32),
+        pattern: z.string().min(1).max(800),
+        // Clamp oversize LLM arrays so a verbose Flash response does not abort the round.
+        example_queries: z
+          .array(z.string())
+          .transform((arr) => arr.slice(0, 8)),
+        command_ids: z
+          .array(z.number().int().positive())
+          .transform((arr) => arr.slice(0, 48)),
       }),
     )
-    .max(20),
+    .max(20)
+    .transform((clusters) => clusters.slice(0, 16)),
 });
 
 export const EVAL_IMPROVE_MAX_TRAPS_PER_ROUND = 5;
