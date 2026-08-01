@@ -1,15 +1,9 @@
 {
-  "schemaVersion": 3,
-  "topK": 5,
-  "minScore": 0.25,
-  "maxSecondGap": 0.04,
-  "lowConfidenceScore": 0.4,
-  "confidenceYellowScore": 0.45,
-  "confidenceRedScore": 0.30,
-  "requireSkillConsistency": true,
-  "normalizeQuery": true,
-  "simplicityWindow": 0.08,
-  "advancedWindow": 0.12,
-  "specificityWindow": 0.12,
-  "specificityPromoteMargin": 0.05
+  "schemaVersion": 5,
+  "topK": 3,
+  "recallK": 100,
+  "confidenceVeryHigh": 0.9,
+  "confidenceHigh": 0.75,
+  "confidenceMedium": 0.4,
+  "normalizeQuery": true
 }

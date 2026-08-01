@@ -3,8 +3,8 @@ const tabs = [
   {
     id: 'search',
     label: 'Search',
-    body: `git-help "<query>"
-git-help search "<query>" -v -c
+    body: `git-grasp "<query>"
+git-grasp search "<query>" -v -c
 
 Flags
   -v, --verbose   skill label, explanation, score
@@ -15,7 +15,7 @@ The CLI never runs Git for you — it only suggests pasteable commands.`,
   {
     id: 'set-level',
     label: 'set-level',
-    body: `git-help set-level <level>
+    body: `git-grasp set-level <level>
 
 Levels (at-most filter)
   non-technical | beginner | intermediate | expert
@@ -27,7 +27,7 @@ Restricts results to commands at or below that skill.`,
   {
     id: 'doctor',
     label: 'doctor',
-    body: `git-help doctor
+    body: `git-grasp doctor
 
 Checks
   Runtime    Bun version

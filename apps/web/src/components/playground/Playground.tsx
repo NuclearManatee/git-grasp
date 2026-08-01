@@ -1,20 +1,22 @@
+// @ts-nocheck
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Terminal } from '@xterm/xterm';
 import { FitAddon } from '@xterm/addon-fit';
 import '@xterm/xterm/css/xterm.css';
 import chalk from 'chalk';
 import {
-  openWebPack,
+  openWebCatalog,
   searchBrowser,
   formatSearchResult,
   parseSkillLevel,
   skillName,
   sanitizeField,
-  getOpenWebPack,
-} from '@git-help/core/browser';
+  getOpenWebCatalog,
+} from '@git-grasp/core/browser';
 import {
   WEB_PACK_BYTES,
   WEB_PACK_SHA256,
+  WEB_CATALOG_URL,
   MODEL_BYTES_ESTIMATE,
   MODEL_DOWNLOAD_LABEL,
   PLAYGROUND_DOWNLOAD_LABEL,
@@ -22,8 +24,8 @@ import {
 import { shouldAutoLoadPlayground, readConnection, deviceInfo } from '../../lib/connection.js';
 import { trackWebCliLoad, trackWebCliSearch } from '../../lib/umami.js';
 
-const SKILL_KEY = 'git-help.skillLevel';
-const PACK_URL = '/catalog/web-pack.bin';
+const SKILL_KEY = 'git-grasp.skillLevel';
+const PACK_URL = typeof WEB_CATALOG_URL === 'string' ? WEB_CATALOG_URL : '/catalog/web-catalog.db';
 
 function forceAnsi() {
   chalk.level = 3;
@@ -31,9 +33,9 @@ function forceAnsi() {
 
 function previewLines() {
   return [
-    'git-help web playground',
+    'git-grasp web playground',
     '',
-    '  $ git-help "undo last commit but keep my files"',
+    '  $ git-grasp "undo last commit but keep my files"',
     '  git reset',
     '    ────────────────────────────',
     '    git reset --soft HEAD~1',
@@ -104,7 +106,7 @@ export default function Playground({ forceMock = false, forceOptIn = false }) {
   const writePrompt = useCallback(() => {
     const term = termRef.current;
     if (!term) return;
-    term.write('\r\n\x1b[32mgit-help\x1b[0m> ');
+    term.write('\r\n\x1b[32mgit-grasp\x1b[0m> ');
   }, []);
 
   const ensureTerminal = useCallback(() => {
@@ -253,7 +255,7 @@ export default function Playground({ forceMock = false, forceOptIn = false }) {
   }, [mockMode, writePrompt]);
 
   const ensureCatalog = useCallback(async () => {
-    if (getOpenWebPack()) {
+    if (getOpenWebCatalog()) {
       setPackReady(true);
       return;
     }
@@ -265,7 +267,7 @@ export default function Playground({ forceMock = false, forceOptIn = false }) {
         const packRes = await fetch(PACK_URL);
         if (!packRes.ok) throw new Error(`Failed to fetch catalog (${packRes.status})`);
         const packBuf = new Uint8Array(await packRes.arrayBuffer());
-        await openWebPack(packBuf, { expectedSha256: WEB_PACK_SHA256 });
+        await openWebCatalog(packBuf, { expectedSha256: WEB_PACK_SHA256 });
         setPackReady(true);
       })().catch((err) => {
         packPrefetchRef.current = null;
@@ -320,7 +322,7 @@ export default function Playground({ forceMock = false, forceOptIn = false }) {
       setPhase('ready');
       setStatus('Ready');
       term?.clear();
-      term?.writeln('git-help web — type a query, or \x1b[1mhelp\x1b[0m');
+      term?.writeln('git-grasp web — type a query, or \x1b[1mhelp\x1b[0m');
       if (mockMode) term?.writeln('\x1b[33m(mock embeddings)\x1b[0m');
       writePrompt();
       term?.focus();
@@ -392,7 +394,7 @@ export default function Playground({ forceMock = false, forceOptIn = false }) {
           ref={hostRef}
           className="h-[22rem] w-full bg-gh-bg p-2"
           role="application"
-          aria-label="git-help interactive terminal"
+          aria-label="git-grasp interactive terminal"
           data-testid="playground-terminal"
         />
 
@@ -453,11 +455,11 @@ export default function Playground({ forceMock = false, forceOptIn = false }) {
           <a href="/privacy" className="text-gh-accent underline-offset-2 hover:underline">
             Privacy &amp; legal
           </a>
-          . For offline use with no remote telemetry,{' '}
+          . Prefer offline use with no remote telemetry?{' '}
           <a href="#install" className="text-gh-accent underline-offset-2 hover:underline">
-            install the CLI
-          </a>
-          .
+            Install the CLI
+          </a>{' '}
+          (telemetry off by default; optional opt-in via <span className="font-mono">git-grasp telemetry</span>).
         </p>
       </div>
     </section>

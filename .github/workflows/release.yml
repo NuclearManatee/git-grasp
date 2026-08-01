@@ -27,16 +27,16 @@ jobs:
       - name: Install
         run: bun install --frozen-lockfile
         env:
-          GIT_HELP_SKIP_POSTINSTALL: '1'
+          GIT_GRASP_SKIP_POSTINSTALL: '1'
 
       - name: Unit + integration tests
         run: bun run test
         env:
-          GIT_HELP_MOCK_EMBEDDINGS: '1'
-          GIT_HELP_SKIP_POSTINSTALL: '1'
+          GIT_GRASP_MOCK_EMBEDDINGS: '1'
+          GIT_GRASP_SKIP_POSTINSTALL: '1'
 
       - name: CI audit
-        run: bun scripts/ci-audit.js
+        run: bun scripts/ci-audit.ts
 
       - name: Require DeepSeek secret
         env:
@@ -50,14 +50,14 @@ jobs:
       - name: Golden eval
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-          GIT_HELP_SKIP_POSTINSTALL: '1'
-          GIT_HELP_MOCK_EMBEDDINGS: '1'
-        run: bun scripts/eval.js --min-pass-rate=0.9
+          GIT_GRASP_SKIP_POSTINSTALL: '1'
+          GIT_GRASP_MOCK_EMBEDDINGS: '1'
+        run: bun scripts/eval.ts --min-pass-rate=0.9
 
       - name: Export web pack
-        run: bun scripts/export-web-pack.js
+        run: bun scripts/export-web-pack.ts
         env:
-          GIT_HELP_MOCK_EMBEDDINGS: '0'
+          GIT_GRASP_MOCK_EMBEDDINGS: '0'
 
       - name: Build web
         run: bun run web:build
@@ -133,18 +133,18 @@ jobs:
       - name: Install
         run: bun install --frozen-lockfile
         env:
-          GIT_HELP_SKIP_POSTINSTALL: '1'
+          GIT_GRASP_SKIP_POSTINSTALL: '1'
 
       - name: Build release zip
-        run: bun scripts/build-release-binary.js --platform=${{ matrix.slug }}
+        run: bun scripts/build-release-binary.ts --platform=${{ matrix.slug }}
         env:
-          GIT_HELP_SKIP_POSTINSTALL: '1'
+          GIT_GRASP_SKIP_POSTINSTALL: '1'
 
       - name: Upload zip artifact
         uses: actions/upload-artifact@v4
         with:
           name: binary-${{ matrix.slug }}
-          path: dist-release/git-help-${{ matrix.slug }}.zip
+          path: dist-release/git-grasp-${{ matrix.slug }}.zip
           if-no-files-found: error
 
   github-release:
@@ -171,7 +171,7 @@ jobs:
           TAG="${GITHUB_REF_NAME}"
           gh release create "$TAG" release-assets/*.zip \
             --title "$TAG" \
-            --notes "git-help $TAG — CLI binaries (unzip and run \`./git-help\` from the extracted folder). Bun users: \`bun add -g git-help\`." \
+            --notes "git-grasp $TAG — CLI binaries (unzip and run \`./git-grasp\` from the extracted folder). Bun users: \`bun add -g git-grasp\`." \
             --verify-tag
 
   npm-publish:
@@ -191,7 +191,7 @@ jobs:
       - name: Install
         run: bun install --frozen-lockfile
         env:
-          GIT_HELP_SKIP_POSTINSTALL: '1'
+          GIT_GRASP_SKIP_POSTINSTALL: '1'
 
       - name: Check version matches tag
         run: |

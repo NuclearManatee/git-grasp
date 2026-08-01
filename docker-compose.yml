@@ -11,9 +11,9 @@ services:
     volumes:
       - ./bench:/app/bench-out
     environment:
-      - GIT_HELP_MOCK_EMBEDDINGS=0
-      - GIT_HELP_ROOT=/app
-      - GIT_HELP_BENCH_COMPILE=1
+      - GIT_GRASP_MOCK_EMBEDDINGS=0
+      - GIT_GRASP_ROOT=/app
+      - GIT_GRASP_BENCH_COMPILE=1
       - LD_LIBRARY_PATH=/app/node_modules/onnxruntime-node/bin/napi-v3/linux/x64
     command:
       [
@@ -44,9 +44,9 @@ services:
     volumes:
       - ./bench:/app/bench-out
     environment:
-      - GIT_HELP_MOCK_EMBEDDINGS=0
-      - GIT_HELP_ROOT=/app
-      - GIT_HELP_BENCH_COMPILE=1
+      - GIT_GRASP_MOCK_EMBEDDINGS=0
+      - GIT_GRASP_ROOT=/app
+      - GIT_GRASP_BENCH_COMPILE=1
       - LD_LIBRARY_PATH=/app/node_modules/onnxruntime-node/bin/napi-v3/linux/x64
     command:
       [
@@ -75,9 +75,9 @@ services:
     volumes:
       - ./bench:/app/bench-out
     environment:
-      - GIT_HELP_MOCK_EMBEDDINGS=0
-      - GIT_HELP_ROOT=/app
-      - GIT_HELP_BENCH_COMPILE=1
+      - GIT_GRASP_MOCK_EMBEDDINGS=0
+      - GIT_GRASP_ROOT=/app
+      - GIT_GRASP_BENCH_COMPILE=1
       - LD_LIBRARY_PATH=/app/node_modules/onnxruntime-node/bin/napi-v3/linux/x64
     command:
       [

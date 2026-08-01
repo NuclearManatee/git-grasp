@@ -1,11 +1,11 @@
 {
-  "name": "@git-help/web",
+  "name": "@git-grasp/web",
   "version": "0.1.0",
   "type": "module",
   "private": true,
   "dependencies": {
     "@astrojs/react": "^4.4.2",
-    "@git-help/core": "workspace:*",
+    "@git-grasp/core": "workspace:*",
     "@xterm/addon-fit": "^0.10.0",
     "@xterm/xterm": "^5.5.0",
     "astro": "^6.4.8",

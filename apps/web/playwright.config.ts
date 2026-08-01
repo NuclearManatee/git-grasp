@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { defineConfig, devices } from '@playwright/test';
 
 const PORT = Number(process.env.WEB_PORT || 4321);

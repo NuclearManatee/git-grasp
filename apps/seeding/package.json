@@ -1,13 +1,13 @@
 {
-  "name": "@git-help/seeding",
+  "name": "@git-grasp/seeding",
   "version": "0.1.0",
   "type": "module",
   "private": true,
   "dependencies": {
-    "@git-help/core": "workspace:*"
+    "@git-grasp/core": "workspace:*"
   },
   "scripts": {
-    "start": "bun ./src/index.js",
-    "seed": "bun ./src/index.js"
+    "start": "bun ./src/index.ts",
+    "seed": "bun ./src/index.ts"
   }
 }

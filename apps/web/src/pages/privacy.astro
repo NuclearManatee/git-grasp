@@ -3,13 +3,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Footer from '../components/Footer.astro';
 ---
 <BaseLayout
-  title="Privacy & legal — git-help"
-  description="How git-help and git-help.cremaschi.dev handle personal data: local-first CLI, cookieless Umami, and playground telemetry."
+  title="Privacy & legal — git-grasp"
+  description="How git-grasp and git-grasp.cremaschi.dev handle personal data: local-first CLI (telemetry off by default), cookieless Umami, and playground telemetry."
 >
   <main id="main" class="gh-container flex-1 py-16">
     <header class="max-w-3xl">
       <p class="font-mono text-sm text-gh-muted">
-        <a href="/" class="text-gh-accent hover:underline">git-help</a>
+        <a href="/" class="text-gh-accent hover:underline">git-grasp</a>
         <span aria-hidden="true"> / </span>
         Privacy &amp; legal
       </p>
@@ -18,13 +18,13 @@ import Footer from '../components/Footer.astro';
       </h1>
       <p class="mt-3 text-sm text-gh-muted">Last updated: 26 July 2026</p>
       <p class="mt-6 text-gh-muted leading-relaxed">
-        This notice explains how personal data is handled for <strong class="font-medium text-gh-fg">git-help</strong>
+        This notice explains how personal data is handled for <strong class="font-medium text-gh-fg">git-grasp</strong>
         and the website at
-        <a href="https://git-help.cremaschi.dev" class="text-gh-accent hover:underline">https://git-help.cremaschi.dev</a>
+        <a href="https://git-grasp.cremaschi.dev" class="text-gh-accent hover:underline">https://git-grasp.cremaschi.dev</a>
         (the “Site”). It is written for users in the EU/EEA and Italy under the GDPR and Italian privacy law.
       </p>
       <p class="mt-4 text-gh-muted leading-relaxed">
-        git-help is a local-first tool for semantic search of Git commands. The installable CLI is designed so search
+        git-grasp is a local-first tool for semantic search of Git commands. The installable CLI is designed so search
         runs on your machine. The Site is a marketing page plus an optional in-browser playground.
       </p>
     </header>
@@ -40,23 +40,40 @@ import Footer from '../components/Footer.astro';
           Email: edoardo (dot) cremaschi (at) gmail (dot) com
         </address>
         <p class="mt-4">
-          For privacy requests, use that email with subject line <span class="font-mono text-gh-fg">git-help privacy</span>.
+          For privacy requests, use that email with subject line <span class="font-mono text-gh-fg">git-grasp privacy</span>.
         </p>
       </section>
 
       <section aria-labelledby="cli">
-        <h2 id="cli" class="font-mono text-xl font-semibold text-gh-fg">2. Local-first CLI (no Site telemetry)</h2>
-        <p class="mt-4">If you install and use the <strong class="font-medium text-gh-fg">git-help CLI</strong> on your own device:</p>
+        <h2 id="cli" class="font-mono text-xl font-semibold text-gh-fg">2. Local-first CLI (telemetry off by default)</h2>
+        <p class="mt-4">If you install and use the <strong class="font-medium text-gh-fg">git-grasp CLI</strong> on your own device:</p>
         <ul class="mt-4 list-disc space-y-2 pl-5">
           <li>Search queries and results are processed <strong class="font-medium text-gh-fg">locally</strong>.</li>
-          <li>The CLI does <strong class="font-medium text-gh-fg">not</strong> send your search queries to the Site or to the controller for analytics.</li>
           <li>
             Catalog and embedding data used for search stay on your device after install/seed (subject to normal local
             storage on your machine).
           </li>
+          <li>
+            <strong class="font-medium text-gh-fg">Optional cookieless analytics are off by default.</strong> The CLI does
+            not send search queries or results until you explicitly opt in (soft invite on first interactive search, or
+            <span class="font-mono text-gh-fg">git-grasp telemetry on</span>).
+          </li>
+          <li>
+            When enabled, the CLI may send Umami events
+            <span class="font-mono text-gh-fg">cli_opt_in</span> and
+            <span class="font-mono text-gh-fg">cli_search</span> (query text, result metadata, latency, app version, coarse
+            OS) to the same analytics property as the Site — see §4 and §5a.
+          </li>
+          <li>
+            Disable anytime with <span class="font-mono text-gh-fg">git-grasp telemetry off</span>, or hard-off via
+            <span class="font-mono text-gh-fg">DO_NOT_TRACK=1</span> /
+            <span class="font-mono text-gh-fg">GIT_GRASP_TELEMETRY=0</span>. You can also dismiss the invite permanently
+            (“don’t ask again”).
+          </li>
         </ul>
         <p class="mt-4">
-          Using the CLI is the way to avoid website analytics and playground telemetry described below.
+          Leaving CLI telemetry off remains the privacy-preserving default versus the Site playground (where starting the
+          playground implies consent to playground events).
         </p>
       </section>
 
@@ -124,7 +141,33 @@ import Footer from '../components/Footer.astro';
         </p>
         <p class="mt-4">
           <strong class="font-medium text-gh-fg">How to limit:</strong> browse without interacting with the playground, use
-          a tracker blocker, or use the CLI instead of the Site.
+          a tracker blocker, or use the CLI with telemetry left off (the default).
+        </p>
+      </section>
+
+      <section aria-labelledby="cli-telemetry">
+        <h2 id="cli-telemetry" class="font-mono text-xl font-semibold text-gh-fg">5a. Optional CLI telemetry</h2>
+        <p class="mt-4">
+          When you opt in, the CLI may send the following events to Umami (same store / retention as §4):
+        </p>
+        <ul class="mt-4 list-disc space-y-2 pl-5">
+          <li>
+            <span class="font-mono text-gh-fg">cli_opt_in</span> — once when telemetry is enabled (app version, coarse OS);
+          </li>
+          <li>
+            <span class="font-mono text-gh-fg">cli_search</span> — the
+            <strong class="font-medium text-gh-fg">query text</strong>, returned result metadata, latency, mock mode, app
+            version, and coarse OS.
+          </li>
+        </ul>
+        <p class="mt-4">
+          <strong class="font-medium text-gh-fg">Legal basis: consent.</strong> Opt-in via the invite prompt or
+          <span class="font-mono text-gh-fg">git-grasp telemetry on</span>. Withdraw with
+          <span class="font-mono text-gh-fg">git-grasp telemetry off</span> (or DNT / <span class="font-mono text-gh-fg">GIT_GRASP_TELEMETRY=0</span>).
+          Withdrawal does not erase events already collected; request deletion via the controller email where events can be linked to you.
+        </p>
+        <p class="mt-4">
+          Do not put secrets, credentials, or private repo URLs into CLI queries if telemetry is enabled.
         </p>
       </section>
 
@@ -158,7 +201,7 @@ import Footer from '../components/Footer.astro';
         <p class="mt-4"><strong class="font-medium text-gh-fg">How to avoid:</strong></p>
         <ul class="mt-4 list-disc space-y-2 pl-5">
           <li>do <strong class="font-medium text-gh-fg">not</strong> start the playground; or</li>
-          <li>use the <strong class="font-medium text-gh-fg">CLI</strong> instead (local search, no Site query telemetry).</li>
+          <li>use the <strong class="font-medium text-gh-fg">CLI</strong> instead with telemetry left off (default).</li>
         </ul>
         <p class="mt-4">
           Do not type secrets, credentials, private repo URLs, or other sensitive personal data into the playground. Treat
@@ -202,7 +245,7 @@ import Footer from '../components/Footer.astro';
             </thead>
             <tbody>
               <tr class="border-b border-gh-border/60">
-                <td class="py-2 pr-4 align-top font-mono text-gh-fg">git-help.skillLevel</td>
+                <td class="py-2 pr-4 align-top font-mono text-gh-fg">git-grasp.skillLevel</td>
                 <td class="py-2">Remembers your chosen skill filter in the playground</td>
               </tr>
             </tbody>
@@ -211,7 +254,7 @@ import Footer from '../components/Footer.astro';
         <p class="mt-4">
           This stays in your browser. Clear site data / localStorage to remove it. It is not used as an account identifier.
         </p>
-        <p class="mt-4">No auth cookies are set by git-help.</p>
+        <p class="mt-4">No auth cookies are set by git-grasp.</p>
       </section>
 
       <section aria-labelledby="third-parties">
@@ -279,7 +322,8 @@ import Footer from '../components/Footer.astro';
           <li><strong class="font-medium text-gh-fg">objection</strong> to processing based on legitimate interest;</li>
           <li>
             <strong class="font-medium text-gh-fg">withdrawal of consent</strong> for playground telemetry (stop using the
-            playground; ask us to delete retained events where identifiable);
+            playground) or CLI telemetry (<span class="font-mono text-gh-fg">git-grasp telemetry off</span>); ask us to delete
+            retained events where identifiable;
           </li>
           <li>
             <strong class="font-medium text-gh-fg">complaint</strong> to the Italian Data Protection Authority
@@ -307,7 +351,7 @@ import Footer from '../components/Footer.astro';
             a visit, unless a longer period is required for security or legal claims.
           </li>
           <li>
-            <strong class="font-medium text-gh-fg">Playground telemetry events:</strong> same analytics store / retention as
+            <strong class="font-medium text-gh-fg">Playground / CLI telemetry events:</strong> same analytics store / retention as
             above.
           </li>
           <li>
@@ -321,7 +365,7 @@ import Footer from '../components/Footer.astro';
         </ul>
         <p class="mt-4">
           To request deletion of analytics/playground events that can be linked to you, email the controller
-          (<span class="font-mono text-gh-fg">git-help privacy</span>) and describe the relevant period and activity.
+          (<span class="font-mono text-gh-fg">git-grasp privacy</span>) and describe the relevant period and activity.
         </p>
       </section>
 
@@ -351,12 +395,12 @@ import Footer from '../components/Footer.astro';
           Questions or rights requests:
           <strong class="font-medium text-gh-fg">Edoardo Cremaschi</strong>, email
           edoardo (dot) cremaschi (at) gmail (dot) com, subject
-          <span class="font-mono text-gh-fg">git-help privacy</span>.
+          <span class="font-mono text-gh-fg">git-grasp privacy</span>.
         </p>
       </section>
 
       <p class="pt-4">
-        <a href="/" class="text-gh-accent hover:underline">← Back to git-help</a>
+        <a href="/" class="text-gh-accent hover:underline">← Back to git-grasp</a>
       </p>
     </div>
   </main>

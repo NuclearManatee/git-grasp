@@ -20,12 +20,12 @@ jobs:
       - name: Install
         run: bun install --frozen-lockfile
         env:
-          GIT_HELP_SKIP_POSTINSTALL: '1'
+          GIT_GRASP_SKIP_POSTINSTALL: '1'
 
       - name: Export web pack
-        run: bun scripts/export-web-pack.js
+        run: bun scripts/export-web-pack.ts
         env:
-          GIT_HELP_MOCK_EMBEDDINGS: '0'
+          GIT_GRASP_MOCK_EMBEDDINGS: '0'
 
       - name: Build web
         run: bun run web:build

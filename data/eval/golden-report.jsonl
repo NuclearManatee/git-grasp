@@ -1,0 +1,6 @@
+{"query_text":"how do I use git branch","command_id":10,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"ground","primary_verb":"git branch"}
+{"query_text":"how do I use git count-objects","command_id":5,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"ground","primary_verb":"git count-objects"}
+{"query_text":"how do I use git submodule","command_id":54,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"ground","primary_verb":"git submodule"}
+{"query_text":"how do I use git count-objects","command_id":90,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"composition","primary_verb":"git count-objects"}
+{"query_text":"how do I use git tag","command_id":97,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"composition","primary_verb":"git tag"}
+{"query_text":"how do I use git branch","command_id":105,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"composition","primary_verb":"git branch"}

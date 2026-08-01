@@ -1,0 +1,859 @@
+{
+  "version": 1,
+  "scraped_at": "2026-07-30T20:22:14.215Z",
+  "sections": [
+    {
+      "name": "Main Porcelain Commands",
+      "commands": [
+        {
+          "name": "add",
+          "summary": "Add file contents to the index",
+          "command": "git add"
+        },
+        {
+          "name": "am",
+          "summary": "Apply a series of patches from a mailbox",
+          "command": "git am"
+        },
+        {
+          "name": "archive",
+          "summary": "Create an archive of files from a named tree",
+          "command": "git archive"
+        },
+        {
+          "name": "backfill",
+          "summary": "Download missing objects in a partial clone",
+          "command": "git backfill"
+        },
+        {
+          "name": "bisect",
+          "summary": "Use binary search to find the commit that introduced a bug",
+          "command": "git bisect"
+        },
+        {
+          "name": "branch",
+          "summary": "List, create, or delete branches",
+          "command": "git branch"
+        },
+        {
+          "name": "bundle",
+          "summary": "Move objects and refs by archive",
+          "command": "git bundle"
+        },
+        {
+          "name": "checkout",
+          "summary": "Switch branches or restore working tree files",
+          "command": "git checkout"
+        },
+        {
+          "name": "cherry-pick",
+          "summary": "Apply the changes introduced by some existing commits",
+          "command": "git cherry-pick"
+        },
+        {
+          "name": "citool",
+          "summary": "Graphical alternative to git-commit",
+          "command": "git citool"
+        },
+        {
+          "name": "clean",
+          "summary": "Remove untracked files from the working tree",
+          "command": "git clean"
+        },
+        {
+          "name": "clone",
+          "summary": "Clone a repository into a new directory",
+          "command": "git clone"
+        },
+        {
+          "name": "commit",
+          "summary": "Record changes to the repository",
+          "command": "git commit"
+        },
+        {
+          "name": "describe",
+          "summary": "Give an object a human readable name based on an available ref",
+          "command": "git describe"
+        },
+        {
+          "name": "diff",
+          "summary": "Show changes between commits, commit and working tree, etc",
+          "command": "git diff"
+        },
+        {
+          "name": "fetch",
+          "summary": "Download objects and refs from another repository",
+          "command": "git fetch"
+        },
+        {
+          "name": "format-patch",
+          "summary": "Prepare patches for e-mail submission",
+          "command": "git format-patch"
+        },
+        {
+          "name": "gc",
+          "summary": "Cleanup unnecessary files and optimize the local repository",
+          "command": "git gc"
+        },
+        {
+          "name": "gitk",
+          "summary": "The Git repository browser",
+          "command": "git gitk"
+        },
+        {
+          "name": "grep",
+          "summary": "Print lines matching a pattern",
+          "command": "git grep"
+        },
+        {
+          "name": "gui",
+          "summary": "A portable graphical interface to Git",
+          "command": "git gui"
+        },
+        {
+          "name": "history",
+          "summary": "EXPERIMENTAL: Rewrite history",
+          "command": "git history"
+        },
+        {
+          "name": "init",
+          "summary": "Create an empty Git repository or reinitialize an existing one",
+          "command": "git init"
+        },
+        {
+          "name": "log",
+          "summary": "Show commit logs",
+          "command": "git log"
+        },
+        {
+          "name": "maintenance",
+          "summary": "Run tasks to optimize Git repository data",
+          "command": "git maintenance"
+        },
+        {
+          "name": "merge",
+          "summary": "Join two or more development histories together",
+          "command": "git merge"
+        },
+        {
+          "name": "mv",
+          "summary": "Move or rename a file, a directory, or a symlink",
+          "command": "git mv"
+        },
+        {
+          "name": "notes",
+          "summary": "Add or inspect object notes",
+          "command": "git notes"
+        },
+        {
+          "name": "pull",
+          "summary": "Fetch from and integrate with another repository or a local branch",
+          "command": "git pull"
+        },
+        {
+          "name": "push",
+          "summary": "Update remote refs along with associated objects",
+          "command": "git push"
+        },
+        {
+          "name": "range-diff",
+          "summary": "Compare two commit ranges (e.g. two versions of a branch)",
+          "command": "git range-diff"
+        },
+        {
+          "name": "rebase",
+          "summary": "Reapply commits on top of another base tip",
+          "command": "git rebase"
+        },
+        {
+          "name": "reset",
+          "summary": "Set `HEAD` or the index to a known state",
+          "command": "git reset"
+        },
+        {
+          "name": "restore",
+          "summary": "Restore working tree files",
+          "command": "git restore"
+        },
+        {
+          "name": "revert",
+          "summary": "Revert some existing commits",
+          "command": "git revert"
+        },
+        {
+          "name": "rm",
+          "summary": "Remove files from the working tree and from the index",
+          "command": "git rm"
+        },
+        {
+          "name": "scalar",
+          "summary": "A tool for managing large Git repositories",
+          "command": "git scalar"
+        },
+        {
+          "name": "shortlog",
+          "summary": "Summarize `git log` output",
+          "command": "git shortlog"
+        },
+        {
+          "name": "show",
+          "summary": "Show various types of objects",
+          "command": "git show"
+        },
+        {
+          "name": "sparse-checkout",
+          "summary": "Reduce your working tree to a subset of tracked files",
+          "command": "git sparse-checkout"
+        },
+        {
+          "name": "stash",
+          "summary": "Stash the changes in a dirty working directory away",
+          "command": "git stash"
+        },
+        {
+          "name": "status",
+          "summary": "Show the working tree status",
+          "command": "git status"
+        },
+        {
+          "name": "submodule",
+          "summary": "Initialize, update or inspect submodules",
+          "command": "git submodule"
+        },
+        {
+          "name": "survey",
+          "summary": "EXPERIMENTAL: Measure various repository dimensions of scale",
+          "command": "git survey"
+        },
+        {
+          "name": "switch",
+          "summary": "Switch branches",
+          "command": "git switch"
+        },
+        {
+          "name": "tag",
+          "summary": "Create, list, delete or verify tags",
+          "command": "git tag"
+        },
+        {
+          "name": "worktree",
+          "summary": "Manage multiple working trees",
+          "command": "git worktree"
+        }
+      ]
+    },
+    {
+      "name": "Ancillary Commands / Manipulators",
+      "commands": [
+        {
+          "name": "config",
+          "summary": "Get and set repository or global options",
+          "command": "git config"
+        },
+        {
+          "name": "fast-export",
+          "summary": "Git data exporter",
+          "command": "git fast-export"
+        },
+        {
+          "name": "fast-import",
+          "summary": "Backend for fast Git data importers",
+          "command": "git fast-import"
+        },
+        {
+          "name": "filter-branch",
+          "summary": "Rewrite branches",
+          "command": "git filter-branch"
+        },
+        {
+          "name": "mergetool",
+          "summary": "Run merge conflict resolution tools to resolve merge conflicts",
+          "command": "git mergetool"
+        },
+        {
+          "name": "pack-refs",
+          "summary": "Pack heads and tags for efficient repository access",
+          "command": "git pack-refs"
+        },
+        {
+          "name": "prune",
+          "summary": "Prune all unreachable objects from the object database",
+          "command": "git prune"
+        },
+        {
+          "name": "reflog",
+          "summary": "Manage reflog information",
+          "command": "git reflog"
+        },
+        {
+          "name": "refs",
+          "summary": "Low-level access to refs",
+          "command": "git refs"
+        },
+        {
+          "name": "remote",
+          "summary": "Manage set of tracked repositories",
+          "command": "git remote"
+        },
+        {
+          "name": "repack",
+          "summary": "Pack unpacked objects in a repository",
+          "command": "git repack"
+        },
+        {
+          "name": "replace",
+          "summary": "Create, list, delete refs to replace objects",
+          "command": "git replace"
+        }
+      ]
+    },
+    {
+      "name": "Ancillary Commands / Interrogators",
+      "commands": [
+        {
+          "name": "annotate",
+          "summary": "Annotate file lines with commit information",
+          "command": "git annotate"
+        },
+        {
+          "name": "blame",
+          "summary": "Show what revision and author last modified each line of a file",
+          "command": "git blame"
+        },
+        {
+          "name": "bugreport",
+          "summary": "Collect information for user to file a bug report",
+          "command": "git bugreport"
+        },
+        {
+          "name": "count-objects",
+          "summary": "Count unpacked number of objects and their disk consumption",
+          "command": "git count-objects"
+        },
+        {
+          "name": "diagnose",
+          "summary": "Generate a zip archive of diagnostic information",
+          "command": "git diagnose"
+        },
+        {
+          "name": "difftool",
+          "summary": "Show changes using common diff tools",
+          "command": "git difftool"
+        },
+        {
+          "name": "fsck",
+          "summary": "Verifies the connectivity and validity of the objects in the database",
+          "command": "git fsck"
+        },
+        {
+          "name": "gitweb",
+          "summary": "Git web interface (web frontend to Git repositories)",
+          "command": "git gitweb"
+        },
+        {
+          "name": "help",
+          "summary": "Display help information about Git",
+          "command": "git help"
+        },
+        {
+          "name": "instaweb",
+          "summary": "Instantly browse your working repository in gitweb",
+          "command": "git instaweb"
+        },
+        {
+          "name": "merge-tree",
+          "summary": "Perform merge without touching index or working tree",
+          "command": "git merge-tree"
+        },
+        {
+          "name": "rerere",
+          "summary": "Reuse recorded resolution of conflicted merges",
+          "command": "git rerere"
+        },
+        {
+          "name": "show-branch",
+          "summary": "Show branches and their commits",
+          "command": "git show-branch"
+        },
+        {
+          "name": "verify-commit",
+          "summary": "Check the GPG signature of commits",
+          "command": "git verify-commit"
+        },
+        {
+          "name": "verify-tag",
+          "summary": "Check the GPG signature of tags",
+          "command": "git verify-tag"
+        },
+        {
+          "name": "version",
+          "summary": "Display version information about Git",
+          "command": "git version"
+        },
+        {
+          "name": "whatchanged",
+          "summary": "Show logs with differences each commit introduces",
+          "command": "git whatchanged"
+        }
+      ]
+    }
+  ],
+  "commands": [
+    {
+      "name": "add",
+      "summary": "Add file contents to the index",
+      "command": "git add",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "am",
+      "summary": "Apply a series of patches from a mailbox",
+      "command": "git am",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "archive",
+      "summary": "Create an archive of files from a named tree",
+      "command": "git archive",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "backfill",
+      "summary": "Download missing objects in a partial clone",
+      "command": "git backfill",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "bisect",
+      "summary": "Use binary search to find the commit that introduced a bug",
+      "command": "git bisect",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "branch",
+      "summary": "List, create, or delete branches",
+      "command": "git branch",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "bundle",
+      "summary": "Move objects and refs by archive",
+      "command": "git bundle",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "checkout",
+      "summary": "Switch branches or restore working tree files",
+      "command": "git checkout",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "cherry-pick",
+      "summary": "Apply the changes introduced by some existing commits",
+      "command": "git cherry-pick",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "citool",
+      "summary": "Graphical alternative to git-commit",
+      "command": "git citool",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "clean",
+      "summary": "Remove untracked files from the working tree",
+      "command": "git clean",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "clone",
+      "summary": "Clone a repository into a new directory",
+      "command": "git clone",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "commit",
+      "summary": "Record changes to the repository",
+      "command": "git commit",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "describe",
+      "summary": "Give an object a human readable name based on an available ref",
+      "command": "git describe",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "diff",
+      "summary": "Show changes between commits, commit and working tree, etc",
+      "command": "git diff",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "fetch",
+      "summary": "Download objects and refs from another repository",
+      "command": "git fetch",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "format-patch",
+      "summary": "Prepare patches for e-mail submission",
+      "command": "git format-patch",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "gc",
+      "summary": "Cleanup unnecessary files and optimize the local repository",
+      "command": "git gc",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "gitk",
+      "summary": "The Git repository browser",
+      "command": "git gitk",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "grep",
+      "summary": "Print lines matching a pattern",
+      "command": "git grep",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "gui",
+      "summary": "A portable graphical interface to Git",
+      "command": "git gui",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "history",
+      "summary": "EXPERIMENTAL: Rewrite history",
+      "command": "git history",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "init",
+      "summary": "Create an empty Git repository or reinitialize an existing one",
+      "command": "git init",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "log",
+      "summary": "Show commit logs",
+      "command": "git log",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "maintenance",
+      "summary": "Run tasks to optimize Git repository data",
+      "command": "git maintenance",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "merge",
+      "summary": "Join two or more development histories together",
+      "command": "git merge",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "mv",
+      "summary": "Move or rename a file, a directory, or a symlink",
+      "command": "git mv",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "notes",
+      "summary": "Add or inspect object notes",
+      "command": "git notes",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "pull",
+      "summary": "Fetch from and integrate with another repository or a local branch",
+      "command": "git pull",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "push",
+      "summary": "Update remote refs along with associated objects",
+      "command": "git push",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "range-diff",
+      "summary": "Compare two commit ranges (e.g. two versions of a branch)",
+      "command": "git range-diff",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "rebase",
+      "summary": "Reapply commits on top of another base tip",
+      "command": "git rebase",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "reset",
+      "summary": "Set `HEAD` or the index to a known state",
+      "command": "git reset",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "restore",
+      "summary": "Restore working tree files",
+      "command": "git restore",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "revert",
+      "summary": "Revert some existing commits",
+      "command": "git revert",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "rm",
+      "summary": "Remove files from the working tree and from the index",
+      "command": "git rm",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "scalar",
+      "summary": "A tool for managing large Git repositories",
+      "command": "git scalar",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "shortlog",
+      "summary": "Summarize `git log` output",
+      "command": "git shortlog",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "show",
+      "summary": "Show various types of objects",
+      "command": "git show",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "sparse-checkout",
+      "summary": "Reduce your working tree to a subset of tracked files",
+      "command": "git sparse-checkout",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "stash",
+      "summary": "Stash the changes in a dirty working directory away",
+      "command": "git stash",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "status",
+      "summary": "Show the working tree status",
+      "command": "git status",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "submodule",
+      "summary": "Initialize, update or inspect submodules",
+      "command": "git submodule",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "survey",
+      "summary": "EXPERIMENTAL: Measure various repository dimensions of scale",
+      "command": "git survey",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "switch",
+      "summary": "Switch branches",
+      "command": "git switch",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "tag",
+      "summary": "Create, list, delete or verify tags",
+      "command": "git tag",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "worktree",
+      "summary": "Manage multiple working trees",
+      "command": "git worktree",
+      "section": "Main Porcelain Commands"
+    },
+    {
+      "name": "config",
+      "summary": "Get and set repository or global options",
+      "command": "git config",
+      "section": "Ancillary Commands / Manipulators"
+    },
+    {
+      "name": "fast-export",
+      "summary": "Git data exporter",
+      "command": "git fast-export",
+      "section": "Ancillary Commands / Manipulators"
+    },
+    {
+      "name": "fast-import",
+      "summary": "Backend for fast Git data importers",
+      "command": "git fast-import",
+      "section": "Ancillary Commands / Manipulators"
+    },
+    {
+      "name": "filter-branch",
+      "summary": "Rewrite branches",
+      "command": "git filter-branch",
+      "section": "Ancillary Commands / Manipulators"
+    },
+    {
+      "name": "mergetool",
+      "summary": "Run merge conflict resolution tools to resolve merge conflicts",
+      "command": "git mergetool",
+      "section": "Ancillary Commands / Manipulators"
+    },
+    {
+      "name": "pack-refs",
+      "summary": "Pack heads and tags for efficient repository access",
+      "command": "git pack-refs",
+      "section": "Ancillary Commands / Manipulators"
+    },
+    {
+      "name": "prune",
+      "summary": "Prune all unreachable objects from the object database",
+      "command": "git prune",
+      "section": "Ancillary Commands / Manipulators"
+    },
+    {
+      "name": "reflog",
+      "summary": "Manage reflog information",
+      "command": "git reflog",
+      "section": "Ancillary Commands / Manipulators"
+    },
+    {
+      "name": "refs",
+      "summary": "Low-level access to refs",
+      "command": "git refs",
+      "section": "Ancillary Commands / Manipulators"
+    },
+    {
+      "name": "remote",
+      "summary": "Manage set of tracked repositories",
+      "command": "git remote",
+      "section": "Ancillary Commands / Manipulators"
+    },
+    {
+      "name": "repack",
+      "summary": "Pack unpacked objects in a repository",
+      "command": "git repack",
+      "section": "Ancillary Commands / Manipulators"
+    },
+    {
+      "name": "replace",
+      "summary": "Create, list, delete refs to replace objects",
+      "command": "git replace",
+      "section": "Ancillary Commands / Manipulators"
+    },
+    {
+      "name": "annotate",
+      "summary": "Annotate file lines with commit information",
+      "command": "git annotate",
+      "section": "Ancillary Commands / Interrogators"
+    },
+    {
+      "name": "blame",
+      "summary": "Show what revision and author last modified each line of a file",
+      "command": "git blame",
+      "section": "Ancillary Commands / Interrogators"
+    },
+    {
+      "name": "bugreport",
+      "summary": "Collect information for user to file a bug report",
+      "command": "git bugreport",
+      "section": "Ancillary Commands / Interrogators"
+    },
+    {
+      "name": "count-objects",
+      "summary": "Count unpacked number of objects and their disk consumption",
+      "command": "git count-objects",
+      "section": "Ancillary Commands / Interrogators"
+    },
+    {
+      "name": "diagnose",
+      "summary": "Generate a zip archive of diagnostic information",
+      "command": "git diagnose",
+      "section": "Ancillary Commands / Interrogators"
+    },
+    {
+      "name": "difftool",
+      "summary": "Show changes using common diff tools",
+      "command": "git difftool",
+      "section": "Ancillary Commands / Interrogators"
+    },
+    {
+      "name": "fsck",
+      "summary": "Verifies the connectivity and validity of the objects in the database",
+      "command": "git fsck",
+      "section": "Ancillary Commands / Interrogators"
+    },
+    {
+      "name": "gitweb",
+      "summary": "Git web interface (web frontend to Git repositories)",
+      "command": "git gitweb",
+      "section": "Ancillary Commands / Interrogators"
+    },
+    {
+      "name": "help",
+      "summary": "Display help information about Git",
+      "command": "git help",
+      "section": "Ancillary Commands / Interrogators"
+    },
+    {
+      "name": "instaweb",
+      "summary": "Instantly browse your working repository in gitweb",
+      "command": "git instaweb",
+      "section": "Ancillary Commands / Interrogators"
+    },
+    {
+      "name": "merge-tree",
+      "summary": "Perform merge without touching index or working tree",
+      "command": "git merge-tree",
+      "section": "Ancillary Commands / Interrogators"
+    },
+    {
+      "name": "rerere",
+      "summary": "Reuse recorded resolution of conflicted merges",
+      "command": "git rerere",
+      "section": "Ancillary Commands / Interrogators"
+    },
+    {
+      "name": "show-branch",
+      "summary": "Show branches and their commits",
+      "command": "git show-branch",
+      "section": "Ancillary Commands / Interrogators"
+    },
+    {
+      "name": "verify-commit",
+      "summary": "Check the GPG signature of commits",
+      "command": "git verify-commit",
+      "section": "Ancillary Commands / Interrogators"
+    },
+    {
+      "name": "verify-tag",
+      "summary": "Check the GPG signature of tags",
+      "command": "git verify-tag",
+      "section": "Ancillary Commands / Interrogators"
+    },
+    {
+      "name": "version",
+      "summary": "Display version information about Git",
+      "command": "git version",
+      "section": "Ancillary Commands / Interrogators"
+    },
+    {
+      "name": "whatchanged",
+      "summary": "Show logs with differences each commit introduces",
+      "command": "git whatchanged",
+      "section": "Ancillary Commands / Interrogators"
+    }
+  ]
+}

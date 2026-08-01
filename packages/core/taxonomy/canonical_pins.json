@@ -1,0 +1,1057 @@
+{
+  "version": 1,
+  "generated_at": "2026-08-01T12:01:18.419Z",
+  "pins": [
+    {
+      "goal_id": "bisect-reset",
+      "verb": "git bisect",
+      "goal_roles": [
+        "history_bisect",
+        "workspace"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git bisect reset",
+            "comment": "End bisect and return to original HEAD"
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init\necho a > f.txt\ngit add f.txt\ngit commit -m a\necho b > f.txt\ngit add f.txt\ngit commit -m b\necho c > f.txt\ngit add f.txt\ngit commit -m c",
+      "seed_intents": [
+        "Stop bisecting and go back to normal",
+        "Cancel bisect session",
+        "Reset bisect state"
+      ]
+    },
+    {
+      "goal_id": "bundle-create-backup",
+      "verb": "git bundle",
+      "goal_roles": [
+        "remotes",
+        "workspace"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git bundle create backup.bundle --all",
+            "comment": "Create a bundle of all refs and objects"
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init\ngit branch -M main\ngit init --bare $GIT_GRASP_REMOTES/origin.git\ngit remote add origin $GIT_GRASP_REMOTES/origin.git",
+      "seed_intents": [
+        "How do I create a backup of my repository?",
+        "I want to bundle my entire git history into a single file.",
+        "Create a bundle file for offline transfer."
+      ]
+    },
+    {
+      "goal_id": "fetch-updates",
+      "verb": "git fetch",
+      "goal_roles": [
+        "remotes"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git fetch origin",
+            "comment": "Fetch updates from the default remote"
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init\ngit branch -M main\ngit init --bare $GIT_GRASP_REMOTES/origin.git\ngit remote add origin $GIT_GRASP_REMOTES/origin.git",
+      "seed_intents": [
+        "How do I get the latest changes from the remote?",
+        "Update my local repository with remote changes.",
+        "Fetch new commits from the server."
+      ]
+    },
+    {
+      "goal_id": "fetch-prune",
+      "verb": "git fetch",
+      "goal_roles": [
+        "remotes"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git fetch --prune origin",
+            "comment": "Fetch and remove stale remote-tracking branches"
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init\ngit branch -M main\ngit init --bare $GIT_GRASP_REMOTES/origin.git\ngit remote add origin $GIT_GRASP_REMOTES/origin.git",
+      "seed_intents": [
+        "Clean up deleted remote branches locally.",
+        "Fetch and prune obsolete branches.",
+        "How do I remove remote-tracking branches that no longer exist?"
+      ]
+    },
+    {
+      "goal_id": "format-patch-send-series",
+      "verb": "git format-patch",
+      "goal_roles": [
+        "staging",
+        "remotes"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git format-patch -2",
+            "comment": "Generate patches for the last 2 commits"
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init",
+      "seed_intents": [
+        "create patch files for my last commits to email",
+        "generate patches for a commit range",
+        "export my changes as patch files"
+      ]
+    },
+    {
+      "goal_id": "log-search-by-message",
+      "verb": "git log",
+      "goal_roles": [
+        "history_search"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git log --grep=fix",
+            "comment": "Search commit messages for 'fix'"
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init\necho hello > f.txt\ngit add f.txt\ngit commit -m add-f",
+      "seed_intents": [
+        "find commits that mention a bug fix",
+        "search commit history for a keyword",
+        "show commits with message containing 'fix'"
+      ]
+    },
+    {
+      "goal_id": "log-search-by-author",
+      "verb": "git log",
+      "goal_roles": [
+        "history_search",
+        "authorship"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git log --author=alice",
+            "comment": "Show commits authored by alice"
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init\necho hello > f.txt\ngit add f.txt\ngit commit -m add-f",
+      "seed_intents": [
+        "show all commits by alice",
+        "find commits from a specific person",
+        "list changes made by alice"
+      ]
+    },
+    {
+      "goal_id": "log-show-file-history",
+      "verb": "git log",
+      "goal_roles": [
+        "history_search",
+        "inspection"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git log -- f.txt",
+            "comment": "Show commits that touched f.txt"
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init\necho hello > f.txt\ngit add f.txt\ngit commit -m add-f",
+      "seed_intents": [
+        "see history of a specific file",
+        "when was f.txt last changed",
+        "show commits affecting f.txt"
+      ]
+    },
+    {
+      "goal_id": "push-to-specific-remote-branch",
+      "verb": "git push",
+      "goal_roles": [
+        "remotes"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git push origin main",
+            "comment": "Push local main to origin main"
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init\ngit branch -M main\ngit init --bare $GIT_GRASP_REMOTES/origin.git\ngit remote add origin $GIT_GRASP_REMOTES/origin.git",
+      "seed_intents": [
+        "push my main branch to origin",
+        "upload my branch to remote main",
+        "push to origin main"
+      ]
+    },
+    {
+      "goal_id": "reset-soft-undo-commit",
+      "verb": "git reset",
+      "goal_roles": [
+        "recovery"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git reset --soft HEAD~1",
+            "comment": "Undo last commit but keep changes staged"
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init\necho a > f.txt\ngit add f.txt\ngit commit -m a\necho b > f.txt\ngit add f.txt\ngit commit -m b\necho c > f.txt\ngit add f.txt\ngit commit -m c",
+      "seed_intents": [
+        "undo last commit but keep changes",
+        "uncommit without losing work",
+        "go back one commit but keep files"
+      ]
+    },
+    {
+      "goal_id": "reset-hard-discard-changes",
+      "verb": "git reset",
+      "goal_roles": [
+        "recovery"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git reset --hard HEAD",
+            "comment": "Discard all uncommitted changes"
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init\necho a > f.txt\ngit add f.txt\ngit commit -m a\necho b > f.txt\ngit add f.txt\ngit commit -m b\necho c > f.txt\ngit add f.txt\ngit commit -m c",
+      "seed_intents": [
+        "discard all local changes",
+        "reset to last commit and delete changes",
+        "clean working directory completely"
+      ]
+    },
+    {
+      "goal_id": "restore-file-from-index",
+      "verb": "git restore",
+      "goal_roles": [
+        "recovery",
+        "workspace"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git restore f.txt",
+            "comment": "Restore f.txt from index"
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init\necho a > f.txt\ngit add f.txt\ngit commit -m a\necho b > f.txt\ngit add f.txt\ngit commit -m b\necho c > f.txt\ngit add f.txt\ngit commit -m c",
+      "seed_intents": [
+        "undo changes to a file",
+        "revert a file to last committed state",
+        "get back a deleted file"
+      ]
+    },
+    {
+      "goal_id": "restore-file-from-commit",
+      "verb": "git restore",
+      "goal_roles": [
+        "recovery"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git restore --source=HEAD~1 f.txt",
+            "comment": "Restore f.txt from previous commit"
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init\necho a > f.txt\ngit add f.txt\ngit commit -m a\necho b > f.txt\ngit add f.txt\ngit commit -m b\necho c > f.txt\ngit add f.txt\ngit commit -m c",
+      "seed_intents": [
+        "restore a file from an earlier commit",
+        "get a file back from history",
+        "recover a file from a specific commit"
+      ]
+    },
+    {
+      "goal_id": "revert-commit",
+      "verb": "git revert",
+      "goal_roles": [
+        "recovery"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git revert HEAD",
+            "comment": "Revert the most recent commit, creating a new commit that undoes its changes."
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init\necho a > f.txt\ngit add f.txt\ngit commit -m a\necho b > f.txt\ngit add f.txt\ngit commit -m b\necho c > f.txt\ngit add f.txt\ngit commit -m c",
+      "seed_intents": [
+        "undo the last commit",
+        "revert a commit that broke something",
+        "how to undo a commit without rewriting history",
+        "reverse a commit's changes"
+      ]
+    },
+    {
+      "goal_id": "revert-no-commit",
+      "verb": "git revert",
+      "goal_roles": [
+        "recovery"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git revert -n HEAD",
+            "comment": "Revert the last commit but do not create a commit, leaving changes in the working tree."
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init\necho a > f.txt\ngit add f.txt\ngit commit -m a\necho b > f.txt\ngit add f.txt\ngit commit -m b\necho c > f.txt\ngit add f.txt\ngit commit -m c",
+      "seed_intents": [
+        "revert a commit but keep changes staged",
+        "undo a commit without committing yet",
+        "apply reverse of a commit to working directory",
+        "revert commit and edit before committing"
+      ]
+    },
+    {
+      "goal_id": "shortlog-summary",
+      "verb": "git shortlog",
+      "goal_roles": [
+        "authorship",
+        "history_search"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git shortlog -sn",
+            "comment": "Summarize commits by author, sorted by number of commits."
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init\necho hello > f.txt\ngit add f.txt\ngit commit -m add-f",
+      "seed_intents": [
+        "who contributed the most commits",
+        "list commits by author",
+        "summary of commit activity per person",
+        "count commits per developer"
+      ]
+    },
+    {
+      "goal_id": "stash-save",
+      "verb": "git stash",
+      "goal_roles": [
+        "workspace",
+        "recovery"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git stash",
+            "comment": "Stash all uncommitted changes and revert working tree to clean state."
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init\necho hello > f.txt\ngit add f.txt\ngit commit -m add-f\necho dirty >> f.txt",
+      "seed_intents": [
+        "save my work temporarily",
+        "stash my changes",
+        "put away uncommitted changes",
+        "clean working directory but keep changes"
+      ]
+    },
+    {
+      "goal_id": "stash-list",
+      "verb": "git stash",
+      "goal_roles": [
+        "workspace",
+        "recovery"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git stash list",
+            "comment": "List all stashes in the repository."
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init\necho hello > f.txt\ngit add f.txt\ngit commit -m add-f\necho dirty >> f.txt",
+      "seed_intents": [
+        "see my stashes",
+        "list stashed changes",
+        "what stashes do I have",
+        "show all stashes"
+      ]
+    },
+    {
+      "goal_id": "config-user-name",
+      "verb": "git config",
+      "goal_roles": [
+        "identity",
+        "inspection"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git config user.name",
+            "comment": "Show the configured user name"
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init",
+      "seed_intents": [
+        "What is my git user name?",
+        "How do I check my git identity?",
+        "Show my configured name in git"
+      ]
+    },
+    {
+      "goal_id": "config-user-email",
+      "verb": "git config",
+      "goal_roles": [
+        "identity",
+        "inspection"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git config user.email",
+            "comment": "Show the configured user email"
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init",
+      "seed_intents": [
+        "What email is git using for my commits?",
+        "How do I see my git email?",
+        "Show my git email address"
+      ]
+    },
+    {
+      "goal_id": "config-set-user-name",
+      "verb": "git config",
+      "goal_roles": [
+        "identity"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git config user.name Alice",
+            "comment": "Set the user name to Alice"
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init",
+      "seed_intents": [
+        "Set my git user name",
+        "Change my git name",
+        "How do I configure my name in git?"
+      ]
+    },
+    {
+      "goal_id": "config-set-user-email",
+      "verb": "git config",
+      "goal_roles": [
+        "identity"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git config user.email alice@example.com",
+            "comment": "Set the user email"
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init",
+      "seed_intents": [
+        "Set my git email",
+        "Change my git email address",
+        "How do I configure my email in git?"
+      ]
+    },
+    {
+      "goal_id": "config-list-all",
+      "verb": "git config",
+      "goal_roles": [
+        "inspection"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git config --list",
+            "comment": "List all git configuration settings"
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init",
+      "seed_intents": [
+        "Show all my git settings",
+        "List git configuration",
+        "What are my git config values?"
+      ]
+    },
+    {
+      "goal_id": "filter-branch-rewrite-commit-message",
+      "verb": "git filter-branch",
+      "goal_roles": [
+        "history_bisect",
+        "dangerous"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git filter-branch --msg-filter 'sed s/old/new/' HEAD",
+            "comment": "Rewrite commit messages replacing old with new"
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init\necho a > f.txt\ngit add f.txt\ngit commit -m a\necho b > f.txt\ngit add f.txt\ngit commit -m b\necho c > f.txt\ngit add f.txt\ngit commit -m c",
+      "seed_intents": [
+        "Change a commit message in history",
+        "Rewrite commit messages across all commits",
+        "How do I modify past commit messages?"
+      ]
+    },
+    {
+      "goal_id": "prune-dry-run",
+      "verb": "git prune",
+      "goal_roles": [
+        "recovery",
+        "dangerous"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git prune -n",
+            "comment": "Show what would be pruned without actually removing"
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init",
+      "seed_intents": [
+        "What unreachable objects would be pruned?",
+        "Dry run git prune",
+        "Check what git prune would remove"
+      ]
+    },
+    {
+      "goal_id": "prune-expire",
+      "verb": "git prune",
+      "goal_roles": [
+        "recovery",
+        "dangerous"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git prune --expire 2.weeks.ago",
+            "comment": "Prune unreachable objects older than two weeks"
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init",
+      "seed_intents": [
+        "Prune old unreachable objects",
+        "Clean up git objects older than two weeks",
+        "How do I prune expired objects?"
+      ]
+    },
+    {
+      "goal_id": "reflog-expiry-config",
+      "verb": "git reflog",
+      "goal_roles": [
+        "recovery",
+        "niche"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git reflog expire --expire=now --all",
+            "comment": "Force expire all reflog entries immediately"
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init\necho a > f.txt\ngit add f.txt\ngit commit -m a\necho b > f.txt\ngit add f.txt\ngit commit -m b\necho c > f.txt\ngit add f.txt\ngit commit -m c",
+      "seed_intents": [
+        "How to clear git reflog history?",
+        "Make reflog entries expire sooner",
+        "Delete old reflog entries to save space"
+      ]
+    },
+    {
+      "goal_id": "remote-list-verbose",
+      "verb": "git remote",
+      "goal_roles": [
+        "remotes"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git remote -v",
+            "comment": "Show all remote repositories with their fetch and push URLs"
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init\ngit branch -M main\ngit init --bare $GIT_GRASP_REMOTES/origin.git\ngit remote add origin $GIT_GRASP_REMOTES/origin.git",
+      "seed_intents": [
+        "Show all my git remotes and their URLs",
+        "What remotes are configured for this repo?",
+        "List remote repositories with details"
+      ]
+    },
+    {
+      "goal_id": "remote-remove",
+      "verb": "git remote",
+      "goal_roles": [
+        "remotes"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git remote remove origin",
+            "comment": "Remove the remote named origin from the repository"
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init\ngit branch -M main\ngit init --bare $GIT_GRASP_REMOTES/origin.git\ngit remote add origin $GIT_GRASP_REMOTES/origin.git",
+      "seed_intents": [
+        "Remove a git remote from my repository",
+        "Delete a remote connection",
+        "How to unlink a remote?"
+      ]
+    },
+    {
+      "goal_id": "annotate-blame-lines",
+      "verb": "git annotate",
+      "goal_roles": [
+        "authorship",
+        "inspection"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git annotate f.txt",
+            "comment": "Show commit information for each line of the file"
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init\necho hello > f.txt\ngit add f.txt\ngit commit -m add-f",
+      "seed_intents": [
+        "Who wrote each line of this file?",
+        "Show the commit that last modified each line",
+        "Find out who changed a specific line in a file"
+      ]
+    },
+    {
+      "goal_id": "blame-file-authorship",
+      "verb": "git blame",
+      "goal_roles": [
+        "authorship",
+        "inspection"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git blame f.txt",
+            "comment": "Show last commit and author for each line of f.txt"
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init\necho hello > f.txt\ngit add f.txt\ngit commit -m add-f",
+      "seed_intents": [
+        "Who last changed this line?",
+        "Which commit introduced this line?",
+        "Show the author of each line in this file",
+        "When was this line last modified?"
+      ]
+    },
+    {
+      "goal_id": "blame-file-with-commit-hash",
+      "verb": "git blame",
+      "goal_roles": [
+        "authorship",
+        "inspection"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git blame --abbrev=40 f.txt",
+            "comment": "Show full commit hashes for each line"
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init\necho hello > f.txt\ngit add f.txt\ngit commit -m add-f",
+      "seed_intents": [
+        "I need the full commit hash for each line",
+        "Show full SHA for blame output",
+        "Get the exact commit IDs for lines in this file"
+      ]
+    },
+    {
+      "goal_id": "fsck-check-objects",
+      "verb": "git fsck",
+      "goal_roles": [
+        "recovery",
+        "inspection"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git fsck",
+            "comment": "Check repository object connectivity and validity"
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init",
+      "seed_intents": [
+        "Check my repository for corruption",
+        "Verify the integrity of my git objects",
+        "Find missing or broken objects in my repo",
+        "Is my repository healthy?"
+      ]
+    },
+    {
+      "goal_id": "fsck-unreachable-objects",
+      "verb": "git fsck",
+      "goal_roles": [
+        "recovery",
+        "inspection"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git fsck --unreachable",
+            "comment": "List unreachable objects that may be recoverable"
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init",
+      "seed_intents": [
+        "Find dangling commits I can recover",
+        "List unreachable objects in my repo",
+        "I lost a commit, can I find it?",
+        "Show me objects not referenced by any branch"
+      ]
+    },
+    {
+      "goal_id": "rerere-status",
+      "verb": "git rerere",
+      "goal_roles": [
+        "recovery",
+        "staging"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git rerere status",
+            "comment": "Show current rerere status"
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init",
+      "seed_intents": [
+        "What conflicts are recorded for reuse?",
+        "Show rerere status",
+        "Check if rerere has recorded resolutions"
+      ]
+    },
+    {
+      "goal_id": "rerere-forget-path",
+      "verb": "git rerere",
+      "goal_roles": [
+        "recovery",
+        "staging"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git rerere forget f.txt",
+            "comment": "Forget recorded resolution for f.txt"
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init",
+      "seed_intents": [
+        "Stop reusing a recorded conflict resolution",
+        "Forget rerere for a specific file",
+        "Clear the recorded resolution for this file"
+      ]
+    },
+    {
+      "goal_id": "bisect-start-bad-good",
+      "verb": "git bisect",
+      "goal_roles": [
+        "history_bisect"
+      ],
+      "recipe_sketch": {
+        "commands": [
+          {
+            "command": "git bisect start",
+            "comment": "Start bisect session"
+          },
+          {
+            "command": "git bisect bad",
+            "comment": "Mark current commit as bad"
+          }
+        ]
+      },
+      "initial_state": "git commit --allow-empty -m init\necho a > f.txt\ngit add f.txt\ngit commit -m a\necho b > f.txt\ngit add f.txt\ngit commit -m b\necho c > f.txt\ngit add f.txt\ngit commit -m c",
+      "seed_intents": [
+        "Find which commit introduced a bug",
+        "Bisect between good and bad commits",
+        "Start binary search for regression"
+      ]
+    }
+  ],
+  "dropped": [
+    {
+      "goal_id": "bisect-start-bad-good",
+      "verb": "git bisect",
+      "reasons": [
+        "schema: Too big: expected array to have <=2 items"
+      ]
+    },
+    {
+      "goal_id": "bisect-run-test",
+      "verb": "git bisect",
+      "reasons": [
+        "schema: Too big: expected array to have <=2 items"
+      ]
+    },
+    {
+      "goal_id": "filter-branch-remove-file",
+      "verb": "git filter-branch",
+      "reasons": [
+        "too_many_flags_step_0: 3"
+      ]
+    },
+    {
+      "goal_id": "bundle-verify-restore",
+      "verb": "git bundle",
+      "reasons": [
+        "command_recipe"
+      ]
+    },
+    {
+      "goal_id": "clone-repo",
+      "verb": "git clone",
+      "reasons": [
+        "command_recipe"
+      ]
+    },
+    {
+      "goal_id": "clone-branch",
+      "verb": "git clone",
+      "reasons": [
+        "command_recipe"
+      ]
+    },
+    {
+      "goal_id": "grep-search-commits",
+      "verb": "git grep",
+      "reasons": [
+        "command_recipe"
+      ]
+    },
+    {
+      "goal_id": "pull-update-current-branch",
+      "verb": "git pull",
+      "reasons": [
+        "command_recipe"
+      ]
+    },
+    {
+      "goal_id": "pull-specific-remote-branch",
+      "verb": "git pull",
+      "reasons": [
+        "command_recipe"
+      ]
+    },
+    {
+      "goal_id": "push-current-branch",
+      "verb": "git push",
+      "reasons": [
+        "command_recipe"
+      ]
+    },
+    {
+      "goal_id": "rebase-onto-new-base",
+      "verb": "git rebase",
+      "reasons": [
+        "command_recipe"
+      ]
+    },
+    {
+      "goal_id": "rebase-interactive-squash",
+      "verb": "git rebase",
+      "reasons": [
+        "command_recipe"
+      ]
+    },
+    {
+      "goal_id": "shortlog-range",
+      "verb": "git shortlog",
+      "reasons": [
+        "command_recipe"
+      ]
+    },
+    {
+      "goal_id": "reflog-recover-branch",
+      "verb": "git reflog",
+      "reasons": [
+        "command_recipe"
+      ]
+    },
+    {
+      "goal_id": "remote-add-origin",
+      "verb": "git remote",
+      "reasons": [
+        "command_recipe"
+      ]
+    },
+    {
+      "goal_id": "annotate-range",
+      "verb": "git annotate",
+      "reasons": [
+        "command_recipe"
+      ]
+    },
+    {
+      "goal_id": "whatchanged-show-commit-diffs",
+      "verb": "git whatchanged",
+      "reasons": [
+        "command_recipe"
+      ]
+    },
+    {
+      "goal_id": "bisect-run-test",
+      "verb": "git bisect",
+      "reasons": [
+        "command_recipe"
+      ]
+    },
+    {
+      "goal_id": "bundle-verify-restore",
+      "verb": "git bundle",
+      "reasons": [
+        "command_recipe"
+      ]
+    },
+    {
+      "goal_id": "clone-repo",
+      "verb": "git clone",
+      "reasons": [
+        "command_recipe"
+      ]
+    },
+    {
+      "goal_id": "clone-branch",
+      "verb": "git clone",
+      "reasons": [
+        "command_recipe"
+      ]
+    },
+    {
+      "goal_id": "grep-search-commits",
+      "verb": "git grep",
+      "reasons": [
+        "command_recipe"
+      ]
+    },
+    {
+      "goal_id": "pull-update-current-branch",
+      "verb": "git pull",
+      "reasons": [
+        "command_recipe"
+      ]
+    },
+    {
+      "goal_id": "pull-specific-remote-branch",
+      "verb": "git pull",
+      "reasons": [
+        "command_recipe"
+      ]
+    },
+    {
+      "goal_id": "push-current-branch",
+      "verb": "git push",
+      "reasons": [
+        "command_recipe"
+      ]
+    },
+    {
+      "goal_id": "rebase-onto-new-base",
+      "verb": "git rebase",
+      "reasons": [
+        "command_recipe"
+      ]
+    },
+    {
+      "goal_id": "rebase-interactive-squash",
+      "verb": "git rebase",
+      "reasons": [
+        "command_recipe"
+      ]
+    },
+    {
+      "goal_id": "shortlog-range",
+      "verb": "git shortlog",
+      "reasons": [
+        "command_recipe"
+      ]
+    },
+    {
+      "goal_id": "reflog-recover-branch",
+      "verb": "git reflog",
+      "reasons": [
+        "command_recipe"
+      ]
+    },
+    {
+      "goal_id": "remote-add-origin",
+      "verb": "git remote",
+      "reasons": [
+        "command_recipe"
+      ]
+    },
+    {
+      "goal_id": "annotate-range",
+      "verb": "git annotate",
+      "reasons": [
+        "command_recipe"
+      ]
+    },
+    {
+      "goal_id": "whatchanged-show-commit-diffs",
+      "verb": "git whatchanged",
+      "reasons": [
+        "command_recipe"
+      ]
+    },
+    {
+      "goal_id": "bisect-run-test",
+      "verb": "git bisect",
+      "reasons": [
+        "command_recipe"
+      ]
+    },
+    {
+      "goal_id": "history-fixup-commit",
+      "verb": "git history",
+      "reasons": [
+        "command_recipe"
+      ]
+    }
+  ]
+}

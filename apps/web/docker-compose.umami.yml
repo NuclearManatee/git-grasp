@@ -32,7 +32,7 @@ services:
       - '127.0.0.1:3001:3000'
     environment:
       DATABASE_URL: postgresql://umami:umami@umami-db:5432/umami
-      APP_SECRET: git-help-e2e-secret-change-me
+      APP_SECRET: git-grasp-e2e-secret-change-me
       DISABLE_TELEMETRY: '1'
     depends_on:
       umami-db:

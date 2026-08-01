@@ -7,7 +7,7 @@ interface Props {
 }
 
 const {
-  title = 'git-help',
+  title = 'git-grasp',
   description = 'Local-first semantic search for Git commands. Ask in natural language — get pasteable answers on your machine.',
 } = Astro.props;
 
@@ -38,6 +38,7 @@ const csp = [
     <meta http-equiv="Content-Security-Policy" content={csp} />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <title>{title}</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

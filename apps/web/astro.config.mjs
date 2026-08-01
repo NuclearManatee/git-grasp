@@ -2,7 +2,7 @@ import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 
 export default defineConfig({
-  site: 'https://git-help.cremaschi.dev',
+  site: 'https://git-grasp.cremaschi.dev',
   srcDir: './src',
   outDir: './dist',
   integrations: [react()],
@@ -11,7 +11,7 @@ export default defineConfig({
       exclude: ['@huggingface/transformers'],
     },
     ssr: {
-      noExternal: ['@git-help/core'],
+      noExternal: ['@git-grasp/core'],
       external: ['@xterm/xterm', '@xterm/addon-fit'],
     },
   },

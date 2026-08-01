@@ -16,6 +16,8 @@ apps/web/playwright-report/
 apps/web/.env
 *.db-wal
 *.db-shm
+.tsbuild/
+*.tsbuildinfo
 bench/results*.json
 bench/install-last.json
 bench/git-help
@@ -23,4 +25,12 @@ bench/git-help-compile.exe
 bench/git-help.exe
 dist-release/
 .npmrc
-
+test/.tmp-*/
+eval-last-out.txt
+data/catalog/*.raw.*
+data/catalog/*.enriched.*
+data/catalog/*.familied.*
+data/catalog/drops.*
+data/catalog/commands.extracted.json
+data/catalog/commands.grouped.json
+data/catalog/manifest.step1.json

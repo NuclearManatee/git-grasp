@@ -1,0 +1,1 @@
+{"schemaVersion":5,"topK":3,"recallK":100,"confidenceVeryHigh":0.9,"confidenceHigh":0.75,"confidenceMedium":0.4,"normalizeQuery":true}

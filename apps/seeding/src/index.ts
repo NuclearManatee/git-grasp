@@ -1,0 +1,15 @@
+#!/usr/bin/env bun
+// @ts-nocheck
+import { seedCatalog } from '@git-grasp/core';
+
+const forceMock = process.env.GIT_GRASP_MOCK_EMBEDDINGS === '1' || process.argv.includes('--mock');
+
+try {
+  const result = await seedCatalog({ forceMock });
+  console.log(`Seeded ${result.recipes} recipes / ${result.n} intents (skipped ${result.skipped}) ÔåÆ ${result.dbPath}`);
+  console.log(`sha256 ${result.hash}`);
+  console.log(`embeddings: ${result.mock ? 'mock' : 'all-MiniLM-L6-v2'}`);
+} catch (e) {
+  console.error(e.message || e);
+  process.exit(1);
+}

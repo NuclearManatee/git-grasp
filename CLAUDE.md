@@ -2,12 +2,22 @@
 
 Project guidance for AI assistants working in this repo.
 
+## Catalog philosophy (required)
+
+The shipped Git catalog is **LLM-built from authoritative sources**, not hand-curated at each pipeline stage.
+
+- **Sources in, intuition through:** prepare → ground → evolve → intents → eval artifacts must be produced by models operating on scraped/docs/`git -h`/taxonomy inputs. Do **not** design steps that require a human to author pins, goldens, allowlists-of-goals, or per-verb recipe lists as the normal path.
+- **Code may constrain; humans must not fill the catalog:** Zod schemas, caps, sandbox rules, and structural validators are fine. Checked-in **content** that is the catalog itself (canonical recipes, seed intents, adversarial queries) should be **LLM-generated** from sources (and regenerable), not maintained as a curated encyclopedia.
+- **Follow-up LLM passes are encouraged** when they replace curation: completeness (“what goals are still missing given the taxonomy/sources?”), prune/repair against validators, or self-critique. Prefer machine-checkable prompts over open-ended chat.
+- **Exceptions:** small frozen taxonomies that define the *language* of the system (`skill_level.md`, `intent_category.md`, role enums, scrape-derived `git_commands.json` command list) are infrastructure, not catalog content. Prefer regenerating scrape/LLM artifacts over growing hand-written JSON.
+
 ## Stack
 
 - **Runtime:** Bun (`bun:sqlite` + `sqlite-vec`).
-- **Monorepo:** `packages/core` (DB, embeddings, search), `apps/cli`, `apps/seeding`, `apps/eval`, `apps/web` (Astro stub).
-- **Search:** sqlite-vec KNN recall → JS re-rank in `@git-help/core`. Schema v5 (`recipes` + `search_intents` + `vec_intents`).
-- **Catalog:** generation code on `feature/*`; production `data/catalog/recipes.json`, `intents.jsonl`, and seeded DB land on `improve/*` after the eval gate. Upstream source fetches go to gitignored `data/cache/sources/`.
+- **Monorepo:** `packages/core` (DB, embeddings, search), `apps/cli`, `apps/seeding`, `apps/eval`, `apps/web` (Astro site + playground).
+- **Search:** Hybrid `sqlite-vec` intent KNN + FTS5 command BM25 → weighted fusion + confidence-gated display in `@git-grasp/core`. Schema v6 (`commands` + `intents` + `vec_intents` + `commands_fts`).
+- **Catalog:** generation code on `feature/*`; production `data/catalog/commands.json`, `intents.jsonl`, and seeded DB land on `improve/*` after the eval gate. Upstream source fetches go to gitignored `data/cache/sources/`.
+- **LLM prompts:** Do not embed multi-line system/user prompts as TS template literals. Put each LLM call in `packages/core/prompts/<area>/<name>.md` (frontmatter + `## system` / `## user`, Mustache `{{var}}` / `{{{raw}}}`, partials under `prompts/partials/`). Load at runtime with `renderPrompt` / `renderPromptRole` from `packages/core/src/lib/prompts.ts`. Zod schemas stay in TS; taxonomy docs stay in `packages/core/taxonomy/` and are injected as vars.
 
 ## Git flow (required)
 

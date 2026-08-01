@@ -1,0 +1,18 @@
+Main Porcelain Commands
+   add                     Add file contents to the index
+   commit                  Record changes to the repository
+   status                  Show the working tree status
+
+Ancillary Commands / Manipulators
+   config                  Get and set repository or global options
+   remote                  Manage set of tracked repositories
+
+Ancillary Commands / Interrogators
+   blame                   Show what revision and author last modified each line of a file
+   help                    Display help information about Git
+
+Interacting with Others
+   svn                     Bidirectional operation between a Subversion repository and Git
+
+Low-level Commands / Manipulators
+   cat-file                Provide contents or details of repository objects

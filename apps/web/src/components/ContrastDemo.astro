@@ -72,7 +72,7 @@
         class="border-b border-gh-border px-4 py-2 font-mono text-xs text-gh-muted"
         data-contrast-label="ease"
       >
-        git-help
+        git-grasp
       </div>
       <pre
         class="contrast-term min-h-[14rem] overflow-hidden p-4 font-mono text-sm leading-relaxed text-gh-fg"
@@ -98,7 +98,7 @@
         blurb:
           'Soft undo and hard undo look alike until you get them wrong. Ask what you mean — get the right example.',
         painLabel: 'remembering flags',
-        easeLabel: 'git-help',
+        easeLabel: 'git-grasp',
         scenes: [
           {
             srPain: 'You must remember whether soft, mixed, or hard reset is correct.',
@@ -109,7 +109,7 @@
               { t: 'fatal: wrong flag = lost work', c: 'text-gh-warn' },
             ],
             ease: [
-              { t: '$ git-help "undo last commit keep changes staged"', c: '' },
+              { t: '$ git-grasp "undo last commit keep changes staged"', c: '' },
               { t: 'git reset', c: 'text-gh-accent' },
               { t: '  ────────────────────────────', c: 'text-gh-muted' },
               { t: '  git reset --soft HEAD~1', c: 'text-gh-accent' },
@@ -126,7 +126,7 @@
               { t: 'remote history may be overwritten', c: 'text-gh-warn' },
             ],
             ease: [
-              { t: '$ git-help "force push without clobbering others"', c: '' },
+              { t: '$ git-grasp "force push without clobbering others"', c: '' },
               { t: 'git push', c: 'text-gh-accent' },
               { t: '  ────────────────────────────', c: 'text-gh-muted' },
               { t: '  git push --force-with-lease', c: 'text-gh-accent' },
@@ -143,7 +143,7 @@
               { t: 'two commands, same intent', c: 'text-gh-warn' },
             ],
             ease: [
-              { t: '$ git-help "create and switch to a new branch"', c: '' },
+              { t: '$ git-grasp "create and switch to a new branch"', c: '' },
               { t: 'git switch', c: 'text-gh-accent' },
               { t: '  ────────────────────────────', c: 'text-gh-muted' },
               { t: '  git switch -c feature', c: 'text-gh-accent' },
@@ -158,7 +158,7 @@
         blurb:
           'Skill-aware results: plain language for newcomers, precise porcelain when you are ready.',
         painLabel: 'one-size-fits-all docs',
-        easeLabel: 'git-help · skill filter',
+        easeLabel: 'git-grasp · skill filter',
         scenes: [
           {
             srPain: 'Man pages assume you already know Git vocabulary.',
@@ -170,7 +170,7 @@
               { t: '# pages of options…', c: 'text-gh-warn' },
             ],
             ease: [
-              { t: '$ git-help "what files did I change"', c: '' },
+              { t: '$ git-grasp "what files did I change"', c: '' },
               { t: 'git status', c: 'text-gh-accent' },
               { t: '  ────────────────────────────', c: 'text-gh-muted' },
               { t: '  git status', c: 'text-gh-accent' },
@@ -187,7 +187,7 @@
               { t: 'local edits discarded', c: 'text-gh-warn' },
             ],
             ease: [
-              { t: '$ git-help "temporarily shelve my uncommitted work"', c: '' },
+              { t: '$ git-grasp "temporarily shelve my uncommitted work"', c: '' },
               { t: 'git stash', c: 'text-gh-accent' },
               { t: '  ────────────────────────────', c: 'text-gh-muted' },
               { t: '  git stash push -m "wip"', c: 'text-gh-accent' },
@@ -204,7 +204,7 @@
               { t: 'easy to recover the wrong commit', c: 'text-gh-warn' },
             ],
             ease: [
-              { t: '$ git-help "recover a branch I deleted by mistake"', c: '' },
+              { t: '$ git-grasp "recover a branch I deleted by mistake"', c: '' },
               { t: 'git reflog', c: 'text-gh-accent' },
               { t: '  ────────────────────────────', c: 'text-gh-muted' },
               { t: '  git reflog', c: 'text-gh-accent' },
@@ -217,9 +217,9 @@
       {
         title: 'Examples, not syntax',
         blurb:
-          'git help teaches the manual. git-help returns a pasteable example with a short usage frame.',
+          'git help teaches the manual. git-grasp returns a pasteable example with a short usage frame.',
         painLabel: 'git help',
-        easeLabel: 'git-help',
+        easeLabel: 'git-grasp',
         scenes: [
           {
             srPain: 'git help commit dumps synopsis and option lists.',
@@ -231,7 +231,7 @@
               { t: '  # wall of OPTIONS', c: 'text-gh-warn' },
             ],
             ease: [
-              { t: '$ git-help "amend last commit keep same message"', c: '' },
+              { t: '$ git-grasp "amend last commit keep same message"', c: '' },
               { t: 'git commit', c: 'text-gh-accent' },
               { t: '  ────────────────────────────', c: 'text-gh-muted' },
               { t: '  git commit --amend --no-edit', c: 'text-gh-accent' },
@@ -249,7 +249,7 @@
               { t: '  # which flags for my case?', c: 'text-gh-warn' },
             ],
             ease: [
-              { t: '$ git-help "replay my branch commits onto main"', c: '' },
+              { t: '$ git-grasp "replay my branch commits onto main"', c: '' },
               { t: 'git rebase', c: 'text-gh-accent' },
               { t: '  ────────────────────────────', c: 'text-gh-muted' },
               { t: '  git rebase main', c: 'text-gh-accent' },
@@ -267,7 +267,7 @@
               { t: '  # which subcommand first?', c: 'text-gh-warn' },
             ],
             ease: [
-              { t: '$ git-help "save my WIP and clean the tree"', c: '' },
+              { t: '$ git-grasp "save my WIP and clean the tree"', c: '' },
               { t: 'git stash', c: 'text-gh-accent' },
               { t: '  ────────────────────────────', c: 'text-gh-muted' },
               { t: '  git stash push -m "wip"', c: 'text-gh-accent' },

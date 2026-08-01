@@ -18,26 +18,26 @@ bun run seed          # if DB missing
 bun run build:release
 ```
 
-This runs [`scripts/build-release-binary.js`](../scripts/build-release-binary.js), which:
+This runs [`scripts/build-release-binary.ts`](../scripts/build-release-binary.ts), which:
 
-1. `bun build --compile` → `git-help` (or `git-help.exe`)
+1. `bun build --compile` → `git-grasp` (or `git-grasp.exe`)
 2. Copies `data/git-commands.db` (+ `.sha256` if present) and `config/thresholds.json`
-3. Zips them as `dist-release/git-help-<os>-<arch>.zip`
+3. Zips them as `dist-release/git-grasp-<os>-<arch>.zip`
 
 Unpack and run **from the extracted folder** so the binary finds `data/` and `config/` next to itself (via `process.execPath`). You can also set:
 
 ```bash
-export GIT_HELP_ROOT=/path/to/extracted/folder
+export GIT_GRASP_ROOT=/path/to/extracted/folder
 ```
 
 ## Platform notes
 
 | Host | Typical asset |
 |------|----------------|
-| Linux x64 | `git-help-linux-x64.zip` |
-| macOS Apple Silicon | `git-help-darwin-arm64.zip` |
-| macOS Intel | `git-help-darwin-x64.zip` |
-| Windows x64 | `git-help-windows-x64.zip` |
+| Linux x64 | `git-grasp-linux-x64.zip` |
+| macOS Apple Silicon | `git-grasp-darwin-arm64.zip` |
+| macOS Intel | `git-grasp-darwin-x64.zip` |
+| Windows x64 | `git-grasp-windows-x64.zip` |
 
 Cross-compiling is not supported here — build on (or CI-matrix) the target OS/arch.
 
@@ -56,7 +56,7 @@ Those run only from [`.github/workflows/release.yml`](../.github/workflows/relea
 For perf Docker / local timing without the zip layout:
 
 ```bash
-bun run build:cli   # → bench/git-help
+bun run build:cli   # → bench/git-grasp
 ```
 
-That binary still needs `GIT_HELP_ROOT` (or cwd) pointing at a package root with `data/` + `config/thresholds.json`. Prefer `build:release` for anything resembling a user install.
+That binary still needs `GIT_GRASP_ROOT` (or cwd) pointing at a package root with `data/` + `config/thresholds.json`. Prefer `build:release` for anything resembling a user install.
