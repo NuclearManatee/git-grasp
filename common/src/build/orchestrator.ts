@@ -60,12 +60,12 @@ import {
   activeEvaluationBank,
   generateGoldenQuery,
   expandQueries,
-  scrambleQuery,
   tagGolden,
   primaryVerbFromRecipe,
   formatEvalReport,
   formatJudgeVote,
   appendEvolveGolden,
+  appendExtendedScrambledBanks,
   buildCoveragePromoteReport,
   writeCoveragePromoteReport,
   verbLookupFromRows,
@@ -569,22 +569,19 @@ export async function runGroundStep(opts = {}) {
                     llmJsonObject: opts.llmJsonObject,
                     priorQueries: loadBank('golden.jsonl').map((r) => r.query_text),
                   });
+              const groundRow = { ...row, mutation_kind: 'ground' };
               const golden = tagGolden(goldenRaw, {
                 mutation_kind: 'ground',
-                primary_verb: primaryVerbFromRecipe(row),
+                primary_verb: primaryVerbFromRecipe(groundRow),
               });
               appendBank('golden.jsonl', [golden]);
-              const extended = opts.expandQueries
-                ? await opts.expandQueries(golden, row)
-                : await expandQueries(golden, row, { llmJsonObject: opts.llmJsonObject });
-              appendBank('extended.jsonl', extended);
-              appendBank(
-                'scrambled.jsonl',
-                extended.map((e, j) => ({
-                  query_text: scrambleQuery(e.query_text, persisted.row_id + j),
-                  command_id: persisted.row_id,
-                  kind: 'scrambled',
-                })),
+              const extendedRaw = opts.expandQueries
+                ? await opts.expandQueries(golden, groundRow)
+                : await expandQueries(golden, groundRow, { llmJsonObject: opts.llmJsonObject });
+              const { extended } = appendExtendedScrambledBanks(
+                groundRow,
+                extendedRaw,
+                persisted.row_id,
               );
               log(`ground[${i + 1}/${groups.length}] eval banks +golden +${extended.length} extended`);
             }
@@ -863,7 +860,7 @@ export async function runBuildLoop(opts = {}) {
               log(
                 `loop iter=${iteration} parent=${parent.row_id} INSERT child=${persisted.row_id} kind=${mutation_kind}`,
               );
-              // One golden per accepted evolve insert (no cap). Extended/scrambled stay ground-only.
+              // One golden + extended/scrambled per accepted evolve insert (no cap).
               if (!opts.skipEvalBanks) {
                 const childRow =
                   getCommand(db, persisted.row_id) ||
@@ -872,19 +869,29 @@ export async function runBuildLoop(opts = {}) {
                     row_id: persisted.row_id,
                     mutation_kind,
                   } as any);
+                const evolveRow = { ...childRow, mutation_kind };
                 const tGolden = Date.now();
                 const goldenRaw = opts.generateGolden
-                  ? await opts.generateGolden(childRow, persisted.row_id)
-                  : await generateGoldenQuery(childRow, persisted.row_id, {
+                  ? await opts.generateGolden(evolveRow, persisted.row_id)
+                  : await generateGoldenQuery(evolveRow, persisted.row_id, {
                       llmJsonObject: opts.llmJsonObject,
                       priorQueries: loadBank('golden.jsonl').map((r) => r.query_text),
                     });
-                evolveTiming.goldenMs += Date.now() - tGolden;
-                appendEvolveGolden(
-                  { ...childRow, mutation_kind },
-                  goldenRaw,
+                const golden = appendEvolveGolden(evolveRow, goldenRaw);
+                const extendedRaw = opts.expandQueries
+                  ? await opts.expandQueries(golden, evolveRow)
+                  : await expandQueries(golden, evolveRow, {
+                      llmJsonObject: opts.llmJsonObject,
+                    });
+                const { extended } = appendExtendedScrambledBanks(
+                  evolveRow,
+                  extendedRaw,
+                  persisted.row_id,
                 );
-                log(`loop iter=${iteration} +golden child=${persisted.row_id} kind=${mutation_kind}`);
+                evolveTiming.goldenMs += Date.now() - tGolden;
+                log(
+                  `loop iter=${iteration} +golden +${extended.length} extended child=${persisted.row_id} kind=${mutation_kind}`,
+                );
               }
             } else {
               log(`loop iter=${iteration} parent=${parent.row_id} DEDUP ${persisted.reason}`);

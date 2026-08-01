@@ -240,7 +240,7 @@ export function tagGolden(query, meta = {}) {
 }
 
 /**
- * Append one evolve golden (tagged); extended/scrambled remain ground-only.
+ * Append one evolve golden (tagged with mutation_kind + primary_verb).
  * @returns {object} tagged golden row
  */
 export function appendEvolveGolden(commandRow, goldenQuery) {
@@ -250,6 +250,43 @@ export function appendEvolveGolden(commandRow, goldenQuery) {
   });
   appendBank('golden.jsonl', [tagged]);
   return tagged;
+}
+
+/**
+ * Tag and append extended + scrambled banks for a recipe (ground or evolve).
+ * @param {object} commandRow
+ * @param {object[]} extendedRows raw expandQueries output
+ * @param {number} commandId
+ * @returns {{ extended: object[], scrambled: object[] }}
+ */
+export function appendExtendedScrambledBanks(commandRow, extendedRows, commandId) {
+  const meta = {
+    mutation_kind: commandRow.mutation_kind ?? null,
+    primary_verb: primaryVerbFromRecipe(commandRow),
+  };
+  const extended = (extendedRows || []).map((e) =>
+    tagGolden(
+      {
+        query_text: e.query_text,
+        command_id: commandId,
+        kind: 'extended',
+      },
+      meta,
+    ),
+  );
+  const scrambled = extended.map((e, j) =>
+    tagGolden(
+      {
+        query_text: scrambleQuery(e.query_text, Number(commandId) + j),
+        command_id: commandId,
+        kind: 'scrambled',
+      },
+      meta,
+    ),
+  );
+  appendBank('extended.jsonl', extended);
+  appendBank('scrambled.jsonl', scrambled);
+  return { extended, scrambled };
 }
 
 export async function generateGoldenQuery(commandRow, commandId, opts = {}) {
@@ -267,11 +304,18 @@ export async function generateGoldenQuery(commandRow, commandId, opts = {}) {
   const primaryVerb = verbFromCommandLine(primary);
   const priorNormalized = (opts.priorQueries || []).map(normalizeQueryText);
   const maxAttempts = opts.maxAttempts ?? Math.max(2, VALIDATION_MAX_REGEN);
+  const mutationKind =
+    commandRow.mutation_kind != null && String(commandRow.mutation_kind).trim() !== ''
+      ? String(commandRow.mutation_kind)
+      : 'ground';
+  const initialState = String(commandRow.initial_state ?? '').trim() || '(none)';
 
   const { messages } = renderPrompt('build/golden-query', {
     primary_verb: primaryVerb || 'unknown',
     primary,
     listing: listing || '(none)',
+    mutation_kind: mutationKind,
+    initial_state: initialState,
   });
 
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
@@ -297,11 +341,20 @@ export async function expandQueries(seed, commandRow, opts = {}) {
   const listing = steps.map((s) => s.command).join('\n');
   const primary = steps[0]?.command || '';
   const primaryVerb = verbFromCommandLine(primary);
+  const mutationKind =
+    commandRow.mutation_kind != null && String(commandRow.mutation_kind).trim() !== ''
+      ? String(commandRow.mutation_kind)
+      : seed.mutation_kind != null && String(seed.mutation_kind).trim() !== ''
+        ? String(seed.mutation_kind)
+        : 'ground';
+  const initialState = String(commandRow.initial_state ?? '').trim() || '(none)';
   const { messages } = renderPrompt('build/expand-queries', {
     primary_verb: primaryVerb || 'unknown',
     seed: seed.query_text,
     primary,
     listing,
+    mutation_kind: mutationKind,
+    initial_state: initialState,
   });
   const out = await call({
     schema: ExpandedSchema,

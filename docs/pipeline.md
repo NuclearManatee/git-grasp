@@ -285,14 +285,14 @@ Four steps per semantic block:
 
 Per accepted recipe, grow intents until every matrix cell is **filled** or honestly **skipped** (not a forced 16-intent fill):
 
-1. Flash batch (≤ **8**) biased toward **empty** cells; may return `skips[]` with reasons for cells that do not fit.
+1. Flash batch (≤ **8**) biased toward **empty** cells; may return `skips[]` with reasons for cells that do not fit. Primary remains the topic; about **1–2** intents per batch may lightly mention a recipe delta (extra step / flag / situation) when present in the full listing or `initial_state`.
 2. Fidelity filter (command-like / cross-verb traps).
 3. Embed with local MiniLM; drop **within-recipe** near-dups (cosine ≥ **0.90**).
 4. Best-effort **foreign** check vs staging `vec_intents` (cosine ≥ **0.94**, other `command_id`): one contrastive Flash rewrite, else drop. Lag under concurrency is OK.
 5. Persist-time (writer queue): authoritative within + foreign cosine drop (no rewrite) before insert.
 6. Exit when all cells decided, **zero-growth** streak of **3**, per-recipe cap **32**, or global `MAX_INTENTS`.
 
-Same path for ground and evolve children. Flash only (no Pro).
+Same path for ground and evolve children. Flash only (no Pro). The expand prompt receives the **full** recipe step listing (primary marked).
 
 **Sandbox headlessness:** each job gets PATH stubs under `sandbox/shims/` (`gitk`, `git-gui`, diff/merge tools, no-op `grasp-editor`). GUI verbs invoke stubs (log argv, exit 0) instead of opening windows. `GIT_EDITOR` / `EDITOR` / `VISUAL` / `GIT_SEQUENCE_EDITOR` always point at the editor shim. Opt-in `blockGui: true` restores fail-closed `sandbox_gui_blocked` for regression tests. `$GIT_GRASP_REMOTES` is set to a per-job remotes directory for push/pull fixtures.
 
@@ -307,7 +307,7 @@ Same path for ground and evolve children. Flash only (no Pro).
   - Each step is a single invocation (`git …` or standalone like `gitk`/`scalar`)—**no** shell metacharacters (`&&`, `|`, `;`, backticks) in the command line.
   - `risk` ∈ `[0, 1]` (destructive risk).
 
-Accepted rows also feed eval banks (`golden` / `extended` / `scrambled`). Ground DB rows keep `mutation_kind = NULL`; only the **golden** bank row is tagged `mutation_kind: "ground"`.
+Accepted rows also feed eval banks (`golden` / `extended` / `scrambled`). Ground DB rows keep `mutation_kind = NULL`; eval bank rows are tagged `mutation_kind: "ground"`.
 
 ---
 
@@ -319,9 +319,9 @@ In-build retrieval gate scores what the **CLI would show**: hybrid `displayResul
 
 **Bank generation** (on each dedup-accepted unique insert, unless `skipEvalBanks`):
 
-1. **Golden** — LLM (`build/golden-query`) writes one NL query for the recipe; fidelity checks require the primary verb token and reject near-dups / banned templates. Failures fall back to `how do I use git <verb>` and are routed to `golden-report.jsonl` (excluded from the hard gate). Tagged `mutation_kind: "ground"` + `primary_verb`.
-2. **Extended** — LLM (`build/expand-queries`) emits **3** paraphrases of the golden → `extended.jsonl`.
-3. **Scrambled** — light adversarial noise (`scrambleQuery`) over each extended variant → `scrambled.jsonl`.
+1. **Golden** — LLM (`build/golden-query`) writes one NL query for the recipe (primary-verb focused; may include one distinguishing cue when the recipe is richer). Fidelity checks require the primary verb token and reject near-dups / banned templates. Failures fall back to `how do I use git <verb>` and are routed to `golden-report.jsonl` (excluded from the hard gate). Tagged `mutation_kind: "ground"` + `primary_verb`.
+2. **Extended** — LLM (`build/expand-queries`) emits **3** paraphrases of the golden → `extended.jsonl` (same tags).
+3. **Scrambled** — light adversarial noise (`scrambleQuery`) over each extended variant → `scrambled.jsonl` (same tags).
 
 Banks live under `common/data/eval/` (`golden.jsonl`, `extended.jsonl`, `scrambled.jsonl`). The hard gate runs on **golden only** (fallbacks excluded).
 
@@ -392,7 +392,9 @@ Persist `mutation_kind` ∈ `{state, flag, composition}` on the child; set `pare
 
 ### 4.2 Evaluation
 
-On each **dedup-accepted** evolve insert: append **one** golden tagged with the child’s `mutation_kind` + `primary_verb` (no sampling cap). Extended/scrambled banks remain **ground-only** for now.
+On each **dedup-accepted** evolve insert: append **golden + extended + scrambled** (same shape as ground), tagged with the child’s `mutation_kind` + `primary_verb`. Golden / extended prompts are **situation-aware** (prompt-only): still primary-verb focused, but nudged to include one distinguishing cue from extra steps, distinctive flags, or non-minimal `initial_state` when present. Intent expansion stays primary-focused with a soft optional delta (about **1–2 intents per Flash batch** may mention that cue).
+
+Hard gate still runs on **golden only** (fallbacks excluded). Extended/scrambled are report banks.
 
 After **each** cycle (same dual gate as §3.2):
 

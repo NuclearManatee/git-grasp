@@ -52,6 +52,7 @@ describe('expand-intents / rewrite prompts', () => {
       initial_state: 'git init',
     });
     expect(messages[0].content).toContain('EMPTY CELLS');
+    expect(messages[0].content).toContain('Soft delta');
     expect(messages[1].content).toContain('beginner × goal');
     expect(messages[0].content).toContain('8');
   });

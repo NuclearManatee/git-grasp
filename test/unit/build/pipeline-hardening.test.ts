@@ -4,7 +4,7 @@ import { recipeFingerprint, dedupDecision } from '../../../common/src/build/dedu
 import { assertFlagMutation } from '../../../common/src/build/evolveGuards.ts';
 
 describe('intentFidelity', () => {
-  it('lists primary step only', () => {
+  it('lists primary plus full recipe steps', () => {
     const { primary, listing } = primaryStepListing({
       command_recipe: {
         commands: [
@@ -14,7 +14,9 @@ describe('intentFidelity', () => {
       },
     });
     expect(primary).toContain('git config');
-    expect(listing).not.toContain('git status');
+    expect(listing).toContain('git config');
+    expect(listing).toContain('(primary)');
+    expect(listing).toContain('git status');
   });
 
   it('drops command-like and cross-verb traps', () => {

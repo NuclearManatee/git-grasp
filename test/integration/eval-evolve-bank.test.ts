@@ -5,6 +5,7 @@ import path from 'node:path';
 import { openDb, insertCommand } from '../../common/src/db/schema.js';
 import {
   appendEvolveGolden,
+  appendExtendedScrambledBanks,
   loadBank,
   tagGolden,
 } from '../../common/src/build/evalGate.js';
@@ -62,6 +63,36 @@ describe('eval evolve bank growth', () => {
     expect(existsSync(path.join(evalDir, 'golden.jsonl'))).toBe(true);
     const raw = readFileSync(path.join(evalDir, 'golden.jsonl'), 'utf8');
     expect(raw).toContain('"mutation_kind":"flag"');
+  });
+
+  it('appendExtendedScrambledBanks tags evolve extended/scrambled', () => {
+    const row = {
+      row_id: 42,
+      initial_state: 'git commit --allow-empty -m init\necho x > f.txt\ngit add f.txt\n',
+      command_recipe: {
+        commands: [
+          { command: 'git rebase origin/main' },
+          { command: 'git status' },
+        ],
+      },
+      mutation_kind: 'composition',
+    };
+    const { extended, scrambled } = appendExtendedScrambledBanks(
+      row,
+      [
+        { query_text: 'rebase onto origin then check status', command_id: 42 },
+        { query_text: 'how do I rebase after fetch', command_id: 42 },
+        { query_text: 'rebase main tracking', command_id: 42 },
+      ],
+      42,
+    );
+    expect(extended).toHaveLength(3);
+    expect(scrambled).toHaveLength(3);
+    expect(extended.every((e) => e.mutation_kind === 'composition')).toBe(true);
+    expect(extended.every((e) => e.primary_verb === 'git rebase')).toBe(true);
+    expect(scrambled.every((e) => e.kind === 'scrambled')).toBe(true);
+    expect(loadBank('extended.jsonl')).toHaveLength(3);
+    expect(loadBank('scrambled.jsonl')).toHaveLength(3);
   });
 
   it('tagGolden preserves ground vs evolve distinction', () => {

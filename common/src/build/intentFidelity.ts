@@ -74,11 +74,16 @@ export function filterIntentsForRecipe(recipe, intents, opts = {}) {
   return out;
 }
 
-/** Listing text for expand-intents: primary step only. */
+/** Listing text for expand-intents: primary line + full recipe steps. */
 export function primaryStepListing(recipe) {
   const steps = parseCommands(recipe?.command_recipe ?? recipe);
   const primary = steps[0];
   if (!primary) return { primary: '', listing: '(none)' };
-  const listing = `- ${primary.command}${primary.comment ? ` # ${primary.comment}` : ''}`;
+  const listing = steps
+    .map((s, i) => {
+      const mark = i === 0 ? ' (primary)' : '';
+      return `- ${s.command}${s.comment ? ` # ${s.comment}` : ''}${mark}`;
+    })
+    .join('\n');
   return { primary: primary.command, listing };
 }

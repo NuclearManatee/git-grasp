@@ -78,6 +78,8 @@ describe('golden query fidelity', () => {
     const seen = [];
     const g = await generateGoldenQuery(
       {
+        initial_state: 'git commit --allow-empty -m init\n',
+        mutation_kind: 'flag',
         command_recipe: JSON.stringify({
           commands: [{ command: 'git clean -fd', comment: 'remove untracked' }],
         }),
@@ -92,6 +94,8 @@ describe('golden query fidelity', () => {
       },
     );
     expect(seen[0]).toMatch(/git clean/);
+    expect(seen[0]).toMatch(/Mutation kind: flag/);
+    expect(seen[0]).toMatch(/Initial state:/);
     expect(g.query_text).toMatch(/clean/i);
     expect(g.command_id).toBe(42);
   });
