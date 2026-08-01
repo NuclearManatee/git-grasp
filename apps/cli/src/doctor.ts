@@ -12,7 +12,7 @@ import {
   smokeTestSqliteVec,
   SCHEMA_VERSION,
   PACKAGE_ROOT,
-} from '@git-grasp/core/cli';
+} from '@git-grasp/common/cli';
 
 export function doctor() {
   const lines = [];
@@ -85,7 +85,7 @@ export function doctor() {
 
   try {
     JSON.parse(readFileSync(defaultThresholdsPath(), 'utf8'));
-    lines.push(`Thresholds: OK (${path.relative(PACKAGE_ROOT, defaultThresholdsPath()) || 'config/thresholds.json'})`);
+    lines.push(`Thresholds: OK (${path.relative(PACKAGE_ROOT, defaultThresholdsPath()) || 'common/config/thresholds.json'})`);
   } catch {
     ok = false;
     lines.push('Thresholds: FAIL');

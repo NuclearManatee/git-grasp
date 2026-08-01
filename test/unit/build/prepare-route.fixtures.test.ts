@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import {
   routeChunksToCommands,
   assembleSemanticBlocks,
-} from '../../../packages/core/src/build/prepare.ts';
+} from '../../../common/src/build/prepare.ts';
 
 const fixturePath = path.join(
   path.dirname(fileURLToPath(import.meta.url)),

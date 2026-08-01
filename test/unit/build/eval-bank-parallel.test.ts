@@ -3,9 +3,9 @@ import {
   evaluateBank,
   formatEvalProgress,
   resolveEvalConcurrency,
-} from '../../../packages/core/src/build/evalGate.ts';
-import { resolveEvalSearchPoolSize } from '../../../packages/core/src/build/orchestrator.ts';
-import { EVAL_CONCURRENCY, EVAL_SEARCH_POOL_SIZE } from '../../../packages/core/src/db/constants.ts';
+} from '../../../common/src/build/evalGate.ts';
+import { resolveEvalSearchPoolSize } from '../../../common/src/build/orchestrator.ts';
+import { EVAL_CONCURRENCY, EVAL_SEARCH_POOL_SIZE } from '../../../common/src/db/constants.ts';
 
 describe('resolveEvalConcurrency', () => {
   it('prefers opts.concurrency', () => {

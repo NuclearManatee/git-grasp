@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { describe, it, expect } from 'vitest';
-import { stripAnsi, sanitizeField } from '../../packages/core/src/lib/ansi.js';
+import { stripAnsi, sanitizeField } from '../../common/src/lib/ansi.js';
 
 describe('stripAnsi', () => {
   it('removes CSI colors', () => {

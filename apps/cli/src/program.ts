@@ -19,7 +19,7 @@ import {
   buildCliOptInEvent,
   sendUmamiEvent,
   PRIVACY_URL,
-} from '@git-grasp/core/cli';
+} from '@git-grasp/common/cli';
 
 async function maybeCopy(text) {
   const clipboardy = await import('clipboardy');

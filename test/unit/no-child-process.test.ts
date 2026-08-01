@@ -4,7 +4,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '../../packages/core/src');
+const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '../../common/src');
 
 function walk(dir) {
   const out = [];

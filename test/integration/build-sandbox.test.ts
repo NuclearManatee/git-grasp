@@ -4,8 +4,8 @@ import {
   createSandboxDirs,
   destroySandbox,
   addLocalRemote,
-} from '../../packages/core/src/build/sandbox.js';
-import { computePhysicalHash, gitInRepo } from '../../packages/core/src/build/physicalHash.js';
+} from '../../common/src/build/sandbox.js';
+import { computePhysicalHash, gitInRepo } from '../../common/src/build/physicalHash.js';
 import { writeFileSync } from 'node:fs';
 import path from 'node:path';
 

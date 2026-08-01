@@ -8,7 +8,7 @@ const PACKAGE_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), 
 describe('legacy search path removed', () => {
   it('rank.ts no longer exports preferSimplestInFamily / ambiguous status logic', () => {
     const src = readFileSync(
-      path.join(PACKAGE_ROOT, 'packages/core/src/search/rank.ts'),
+      path.join(PACKAGE_ROOT, 'common/src/search/rank.ts'),
       'utf8',
     );
     expect(src).not.toMatch(/preferSimplestInFamily/);
@@ -18,7 +18,7 @@ describe('legacy search path removed', () => {
 
   it('search/index uses searchHybrid', () => {
     const src = readFileSync(
-      path.join(PACKAGE_ROOT, 'packages/core/src/search/index.ts'),
+      path.join(PACKAGE_ROOT, 'common/src/search/index.ts'),
       'utf8',
     );
     expect(src).toMatch(/searchHybrid/);

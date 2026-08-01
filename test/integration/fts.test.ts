@@ -5,7 +5,7 @@ import {
   rebuildCommandsFts,
   ftsRecall,
   countCommandsFts,
-} from '../../packages/core/src/db/schema.js';
+} from '../../common/src/db/schema.js';
 
 describe('commands_fts', () => {
   let db;

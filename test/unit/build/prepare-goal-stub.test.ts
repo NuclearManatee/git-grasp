@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   ensureDefaultHelpBlocks,
   buildGoalGapsReport,
-} from '../../../packages/core/src/build/prepare.ts';
+} from '../../../common/src/build/prepare.ts';
 
 describe('prepare goal stubs', () => {
   it('prepends -h then goal stub', () => {

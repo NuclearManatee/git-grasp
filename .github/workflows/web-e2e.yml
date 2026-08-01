@@ -23,7 +23,7 @@ jobs:
           GIT_GRASP_SKIP_POSTINSTALL: '1'
 
       - name: Export web pack
-        run: bun scripts/export-web-pack.ts
+        run: bun run web:pack
         env:
           GIT_GRASP_MOCK_EMBEDDINGS: '0'
 

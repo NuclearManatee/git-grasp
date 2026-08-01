@@ -5,7 +5,7 @@ import {
   ROUTE_SIM_FLOOR,
   ROUTE_DELTA,
   ROUTE_MAX_ANCHORS,
-} from '../../../packages/core/src/build/prepare.ts';
+} from '../../../common/src/build/prepare.ts';
 
 describe('prepare multi-anchor router (injected vectors)', () => {
   const taxonomy = [

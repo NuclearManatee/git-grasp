@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { searchHybrid } from '../../../packages/core/src/search/hybrid.ts';
+import { searchHybrid } from '../../../common/src/search/hybrid.ts';
 
 const thr = {
   schemaVersion: 5,

@@ -11,7 +11,7 @@ export default defineConfig({
       exclude: ['@huggingface/transformers'],
     },
     ssr: {
-      noExternal: ['@git-grasp/core'],
+      noExternal: ['@git-grasp/common'],
       external: ['@xterm/xterm', '@xterm/addon-fit'],
     },
   },

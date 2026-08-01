@@ -36,7 +36,7 @@ jobs:
           GIT_GRASP_SKIP_POSTINSTALL: '1'
 
       - name: CI audit
-        run: bun scripts/ci-audit.ts
+        run: bun common/scripts/ci-audit.ts
 
       - name: Require DeepSeek secret
         env:
@@ -52,10 +52,10 @@ jobs:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           GIT_GRASP_SKIP_POSTINSTALL: '1'
           GIT_GRASP_MOCK_EMBEDDINGS: '1'
-        run: bun scripts/eval.ts --min-pass-rate=0.9
+        run: bun run eval -- --min-pass-rate=0.9
 
       - name: Export web pack
-        run: bun scripts/export-web-pack.ts
+        run: bun run web:pack
         env:
           GIT_GRASP_MOCK_EMBEDDINGS: '0'
 
@@ -136,7 +136,7 @@ jobs:
           GIT_GRASP_SKIP_POSTINSTALL: '1'
 
       - name: Build release zip
-        run: bun scripts/build-release-binary.ts --platform=${{ matrix.slug }}
+        run: bun run build:release -- --platform=${{ matrix.slug }}
         env:
           GIT_GRASP_SKIP_POSTINSTALL: '1'
 

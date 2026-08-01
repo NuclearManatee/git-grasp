@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest';
 import {
   fetchGitShortHelp,
   buildDefaultHelpBlock,
-} from '../../../packages/core/src/build/gitShortHelp.ts';
-import { ensureDefaultHelpBlocks } from '../../../packages/core/src/build/prepare.ts';
+} from '../../../common/src/build/gitShortHelp.ts';
+import { ensureDefaultHelpBlocks } from '../../../common/src/build/prepare.ts';
 
 describe('git short help (-h)', () => {
   it('fetchGitShortHelp uses git <cmd> -h via spawn (no git help)', () => {

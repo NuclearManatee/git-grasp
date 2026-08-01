@@ -9,7 +9,7 @@ services:
     mem_limit: 1g
     network_mode: none
     volumes:
-      - ./bench:/app/bench-out
+      - ./local/bench:/app/bench-out
     environment:
       - GIT_GRASP_MOCK_EMBEDDINGS=0
       - GIT_GRASP_ROOT=/app
@@ -42,7 +42,7 @@ services:
     mem_limit: 4g
     network_mode: none
     volumes:
-      - ./bench:/app/bench-out
+      - ./local/bench:/app/bench-out
     environment:
       - GIT_GRASP_MOCK_EMBEDDINGS=0
       - GIT_GRASP_ROOT=/app
@@ -73,7 +73,7 @@ services:
     mem_limit: 512m
     network_mode: none
     volumes:
-      - ./bench:/app/bench-out
+      - ./local/bench:/app/bench-out
     environment:
       - GIT_GRASP_MOCK_EMBEDDINGS=0
       - GIT_GRASP_ROOT=/app

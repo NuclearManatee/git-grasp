@@ -3,7 +3,7 @@ import {
   assertStateMutation,
   assertFlagMutation,
   assertCompositionMutation,
-} from '../../../packages/core/src/build/evolveGuards.ts';
+} from '../../../common/src/build/evolveGuards.ts';
 
 const parent = {
   initial_state: 'git commit --allow-empty -m init\n',

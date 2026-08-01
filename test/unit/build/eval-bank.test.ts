@@ -6,7 +6,7 @@ import {
   normalizeQueryText,
   fallbackGoldenQuery,
   generateGoldenQuery,
-} from '../../../packages/core/src/build/evalGate.ts';
+} from '../../../common/src/build/evalGate.ts';
 
 describe('eval bank tagging', () => {
   it('tagGolden adds mutation_kind and primary_verb', () => {

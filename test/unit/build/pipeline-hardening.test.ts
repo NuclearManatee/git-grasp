@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { filterIntentsForRecipe, primaryStepListing } from '../../../packages/core/src/build/intentFidelity.ts';
-import { recipeFingerprint, dedupDecision } from '../../../packages/core/src/build/dedup.ts';
-import { assertFlagMutation } from '../../../packages/core/src/build/evolveGuards.ts';
+import { filterIntentsForRecipe, primaryStepListing } from '../../../common/src/build/intentFidelity.ts';
+import { recipeFingerprint, dedupDecision } from '../../../common/src/build/dedup.ts';
+import { assertFlagMutation } from '../../../common/src/build/evolveGuards.ts';
 
 describe('intentFidelity', () => {
   it('lists primary step only', () => {

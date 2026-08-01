@@ -12,7 +12,7 @@ import {
   skillName,
   sanitizeField,
   getOpenWebCatalog,
-} from '@git-grasp/core/browser';
+} from '@git-grasp/common/browser';
 import {
   WEB_PACK_BYTES,
   WEB_PACK_SHA256,

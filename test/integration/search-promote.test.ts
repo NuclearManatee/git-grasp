@@ -12,7 +12,7 @@ import {
   countCommandsFts,
   SEARCH_ALGORITHM_VERSION,
   EMBEDDING_DIM,
-} from '../../packages/core/src/db/schema.js';
+} from '../../common/src/db/schema.js';
 
 function fakeEmb(seed = 1) {
   const a = new Float32Array(EMBEDDING_DIM);

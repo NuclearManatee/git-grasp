@@ -7,11 +7,11 @@ import {
   stratifyResultsByMutationKind,
   formatEvalReport,
   JUDGE_SYSTEM_PROMPT,
-} from '../../../packages/core/src/build/evalGate.ts';
+} from '../../../common/src/build/evalGate.ts';
 import {
   EVAL_MIN_PASS_RATE,
   EVAL_MIN_HIT_AT_DISPLAY_RATE,
-} from '../../../packages/core/src/db/constants.ts';
+} from '../../../common/src/db/constants.ts';
 
 describe('eval metrics', () => {
   it('hitAtDisplay matches command_id', () => {

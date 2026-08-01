@@ -10,7 +10,7 @@ import {
   buildEvalFocusPrompt,
   priorCasesForCycle,
   EVAL_LOOP_DEFAULTS,
-} from '../../packages/core/src/eval/loop.js';
+} from '../../common/src/eval/loop.js';
 
 const intents = Array.from({ length: 200 }, (_, i) => ({
   command: `git cmd-${i}`,

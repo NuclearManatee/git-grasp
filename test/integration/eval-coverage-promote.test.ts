@@ -5,11 +5,11 @@ import path from 'node:path';
 import {
   buildCoveragePromoteReport,
   writeCoveragePromoteReport,
-} from '../../packages/core/src/build/evalGate.js';
+} from '../../common/src/build/evalGate.js';
 import {
   EVAL_COVERAGE_WARN_FRACTION,
   EVAL_COVERAGE_WARN_VERB_MIN,
-} from '../../packages/core/src/db/constants.js';
+} from '../../common/src/db/constants.js';
 
 function recipeRows(verbCounts) {
   const rows = [];

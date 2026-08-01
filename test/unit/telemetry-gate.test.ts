@@ -5,7 +5,7 @@ import {
   isNonInteractive,
   isTelemetryEnabled,
   shouldPromptInvite,
-} from '../../packages/core/src/lib/telemetry/gate.js';
+} from '../../common/src/lib/telemetry/gate.js';
 
 describe('telemetry gate', () => {
   const baseCfg = { telemetry: null, telemetryInvite: 'pending' };

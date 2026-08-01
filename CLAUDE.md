@@ -14,10 +14,11 @@ The shipped Git catalog is **LLM-built from authoritative sources**, not hand-cu
 ## Stack
 
 - **Runtime:** Bun (`bun:sqlite` + `sqlite-vec`).
-- **Monorepo:** `packages/core` (DB, embeddings, search), `apps/cli`, `apps/seeding`, `apps/eval`, `apps/web` (Astro site + playground).
-- **Search:** Hybrid `sqlite-vec` intent KNN + FTS5 command BM25 → weighted fusion + confidence-gated display in `@git-grasp/core`. Schema v6 (`commands` + `intents` + `vec_intents` + `commands_fts`).
-- **Catalog:** generation code on `feature/*`; production `data/catalog/commands.json`, `intents.jsonl`, and seeded DB land on `improve/*` after the eval gate. Upstream source fetches go to gitignored `data/cache/sources/`.
-- **LLM prompts:** Do not embed multi-line system/user prompts as TS template literals. Put each LLM call in `packages/core/prompts/<area>/<name>.md` (frontmatter + `## system` / `## user`, Mustache `{{var}}` / `{{{raw}}}`, partials under `prompts/partials/`). Load at runtime with `renderPrompt` / `renderPromptRole` from `packages/core/src/lib/prompts.ts`. Zod schemas stay in TS; taxonomy docs stay in `packages/core/taxonomy/` and are injected as vars.
+- **Monorepo:** `common` (`@git-grasp/common`: DB, embeddings, search, shipped `data/` + `config/`), `apps/cli`, `apps/pipeline` (catalog build + eval), `apps/web` (Astro site + playground).
+- **Search:** Hybrid `sqlite-vec` intent KNN + FTS5 command BM25 → weighted fusion + confidence-gated display in `@git-grasp/common`. Schema v6 (`commands` + `intents` + `vec_intents` + `commands_fts`).
+- **Catalog:** generation code on `feature/*`; production `common/data/catalog/commands.json`, `intents.jsonl`, and seeded DB land on `improve/*` after the eval gate. Upstream source fetches go to gitignored `local/cache/sources/`.
+- **LLM prompts:** Do not embed multi-line system/user prompts as TS template literals. Put each LLM call in `common/prompts/<area>/<name>.md` (frontmatter + `## system` / `## user`, Mustache `{{var}}` / `{{{raw}}}`, partials under `prompts/partials/`). Load at runtime with `renderPrompt` / `renderPromptRole` from `common/src/lib/prompts.ts`. Zod schemas stay in TS; taxonomy docs stay in `common/taxonomy/` and are injected as vars.
+- **Layout:** shipped artifacts under `common/data` + `common/config`; scratch under `local/`; tests under `test/{unit,integration,performance}`; docs under `docs/`.
 
 ## Git flow (required)
 
@@ -36,7 +37,7 @@ Use **git-flow**. Do not commit product/code changes straight to `main` or mix c
 ### What goes where
 
 - **Code adjustments** → always a `feature/*` branch, then merge into `develop` and `main`.
-- **Eval adjustments** (generated cases impact, threshold tweaks from the loop, rebuilt `data/catalog/*` + `data/git-commands.db` after a successful eval gate) → always an `improve/*` branch, then consolidate onto `main`.
+- **Eval adjustments** (generated cases impact, threshold tweaks from the loop, rebuilt `common/data/catalog/*` + `common/data/git-commands.db` after a successful eval gate) → always an `improve/*` branch, then consolidate onto `main`.
 - Do **not** put large catalog/DB rebuilds on a feature branch unless the change is purely scaffolding with no eval-driven data.
 - Do **not** put application refactors on an `improve/*` branch.
 

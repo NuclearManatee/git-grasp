@@ -14,13 +14,12 @@ Bun workspaces:
 
 | Package | Role |
 |---------|------|
-| `@git-grasp/core` | Schema v6 (`commands` + `intents` + `vec_intents` + `commands_fts`), MiniLM embeddings, hybrid search, seed/search facades |
+| `@git-grasp/common` | Schema v6 (`commands` + `intents` + `vec_intents` + `commands_fts`), MiniLM embeddings, hybrid search, seed/search facades; ships `common/data` + `common/config` |
 | `@git-grasp/cli` | CLI UX |
-| `@git-grasp/seeding` | Catalog → DB |
-| `@git-grasp/eval` | Golden / loop eval |
+| `@git-grasp/pipeline` | Catalog build (prepare/ground/loop), seed, golden eval / improve loop |
 | `@git-grasp/web` | Astro marketing site + in-browser Xterm playground |
 
-Shared seeds and search live in `packages/core`. CLI and web are views only.
+Shared logic and shipped catalog live in `common/`. Scratch caches and eval reports go under gitignored `local/`. CLI and web are views only.
 
 ## Install
 
@@ -46,7 +45,7 @@ Postinstall smoke-loads the platform `sqlite-vec` native. Embedding model downlo
 
 ### Binaries (latest GitHub Release)
 
-Unzip and run from the extracted folder (ships `data/` + `config/` beside the binary):
+Unzip and run from the extracted folder (ships `common/data/` + `common/config/` beside the binary):
 
 | Platform | Download |
 |----------|----------|
@@ -98,8 +97,8 @@ bun run test:telemetry-e2e
 | `bun run build:prepare` | Step −1 source scrape into cache |
 | `bun run build:ground` | Ground catalog from prepare artifacts |
 | `bun run build:loop` | Interactive build + eval loop |
-| `bun run ingest-sources` | Fetch cheat sheet / tldr / Pro Git + man oracle into `data/cache/` (gitignored) |
-| `bun run seed` | Embed intents → `data/git-commands.db` (schema v6 + vec0) |
+| `bun run ingest-sources` | Fetch cheat sheet / tldr / Pro Git + man oracle into `local/cache/` (gitignored) |
+| `bun run seed` | Embed intents → `common/data/git-commands.db` (schema v6 + vec0) |
 | `bun test` | Unit (Vitest) + integration (Bun) |
 | `bun run eval` | Golden eval |
 | `bun run eval:loop` | 5 cycles then final gate |
@@ -109,7 +108,7 @@ bun run test:telemetry-e2e
 | `bun run web:e2e` | Playwright a11y + tracking (preview server) |
 | `bun run bench` | Search latency harness (see [docs/perf.md](docs/perf.md)) |
 | `bun run bench:install` | Slow-network install timing |
-| `bun run build:cli` | `bun build --compile` → `bench/git-grasp` |
+| `bun run build:cli` | `bun build --compile` → `local/bench/git-grasp` |
 | `bun run build:release` | Compile + zip release layout → `dist-release/` |
 
 Perf budget / Docker profiles: **[docs/perf.md](docs/perf.md)**.
@@ -117,10 +116,10 @@ Perf budget / Docker profiles: **[docs/perf.md](docs/perf.md)**.
 ## Architecture notes
 
 - Schema v6: `commands` + `intents` (skill-tagged query text) → `vec_intents` KNN + `commands_fts` BM25 → hybrid fusion.
-- Catalog generation: cheat sheet + tldr (command universe) + Pro Git (multi-step context); flags validated via git-scm docs + `git help`. Sources stay in gitignored `data/cache/`; commit derived `commands.json` / `intents.jsonl` / DB on `improve/*` after eval.
+- Catalog generation: cheat sheet + tldr (command universe) + Pro Git (multi-step context); flags validated via git-scm docs + `git help`. Sources stay in gitignored `local/cache/`; commit derived `commands.json` / `intents.jsonl` / DB on `improve/*` after eval.
 - Search: sqlite-vec cosine KNN + FTS5 BM25 → weighted fusion + confidence-gated display.
-- Web playground: **web-catalog.db** (sql.js) + Transformers.js MiniLM (`@git-grasp/core/browser`) — no `bun:sqlite` in the browser bundle.
-- Bun path uses `BunSqliteAdapter`. Release binaries use `bun build --compile` plus adjacent `data/` / `config/`.
+- Web playground: **web-catalog.db** (sql.js) + Transformers.js MiniLM (`@git-grasp/common/browser`) — no `bun:sqlite` in the browser bundle.
+- Bun path uses `BunSqliteAdapter`. Release binaries use `bun build --compile` plus adjacent `common/data/` / `common/config/`.
 
 ### Web playground / e2e
 
@@ -148,10 +147,10 @@ Umami events: `web_cli_load`, `web_cli_search` (cookieless); CLI opt-in: `cli_op
 - `main` — release; golden eval gate; Pages deploy
 - `develop` — integration
 - `feature/*` — **code** (schema, pipeline, CLI/web); fixtures only — no production catalog/DB rebuilds
-- `improve/*` — regenerated `data/catalog/*` + `data/git-commands.db` after a successful eval gate
+- `improve/*` — regenerated `common/data/catalog/*` + `common/data/git-commands.db` after a successful eval gate
 - Tags `v*` on `main` — binaries + npm publish
 
-Do not commit upstream corpora (Pro Git / tldr trees). Sources fetch to gitignored `data/cache/`.
+Do not commit upstream corpora (Pro Git / tldr trees). Sources fetch to gitignored `local/cache/`.
 ## CI secrets
 
 | Secret | Used for |

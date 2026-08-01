@@ -7,12 +7,12 @@ import {
   GUI_VERBS,
   passATagRoles,
   runTaxonomyPins,
-} from '../../../packages/core/src/build/taxonomyPins.ts';
+} from '../../../common/src/build/taxonomyPins.ts';
 import {
   GOAL_ROLES,
   CanonicalPinSchema,
   TagRolesLlmResponseSchema,
-} from '../../../packages/core/src/schemas/taxonomyPins.ts';
+} from '../../../common/src/schemas/taxonomyPins.ts';
 import { mkdtempSync, writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';

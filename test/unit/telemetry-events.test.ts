@@ -5,7 +5,7 @@ import {
   buildCliSearchEvent,
   searchResponseFromResult,
   searchResponseFromError,
-} from '../../packages/core/src/lib/telemetry/events.js';
+} from '../../common/src/lib/telemetry/events.js';
 
 describe('telemetry events', () => {
   it('cli_opt_in shape', () => {

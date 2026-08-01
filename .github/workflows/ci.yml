@@ -26,4 +26,4 @@ jobs:
         env:
           GIT_GRASP_MOCK_EMBEDDINGS: '1'
           GIT_GRASP_SKIP_POSTINSTALL: '1'
-      - run: bun scripts/ci-audit.ts
+      - run: bun common/scripts/ci-audit.ts

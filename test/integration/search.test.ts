@@ -8,10 +8,10 @@ import {
   insertIntentWithEmbedding,
   finalizeSearchIndex,
   EMBEDDING_DIM,
-} from '../../packages/core/src/db/schema.js';
-import { mockEmbed } from '../../packages/core/src/search/embed.js';
-import { writeChecksumFile } from '../../packages/core/src/lib/checksum.js';
-import { search } from '../../packages/core/src/search/index.js';
+} from '../../common/src/db/schema.js';
+import { mockEmbed } from '../../common/src/search/embed.js';
+import { writeChecksumFile } from '../../common/src/lib/checksum.js';
+import { search } from '../../common/src/search/index.js';
 
 const dir = path.join(path.dirname(fileURLToPath(import.meta.url)), '../fixtures');
 const dbPath = path.join(dir, 'hybrid-search.db');

@@ -10,8 +10,8 @@ import {
   allVerbsSaturated,
   assignMutationKind,
   sameStepVerbs,
-} from '../../../packages/core/src/build/coverage.ts';
-import { LOOP_SATURATION_K as K } from '../../../packages/core/src/db/constants.ts';
+} from '../../../common/src/build/coverage.ts';
+import { LOOP_SATURATION_K as K } from '../../../common/src/db/constants.ts';
 
 describe('coverage helpers', () => {
   it('extracts verbs and flags', () => {
@@ -48,7 +48,7 @@ describe('coverage helpers', () => {
     expect(stateBucket('git checkout --detach HEAD\n')).toBe('detached_or_diverged');
   });
 
-  it('multi-bucket coverage counts one recipe toward each verb', () => {
+  it('multi-bucket coverage counts primary verb only', () => {
     const rows = [
       {
         row_id: 1,
@@ -61,7 +61,7 @@ describe('coverage helpers', () => {
     ];
     const cov = buildVerbCoverage(rows, { k: 24 });
     expect(cov['git stash'].count).toBe(1);
-    expect(cov['git rebase'].count).toBe(1);
+    expect(cov['git rebase']).toBeUndefined();
   });
 
   it('weakestAxis prefers State then Flag then Composition on ties', () => {

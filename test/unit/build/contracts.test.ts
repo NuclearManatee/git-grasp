@@ -11,9 +11,9 @@ import {
   StrictJudgeSchema,
   SkillLevelTextSchema,
   IntentCategorySchema,
-} from '../../../packages/core/src/schemas/command.ts';
-import { PACKAGE_ROOT } from '../../../packages/core/src/lib/paths.ts';
-import { INTENT_CATEGORIES, SKILL_LEVELS, normalizeSkillLevelText } from '../../../packages/core/src/lib/skills.ts';
+} from '../../../common/src/schemas/command.ts';
+import { PACKAGE_ROOT } from '../../../common/src/lib/paths.ts';
+import { INTENT_CATEGORIES, SKILL_LEVELS, normalizeSkillLevelText } from '../../../common/src/lib/skills.ts';
 
 describe('v6 command schemas', () => {
   it('parses command_recipe with command+comment', () => {
@@ -78,7 +78,7 @@ describe('v6 command schemas', () => {
 
 describe('taxonomy + skill enums', () => {
   it('ships skill_level.md, intent_category.md, and git_commands.json', () => {
-    const dir = path.join(PACKAGE_ROOT, 'packages', 'core', 'taxonomy');
+    const dir = path.join(PACKAGE_ROOT, 'common', 'taxonomy');
     expect(existsSync(path.join(dir, 'skill_level.md'))).toBe(true);
     expect(existsSync(path.join(dir, 'intent_category.md'))).toBe(true);
     expect(existsSync(path.join(dir, 'git_commands.json'))).toBe(true);

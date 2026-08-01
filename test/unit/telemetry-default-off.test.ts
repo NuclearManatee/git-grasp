@@ -6,8 +6,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { mkdirSync, rmSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { writeConfig, readConfig } from '../../packages/core/src/lib/config.js';
-import { maybeInviteAndTrackSearch } from '../../packages/core/src/lib/telemetry/index.js';
+import { writeConfig, readConfig } from '../../common/src/lib/config.js';
+import { maybeInviteAndTrackSearch } from '../../common/src/lib/telemetry/index.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const tmpRoot = path.join(__dirname, '../.tmp-telemetry-off');

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { collapseToCommands } from '../../../packages/core/src/search/collapse.ts';
+import { collapseToCommands } from '../../../common/src/search/collapse.ts';
 
 describe('collapseToCommands Q12-D', () => {
   it('picks exact preferred skill intent for vector score', () => {

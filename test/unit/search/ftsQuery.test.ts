@@ -3,7 +3,7 @@ import {
   buildFtsMatchQuery,
   commandFtsBody,
   tokenizeForFts,
-} from '../../../packages/core/src/search/ftsQuery.ts';
+} from '../../../common/src/search/ftsQuery.ts';
 
 describe('ftsQuery', () => {
   it('tokenizes and strips specials', () => {

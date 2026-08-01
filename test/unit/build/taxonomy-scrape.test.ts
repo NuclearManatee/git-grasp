@@ -7,9 +7,9 @@ import {
   buildGitCommandsTaxonomy,
   taxonomyEmbedText,
   TAXONOMY_SECTION_NAMES,
-} from '../../../packages/core/src/build/taxonomyScrape.ts';
-import { loadGitCommandTaxonomy } from '../../../packages/core/src/build/prepare.ts';
-import { gitCommandsTaxonomyPath } from '../../../packages/core/src/lib/paths.ts';
+} from '../../../common/src/build/taxonomyScrape.ts';
+import { loadGitCommandTaxonomy } from '../../../common/src/build/prepare.ts';
+import { gitCommandsTaxonomyPath } from '../../../common/src/lib/paths.ts';
 
 const fixtures = path.join(path.dirname(fileURLToPath(import.meta.url)), '../../fixtures/prepare');
 

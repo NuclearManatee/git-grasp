@@ -3,12 +3,12 @@ import {
   isGitHelpViewerArgv,
   resolveGitBin,
   resetGitBinCache,
-} from '../../../packages/core/src/build/gitExec.ts';
-import { isSandboxGuiCommand } from '../../../packages/core/src/build/sandbox.ts';
+} from '../../../common/src/build/gitExec.ts';
+import { isSandboxGuiCommand } from '../../../common/src/build/sandbox.ts';
 import {
   fetchGitShortHelp,
   clearGitShortHelpCache,
-} from '../../../packages/core/src/build/gitShortHelp.ts';
+} from '../../../common/src/build/gitShortHelp.ts';
 
 describe('gitExec help-viewer detection', () => {
   it('flags git help <cmd> and --help', () => {

@@ -5,7 +5,7 @@
   "private": true,
   "dependencies": {
     "@astrojs/react": "^4.4.2",
-    "@git-grasp/core": "workspace:*",
+    "@git-grasp/common": "workspace:*",
     "@xterm/addon-fit": "^0.10.0",
     "@xterm/xterm": "^5.5.0",
     "astro": "^6.4.8",

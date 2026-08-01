@@ -1,0 +1,170 @@
+// @ts-nocheck
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { existsSync } from 'node:fs';
+import { homedir } from 'node:os';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+/**
+ * Resolve monorepo / package root (directory that contains `common/data/` and `common/config/`).
+ * Order: GIT_GRASP_ROOT → directory of process.execPath (compiled releases) →
+ * cwd → walk from this module → hard fallback to repo root.
+ */
+function isPackageRoot(dir) {
+  return existsSync(path.join(dir, 'common', 'data'))
+    && existsSync(path.join(dir, 'common', 'config', 'thresholds.json'));
+}
+
+function findPackageRoot() {
+  if (process.env.GIT_GRASP_ROOT && isPackageRoot(process.env.GIT_GRASP_ROOT)) {
+    return path.resolve(process.env.GIT_GRASP_ROOT);
+  }
+
+  try {
+    const execDir = path.dirname(process.execPath);
+    if (isPackageRoot(execDir)) return execDir;
+  } catch {
+    // ignore
+  }
+
+  const cwd = process.cwd();
+  if (isPackageRoot(cwd)) return cwd;
+
+  // common/src/lib → common → repo root
+  let dir = path.resolve(__dirname, '../../..');
+  for (let i = 0; i < 6; i += 1) {
+    if (isPackageRoot(dir)) return dir;
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  return path.resolve(__dirname, '../../..');
+}
+
+export const PACKAGE_ROOT = findPackageRoot();
+
+/** Shared package directory (`common/` under the install/repo root). */
+export function commonDir() {
+  return path.join(PACKAGE_ROOT, 'common');
+}
+
+export function packageDataDir() {
+  return path.join(commonDir(), 'data');
+}
+
+/** Gitignored scratch root (`local/` under the install/repo root). */
+export function localDir() {
+  return path.join(PACKAGE_ROOT, 'local');
+}
+
+export function defaultDbPath() {
+  return path.join(packageDataDir(), 'git-commands.db');
+}
+
+/** Ephemeral ground/loop cache (safe to wipe). */
+export function buildCacheDir() {
+  return path.join(localDir(), 'cache', 'build');
+}
+
+/** Durable Step −1 output (do not wipe with build cache). */
+export function prepareCacheDir() {
+  return path.join(localDir(), 'cache', 'prepare');
+}
+
+/** Upstream source fetch cache. */
+export function sourcesCacheRoot() {
+  return path.join(localDir(), 'cache', 'sources');
+}
+
+/** Embedding model cache. */
+export function modelsCacheDir() {
+  return path.join(localDir(), 'models');
+}
+
+export function buildStagingDbPath() {
+  return path.join(buildCacheDir(), 'staging.db');
+}
+
+export function semanticBlocksPath() {
+  return path.join(prepareCacheDir(), 'semantic_blocks.json');
+}
+
+export function unroutedChunksPath() {
+  return path.join(prepareCacheDir(), 'unrouted_chunks.jsonl');
+}
+
+export function gitCommandsTaxonomyPath() {
+  return path.join(taxonomyDir(), 'git_commands.json');
+}
+
+export function gitCommandsRolesPath() {
+  return path.join(taxonomyDir(), 'git_commands.roles.json');
+}
+
+export function canonicalPinsPath() {
+  return path.join(taxonomyDir(), 'canonical_pins.json');
+}
+
+export function taxonomyDir() {
+  return path.join(commonDir(), 'taxonomy');
+}
+
+export function promptsRootDir() {
+  return path.join(commonDir(), 'prompts');
+}
+
+export function defaultThresholdsPath() {
+  return path.join(commonDir(), 'config', 'thresholds.json');
+}
+
+export function catalogDir() {
+  return path.join(packageDataDir(), 'catalog');
+}
+
+export function evalDataDir() {
+  if (process.env.GIT_GRASP_EVAL_DIR) {
+    return path.resolve(process.env.GIT_GRASP_EVAL_DIR);
+  }
+  return path.join(packageDataDir(), 'eval');
+}
+
+export function goldenCasesPath() {
+  return path.join(evalDataDir(), 'golden', 'cases.json');
+}
+
+export function judgeCriteriaPath() {
+  return path.join(evalDataDir(), 'judge', 'criteria.md');
+}
+
+/** XDG / APPDATA style paths without extra dependency */
+export function userPaths(appName = 'git-grasp') {
+  const home = homedir();
+  if (process.platform === 'win32') {
+    const appData = process.env.APPDATA || path.join(home, 'AppData', 'Roaming');
+    const local = process.env.LOCALAPPDATA || path.join(home, 'AppData', 'Local');
+    return {
+      config: path.join(appData, appName),
+      cache: path.join(local, appName, 'Cache'),
+    };
+  }
+  const xdgConfig = process.env.XDG_CONFIG_HOME || path.join(home, '.config');
+  const xdgCache = process.env.XDG_CACHE_HOME || path.join(home, '.cache');
+  return {
+    config: path.join(xdgConfig, appName),
+    cache: path.join(xdgCache, appName),
+  };
+}
+
+/**
+ * Resolve path under an allowed root; reject traversal.
+ */
+export function resolveUnderRoot(root, ...parts) {
+  const rootResolved = path.resolve(root);
+  const candidate = path.resolve(rootResolved, ...parts);
+  const rel = path.relative(rootResolved, candidate);
+  if (rel.startsWith('..') || path.isAbsolute(rel)) {
+    throw new Error(`Path escapes allowed root: ${candidate}`);
+  }
+  return candidate;
+}

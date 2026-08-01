@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
-import { PACKAGE_ROOT } from '../../../packages/core/src/lib/paths.ts';
+import { PACKAGE_ROOT } from '../../../common/src/lib/paths.ts';
 import {
   DEFAULT_RECALL_K,
   SEARCH_ALGORITHM_VERSION,
   SCHEMA_VERSION,
-} from '../../../packages/core/src/db/constants.ts';
-import { ThresholdsSchema } from '../../../packages/core/src/schemas/thresholds.ts';
-import { SKILL_LEVELS } from '../../../packages/core/src/lib/skills.ts';
+} from '../../../common/src/db/constants.ts';
+import { ThresholdsSchema } from '../../../common/src/schemas/thresholds.ts';
+import { SKILL_LEVELS } from '../../../common/src/lib/skills.ts';
 
 describe('search hybrid contracts', () => {
   it('exports SEARCH_ALGORITHM_VERSION and recallK=100', () => {
@@ -48,8 +48,8 @@ describe('search hybrid contracts', () => {
     ).toThrow();
   });
 
-  it('ships config/thresholds.json matching hybrid schema', () => {
-    const p = path.join(PACKAGE_ROOT, 'config', 'thresholds.json');
+  it('ships common/config/thresholds.json matching hybrid schema', () => {
+    const p = path.join(PACKAGE_ROOT, 'common', 'config', 'thresholds.json');
     expect(existsSync(p)).toBe(true);
     const raw = JSON.parse(readFileSync(p, 'utf8'));
     expect(ThresholdsSchema.parse(raw)).toMatchObject({

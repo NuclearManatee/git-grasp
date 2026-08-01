@@ -1,0 +1,23 @@
+﻿{
+  "name": "@git-grasp/pipeline",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "@git-grasp/common": "workspace:*"
+  },
+  "scripts": {
+    "seed": "bun ./src/seed.ts",
+    "eval": "bun ./src/eval.ts",
+    "loop": "bun ./src/eval-loop.ts",
+    "taxonomy:scrape": "bun ./src/taxonomy-scrape.ts",
+    "taxonomy:pins": "bun ./src/taxonomy-pins.ts",
+    "prepare": "bun ./src/build-prepare.ts",
+    "ground": "bun ./src/build-ground.ts",
+    "build:loop": "bun ./src/build-loop.ts",
+    "build:loop:mock": "bun ./src/build-loop-mock-proof.ts",
+    "ingest-sources": "bun ./src/ingest-sources.ts",
+    "download-docs": "bun ./src/download-docs.ts",
+    "smoke:pin-display": "bun ./src/smoke-pin-display.ts"
+  }
+}

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { chunkDocument, routeChunksToCommands } from '../../../packages/core/src/build/prepare.ts';
-import { scrambleQuery, evaluateQuery } from '../../../packages/core/src/build/evalGate.ts';
-import { compareSimplicity, countFlags } from '../../../packages/core/src/build/dedup.ts';
+import { chunkDocument, routeChunksToCommands } from '../../../common/src/build/prepare.ts';
+import { scrambleQuery, evaluateQuery } from '../../../common/src/build/evalGate.ts';
+import { compareSimplicity, countFlags } from '../../../common/src/build/dedup.ts';
 
 describe('prepare chunk + route', () => {
   it('binds code fences to headers', () => {

@@ -6,10 +6,10 @@ local
 apps/web/dist
 apps/web/.astro
 coverage
-bench/results*.json
-bench/install-last.json
-bench/git-help
-bench/git-help.exe
-bench/git-help-compile.exe
+local/bench/results*.json
+local/bench/install-last.json
+local/bench/git-help
+local/bench/git-help.exe
+local/bench/git-help-compile.exe
 .env
 .env.local

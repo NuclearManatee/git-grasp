@@ -8,11 +8,10 @@ RUN apt-get update \
   && apt-get install -y --no-install-recommends iproute2 ca-certificates \
   && rm -rf /var/lib/apt/lists/*
 
-# Copy workspace package manifests + sources needed to resolve @git-grasp/core at install
+# Copy workspace package manifests + sources needed to resolve @git-grasp/common at install
 COPY package.json bun.lock ./
-COPY packages ./packages
+COPY common ./common
 COPY apps ./apps
-COPY scripts/postinstall.ts ./scripts/
 
 ENV GIT_GRASP_SKIP_POSTINSTALL=1
 RUN bun install --frozen-lockfile
@@ -21,12 +20,12 @@ COPY . .
 
 # Postinstall smoke + warm MiniLM (needs network during build)
 ENV GIT_GRASP_SKIP_POSTINSTALL=0
-RUN bun scripts/postinstall.ts
-RUN bun scripts/warm-model.ts
+RUN bun common/scripts/postinstall.ts
+RUN bun common/scripts/warm-model.ts
 
 # Compiled CLI for the latency gate (Linux; faster process startup)
 ENV GIT_GRASP_ROOT=/app
-RUN mkdir -p bench && bun build --compile ./apps/cli/bin/index.ts --outfile ./bench/git-grasp
+RUN mkdir -p local/bench && bun build --compile ./apps/cli/bin/index.ts --outfile ./local/bench/git-grasp
 
 # --- search bench (offline) ---
 FROM base AS search
@@ -34,7 +33,7 @@ ENV GIT_GRASP_MOCK_EMBEDDINGS=0
 ENV GIT_GRASP_ROOT=/app
 ENV GIT_GRASP_BENCH_COMPILE=1
 ENV LD_LIBRARY_PATH=/app/node_modules/onnxruntime-node/bin/napi-v3/linux/x64
-CMD ["bun", "run", "bench", "--", "--synthetic", "--json", "--out", "bench/results-docker.json"]
+CMD ["bun", "run", "bench", "--", "--synthetic", "--json", "--out", "local/bench/results-docker.json"]
 
 # --- install bench (needs network + tc) ---
 FROM oven/bun:1.2-debian AS install

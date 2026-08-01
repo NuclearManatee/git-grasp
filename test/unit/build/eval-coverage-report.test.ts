@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { buildCoveragePromoteReport } from '../../../packages/core/src/build/evalGate.ts';
+import { buildCoveragePromoteReport } from '../../../common/src/build/evalGate.ts';
 import {
   EVAL_COVERAGE_WARN_FRACTION,
   EVAL_COVERAGE_WARN_VERB_MIN,
-} from '../../../packages/core/src/db/constants.ts';
+} from '../../../common/src/db/constants.ts';
 
 describe('coverage promote report', () => {
   it('warns when fewer than 80% verbs have >= 3 recipes', () => {

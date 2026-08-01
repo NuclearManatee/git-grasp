@@ -16,10 +16,10 @@ import {
   SCHEMA_VERSION,
   parseCommands,
   renderSnippet,
-} from '../../packages/core/src/db/schema.js';
-import { mockEmbed } from '../../packages/core/src/search/embed.js';
-import { compareSimplicity, dedupDecision, countFlags } from '../../packages/core/src/build/dedup.js';
-import { createWriterQueue } from '../../packages/core/src/build/writerQueue.js';
+} from '../../common/src/db/schema.js';
+import { mockEmbed } from '../../common/src/search/embed.js';
+import { compareSimplicity, dedupDecision, countFlags } from '../../common/src/build/dedup.js';
+import { createWriterQueue } from '../../common/src/build/writerQueue.js';
 
 describe('schema v7', () => {
   it('opens commands + intents + vec tables', () => {

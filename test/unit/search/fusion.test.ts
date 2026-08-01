@@ -8,7 +8,7 @@ import {
   normalizeBm25Batch,
   nextDistinctRecipeScore,
   recipeFingerprint,
-} from '../../../packages/core/src/search/fusion.ts';
+} from '../../../common/src/search/fusion.ts';
 
 const thr = {
   topK: 3,

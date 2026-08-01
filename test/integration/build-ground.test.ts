@@ -2,11 +2,11 @@ import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 import { mkdtempSync, rmSync, mkdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { runGroundStep } from '../../packages/core/src/build/orchestrator.js';
-import { openDb, countCommands, countIntents, insertCommand } from '../../packages/core/src/db/schema.js';
-import { validateInSandboxAndDestroy } from '../../packages/core/src/build/sandbox.js';
-import { selectEvolutionParents } from '../../packages/core/src/build/loop.js';
-import { loadBank } from '../../packages/core/src/build/evalGate.js';
+import { runGroundStep } from '../../common/src/build/orchestrator.js';
+import { openDb, countCommands, countIntents, insertCommand } from '../../common/src/db/schema.js';
+import { validateInSandboxAndDestroy } from '../../common/src/build/sandbox.js';
+import { selectEvolutionParents } from '../../common/src/build/loop.js';
+import { loadBank } from '../../common/src/build/evalGate.js';
 
 describe('ground + loop helpers (mocked)', () => {
   let evalDir;
@@ -40,6 +40,7 @@ describe('ground + loop helpers (mocked)', () => {
       mock: true,
       skipEval: true,
       skipEvalBanks: true,
+      skipPins: true,
       concurrency: 2,
       groups: [
         {
@@ -90,6 +91,8 @@ describe('ground + loop helpers (mocked)', () => {
       mock: true,
       skipEval: false,
       skipEvalBanks: false,
+      skipPins: true,
+      skipPinNlEval: true,
       concurrency: 1,
       minPassRate: 0,
       groups: [

@@ -7,7 +7,7 @@ import {
   renderPromptRole,
   loadPromptSource,
   clearPromptCache,
-} from '../../packages/core/src/lib/prompts.ts';
+} from '../../common/src/lib/prompts.ts';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 

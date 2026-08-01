@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { normalizeQuery } from '../../packages/core/src/search/hybrid.js';
+import { normalizeQuery } from '../../common/src/search/hybrid.js';
 
 describe('normalizeQuery', () => {
   it('trims and collapses whitespace', () => {

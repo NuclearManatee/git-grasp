@@ -2,12 +2,12 @@ import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 import { mkdtempSync, rmSync, readFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { openDb, insertCommand } from '../../packages/core/src/db/schema.js';
+import { openDb, insertCommand } from '../../common/src/db/schema.js';
 import {
   appendEvolveGolden,
   loadBank,
   tagGolden,
-} from '../../packages/core/src/build/evalGate.js';
+} from '../../common/src/build/evalGate.js';
 
 describe('eval evolve bank growth', () => {
   let evalDir;

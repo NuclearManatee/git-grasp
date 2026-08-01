@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isSandboxGuiCommand } from '../../../packages/core/src/build/sandbox.ts';
+import { isSandboxGuiCommand } from '../../../common/src/build/sandbox.ts';
 
 describe('isSandboxGuiCommand', () => {
   it('blocks gui / citool / gitk / tools', () => {

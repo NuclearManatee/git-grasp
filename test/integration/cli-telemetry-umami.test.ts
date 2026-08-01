@@ -14,13 +14,13 @@ import { describe, it, expect, beforeAll, afterAll } from 'bun:test';
 import { mkdirSync, rmSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { writeConfig, readConfig } from '../../packages/core/src/lib/config.js';
+import { writeConfig, readConfig } from '../../common/src/lib/config.js';
 import {
   maybeInviteAndTrackSearch,
   sendUmamiEvent,
   buildCliSearchEvent,
   searchResponseFromResult,
-} from '../../packages/core/src/lib/telemetry/index.js';
+} from '../../common/src/lib/telemetry/index.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const tmpRoot = path.join(__dirname, '../.tmp-umami-e2e');

@@ -3,7 +3,7 @@ import {
   evaluateQuery,
   hitAtDisplay,
   displayedFromSearchOutput,
-} from '../../../packages/core/src/build/evalGate.ts';
+} from '../../../common/src/build/evalGate.ts';
 
 describe('Hit@display uses CLI displayResults', () => {
   it('displayedFromSearchOutput prefers displayResults over results', () => {

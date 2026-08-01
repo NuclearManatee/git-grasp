@@ -5,7 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   sha256Buffer, writeChecksumFile, verifyFileChecksum,
-} from '../../packages/core/src/lib/checksum.js';
+} from '../../common/src/lib/checksum.js';
 
 const tmp = path.join(path.dirname(fileURLToPath(import.meta.url)), '../tmp-checksum');
 

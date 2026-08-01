@@ -5,8 +5,8 @@ Official **GitHub Release** zips are produced only from **version tags on `main`
 ## Prerequisites
 
 - Bun ≥ 1.1 (`packageManager` in root `package.json`)
-- Seeded catalog DB: `data/git-commands.db` (`bun run seed` if missing)
-- `config/thresholds.json` present
+- Seeded catalog DB: `common/data/git-commands.db` (`bun run seed` if missing)
+- `common/config/thresholds.json` present
 - `zip` on PATH (Linux/macOS runners); Windows uses PowerShell `Compress-Archive`
 
 ## One-shot release layout
@@ -18,13 +18,13 @@ bun run seed          # if DB missing
 bun run build:release
 ```
 
-This runs [`scripts/build-release-binary.ts`](../scripts/build-release-binary.ts), which:
+This runs [`apps/cli/scripts/build-release-binary.ts`](../apps/cli/scripts/build-release-binary.ts), which:
 
 1. `bun build --compile` → `git-grasp` (or `git-grasp.exe`)
-2. Copies `data/git-commands.db` (+ `.sha256` if present) and `config/thresholds.json`
+2. Copies `common/data/git-commands.db` (+ `.sha256` if present) and `common/config/thresholds.json`
 3. Zips them as `dist-release/git-grasp-<os>-<arch>.zip`
 
-Unpack and run **from the extracted folder** so the binary finds `data/` and `config/` next to itself (via `process.execPath`). You can also set:
+Unpack and run **from the extracted folder** so the binary finds `common/data/` and `common/config/` next to itself (via `process.execPath`). You can also set:
 
 ```bash
 export GIT_GRASP_ROOT=/path/to/extracted/folder
@@ -56,7 +56,7 @@ Those run only from [`.github/workflows/release.yml`](../.github/workflows/relea
 For perf Docker / local timing without the zip layout:
 
 ```bash
-bun run build:cli   # → bench/git-grasp
+bun run build:cli   # → local/bench/git-grasp
 ```
 
-That binary still needs `GIT_GRASP_ROOT` (or cwd) pointing at a package root with `data/` + `config/thresholds.json`. Prefer `build:release` for anything resembling a user install.
+That binary still needs `GIT_GRASP_ROOT` (or cwd) pointing at a package root with `common/data/` + `common/config/thresholds.json`. Prefer `build:release` for anything resembling a user install.

@@ -3,7 +3,7 @@ import {
   semanticBlockToPrompt,
   VANILLA_GENERATION_SYSTEM,
   generateRecipeFromSemanticBlock,
-} from '../../../packages/core/src/build/generate.ts';
+} from '../../../common/src/build/generate.ts';
 
 describe('vanilla generation from semantic_block', () => {
   const block = {

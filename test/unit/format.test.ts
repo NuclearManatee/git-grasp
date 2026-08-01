@@ -7,7 +7,7 @@ import {
   parseUsage,
   formatSnippetBlock,
   SEARCH_FALLBACK_MESSAGE,
-} from '../../packages/core/src/ux/format.js';
+} from '../../common/src/ux/format.js';
 
 describe('formatSearchResult hybrid', () => {
   const baseRow = {

@@ -16,7 +16,7 @@ const useFast = args.length > 0
   && !(first?.startsWith('-') && !isFlag(first));
 
 if (useFast) {
-  const { search, formatSearchResult, primaryCommand } = await import('@git-grasp/core/cli');
+  const { search, formatSearchResult, primaryCommand } = await import('@git-grasp/common/cli');
   const verbose = args.includes('-v') || args.includes('--verbose');
   const copy = args.includes('-c') || args.includes('--copy');
   const query = args.filter((a) => !isFlag(a)).join(' ').trim();

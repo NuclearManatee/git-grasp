@@ -31,25 +31,18 @@
         "git-grasp": "./bin/index.ts",
       },
       "dependencies": {
-        "@git-grasp/core": "workspace:*",
+        "@git-grasp/common": "workspace:*",
         "chalk": "^5.4.1",
         "clipboardy": "^4.0.0",
         "commander": "^13.1.0",
         "ora": "^8.2.0",
       },
     },
-    "apps/eval": {
-      "name": "@git-grasp/eval",
+    "apps/pipeline": {
+      "name": "@git-grasp/pipeline",
       "version": "0.1.0",
       "dependencies": {
-        "@git-grasp/core": "workspace:*",
-      },
-    },
-    "apps/seeding": {
-      "name": "@git-grasp/seeding",
-      "version": "0.1.0",
-      "dependencies": {
-        "@git-grasp/core": "workspace:*",
+        "@git-grasp/common": "workspace:*",
       },
     },
     "apps/web": {
@@ -57,7 +50,7 @@
       "version": "0.1.0",
       "dependencies": {
         "@astrojs/react": "^4.4.2",
-        "@git-grasp/core": "workspace:*",
+        "@git-grasp/common": "workspace:*",
         "@xterm/addon-fit": "^0.10.0",
         "@xterm/xterm": "^5.5.0",
         "astro": "^6.4.8",
@@ -74,8 +67,8 @@
         "postcss": "^8.4.49",
       },
     },
-    "packages/core": {
-      "name": "@git-grasp/core",
+    "common": {
+      "name": "@git-grasp/common",
       "version": "0.1.0",
       "dependencies": {
         "@huggingface/transformers": "^3.4.2",
@@ -213,11 +206,9 @@
 
     "@git-grasp/cli": ["@git-grasp/cli@workspace:apps/cli"],
 
-    "@git-grasp/core": ["@git-grasp/core@workspace:packages/core"],
+    "@git-grasp/common": ["@git-grasp/common@workspace:common"],
 
-    "@git-grasp/eval": ["@git-grasp/eval@workspace:apps/eval"],
-
-    "@git-grasp/seeding": ["@git-grasp/seeding@workspace:apps/seeding"],
+    "@git-grasp/pipeline": ["@git-grasp/pipeline@workspace:apps/pipeline"],
 
     "@git-grasp/web": ["@git-grasp/web@workspace:apps/web"],
 

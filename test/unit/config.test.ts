@@ -8,7 +8,7 @@ import {
   readConfig,
   defaultConfig,
   CONFIG_SCHEMA_VERSION,
-} from '../../packages/core/src/lib/config.js';
+} from '../../common/src/lib/config.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const tmpRoot = path.join(__dirname, '../.tmp-config-telemetry');

@@ -3,8 +3,8 @@ import {
   blendWeightsForSkill,
   heuristicSkillLevel,
   profileQuery,
-} from '../../../packages/core/src/search/profile.ts';
-import { parseGitVerbsMeta, serializeGitVerbsMeta } from '../../../packages/core/src/search/gitVerbs.ts';
+} from '../../../common/src/search/profile.ts';
+import { parseGitVerbsMeta, serializeGitVerbsMeta } from '../../../common/src/search/gitVerbs.ts';
 
 const VERBS = ['status', 'commit', 'reset', 'rebase', 'stash', 'checkout', 'merge', 'push', 'pull'];
 

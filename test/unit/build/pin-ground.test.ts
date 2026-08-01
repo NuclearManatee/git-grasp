@@ -4,7 +4,7 @@ import {
   seedIntentsToRows,
   pinToCandidate,
   validatePinForGround,
-} from '../../../packages/core/src/build/pinGround.ts';
+} from '../../../common/src/build/pinGround.ts';
 
 const taxonomyVerbs = new Set(['git config', 'git blame', 'git bisect']);
 
@@ -69,7 +69,7 @@ describe('pinGround', () => {
 
   it('normalizes placeholders in sketches', async () => {
     const { normalizePinRecipeSketch } = await import(
-      '../../../packages/core/src/build/pinGround.ts'
+      '../../../common/src/build/pinGround.ts'
     );
     const p = normalizePinRecipeSketch({
       goal_id: 'blame-file-lines',

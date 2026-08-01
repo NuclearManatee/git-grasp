@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { chunkDocument } from '../../../packages/core/src/build/prepare.ts';
+import { chunkDocument } from '../../../common/src/build/prepare.ts';
 
 describe('prepare paragraph chunker', () => {
   it('binds code fences to preceding prose and path prefix', () => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cosineSimilarity, jsKnn } from '../../../packages/core/src/search/jsKnn.ts';
+import { cosineSimilarity, jsKnn } from '../../../common/src/search/jsKnn.ts';
 
 describe('jsKnn', () => {
   it('ranks identical vector first', () => {

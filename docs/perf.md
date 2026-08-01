@@ -11,7 +11,7 @@ Workflow: change → eval loop → local Docker perf (PR checklist). **No CI lat
 bun run bench -- --no-compile --quick --sticky --synthetic
 
 # Full protocol (5 discard + 50 timed, default + skill=2)
-bun run bench -- --no-compile --sticky --synthetic --json --out bench/results-host.json
+bun run bench -- --no-compile --sticky --synthetic --json --out local/bench/results-host.json
 
 # Docker gate (1 CPU / 1GB, network none, model baked)
 docker compose --profile gate build gate
@@ -25,7 +25,7 @@ docker compose --profile tiny run --rm tiny   # 512MB — expect pressure; docum
 docker compose --profile install run --rm install
 ```
 
-Queries: [`bench/queries.json`](../bench/queries.json) (30 golden + 15 stratified extras).
+Queries: [`test/performance/queries.json`](../test/performance/queries.json) (30 golden + 15 stratified extras).
 
 ## Protocol
 
@@ -43,7 +43,7 @@ Deep profile: `bun --cpu-prof apps/cli/bin/index.ts "…"`.
 
 ## Latency table (current catalog, schema v6 + sqlite-vec)
 
-Human-readable snapshot (committed): **[docs/benchmarks/latest.md](benchmarks/latest.md)** (2026-07-26). After re-bench, run `bun run bench:render-latest` and commit the markdown (`bench/results*.json` stays gitignored).
+Human-readable snapshot (committed): **[docs/benchmarks/latest.md](benchmarks/latest.md)** (2026-07-26). After re-bench, run `bun run bench:render-latest` and commit the markdown (`local/bench/results*.json` stays gitignored).
 
 ### Docker `mid` (2 vCPU / 4GB) — low-end claim basis
 
@@ -66,13 +66,13 @@ In-process search after model load remains well under 500ms on mid; gate sticky 
 ## Bottlenecks
 
 1. **Per-process MiniLM ONNX session load** dominates CLI wall time (~1.1s @ 1 vCPU; ~300–400ms on a warm desktop). Product UX is one process per invocation, so cold≈warm for process-per-call.
-2. Bun/CLI startup + barrel imports — mitigated by `@git-grasp/core/cli` slim entry + fast-path `bin/index.ts`.
+2. Bun/CLI startup + barrel imports — mitigated by `@git-grasp/common/cli` slim entry + fast-path `bin/index.ts`.
 3. Search path after model load is **well under budget** (sqlite-vec KNN + JS re-rank).
 4. Skill filter: SQL hydrate `skill_level <= ?` with KNN overfetch when skill is set.
 
 ## Optimizations landed
 
-- Slim `@git-grasp/core/cli` export surface for the CLI
+- Slim `@git-grasp/common/cli` export surface for the CLI
 - Fast bare-query path (skip commander until needed)
 - Overlap model load with checksum/config
 - Skill-aware `knnRecall` hydrate filter

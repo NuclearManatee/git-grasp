@@ -2,11 +2,11 @@ import { describe, it, expect } from 'bun:test';
 import {
   evaluateBank,
   formatEvalReport,
-} from '../../packages/core/src/build/evalGate.js';
+} from '../../common/src/build/evalGate.js';
 import {
   EVAL_MIN_PASS_RATE,
   EVAL_MIN_HIT_AT_DISPLAY_RATE,
-} from '../../packages/core/src/db/constants.js';
+} from '../../common/src/db/constants.js';
 
 describe('eval gate metrics (integration-style)', () => {
   it('fails dual gate when hit@display is below 0.7 and never calls judge', async () => {

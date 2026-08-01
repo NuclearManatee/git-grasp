@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { selectEvolutionParentsFromRows } from '../../../packages/core/src/build/loopSelect.ts';
+import { selectEvolutionParentsFromRows } from '../../../common/src/build/loopSelect.ts';
 
 describe('selectEvolutionParents multi-axis', () => {
   it('returns only leaves with mutation_kind assigned', () => {

@@ -10,16 +10,16 @@ import {
   insertCommandEmbedding,
   finalizeSearchIndex,
   EMBEDDING_DIM,
-} from '../../packages/core/src/db/schema.js';
-import { mockEmbed } from '../../packages/core/src/search/embed.js';
-import { writeChecksumFile } from '../../packages/core/src/lib/checksum.js';
-import { exportWebCatalog } from '../../packages/core/src/search/webCatalog.js';
-import { search } from '../../packages/core/src/search/index.js';
+} from '../../common/src/db/schema.js';
+import { mockEmbed } from '../../common/src/search/embed.js';
+import { writeChecksumFile } from '../../common/src/lib/checksum.js';
+import { exportWebCatalog } from '../../common/src/search/webCatalog.js';
+import { search } from '../../common/src/search/index.js';
 import {
   openWebCatalog,
   searchBrowser,
   resetWebPackForTests,
-} from '../../packages/core/src/search/browser.js';
+} from '../../common/src/search/browser.js';
 
 const dir = path.join(path.dirname(fileURLToPath(import.meta.url)), '../fixtures/web-parity');
 const sourceDb = path.join(dir, 'source.db');

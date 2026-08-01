@@ -1,8 +1,8 @@
 // @ts-nocheck
 import { describe, it, expect, afterEach } from 'vitest';
 import { z } from 'zod';
-import { PROVIDERS, getProvider, resolveProviderId, chatCompletionsUrl } from '../../packages/core/src/lib/providers.js';
-import { llmChat, llmJsonObject, LlmError, resetLlmRateLimiterForTests } from '../../packages/core/src/lib/llm.js';
+import { PROVIDERS, getProvider, resolveProviderId, chatCompletionsUrl } from '../../common/src/lib/providers.js';
+import { llmChat, llmJsonObject, LlmError, resetLlmRateLimiterForTests } from '../../common/src/lib/llm.js';
 
 describe('providers', () => {
   const prev = { ...process.env };

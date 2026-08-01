@@ -37,4 +37,4 @@ jobs:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           GIT_GRASP_SKIP_POSTINSTALL: '1'
           GIT_GRASP_MOCK_EMBEDDINGS: '1'
-        run: bun scripts/eval.ts --min-pass-rate=0.9
+        run: bun run eval -- --min-pass-rate=0.9
