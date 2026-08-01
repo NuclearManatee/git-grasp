@@ -46,6 +46,7 @@
     "test:integration": "bun test ./test/integration",
     "test:telemetry-e2e": "bun test ./test/integration/cli-telemetry-umami.test.ts",
     "test:watch": "bunx vitest",
+    "ci": "bun common/scripts/ci.ts",
     "bench:render-latest": "bun test/performance/render-bench-latest.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "cli": "bun --filter @git-grasp/cli start",

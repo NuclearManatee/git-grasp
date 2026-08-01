@@ -19,11 +19,7 @@ jobs:
       - run: bun install --frozen-lockfile
         env:
           GIT_GRASP_SKIP_POSTINSTALL: '1'
-      - run: bun run typecheck
+      - run: bun run ci
         env:
           GIT_GRASP_SKIP_POSTINSTALL: '1'
-      - run: bun run test
-        env:
           GIT_GRASP_MOCK_EMBEDDINGS: '1'
-          GIT_GRASP_SKIP_POSTINSTALL: '1'
-      - run: bun common/scripts/ci-audit.ts
