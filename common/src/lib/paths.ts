@@ -102,6 +102,22 @@ export function intentMatrixPath() {
   return path.join(taxonomyDir(), 'intent_matrix.json');
 }
 
+export function lexiconTrapsPath() {
+  return path.join(taxonomyDir(), 'lexicon_traps.json');
+}
+
+export function verbFamiliesPath() {
+  return path.join(taxonomyDir(), 'verb_families.json');
+}
+
+export function flagDenylistPath() {
+  return path.join(taxonomyDir(), 'flag_denylist.json');
+}
+
+export function evalProposalRoundsDir() {
+  return path.join(localDir(), 'eval', 'proposal-rounds');
+}
+
 export function taxonomyDir() {
   return path.join(commonDir(), 'taxonomy');
 }

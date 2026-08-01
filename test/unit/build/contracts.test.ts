@@ -102,6 +102,9 @@ describe('taxonomy + skill enums', () => {
     const dir = path.join(PACKAGE_ROOT, 'common', 'taxonomy');
     expect(existsSync(path.join(dir, 'intent_matrix.json'))).toBe(true);
     expect(existsSync(path.join(dir, 'git_commands.json'))).toBe(true);
+    expect(existsSync(path.join(dir, 'lexicon_traps.json'))).toBe(true);
+    expect(existsSync(path.join(dir, 'verb_families.json'))).toBe(true);
+    expect(existsSync(path.join(dir, 'flag_denylist.json'))).toBe(true);
     const matrix = JSON.parse(readFileSync(path.join(dir, 'intent_matrix.json'), 'utf8'));
     expect(matrix.cells).toHaveLength(16);
     expect(matrix.cells.some((c) => c.skill_level === 'nontechnical')).toBe(true);

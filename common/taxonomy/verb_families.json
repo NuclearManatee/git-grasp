@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "families": [
+    {
+      "canonical": "git checkout",
+      "aliases": [
+        "git switch"
+      ],
+      "source": "seed"
+    },
+    {
+      "canonical": "git blame",
+      "aliases": [
+        "git annotate"
+      ],
+      "source": "seed"
+    }
+  ]
+}

@@ -22,6 +22,10 @@ import {
   VALIDATION_MAX_REGEN,
 } from '../db/constants.js';
 import { verbFromCommandLine, buildVerbCoverage } from './coverage.js';
+import {
+  buildVerbFamilyIndex,
+  verbsInFamily,
+} from './evalImprove/verbFamilies.js';
 import { z } from 'zod';
 
 /**
@@ -425,17 +429,28 @@ export function verbsFromHit(hit, verbLookup = {}) {
 }
 
 /**
- * Pass B: expected primary verb appears among displayed hit verbs.
+ * Pass B: expected primary verb (or verb-family mate) among displayed hit verbs.
  * @param {*} hitsOrResult
  * @param {string} expectedPrimaryVerb
- * @param {Record<string|number, string>} [recipeLookup] command_id â†’ primary_verb
+ * @param {Record<string|number, string>} [recipeLookup] command_id → primary_verb
+ * @param {Map<string, Set<string>>} [familyIndex]
  */
-export function hitAtDisplayVerb(hitsOrResult, expectedPrimaryVerb, recipeLookup = {}) {
+export function hitAtDisplayVerb(
+  hitsOrResult,
+  expectedPrimaryVerb,
+  recipeLookup = {},
+  familyIndex = null,
+) {
   if (!expectedPrimaryVerb) return false;
   const expected = String(expectedPrimaryVerb).toLowerCase();
+  const family = familyIndex
+    ? verbsInFamily(expected, familyIndex)
+    : new Set([expected]);
   const displayed = displayedFromSearchOutput(hitsOrResult);
   return displayed.some((h) =>
-    verbsFromHit(h, recipeLookup).some((v) => String(v).toLowerCase() === expected),
+    verbsFromHit(h, recipeLookup).some((v) =>
+      family.has(String(v).toLowerCase()),
+    ),
   );
 }
 
@@ -447,12 +462,18 @@ export function hitAt3Verb(hitsOrResult, expectedPrimaryVerb, recipeLookup = {})
 export async function evaluateQuery(query, searchFn, opts = {}) {
   const threshold = opts.utilityThreshold ?? EVAL_JUDGE_UTILITY_THRESHOLD;
   const verbLookup = opts.verbLookup || {};
+  const familyIndex = opts.familyIndex || buildVerbFamilyIndex();
   const tSearch = Date.now();
   const raw = await searchFn(query.query_text, { limit: 3 });
   const searchMs = Date.now() - tSearch;
   const meta = displayMetaFromSearchOutput(raw);
   const displayed = meta.displayed;
-  const passVerb = hitAtDisplayVerb(raw, query.primary_verb, verbLookup);
+  const passVerb = hitAtDisplayVerb(
+    raw,
+    query.primary_verb,
+    verbLookup,
+    familyIndex,
+  );
 
   if (hitAtDisplay(raw, query.command_id)) {
     return {
@@ -494,7 +515,7 @@ export async function evaluateQuery(query, searchFn, opts = {}) {
       searchMs,
       judgeMs: 0,
     },
-    { ...opts, utilityThreshold: threshold },
+    { ...opts, utilityThreshold: threshold, familyIndex },
   );
 }
 
@@ -506,6 +527,10 @@ export async function judgeQueryMiss(miss, opts = {}) {
   const threshold = opts.utilityThreshold ?? EVAL_JUDGE_UTILITY_THRESHOLD;
   const call = opts.llmJsonObject || llmJsonObject;
   const displayed = miss.displayed ?? [];
+  const familyIndex = opts.familyIndex || buildVerbFamilyIndex();
+  const acceptable = [
+    ...verbsInFamily(miss.query?.primary_verb, familyIndex),
+  ];
   const tJudge = Date.now();
   let judge;
   try {
@@ -513,6 +538,7 @@ export async function judgeQueryMiss(miss, opts = {}) {
       user_json: JSON.stringify({
         query: miss.query.query_text,
         expected_command_id: miss.query.command_id,
+        acceptable_primary_verbs: acceptable,
         alert: miss.alert ?? null,
         status: miss.status ?? null,
         display_results: displayed.map((h) => ({
@@ -608,6 +634,7 @@ export async function evaluateBank(bank, searchFn, opts = {}) {
   const onProgress = typeof opts.onProgress === 'function' ? opts.onProgress : null;
   const onJudgeVote = typeof opts.onJudgeVote === 'function' ? opts.onJudgeVote : null;
   const onSkipJudge = typeof opts.onSkipJudge === 'function' ? opts.onSkipJudge : null;
+  const familyIndex = opts.familyIndex || buildVerbFamilyIndex();
   const total = bank.length;
   const results = new Array(total);
   const startedAt = Date.now();
@@ -696,6 +723,7 @@ export async function evaluateBank(bank, searchFn, opts = {}) {
         }
         const r = await evaluateQuery(q, searchFn, {
           ...opts,
+          familyIndex,
           searchOnly: true,
           onJudgeVote: undefined,
         });
@@ -794,7 +822,11 @@ export async function evaluateBank(bank, searchFn, opts = {}) {
           emitProgress(false, 'judge');
           return;
         }
-        const r = await judgeQueryMiss(results[i], { ...opts, onJudgeVote });
+        const r = await judgeQueryMiss(results[i], {
+          ...opts,
+          familyIndex,
+          onJudgeVote,
+        });
         results[i] = r;
         judgeMsTotal += r.judgeMs || 0;
         missDone += 1;

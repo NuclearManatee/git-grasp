@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "traps": [
+    {
+      "role": "authorship_vs_bisect",
+      "needles": [
+        "who wrote",
+        "blame",
+        "each line",
+        "last modified this line"
+      ],
+      "prefer_verb": "git blame",
+      "source": "seed"
+    },
+    {
+      "role": "bisect_vs_blame",
+      "needles": [
+        "who introduced",
+        "binary search",
+        "bisect",
+        "which commit broke"
+      ],
+      "prefer_verb": "git bisect",
+      "source": "seed"
+    },
+    {
+      "role": "identity_vs_rename",
+      "needles": [
+        "username",
+        "user.name",
+        "user.email",
+        "author name",
+        "my git email"
+      ],
+      "prefer_verb": "git config",
+      "source": "seed"
+    }
+  ]
+}

@@ -9,19 +9,22 @@ import {
   verbFromCommandLine,
 } from './coverage.js';
 import { fetchGitShortHelp } from './gitShortHelp.js';
+import { loadFlagDenylist } from './evalImprove/flagDenylist.js';
 
-/** Known junk flags Git may accept but we never want in the catalog. */
-export const FLAG_DENYLIST = new Set(['--i-still-use-this']);
+/** @deprecated use loadFlagDenylist(); kept for tests */
+export const FLAG_DENYLIST = loadFlagDenylist();
 
 /**
  * @param {string} commandLine
  * @param {Set<string>|string[]|null|undefined} allowlist
+ * @param {{ denylist?: Set<string> }} [opts]
  * @returns {{ ok: true } | { ok: false, reason: string }}
  */
-export function assertFlagsOnCommandLine(commandLine, allowlist) {
+export function assertFlagsOnCommandLine(commandLine, allowlist, opts = {}) {
+  const deny = opts.denylist || loadFlagDenylist();
   const used = flagsFromCommandLine(commandLine);
   for (const f of used) {
-    if (FLAG_DENYLIST.has(f) || FLAG_DENYLIST.has(f.toLowerCase())) {
+    if (deny.has(f) || deny.has(f.toLowerCase())) {
       return { ok: false, reason: `flag_denied:${f}` };
     }
   }

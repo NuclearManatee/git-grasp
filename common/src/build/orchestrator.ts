@@ -78,6 +78,7 @@ import {
   resolveEvalConcurrency,
   isFallbackGoldenQuery,
 } from './evalGate.js';
+import { maybeRunEvalImprove } from './evalImprove/maybeRunEvalImprove.js';
 import {
   retrieveEvolutionExamples,
   selectEvolutionParents,
@@ -623,6 +624,43 @@ export async function runGroundStep(opts = {}) {
     });
     log(formatEvalReport(evalResult));
     if (typeof opts.onEvalReport === 'function') opts.onEvalReport(evalResult, { phase: 'ground' });
+
+    let taxonomyVerbs = opts.taxonomyVerbs;
+    if (!taxonomyVerbs) {
+      try {
+        taxonomyVerbs = loadGitCommandTaxonomy().commands.map((c) => c.command);
+      } catch {
+        taxonomyVerbs = [];
+      }
+    }
+    const improveOut = await maybeRunEvalImprove({
+      phase: 'ground',
+      evalResult,
+      skipEvalImprove: opts.skipEvalImprove,
+      stagingPath: resolvedStaging,
+      db,
+      embedder,
+      bank,
+      runBankEval,
+      taxonomyVerbs,
+      verbLookup,
+      llmJsonObject: opts.llmJsonObject,
+      trapsPath: opts.trapsPath,
+      familiesPath: opts.familiesPath,
+      expandIntents: opts.expandIntents,
+      minPassRate,
+      minHitAtDisplayRate,
+      searchFn: opts.searchFn,
+      evalConcurrency: opts.evalConcurrency,
+      log: (m) => log(m),
+    });
+    if (improveOut.ran) {
+      evalResult = improveOut.evalResult;
+      log(formatEvalReport(evalResult));
+      if (typeof opts.onEvalReport === 'function') {
+        opts.onEvalReport(evalResult, { phase: 'ground', improve: improveOut.improve });
+      }
+    }
   }
 
   const cmdCount = countCommands(db);
@@ -927,7 +965,7 @@ export async function runBuildLoop(opts = {}) {
       `loop iter=${iteration} evolve done ok=${evolvedOk} fail=${evolvedFail} newUnique=${newUnique}; eval bank=${bank.length} minHitAtDisplay=${minHitAtDisplayRate} minPassRate=${minPassRate}`,
     );
     const verbLookup = verbLookupFromRows(listCommands(db));
-    const evalResult = await runBankEval(bank, stagingPath, {
+    let evalResult = await runBankEval(bank, stagingPath, {
       llmJsonObject: opts.llmJsonObject,
       minPassRate,
       minHitAtDisplayRate,
@@ -940,6 +978,39 @@ export async function runBuildLoop(opts = {}) {
     log(formatEvalReport(evalResult));
     if (typeof opts.onEvalReport === 'function') {
       opts.onEvalReport(evalResult, { phase: 'loop', iteration });
+    }
+
+    const improveOut = await maybeRunEvalImprove({
+      phase: 'loop',
+      evalResult,
+      skipEvalImprove: opts.skipEvalImprove,
+      stagingPath,
+      db,
+      embedder,
+      bank,
+      runBankEval,
+      taxonomyVerbs,
+      verbLookup,
+      llmJsonObject: opts.llmJsonObject,
+      trapsPath: opts.trapsPath,
+      familiesPath: opts.familiesPath,
+      expandIntents: opts.expandIntents,
+      minPassRate,
+      minHitAtDisplayRate,
+      searchFn: opts.searchFn,
+      evalConcurrency: opts.evalConcurrency,
+      log: (m) => log(m),
+    });
+    if (improveOut.ran) {
+      evalResult = improveOut.evalResult;
+      log(formatEvalReport(evalResult));
+      if (typeof opts.onEvalReport === 'function') {
+        opts.onEvalReport(evalResult, {
+          phase: 'loop',
+          iteration,
+          improve: improveOut.improve,
+        });
+      }
     }
 
     if (!evalResult.ok) {

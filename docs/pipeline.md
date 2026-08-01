@@ -341,6 +341,23 @@ Banks live under `common/data/eval/` (`golden.jsonl`, `extended.jsonl`, `scrambl
 
 Ground fails if the dual gate fails. Product-facing `bun run eval` / `eval:loop` after promote is a separate improve-branch workflow; this section is the **in-build** gate while staging grows.
 
+#### Eval improve round (automatic)
+
+After ground eval (and after each loop-cycle eval — §4.2), if the dual gate fails **or** polish is warranted (`misses ≥ 5` or Pass A `< 0.95`), the orchestrator runs **one** Flash→Pro proposal round (`skipEvalImprove` disables it):
+
+1. **Flash** clusters all non-pass rows (`build/summarize-eval-failures`).
+2. Split misses **70/30 by `command_id`** (stable hash); Pro sees train only.
+3. **Pro** (`deepseek-v4-pro`) proposes schema-locked rules only (`build/propose-eval-rules`):
+   - `lexicon_trap` → merged into `common/taxonomy/lexicon_traps.json` (seed traps are regenerable infrastructure, not a hand-grown encyclopedia)
+   - `verb_family` → merged into `common/taxonomy/verb_families.json` (Pass B + judge `acceptable_primary_verbs`; Hit@display still requires exact `command_id`)
+4. Validate: evidence ids must be train-miss `command_id`s only (not wrong displayed hits); traps need ≥2 train-miss ids **or** ≥2 needle-matched train queries; ≤5 traps / ≤3 families; prefer_verb ∈ taxonomy; forbid destructive antonym families (e.g. revert↔reset).
+5. On trap apply: re-expand intents on staging under the new traps; families take effect on the next eval only.
+6. Re-eval the same golden bank once. **Accept** if holdout Hit@display and Pass A do not drop and full-bank Pass A gains ≥1 absolute pass (or Hit@display improves when Pass A is tied); else restore JSON snapshots (and re-expand if traps were rolled back).
+
+Pro must skip incomplete multi-step / partial-match clusters (lexicon/family cannot fix those).
+
+Artifacts land under gitignored `local/eval/proposal-rounds/<ts>/`. Flag denylist stays `common/taxonomy/flag_denylist.json` (code-loaded); Pro does not propose denylist changes in v1.
+
 ---
 
 
@@ -405,6 +422,8 @@ After **each** cycle (same dual gate as §3.2):
 | **Hard gate**   | Full golden bank **Hit@display** ≥ **0.7** **and** **Pass A** ≥ **0.9** (same definition as ground) |
 | **Report only** | Stratified rates by `mutation_kind`; Pass B; per-verb rates (do not hard-fail on bucket/verb alone) |
 
+
+Same **eval improve round** as §3.2 (one automatic Flash→Pro round on gate fail or polish-after-pass). Post-improve metrics drive `continueOnEvalKo` / persist.
 
 Example log shape:
 

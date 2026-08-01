@@ -98,6 +98,23 @@ export {
   type IntentMatrixFile,
 } from './intentMatrix.js';
 
+export {
+  LexiconTrapSchema,
+  LexiconTrapsFileSchema,
+  VerbFamilySchema,
+  VerbFamiliesFileSchema,
+  FlagDenylistFileSchema,
+  LexiconTrapProposalSchema,
+  VerbFamilyProposalSchema,
+  EvalImproveProposalSchema,
+  EvalImproveProposalBatchSchema,
+  EvalFailureClusterSchema,
+  EVAL_IMPROVE_MAX_TRAPS_PER_ROUND,
+  EVAL_IMPROVE_MAX_FAMILIES_PER_ROUND,
+  EVAL_IMPROVE_POLISH_MISS_MIN,
+  EVAL_IMPROVE_POLISH_PASS_A,
+} from './evalImprove.js';
+
 export * from './llmResponses/catalog.js';
 
 export {

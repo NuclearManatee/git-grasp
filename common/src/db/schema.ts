@@ -324,6 +324,21 @@ export function findCommandByHashPair(clientOrCatalog, initialHash, finalHash) {
     .get(initialHash, finalHash);
 }
 
+export function deleteIntentsForCommand(clientOrCatalog, commandId) {
+  const db = clientOrCatalog._db ?? clientOrCatalog;
+  const tx = db.transaction(() => {
+    const intents = db
+      .prepare('SELECT row_id FROM intents WHERE command_id = ?')
+      .all(commandId);
+    for (const i of intents) {
+      db.prepare('DELETE FROM vec_intents WHERE id = ?').run(String(i.row_id));
+    }
+    db.prepare('DELETE FROM intents WHERE command_id = ?').run(commandId);
+  });
+  tx();
+  return true;
+}
+
 export function deleteCommandCascade(clientOrCatalog, rowId) {
   const db = clientOrCatalog._db ?? clientOrCatalog;
   const tx = db.transaction(() => {
