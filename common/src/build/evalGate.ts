@@ -28,9 +28,7 @@ import { z } from 'zod';
  * System prompt for the build-time utility judge (Pass A fallback).
  * Loaded from common/prompts/build/judge.md.
  */
-export const JUDGE_SYSTEM_PROMPT = renderPromptRole('build/judge', 'system', {
-  threshold: EVAL_JUDGE_UTILITY_THRESHOLD,
-});
+export const JUDGE_SYSTEM_PROMPT = renderPromptRole('build/judge', 'system', {});
 
 /** Resolve eval bank concurrency (opts > env > default). */
 export function resolveEvalConcurrency(opts = {}) {
@@ -369,7 +367,7 @@ export async function expandQueries(seed, commandRow, opts = {}) {
 
 /**
  * Gate: Hit@display exact command_id on CLI-shown `displayResults`.
- * Miss â†’ strict utility judge; Pass if utility > 0.9.
+ * Miss → strict utility judge; Pass if utility >= 0.9.
  *
  * searchFn may return either:
  * - SearchHybridResult `{ results, displayResults, alert, status, ... }` (preferred)
@@ -512,7 +510,6 @@ export async function judgeQueryMiss(miss, opts = {}) {
   let judge;
   try {
     const { messages } = renderPrompt('build/judge', {
-      threshold,
       user_json: JSON.stringify({
         query: miss.query.query_text,
         expected_command_id: miss.query.command_id,
@@ -547,9 +544,9 @@ export async function judgeQueryMiss(miss, opts = {}) {
   }
 
   const vote = {
-    pass: judge.utility > threshold,
+    pass: judge.utility >= threshold,
     passVerb: miss.passVerb,
-    via: judge.utility > threshold ? 'judge' : 'ko',
+    via: judge.utility >= threshold ? 'judge' : 'ko',
     utility: judge.utility,
     reason: judge.reason,
     displayed,

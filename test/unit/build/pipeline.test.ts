@@ -48,6 +48,18 @@ describe('eval gate', () => {
     expect(r.via).toBe('hit@display');
   });
 
+  it('miss + utility exactly at threshold passes (>=)', async () => {
+    const r = await evaluateQuery(
+      { query_text: 'status', command_id: 1 },
+      async () => ({ results: [], displayResults: [], status: 'empty', alert: 'red' }),
+      {
+        llmJsonObject: async () => ({ utility: 0.9, reason: 'useful alternative' }),
+      },
+    );
+    expect(r.pass).toBe(true);
+    expect(r.via).toBe('judge');
+  });
+
   it('miss + high utility judge passes', async () => {
     const r = await evaluateQuery(
       { query_text: 'undo', command_id: 7 },

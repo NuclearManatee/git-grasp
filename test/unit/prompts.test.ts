@@ -37,12 +37,12 @@ describe('prompt loader', () => {
 
   it('renderPrompt fills mustache vars', () => {
     const out = renderPrompt('build/judge', {
-      threshold: 0.9,
       user_json: '{"query":"status"}',
     });
     expect(out.messages).toHaveLength(2);
     expect(out.messages[0].role).toBe('system');
-    expect(out.messages[0].content).toMatch(/utility > 0\.9/);
+    expect(out.messages[0].content).toMatch(/honest usefulness/i);
+    expect(out.messages[0].content).not.toMatch(/utility\s*[>≥]\s*0\.9/);
     expect(out.messages[0].content).toMatch(/abstain/i);
     expect(out.messages[1].role).toBe('user');
     expect(out.messages[1].content).toContain('{"query":"status"}');

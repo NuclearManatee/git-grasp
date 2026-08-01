@@ -268,7 +268,7 @@ async function runBankEval(bank, stagingPath, opts = {}) {
     });
 
   log(
-    `eval criteria hit@display>=${minHitAtDisplayRate} passA>=${minPassRate} judgeUtil>${EVAL_JUDGE_UTILITY_THRESHOLD}`,
+    `eval criteria hit@display>=${minHitAtDisplayRate} passA>=${minPassRate} judgeUtil>=${EVAL_JUDGE_UTILITY_THRESHOLD}`,
   );
   log(`eval judgePrompt ${JUDGE_SYSTEM_PROMPT.replace(/\s+/g, ' ').trim()}`);
 

@@ -2,6 +2,7 @@
 import { validateInSandboxAndDestroy } from './sandbox.js';
 import { generateRecipeFromSemanticBlock } from './generate.js';
 import { VALIDATION_MAX_REGEN } from '../db/constants.js';
+import { assertRecipeFlagsAllowed } from './recipeFlags.js';
 
 /**
  * Generate + validate with reflective regen.
@@ -18,6 +19,15 @@ export async function generateAndValidate(group, opts = {}) {
           llmJsonObject: opts.llmJsonObject,
         });
     last = generated;
+
+    const flagGate = assertRecipeFlagsAllowed(generated, {
+      fetchHelp: opts.fetchHelp,
+    });
+    if (!flagGate.ok) {
+      feedback = `reason=${flagGate.reason}\nstdout=\nstderr=\nfailed=flag_allowlist`;
+      continue;
+    }
+
     const result = opts.validate
       ? await opts.validate(generated)
       : validateInSandboxAndDestroy({

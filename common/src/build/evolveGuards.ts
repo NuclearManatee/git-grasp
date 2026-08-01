@@ -7,10 +7,12 @@ import { LOOP_MAX_RECIPE_STEPS, LOOP_MAX_FLAGS_PER_STEP } from '../db/constants.
 import {
   sameStepVerbs,
   flagsAllowedOnCommand,
+  flagsFromCommandLine,
   verbFromCommandLine,
   stepVerbs,
 } from './coverage.js';
 import { fetchGitShortHelp } from './gitShortHelp.js';
+import { assertRecipeFlagsAllowed, FLAG_DENYLIST } from './recipeFlags.js';
 import { countFlags } from './dedup.js';
 
 const META = /&&|\|\||[|;`$]/;
@@ -93,6 +95,11 @@ export function assertFlagMutation(parent, child, allowlistsByVerb = {}) {
     if (contra) {
       return { ok: false, reason: `contradictory_flags:${contra}` };
     }
+    for (const f of flagsFromCommandLine(s.command)) {
+      if (FLAG_DENYLIST.has(f) || FLAG_DENYLIST.has(f.toLowerCase())) {
+        return { ok: false, reason: `flag_denied:${f}` };
+      }
+    }
     const verb = verbFromCommandLine(s.command);
     const allow = allowlistsByVerb[verb];
     if (!allow || (Array.isArray(allow) ? allow.length === 0 : allow.size === 0)) {
@@ -159,6 +166,10 @@ export function assertCompositionMutation(parent, child, opts = {}) {
     if (!help.ok && !help.text) {
       return { ok: false, reason: `composition_no_help:${verb}` };
     }
+  }
+  const flagGate = assertRecipeFlagsAllowed(child, { fetchHelp });
+  if (!flagGate.ok) {
+    return flagGate;
   }
   const idx = opts.insert_index;
   if (idx != null && (idx < 0 || idx > parentSteps.length)) {

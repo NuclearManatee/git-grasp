@@ -13,6 +13,7 @@ import {
   diversifyByRecipe,
   nextDistinctRecipeScore,
 } from './fusion.js';
+import { applyPrimaryVerbBoost } from './verbBoost.js';
 import { DEFAULT_RECALL_K } from '../db/constants.js';
 
 export type HybridHit = {
@@ -181,7 +182,12 @@ export async function searchHybrid(opts: {
     };
   });
 
-  scored.sort((a, b) =>
+  const knownVerbs = (opts.verbs ?? []).map((v) =>
+    String(v).replace(/^git\s+/i, '').toLowerCase(),
+  );
+  const boosted = applyPrimaryVerbBoost(scored, q, knownVerbs);
+
+  boosted.sort((a, b) =>
     tieBreak(
       {
         stepCount: a.stepCount,
@@ -198,11 +204,11 @@ export async function searchHybrid(opts: {
     ),
   );
 
-  const ids = scored.map((s) => s.command_id);
+  const ids = boosted.map((s) => s.command_id);
   const hydrated = await Promise.resolve(opts.hydrate(ids));
   const byId = new Map(hydrated.map((h) => [Number(h.command_id), h]));
 
-  const results: HybridHit[] = scored.map((s) => {
+  const results: HybridHit[] = boosted.map((s) => {
     const base = byId.get(s.command_id) ?? {
       command_id: s.command_id,
       commands: s.commands,

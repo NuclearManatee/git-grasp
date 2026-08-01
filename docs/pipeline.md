@@ -276,7 +276,7 @@ Four steps per semantic block:
 | Step                   | Input                            | Action                                                                                                                         | Output                                      |
 | ---------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------- |
 | **1 Generation**       | one `semantic_block`             | LLM → vanilla recipe JSON                                                                                                      | candidate                                   |
-| **2 Validation**       | state + recipe                   | Run in a local Git sandbox; on failure, bounded reflective regen; on success, hash physical Git state                          | `*_physical_hash`                           |
+| **2 Validation**       | state + recipe                   | Fail-closed flag allowlist (`git -h` + tiny denylist), then sandbox run; reflective regen on failure; hash physical Git state on success | `*_physical_hash`                           |
 | **3 Intent expansion** | validated recipe + intent matrix | Iterative Flash expand (cell coverage + MiniLM dedup); see below                                                               | `intents[]` (≤ 32)                          |
 | **4 Deduplication**    | hash pair + recipe fingerprint   | Collision against global DB (physical hashes, then secondary fingerprint); keep the simpler recipe (fewer commands/flags); merge intents with authoritative cosine prune | unique row or keep-existing                 |
 
@@ -305,6 +305,7 @@ Same path for ground and evolve children. Flash only (no Pro). The expand prompt
   - Prefer a **single** step; allow 1–2 only when the command cannot demonstrate alone.
   - `initial_state`: minimal setup after harness `git init` + identity (empty commit / one file only when required). Push/pull may create a bare remote under `$GIT_GRASP_REMOTES`. Describe/restore/history follow the vanilla prompt constraints.
   - Each step is a single invocation (`git …` or standalone like `gitk`/`scalar`)—**no** shell metacharacters (`&&`, `|`, `;`, backticks) in the command line.
+  - Flags must appear in that verb’s `git -h` allowlist (**fail closed** if help/allowlist empty and flags are present). Denylist includes known junk (e.g. `--i-still-use-this`) even if Git accepts it.
   - `risk` ∈ `[0, 1]` (destructive risk).
 
 Accepted rows also feed eval banks (`golden` / `extended` / `scrambled`). Ground DB rows keep `mutation_kind = NULL`; eval bank rows are tagged `mutation_kind: "ground"`.
@@ -315,7 +316,7 @@ Accepted rows also feed eval banks (`golden` / `extended` / `scrambled`). Ground
 
 ### 3.2 Evaluation
 
-In-build retrieval gate scores what the **CLI would show**: hybrid `displayResults` (confidence-gated, 0–3 slots), not the fuller internal fused `results` list.
+In-build retrieval gate scores what the **CLI would show**: hybrid `displayResults` (confidence-gated, 0–3 slots), not the fuller internal fused `results` list. When the query names a Git verb, hybrid ranking applies a soft **+0.25** boost to hits whose primary step matches that verb (then re-sorts).
 
 **Bank generation** (on each dedup-accepted unique insert, unless `skipEvalBanks`):
 
@@ -328,7 +329,7 @@ Banks live under `common/data/eval/` (`golden.jsonl`, `extended.jsonl`, `scrambl
 **Pass / miss (per query):**
 
 1. Search the staging DB; take `displayResults` (**Hit@display** = exact expected `command_id` among shown hits).
-2. On miss only: LLM utility judge (`build/judge`); Pass A if `utility > 0.9`.
+2. On miss only: LLM utility judge (`build/judge`) scores honest usefulness 0–1 (no pass cliff in the prompt); Pass A if `utility >= 0.9`.
 3. Dual hard gate (both required): Hit@display-only rate ≥ **0.7**, then Pass A (hit OR judge) ≥ **0.9**. If Hit@display already cannot clear 0.7, Phase-2 judge is skipped.
 
 
@@ -379,7 +380,7 @@ Interactive evolve loop (`bun run build:loop`): grow diversity from accepted **l
 | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **State**       | Harden `initial_state` (remotes, dirty tree, detached HEAD, divergence). Recipe **verbs** unchanged.                                                                                                |
 | **Flag**        | Change flags/args on existing steps using that step’s `git <cmd> -h` allowlist; ≤ **3** flags per step. **Never** change git verbs.                                                                |
-| **Composition** | Insert a command line before / middle / after (`insert_index`); hard cap **≤ 7** steps; any `git` subcommand whose `-h` returns usage; no shell metacharacters. Skip if parent already has 7 steps. |
+| **Composition** | Insert a command line before / middle / after (`insert_index`); hard cap **≤ 7** steps; any `git` subcommand whose `-h` returns usage; flags fail-closed allowlisted like ground; no shell metacharacters. Skip if parent already has 7 steps. |
 
 
 Persist `mutation_kind` ∈ `{state, flag, composition}` on the child; set `parent_row_id`.
