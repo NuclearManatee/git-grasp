@@ -154,12 +154,23 @@ export async function searchHybrid(opts: {
     });
   }
 
+  // If a channel is entirely absent, do not dilute the other with zeros.
+  let alpha = profile.alpha;
+  let beta = profile.beta;
+  if (cosinePresentIdx.length && !bm25PresentIdx.length) {
+    alpha = 1;
+    beta = 0;
+  } else if (!cosinePresentIdx.length && bm25PresentIdx.length) {
+    alpha = 0;
+    beta = 1;
+  }
+
   const scored = collapsed.map((c, i) => {
     const score = fuseScores(
       cosNormAll[i]!,
       bmNormAll[i]!,
-      profile.alpha,
-      profile.beta,
+      alpha,
+      beta,
     );
     return {
       ...c,
@@ -236,7 +247,7 @@ export async function searchHybrid(opts: {
     confidence,
     results,
     displayResults,
-    blend: { alpha: profile.alpha, beta: profile.beta },
+    blend: { alpha, beta },
     preferredSkill: profile.preferredSkill,
     query: q,
     alert: gate.alert,

@@ -22,8 +22,8 @@ describe('minMaxNormalize', () => {
     expect(minMaxNormalize([1, 3, 5])).toEqual([0, 0.5, 1]);
   });
 
-  it('all equal → zeros', () => {
-    expect(minMaxNormalize([2, 2, 2])).toEqual([0, 0, 0]);
+  it('all equal → ones (full channel credit)', () => {
+    expect(minMaxNormalize([2, 2, 2])).toEqual([1, 1, 1]);
   });
 });
 
@@ -34,6 +34,11 @@ describe('normalizeBm25Batch', () => {
     expect(n[2]).toBeCloseTo(0);
     expect(n[1]).toBeGreaterThan(0);
     expect(n[1]).toBeLessThan(1);
+  });
+
+  it('single or tied BM25 → ones', () => {
+    expect(normalizeBm25Batch([-6])).toEqual([1]);
+    expect(normalizeBm25Batch([-3, -3])).toEqual([1, 1]);
   });
 });
 

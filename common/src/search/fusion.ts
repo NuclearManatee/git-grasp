@@ -77,7 +77,7 @@ export function nextDistinctRecipeScore<T extends {
   return null;
 }
 
-/** Min-max normalize a batch to [0,1]. Equal values â†’ all 0. */
+/** Min-max normalize a batch to [0,1]. Equal values → all 1 (full channel credit). */
 export function minMaxNormalize(values: number[]): number[] {
   if (values.length === 0) return [];
   let min = values[0]!;
@@ -87,13 +87,14 @@ export function minMaxNormalize(values: number[]): number[] {
     if (v > max) max = v;
   }
   const span = max - min;
-  if (span <= 0) return values.map(() => 0);
+  if (span <= 0) return values.map(() => 1);
   return values.map((v) => (v - min) / span);
 }
 
 /**
  * SQLite FTS5 bm25() is more-negative = better.
  * Invert then min-max: S = (max - raw) / (max - min).
+ * Equal / single-hit batches → 1 (do not zero the only evidence).
  */
 export function normalizeBm25Batch(rawBm25: number[]): number[] {
   if (rawBm25.length === 0) return [];
@@ -104,7 +105,7 @@ export function normalizeBm25Batch(rawBm25: number[]): number[] {
     if (v > max) max = v;
   }
   const span = max - min;
-  if (span <= 0) return rawBm25.map(() => 0);
+  if (span <= 0) return rawBm25.map(() => 1);
   return rawBm25.map((raw) => (max - raw) / span);
 }
 
