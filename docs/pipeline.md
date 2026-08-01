@@ -16,7 +16,7 @@ Schema for staging and product is **v7** (`commands` + `intents`, with `mutation
 ```text
 Resources (docs, git -h, taxonomies, …)
         → Prerequisites (scrape → matrix → ingest → prepare)
-        → Ground (generate → validate → dedup → intents + eval gate)
+        → Ground (generate → validate → intents → dedup + eval gate)
         → Iterate (mutate → same pipeline + eval gate)
         → promote / seed product DB
 ```
@@ -134,7 +134,7 @@ Installed `git` binary
 **Creation process (**`bun run taxonomy:matrix`**):**
 
 1. **Draft** (DeepSeek Flash): one focused call per cell using frozen axis context.
-2. **Sample**: generate intents with the real fidelity path (`sample-cell-intents` + `filterIntentsForRecipe`) on a minimal recipe fixture.
+2. **Sample**: generate intents via `taxonomy/sample-cell-intents` + shared `filterIntentsForRecipe` on a minimal recipe fixture (not the ground `build/expand-intents` prompt).
 3. **Judge** (DeepSeek **Pro only**): blind eval — judge sees guidance + sample texts, **never** skill/category labels. Rubrics from dos/donts + usefulness (diversity, jargon leaks). Success = **all 16 cells pass**.
 4. **Rewrite** (Flash): failing cells only; do not mirror judge wording (anti-overfit).
 5. Stop after **10 consecutive failed rounds**, or write the matrix on first all-pass.
@@ -228,10 +228,11 @@ bun run build:prepare
 **Role:** turn resources + taxonomy into **one documentation bundle per Git command**, ready for ground. Outputs are cached under the prepare cache and are **not** wiped by ground/loop cache clears.
 
 
-| Output                  | Meaning                                                                    |
-| ----------------------- | -------------------------------------------------------------------------- |
-| `semantic_blocks.json`  | For every taxonomy command: default `-h` block + routed doc chunks         |
-| `unrouted_chunks.jsonl` | Chunks that never cleared the similarity floor (logged; not fed to ground) |
+| Output                  | Meaning                                                                                     |
+| ----------------------- | ------------------------------------------------------------------------------------------- |
+| `semantic_blocks.json`  | For every **groundable** taxonomy command: `-h` + goal-stub + routed doc chunks             |
+| `unrouted_chunks.jsonl` | Chunks that never cleared the similarity floor (logged; not fed to ground)                  |
+| `goal_gaps.json`        | Groundable verbs whose blocks are help/stub only (no routed prose) — maintainer report      |
 
 
 **Steps inside prepare:**
@@ -239,8 +240,8 @@ bun run build:prepare
 1. **Taxonomy load** — Read checked-in `git_commands.json`. Anchors = groundable verbs only (`available !== false`, skip unsigned `verify-*`) using normalized `command` + summary. No re-scrape.
 2. **Hierarchical chunking** — Parse AsciiDoc/Markdown; paragraph-level chunks; keep code fences / tldr backtick examples bound to nearby prose; prepend path prefixes (e.g. `[Pro Git > Chapter 3 > Basic Branching]`).
 3. **Embed & multi-anchor route** — Embed chunks and taxonomy nodes with build-time `text-embedding-3-small`. Assign each chunk to up to **N ≤ 3** anchors by cosine similarity: absolute floor **0.75**, keep scores within **Δ = 0.05** of the chunk’s best score, then hard-cap N. A matched chunk is **duplicated** into each assigned command’s block list. Literal `git <name>` mentions are lifted to at least the floor. Below-floor for all anchors → `unrouted_chunks.jsonl`.
-4. **Canonical default block** — For **every** taxonomy verb, attach a block from taxonomy summary + `git <cmd> -h` (exit 129 is normal). Do **not** call plain `git help <cmd>` (may open a browser). `metadata_source` = `git/-h/<name>`; path prefix `[git -h > git <name>]`.
-5. **Compile** — Deterministic `semantic_blocks[]` with **one entry per taxonomy command** (coverage complete even when prose is sparse): `command` + `blocks[]` (`-h` first, then routed children).
+4. **Default blocks** — For **every groundable** verb: (a) taxonomy summary + `git <cmd> -h` (`metadata_source` = `git/-h/<name>`; exit 129 is normal — do **not** call plain `git help <cmd>`); (b) a short **goal-stub** block (`goal-stub/<name>`).
+5. **Compile** — Deterministic `semantic_blocks[]` with **one entry per groundable command**: `command` + `blocks[]` (`-h` first, then goal-stub, then routed children). Also write `goal_gaps.json` for help/stub-only verbs.
 
 Clustering, functional category, and synthesized snippet fields are **not** produced here.
 
@@ -272,12 +273,26 @@ First catalog construction: **vanilla** recipes—one primary command, minimum a
 Four steps per semantic block:
 
 
-| Step                   | Input                            | Action                                                                                                | Output                                      |
-| ---------------------- | -------------------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------- |
-| **1 Generation**       | one `semantic_block`             | LLM → vanilla recipe JSON                                                                             | candidate                                   |
-| **2 Validation**       | state + recipe                   | Run in a local Git sandbox; on failure, bounded reflective regen; on success, hash physical Git state | `*_physical_hash`                           |
-| **3 Deduplication**    | hash pair                        | Collision against global DB; keep the simpler recipe (fewer commands/flags)                           | unique row or keep-existing                 |
-| **4 Intent expansion** | validated recipe + intent matrix | LLM emits skill × category intents (strict JSON)                                                      | `intents[]` (+ embeddings for search later) |
+| Step                   | Input                            | Action                                                                                                                         | Output                                      |
+| ---------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------- |
+| **1 Generation**       | one `semantic_block`             | LLM → vanilla recipe JSON                                                                                                      | candidate                                   |
+| **2 Validation**       | state + recipe                   | Run in a local Git sandbox; on failure, bounded reflective regen; on success, hash physical Git state                          | `*_physical_hash`                           |
+| **3 Intent expansion** | validated recipe + intent matrix | Iterative Flash expand (cell coverage + MiniLM dedup); see below                                                               | `intents[]` (≤ 32)                          |
+| **4 Deduplication**    | hash pair + recipe fingerprint   | Collision against global DB (physical hashes, then secondary fingerprint); keep the simpler recipe (fewer commands/flags); merge intents with authoritative cosine prune | unique row or keep-existing                 |
+
+
+**Intent expansion (iterative)**
+
+Per accepted recipe, grow intents until every matrix cell is **filled** or honestly **skipped** (not a forced 16-intent fill):
+
+1. Flash batch (≤ **8**) biased toward **empty** cells; may return `skips[]` with reasons for cells that do not fit.
+2. Fidelity filter (command-like / cross-verb traps).
+3. Embed with local MiniLM; drop **within-recipe** near-dups (cosine ≥ **0.90**).
+4. Best-effort **foreign** check vs staging `vec_intents` (cosine ≥ **0.94**, other `command_id`): one contrastive Flash rewrite, else drop. Lag under concurrency is OK.
+5. Persist-time (writer queue): authoritative within + foreign cosine drop (no rewrite) before insert.
+6. Exit when all cells decided, **zero-growth** streak of **3**, per-recipe cap **32**, or global `MAX_INTENTS`.
+
+Same path for ground and evolve children. Flash only (no Pro).
 
 **Sandbox headlessness:** each job gets PATH stubs under `sandbox/shims/` (`gitk`, `git-gui`, diff/merge tools, no-op `grasp-editor`). GUI verbs invoke stubs (log argv, exit 0) instead of opening windows. `GIT_EDITOR` / `EDITOR` / `VISUAL` / `GIT_SEQUENCE_EDITOR` always point at the editor shim. Opt-in `blockGui: true` restores fail-closed `sandbox_gui_blocked` for regression tests. `$GIT_GRASP_REMOTES` is set to a per-job remotes directory for push/pull fixtures.
 
@@ -292,7 +307,7 @@ Four steps per semantic block:
   - Each step is a single invocation (`git …` or standalone like `gitk`/`scalar`)—**no** shell metacharacters (`&&`, `|`, `;`, backticks) in the command line.
   - `risk` ∈ `[0, 1]` (destructive risk).
 
-Accepted rows also feed eval banks (`golden` / `extended` / `scrambled`). Ground rows keep `mutation_kind = NULL` (or tagged `"ground"` in eval banks).
+Accepted rows also feed eval banks (`golden` / `extended` / `scrambled`). Ground DB rows keep `mutation_kind = NULL`; only the **golden** bank row is tagged `mutation_kind: "ground"`.
 
 ---
 
@@ -345,13 +360,13 @@ Interactive evolve loop (`bun run build:loop`): grow diversity from accepted **l
 - **Every** taxonomy verb is saturated (below), or
 - Global hard caps (`MAX_COMMANDS` / `MAX_INTENTS`) or max iterations hit.
 
-**Saturation (per verb, multi-bucket).** Each accepted recipe increments the unique-recipe set of **every** distinct `git <verb>` in its steps. A verb is saturated when it has **K ≥ 24** unique recipes **and**:
+**Saturation (per verb, multi-bucket).** Each accepted recipe increments coverage for its **primary** verb only (first recipe step). A verb is saturated when it has **K ≥ 24** unique recipes **and**:
 
 
 | Axis            | Floor                                                                                                                           |
 | --------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| **State**       | ≥ 3 of `{minimal, dirty_worktree, with_remote, detached_or_diverged}` among recipes mentioning the verb                         |
-| **Flags**       | ≥ 6 distinct flag-fingerprints (normalized flags on steps for that verb)                                                        |
+| **State**       | ≥ 3 of `{minimal, dirty_worktree, with_remote, detached_or_diverged}` among recipes whose primary verb is that verb              |
+| **Flags**       | ≥ **3** distinct flag-fingerprints (normalized flags on steps for that verb)                                                    |
 | **Composition** | ≥ 1 length-1 recipe, ≥ 3 with length ∈ [2, 3], ≥ 2 with length ∈ [4, 7] (or axis exhausted, e.g. all leaves already at 7 steps) |
 
 
@@ -363,13 +378,13 @@ Interactive evolve loop (`bun run build:loop`): grow diversity from accepted **l
 | Kind            | Action                                                                                                                                                                                              |
 | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **State**       | Harden `initial_state` (remotes, dirty tree, detached HEAD, divergence). Recipe **verbs** unchanged.                                                                                                |
-| **Flag**        | Change flags/args on existing steps using that step’s `git <cmd> -h` allowlist. **Never** change git verbs.                                                                                         |
+| **Flag**        | Change flags/args on existing steps using that step’s `git <cmd> -h` allowlist; ≤ **3** flags per step. **Never** change git verbs.                                                                |
 | **Composition** | Insert a command line before / middle / after (`insert_index`); hard cap **≤ 7** steps; any `git` subcommand whose `-h` returns usage; no shell metacharacters. Skip if parent already has 7 steps. |
 
 
 Persist `mutation_kind` ∈ `{state, flag, composition}` on the child; set `parent_row_id`.
 
-**Then re-run** validation → dedup → intent expansion on the child (same construction pipeline as ground).
+**Then re-run** validation → intent expansion → dedup on the child (same construction pipeline as ground).
 
 ---
 
@@ -400,10 +415,10 @@ eval verbPassB=0.84 (42/50)
 
 **Promote handoff** (after ground/iterate succeed):
 
-- Write coverage report (e.g. `data/eval/coverage-report.json`) from per-verb coverage.
+- Write coverage report (`common/data/eval/coverage-report.json`) from per-verb coverage.
 - **Warn** (do not block) if fewer than **80%** of taxonomy verbs have ≥ **3** recipes.
-- Finalize FTS + `git_verbs` meta, drop build-only `vec_commands`, promote staging → shipped catalog / DB (+ checksum).
-- Catalog quality merges follow git-flow `improve/*` after the product eval gate.
+- Finalize FTS + `git_verbs` meta, drop build-only `vec_commands`, promote staging → shipped catalog / DB. Checksum is produced by `bun run seed`, not by promote itself.
+- Catalog quality merges follow git-flow `improve/*` after the product eval gate (`bun run eval` / `eval:loop`).
 
 Changing prepare / generation / evolve contracts requires a **full rebuild** (prepare → ground → iterate → promote). There is no migrate path from prior prepare artifacts or schema v6 staging DBs.
 

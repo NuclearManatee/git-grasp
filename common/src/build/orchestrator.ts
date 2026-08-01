@@ -44,11 +44,14 @@ import {
   META_BUILD_LOOP_ITERATION,
   META_BUILD_LOOP_ZERO_STREAK,
   META_BUILD_LOOP_MAX_ITERATIONS,
+  INTENT_FOREIGN_KNN_K,
 } from '../db/constants.js';
 import { prepareSemanticBlocks, readSemanticBlocks, loadGitCommandTaxonomy } from './prepare.js';
 import { isUnsignedVerifySkip } from './taxonomyScrape.js';
 import { generateAndValidate } from './validate.js';
 import { expandIntentsForRecipe, evolveByKind } from './generate.js';
+import { shouldPersistIntent } from './intentExpand.js';
+import { makeKnnForeign } from './intentSimilarity.js';
 import { dedupDecision, findCommandByFingerprint, recipeFingerprint } from './dedup.js';
 import { createWriterQueue } from './writerQueue.js';
 import {
@@ -322,6 +325,36 @@ export function wipeEvalBanks() {
   }
 }
 
+/**
+ * Authoritative persist-time prune (within + foreign cosine). Drop only — no rewrite.
+ * @param {object} d db handle
+ * @param {{ embed: (t: string) => Promise<Float32Array|number[]> }} embedder
+ * @param {object} intent
+ * @param {number} commandId
+ * @param {(Float32Array|number[])[]} existingEmbeddings
+ */
+async function persistIntentIfAllowed(d, embedder, intent, commandId, existingEmbeddings) {
+  const emb = await embedder.embed(intent.intent_text);
+  const knnForeign = makeKnnForeign(d, knnRecall, INTENT_FOREIGN_KNN_K);
+  const gate = await shouldPersistIntent({
+    intent_text: intent.intent_text,
+    embedding: emb,
+    existingEmbeddings,
+    knnForeign,
+    selfCommandId: commandId,
+  });
+  if (!gate.ok) return { inserted: false, reason: gate.reason, embedding: emb };
+  insertIntentWithEmbedding(d, {
+    command_id: commandId,
+    skill_level: intent.skill_level,
+    intent_category: intent.intent_category,
+    intent_text: intent.intent_text,
+    embedding: emb,
+  });
+  existingEmbeddings.push(emb);
+  return { inserted: true, reason: 'ok', embedding: emb };
+}
+
 async function persistAccepted(db, writer, accepted, embedder) {
   return writer.run(async (d) => {
     let existing = findCommandByHashPair(
@@ -335,34 +368,38 @@ async function persistAccepted(db, writer, accepted, embedder) {
     }
     const decision = dedupDecision(existing, accepted);
     if (decision === 'keep_existing') {
-      // Merge any new intents onto survivor.
+      // Merge any new intents onto survivor (exact text + cosine prune).
       const intents = accepted.intents || [];
       if (intents.length) {
         const rawDb = d._db ?? d;
+        const existingRows = rawDb
+          .prepare(`SELECT intent_text FROM intents WHERE command_id = ?`)
+          .all(existing.row_id);
         const existingTexts = new Set(
-          rawDb
-            .prepare(`SELECT intent_text FROM intents WHERE command_id = ?`)
-            .all(existing.row_id)
-            .map((r) =>
-              String(r.intent_text || '')
-                .toLowerCase()
-                .trim(),
-            ),
+          existingRows.map((r) =>
+            String(r.intent_text || '')
+              .toLowerCase()
+              .trim(),
+          ),
         );
+        /** @type {(Float32Array|number[])[]} */
+        const existingEmbeddings = [];
+        for (const r of existingRows) {
+          existingEmbeddings.push(await embedder.embed(String(r.intent_text || '')));
+        }
         for (const intent of intents) {
           const key = String(intent.intent_text || '')
             .toLowerCase()
             .trim();
           if (!key || existingTexts.has(key)) continue;
           existingTexts.add(key);
-          const emb = await embedder.embed(intent.intent_text);
-          insertIntentWithEmbedding(d, {
-            command_id: existing.row_id,
-            skill_level: intent.skill_level,
-            intent_category: intent.intent_category,
-            intent_text: intent.intent_text,
-            embedding: emb,
-          });
+          await persistIntentIfAllowed(
+            d,
+            embedder,
+            intent,
+            existing.row_id,
+            existingEmbeddings,
+          );
         }
       }
       return { inserted: false, row_id: existing.row_id, reason: 'dedup_keep' };
@@ -380,15 +417,10 @@ async function persistAccepted(db, writer, accepted, embedder) {
       mutation_kind: accepted.mutation_kind ?? null,
     });
     const intents = accepted.intents || [];
+    /** @type {(Float32Array|number[])[]} */
+    const existingEmbeddings = [];
     for (const intent of intents) {
-      const emb = await embedder.embed(intent.intent_text);
-      insertIntentWithEmbedding(d, {
-        command_id: row_id,
-        skill_level: intent.skill_level,
-        intent_category: intent.intent_category,
-        intent_text: intent.intent_text,
-        embedding: emb,
-      });
+      await persistIntentIfAllowed(d, embedder, intent, row_id, existingEmbeddings);
     }
     const cEmb = await embedder.embed(
       commandEmbedText({ ...accepted, command_recipe: accepted.command_recipe }),
@@ -504,9 +536,14 @@ export async function runGroundStep(opts = {}) {
             return;
           }
           log(`ground[${i + 1}/${groups.length}] expand intents`);
+          const knnForeign = makeKnnForeign(db, knnRecall, INTENT_FOREIGN_KNN_K);
           const intents = opts.expandIntents
             ? await opts.expandIntents(validated)
-            : await expandIntentsForRecipe(validated, { llmJsonObject: opts.llmJsonObject });
+            : await expandIntentsForRecipe(validated, {
+                llmJsonObject: opts.llmJsonObject,
+                embedder,
+                knnForeign,
+              });
           const list = Array.isArray(intents) ? intents : [];
           const persisted = await persistAccepted(
             db,
@@ -796,10 +833,13 @@ export async function runBuildLoop(opts = {}) {
               return;
             }
             const tIntents = Date.now();
+            const knnForeign = makeKnnForeign(db, knnRecall, INTENT_FOREIGN_KNN_K);
             const intents = opts.expandIntents
               ? await opts.expandIntents(validated)
               : await expandIntentsForRecipe(validated, {
                   llmJsonObject: opts.llmJsonObject,
+                  embedder,
+                  knnForeign,
                 });
             evolveTiming.intentsMs += Date.now() - tIntents;
             const list = Array.isArray(intents) ? intents : [];

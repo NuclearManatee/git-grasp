@@ -6,7 +6,10 @@ import { isCommandLikeIntent } from '../catalog/intentHygiene.js';
 import { verbFromCommandLine } from './coverage.js';
 import { parseCommands } from '../db/recipeFormat.js';
 
-export const INTENT_CAP_PER_RECIPE = 6;
+import { INTENT_EXPAND_BATCH } from '../db/constants.js';
+
+/** Default fidelity filter cap per expand batch (not final per-recipe cap). */
+export const INTENT_CAP_PER_RECIPE = INTENT_EXPAND_BATCH;
 
 /** Cheap cross-verb lexicon traps. */
 const LEXICON_TRAPS: { role: string; needles: RegExp; preferVerb: string }[] = [

@@ -24,8 +24,22 @@ export const LOOP_MAX_BATCH = 256;
 export const LOOP_MAX_RECIPE_STEPS = 7;
 export const LOOP_FLAG_FINGERPRINT_FLOOR = 3;
 export const LOOP_MAX_FLAGS_PER_STEP = 3;
-/** Max intents kept per recipe after fidelity filter. */
-export const INTENT_EXPAND_CAP = 6;
+/** Intent expand: per-round LLM batch size (fidelity filter cap per round). */
+export const INTENT_EXPAND_BATCH = 8;
+/** Intent expand: hard max intents kept per recipe. */
+export const INTENT_EXPAND_CAP_PER_RECIPE = 32;
+/** @deprecated Use INTENT_EXPAND_BATCH — alias for matrix sample / legacy callers. */
+export const INTENT_EXPAND_CAP = INTENT_EXPAND_BATCH;
+/** Within-recipe near-dup cosine threshold (inclusive drop). */
+export const INTENT_WITHIN_COSINE = 0.9;
+/** Cross-recipe collision cosine threshold (inclusive). */
+export const INTENT_FOREIGN_COSINE = 0.94;
+/** Exit expand when this many consecutive rounds add zero keepers. */
+export const INTENT_EXPAND_ZERO_STREAK = 3;
+/** Max contrastive rewrites per candidate on foreign collision. */
+export const INTENT_FOREIGN_REWRITE_MAX = 1;
+/** KNN depth for foreign-neighbor checks during expand/persist. */
+export const INTENT_FOREIGN_KNN_K = 8;
 export const LOOP_STATE_BUCKET_FLOOR = 3;
 
 /** Build-time evaluation (dual gate). */

@@ -28,6 +28,20 @@ describe('intentFidelity', () => {
     ]);
     expect(out.map((i) => i.intent_text)).toEqual(['change my git username']);
   });
+
+  it('respects custom cap (batch default 8)', () => {
+    const recipe = {
+      command_recipe: { commands: [{ command: 'git status' }] },
+    };
+    const many = Array.from({ length: 10 }, (_, i) => ({
+      skill_level: 'beginner',
+      intent_category: 'goal',
+      intent_text: `show my repo status please number ${i}`,
+    }));
+    expect(filterIntentsForRecipe(recipe, many)).toHaveLength(8);
+    expect(filterIntentsForRecipe(recipe, many, { cap: 3 })).toHaveLength(3);
+    expect(filterIntentsForRecipe(recipe, many, { cap: 32 })).toHaveLength(10);
+  });
 });
 
 describe('recipeFingerprint', () => {

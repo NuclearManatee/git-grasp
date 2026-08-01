@@ -6,6 +6,8 @@ import {
   CommandRowSchema,
   GenerationLlmResponseSchema,
   IntentExpansionLlmResponseSchema,
+  IntentExpandBatchLlmResponseSchema,
+  IntentRewriteLlmResponseSchema,
   IntentRowSchema,
   SemanticBlockSchema,
   StrictJudgeSchema,
@@ -42,6 +44,25 @@ describe('v6 command schemas', () => {
       ],
     });
     expect(one.intents).toHaveLength(1);
+  });
+
+  it('parses expand batch with intents and/or skips', () => {
+    const batch = IntentExpandBatchLlmResponseSchema.parse({
+      intents: [
+        { skill_level: 'beginner', intent_category: 'goal', intent_text: 'show status' },
+      ],
+      skips: [
+        {
+          skill_level: 'expert',
+          intent_category: 'error_message',
+          reason: 'no error surface',
+        },
+      ],
+    });
+    expect(batch.skips).toHaveLength(1);
+    expect(() => IntentExpandBatchLlmResponseSchema.parse({ intents: [], skips: [] })).toThrow();
+    const rw = IntentRewriteLlmResponseSchema.parse({ intent_text: 'rewritten query' });
+    expect(rw.intent_text).toContain('rewritten');
   });
 
   it('parses strict judge', () => {
