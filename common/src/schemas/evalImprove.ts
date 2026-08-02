@@ -77,5 +77,9 @@ export const EvalFailureClusterSchema = z.object({
 
 export const EVAL_IMPROVE_MAX_TRAPS_PER_ROUND = 5;
 export const EVAL_IMPROVE_MAX_FAMILIES_PER_ROUND = 3;
-export const EVAL_IMPROVE_POLISH_MISS_MIN = 5;
-export const EVAL_IMPROVE_POLISH_PASS_A = 0.95;
+
+/** @deprecated import from db/constants.js — kept for schema consumers */
+export {
+  EVAL_IMPROVE_POLISH_MISS_MIN,
+  EVAL_IMPROVE_POLISH_PASS_A,
+} from '../db/constants.js';

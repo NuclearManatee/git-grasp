@@ -64,7 +64,7 @@ describe('eval gate metrics (integration-style)', () => {
     expect(formatEvalReport(out)).toContain('okHit=false');
   });
 
-  it('hard-fails when Pass A rate < 0.9 even if verbRate is high', async () => {
+  it('hard-fails when Pass A rate is below the dual-gate floor even if verbRate is high', async () => {
     const bank = [
       { query_text: 'a', command_id: 1, mutation_kind: 'ground', primary_verb: 'git status' },
       { query_text: 'b', command_id: 2, mutation_kind: 'flag', primary_verb: 'git log' },
@@ -93,7 +93,7 @@ describe('eval gate metrics (integration-style)', () => {
     expect(out.skippedJudge).toBe(true);
   });
 
-  it('passes dual gate when hit@display>=0.7 and passA>=0.9', async () => {
+  it('passes dual gate when hit@display and passA both clear their floors', async () => {
     const bank = Array.from({ length: 10 }, (_, i) => ({
       query_text: `q${i}`,
       command_id: i + 1,

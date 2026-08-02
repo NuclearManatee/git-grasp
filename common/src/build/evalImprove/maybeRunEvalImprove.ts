@@ -5,7 +5,7 @@
 import {
   EVAL_IMPROVE_POLISH_MISS_MIN,
   EVAL_IMPROVE_POLISH_PASS_A,
-} from '../../schemas/evalImprove.js';
+} from '../../db/constants.js';
 import { countEvalMisses } from './collectMisses.js';
 import { runImproveRound } from './runImproveRound.js';
 
@@ -37,7 +37,9 @@ export function shouldRunEvalImprove(evalResult, opts = {}) {
   if (evalResult.ok === false) return { run: true, reason: 'gate_fail' };
   const misses = countEvalMisses(evalResult);
   const rate = Number(evalResult.rate) || 0;
-  if (misses >= EVAL_IMPROVE_POLISH_MISS_MIN || rate < EVAL_IMPROVE_POLISH_PASS_A) {
+  const polishMissMin = opts.polishMissMin ?? EVAL_IMPROVE_POLISH_MISS_MIN;
+  const polishPassA = opts.polishPassA ?? EVAL_IMPROVE_POLISH_PASS_A;
+  if (misses >= polishMissMin || rate < polishPassA) {
     return { run: true, reason: 'polish' };
   }
   return { run: false, reason: 'healthy' };

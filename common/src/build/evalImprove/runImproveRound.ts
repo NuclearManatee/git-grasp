@@ -265,8 +265,10 @@ export async function runImproveRound(opts) {
     verbLookup: opts.verbLookup,
     minPassRate: opts.minPassRate,
     minHitAtDisplayRate: opts.minHitAtDisplayRate,
+    utilityThreshold: opts.utilityThreshold,
     searchFn: opts.searchFn,
     evalConcurrency: opts.evalConcurrency,
+    searchPoolSize: opts.searchPoolSize,
   });
 
   const holdoutAfter = metricsForCommandIds(after, holdoutIds);

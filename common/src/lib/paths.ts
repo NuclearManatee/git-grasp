@@ -118,6 +118,15 @@ export function evalProposalRoundsDir() {
   return path.join(localDir(), 'eval', 'proposal-rounds');
 }
 
+export function evalGateRecoveryDir() {
+  return path.join(localDir(), 'eval', 'gate-recovery');
+}
+
+/** Structured build:loop / ground run artifacts. */
+export function buildPipelineRunsDir() {
+  return path.join(localDir(), 'build-pipeline');
+}
+
 export function taxonomyDir() {
   return path.join(commonDir(), 'taxonomy');
 }

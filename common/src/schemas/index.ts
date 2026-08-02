@@ -115,6 +115,12 @@ export {
   EVAL_IMPROVE_POLISH_PASS_A,
 } from './evalImprove.js';
 
+export {
+  RewriteEvalContextBatchSchema,
+  RewriteEvalGoldenBatchSchema,
+  EvalMissClassSchema,
+} from './evalRecovery.js';
+
 export * from './llmResponses/catalog.js';
 
 export {

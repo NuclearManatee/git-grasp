@@ -78,7 +78,7 @@ import {
   resolveEvalConcurrency,
   isFallbackGoldenQuery,
 } from './evalGate.js';
-import { maybeRunEvalImprove } from './evalImprove/maybeRunEvalImprove.js';
+import { runEvalGateRecovery } from './evalRecovery/runEvalGateRecovery.js';
 import {
   retrieveEvolutionExamples,
   selectEvolutionParents,
@@ -93,6 +93,30 @@ import { loadThresholds } from '../search/index.js';
 function log(...args) {
   const ts = new Date().toISOString().slice(11, 19);
   console.log(`[build ${ts}]`, ...args);
+  if (typeof buildLogHook === 'function') {
+    const text = args
+      .map((a) => (typeof a === 'string' ? a : safeJson(a)))
+      .join(' ');
+    try {
+      buildLogHook(`[build ${ts}] ${text}`);
+    } catch {
+      // ignore sink errors
+    }
+  }
+}
+
+function safeJson(v) {
+  try {
+    return JSON.stringify(v);
+  } catch {
+    return String(v);
+  }
+}
+
+/** Optional sink for structured run logs (build-loop CLI). */
+let buildLogHook = null;
+export function setBuildLogHook(fn) {
+  buildLogHook = typeof fn === 'function' ? fn : null;
 }
 
 function commandEmbedText(row) {
@@ -131,7 +155,7 @@ function defaultSearchThresholds() {
 
 /**
  * One eval session: finalize FTS/verbs once, then open a readonly connection pool.
- * MiniLM embed is mutex-serialized; each RO conn has its own mutex for sqlite.
+ * Local embed is mutex-serialized; each RO conn has its own mutex for sqlite.
  * @param {string} dbPath
  * @returns {Promise<{ search: (query: string) => Promise<*>, close: () => void, poolSize: number }>}
  */
@@ -269,7 +293,7 @@ async function runBankEval(bank, stagingPath, opts = {}) {
     });
 
   log(
-    `eval criteria hit@display>=${minHitAtDisplayRate} passA>=${minPassRate} judgeUtil>=${EVAL_JUDGE_UTILITY_THRESHOLD}`,
+    `eval criteria hit@display>=${minHitAtDisplayRate} passA>=${minPassRate} judgeUtil>=${opts.utilityThreshold ?? EVAL_JUDGE_UTILITY_THRESHOLD}`,
   );
   log(`eval judgePrompt ${JUDGE_SYSTEM_PROMPT.replace(/\s+/g, ' ').trim()}`);
 
@@ -277,6 +301,7 @@ async function runBankEval(bank, stagingPath, opts = {}) {
     llmJsonObject: opts.llmJsonObject,
     minPassRate,
     minHitAtDisplayRate,
+    utilityThreshold: opts.utilityThreshold,
     verbLookup,
     concurrency: opts.evalConcurrency,
     onProgress,
@@ -616,9 +641,11 @@ export async function runGroundStep(opts = {}) {
       llmJsonObject: opts.llmJsonObject,
       minPassRate,
       minHitAtDisplayRate,
+      utilityThreshold: opts.utilityThreshold,
       verbLookup,
       searchFn: opts.searchFn,
       evalConcurrency: opts.evalConcurrency,
+      searchPoolSize: opts.searchPoolSize,
       onProgress: opts.onEvalProgress,
       onJudgeVote: opts.onJudgeVote,
     });
@@ -633,15 +660,28 @@ export async function runGroundStep(opts = {}) {
         taxonomyVerbs = [];
       }
     }
-    const improveOut = await maybeRunEvalImprove({
+    const recoveryArtifactsDir =
+      typeof opts.recoveryArtifactsDir === 'function'
+        ? opts.recoveryArtifactsDir({ phase: 'ground' })
+        : opts.recoveryArtifactsDir ||
+          (typeof opts.improveArtifactsDir === 'function'
+            ? opts.improveArtifactsDir({ phase: 'ground' })
+            : opts.improveArtifactsDir);
+    const recoveryOut = await runEvalGateRecovery({
       phase: 'ground',
       evalResult,
+      skipEvalRecovery: opts.skipEvalRecovery,
       skipEvalImprove: opts.skipEvalImprove,
+      evalFailRetryMax: opts.evalFailRetryMax,
+      evalPolishRetryMax: opts.evalPolishRetryMax,
+      polishMissMin: opts.polishMissMin,
+      polishPassA: opts.polishPassA,
       stagingPath: resolvedStaging,
       db,
       embedder,
-      bank,
       runBankEval,
+      reloadBank: () =>
+        activeEvaluationBank({ kinds: ['golden'], excludeFallbacks: true }),
       taxonomyVerbs,
       verbLookup,
       llmJsonObject: opts.llmJsonObject,
@@ -650,15 +690,21 @@ export async function runGroundStep(opts = {}) {
       expandIntents: opts.expandIntents,
       minPassRate,
       minHitAtDisplayRate,
+      utilityThreshold: opts.utilityThreshold,
       searchFn: opts.searchFn,
       evalConcurrency: opts.evalConcurrency,
+      searchPoolSize: opts.searchPoolSize,
+      artifactsDir: recoveryArtifactsDir,
       log: (m) => log(m),
     });
-    if (improveOut.ran) {
-      evalResult = improveOut.evalResult;
+    if (recoveryOut.ran) {
+      evalResult = recoveryOut.evalResult;
       log(formatEvalReport(evalResult));
       if (typeof opts.onEvalReport === 'function') {
-        opts.onEvalReport(evalResult, { phase: 'ground', improve: improveOut.improve });
+        opts.onEvalReport(evalResult, {
+          phase: 'ground',
+          recovery: recoveryOut,
+        });
       }
     }
   }
@@ -969,9 +1015,11 @@ export async function runBuildLoop(opts = {}) {
       llmJsonObject: opts.llmJsonObject,
       minPassRate,
       minHitAtDisplayRate,
+      utilityThreshold: opts.utilityThreshold,
       verbLookup,
       searchFn: opts.searchFn,
       evalConcurrency: opts.evalConcurrency,
+      searchPoolSize: opts.searchPoolSize,
       onProgress: opts.onEvalProgress,
       onJudgeVote: opts.onJudgeVote,
     });
@@ -980,15 +1028,28 @@ export async function runBuildLoop(opts = {}) {
       opts.onEvalReport(evalResult, { phase: 'loop', iteration });
     }
 
-    const improveOut = await maybeRunEvalImprove({
+    const recoveryArtifactsDir =
+      typeof opts.recoveryArtifactsDir === 'function'
+        ? opts.recoveryArtifactsDir({ phase: 'loop', iteration })
+        : opts.recoveryArtifactsDir ||
+          (typeof opts.improveArtifactsDir === 'function'
+            ? opts.improveArtifactsDir({ phase: 'loop', iteration })
+            : opts.improveArtifactsDir);
+    const recoveryOut = await runEvalGateRecovery({
       phase: 'loop',
       evalResult,
+      skipEvalRecovery: opts.skipEvalRecovery,
       skipEvalImprove: opts.skipEvalImprove,
+      evalFailRetryMax: opts.evalFailRetryMax,
+      evalPolishRetryMax: opts.evalPolishRetryMax,
+      polishMissMin: opts.polishMissMin,
+      polishPassA: opts.polishPassA,
       stagingPath,
       db,
       embedder,
-      bank,
       runBankEval,
+      reloadBank: () =>
+        activeEvaluationBank({ kinds: ['golden'], excludeFallbacks: true }),
       taxonomyVerbs,
       verbLookup,
       llmJsonObject: opts.llmJsonObject,
@@ -997,18 +1058,21 @@ export async function runBuildLoop(opts = {}) {
       expandIntents: opts.expandIntents,
       minPassRate,
       minHitAtDisplayRate,
+      utilityThreshold: opts.utilityThreshold,
       searchFn: opts.searchFn,
       evalConcurrency: opts.evalConcurrency,
+      searchPoolSize: opts.searchPoolSize,
+      artifactsDir: recoveryArtifactsDir,
       log: (m) => log(m),
     });
-    if (improveOut.ran) {
-      evalResult = improveOut.evalResult;
+    if (recoveryOut.ran) {
+      evalResult = recoveryOut.evalResult;
       log(formatEvalReport(evalResult));
       if (typeof opts.onEvalReport === 'function') {
         opts.onEvalReport(evalResult, {
           phase: 'loop',
           iteration,
-          improve: improveOut.improve,
+          recovery: recoveryOut,
         });
       }
     }

@@ -35,6 +35,45 @@ Maintainer entrypoints live under `apps/pipeline` (root `bun run …` wrappers):
 | `bun run seed` / `eval` / `eval:loop`      | After catalog promote         |
 
 
+**`build:loop` tunables** (`bun apps/pipeline/src/build-loop.ts --help`):
+
+| Flag | Default | Meaning |
+| ---- | ------- | ------- |
+| `--fresh` / `--resume` | auto | Wipe staging+eval then ground+loop, or resume loop only |
+| `--min-pass-rate` | `0.9` | Pass A hard-gate floor |
+| `--min-hit-at-display` | `0.7` | Hit@display hard-gate floor |
+| `--judge-utility` | `0.8` | Per-query judge pass (`utility >=`) |
+| `--max-iterations` | `100` / staging meta | Evolve cycle cap |
+| `--exit-zero-streak` | `3` | Stop after N zero-unique cycles |
+| `--batch-size` / `--concurrency` | `256` / `24` | Evolve batch + job concurrency |
+| `--eval-concurrency` / `--eval-search-pool` | `64` / `8` | Eval parallelism |
+| `--skip-eval-recovery` | off | Disable bank recovery + improve after eval |
+| `--skip-eval-improve` | off | Allow bank rewrite but skip taxonomy improve |
+| `--eval-fail-retry-max` | `4` | Fail-retry attempts when gate is red |
+| `--eval-polish-retry-max` | `2` | Polish attempts when green but below nice-to-have |
+| `--polish-miss-min` / `--polish-pass-a` | `5` / `0.95` | Polish trigger / nice-to-have Pass A |
+| `--continue-on-eval-ko` | off | Keep going after a failed gate |
+| `--run-dir` / `--no-run-log` | auto / off | Structured run artifacts |
+
+**Run artifacts** (default on): `local/build-pipeline/run_<ISO-ts>/`
+
+```text
+config.json          # resolved CLI + paths
+console.log          # teed build log lines
+events.jsonl         # chronological structured events
+summary.json         # final ok/phase/timing + phase index
+phases/ground/       # eval-report.json, eval-results.json, improve/
+phases/loop/iter-NNN/
+latest.json          # pointer to most recent run dir
+```
+
+Example:
+
+```bash
+bun apps/pipeline/src/build-loop.ts --fresh --max-iterations=200 --min-pass-rate=0.85
+```
+
+
 ---
 
 
@@ -254,7 +293,7 @@ Clustering, functional category, and synthesized snippet fields are **not** prod
 | `intents`  | NL variants linked to a `command_id`, with `skill_level` + `intent_category`                                        |
 
 
-Build-only `vec_commands` may exist for the evolve neighbor search; it is dropped on promote. Product ships `vec_intents` (384-d MiniLM), `commands_fts`, and `meta`.
+Build-only `vec_commands` may exist for the evolve neighbor search; it is dropped on promote. Product ships `vec_intents` (384-d `bge-small-en-v1.5`), `commands_fts`, and `meta`.
 
 ---
 
@@ -277,7 +316,7 @@ Four steps per semantic block:
 | ---------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------- |
 | **1 Generation**       | one `semantic_block`             | LLM → vanilla recipe JSON                                                                                                      | candidate                                   |
 | **2 Validation**       | state + recipe                   | Fail-closed flag allowlist (`git -h` + tiny denylist), then sandbox run; reflective regen on failure; hash physical Git state on success | `*_physical_hash`                           |
-| **3 Intent expansion** | validated recipe + intent matrix | Iterative Flash expand (cell coverage + MiniLM dedup); see below                                                               | `intents[]` (≤ 32)                          |
+| **3 Intent expansion** | validated recipe + intent matrix | Iterative Flash expand (cell coverage + local embed dedup); see below                                                               | `intents[]` (≤ 32)                          |
 | **4 Deduplication**    | hash pair + recipe fingerprint   | Collision against global DB (physical hashes, then secondary fingerprint); keep the simpler recipe (fewer commands/flags); merge intents with authoritative cosine prune | unique row or keep-existing                 |
 
 
@@ -287,7 +326,7 @@ Per accepted recipe, grow intents until every matrix cell is **filled** or hones
 
 1. Flash batch (≤ **8**) biased toward **empty** cells; may return `skips[]` with reasons for cells that do not fit. Primary remains the topic; about **1–2** intents per batch may lightly mention a recipe delta (extra step / flag / situation) when present in the full listing or `initial_state`.
 2. Fidelity filter (command-like / cross-verb traps).
-3. Embed with local MiniLM; drop **within-recipe** near-dups (cosine ≥ **0.90**).
+3. Embed with local `bge-small-en-v1.5`; drop **within-recipe** near-dups (cosine ≥ **0.90**).
 4. Best-effort **foreign** check vs staging `vec_intents` (cosine ≥ **0.94**, other `command_id`): one contrastive Flash rewrite, else drop. Lag under concurrency is OK.
 5. Persist-time (writer queue): authoritative within + foreign cosine drop (no rewrite) before insert.
 6. Exit when all cells decided, **zero-growth** streak of **3**, per-recipe cap **32**, or global `MAX_INTENTS`.
@@ -329,8 +368,8 @@ Banks live under `common/data/eval/` (`golden.jsonl`, `extended.jsonl`, `scrambl
 **Pass / miss (per query):**
 
 1. Search the staging DB; take `displayResults` (**Hit@display** = exact expected `command_id` among shown hits).
-2. On miss only: LLM utility judge (`build/judge`) scores honest usefulness 0–1 (no pass cliff in the prompt); Pass A if `utility >= 0.9`.
-3. Dual hard gate (both required): Hit@display-only rate ≥ **0.7**, then Pass A (hit OR judge) ≥ **0.9**. If Hit@display already cannot clear 0.7, Phase-2 judge is skipped.
+2. On miss only: LLM utility judge (`build/judge`) scores honest usefulness 0–1 (no pass cliff in the prompt); Pass A if `utility >= 0.8` (CLI `--judge-utility`).
+3. Dual hard gate (both required): Hit@display-only rate ≥ **0.7**, then Pass A (hit OR judge) ≥ **0.85**. If Hit@display already cannot clear 0.7, Phase-2 judge is skipped.
 
 
 | Check             | Rule                                                                                          |
@@ -341,22 +380,36 @@ Banks live under `common/data/eval/` (`golden.jsonl`, `extended.jsonl`, `scrambl
 
 Ground fails if the dual gate fails. Product-facing `bun run eval` / `eval:loop` after promote is a separate improve-branch workflow; this section is the **in-build** gate while staging grows.
 
-#### Eval improve round (automatic)
+#### Eval gate recovery (automatic)
 
-After ground eval (and after each loop-cycle eval — §4.2), if the dual gate fails **or** polish is warranted (`misses ≥ 5` or Pass A `< 0.95`), the orchestrator runs **one** Flash→Pro proposal round (`skipEvalImprove` disables it):
+After ground eval (and after each loop-cycle eval — §4.2), the orchestrator runs **eval gate recovery** (`--skip-eval-recovery` disables it):
 
-1. **Flash** clusters all non-pass rows (`build/summarize-eval-failures`).
+1. If the dual gate is **red**: up to **4** fail-retry attempts.
+2. If the gate is **green** but polish is warranted (`misses ≥ 5` or Pass A `< 0.95`): up to **2** polish attempts (nice-to-have). Polish never fails a green cycle if it cannot improve.
+3. Each attempt **classifies** non-pass rows in code (`partial_multistep`, `over_ask`, `retrieval_sibling`, `destructive_alt`, `other`).
+4. **Bank-only** fixes for over-ask / partial / destructive: **Pro** writes rewrite context (`build/rewrite-eval-context`); **Flash** rewrites or drops golden rows (`build/rewrite-eval-golden`). Staging recipes/leaves are never deleted.
+5. **Retrieval sibling** misses: existing taxonomy **improve** round (Flash summarize → Pro traps/families → optional reintent → re-eval) — see below. `--skip-eval-improve` skips only this lever.
+6. Re-eval; **accept** only if Hit@display does not drop, holdout rates do not drop, bank-size floors hold (fail ≥85% of cycle-start goldens; polish ≥95%), and Pass A gains (≥1 absolute pass) or the gate turns green (fail mode). Otherwise restore golden (and taxonomy if improve rejected).
+7. **Early stop** when Pass A and Hit@display are flat after an attempt.
+
+Artifacts: `local/eval/gate-recovery/<ts>/` (and under run-log phase dirs when enabled).
+
+#### Eval improve round (inside recovery)
+
+When recovery routes `retrieval_sibling` misses (unless `--skip-eval-improve`):
+
+1. **Flash** clusters non-pass rows (`build/summarize-eval-failures`).
 2. Split misses **70/30 by `command_id`** (stable hash); Pro sees train only.
 3. **Pro** (`deepseek-v4-pro`) proposes schema-locked rules only (`build/propose-eval-rules`):
    - `lexicon_trap` → merged into `common/taxonomy/lexicon_traps.json` (seed traps are regenerable infrastructure, not a hand-grown encyclopedia)
    - `verb_family` → merged into `common/taxonomy/verb_families.json` (Pass B + judge `acceptable_primary_verbs`; Hit@display still requires exact `command_id`)
 4. Validate: evidence ids must be train-miss `command_id`s only (not wrong displayed hits); traps need ≥2 train-miss ids **or** ≥2 needle-matched train queries; ≤5 traps / ≤3 families; prefer_verb ∈ taxonomy; forbid destructive antonym families (e.g. revert↔reset).
 5. On trap apply: re-expand intents on staging under the new traps; families take effect on the next eval only.
-6. Re-eval the same golden bank once. **Accept** if holdout Hit@display and Pass A do not drop and full-bank Pass A gains ≥1 absolute pass (or Hit@display improves when Pass A is tied); else restore JSON snapshots (and re-expand if traps were rolled back).
+6. Re-eval once. **Accept** if holdout Hit@display and Pass A do not drop and full-bank Pass A gains ≥1 absolute pass (or Hit@display improves when Pass A is tied); else restore JSON snapshots (and re-expand if traps were rolled back).
 
-Pro must skip incomplete multi-step / partial-match clusters (lexicon/family cannot fix those).
+Pro must skip incomplete multi-step / partial-match clusters (lexicon/family cannot fix those — recovery uses golden rewrite instead).
 
-Artifacts land under gitignored `local/eval/proposal-rounds/<ts>/`. Flag denylist stays `common/taxonomy/flag_denylist.json` (code-loaded); Pro does not propose denylist changes in v1.
+Improve artifacts also land under `local/eval/proposal-rounds/<ts>/` (and nested under gate-recovery attempts). Flag denylist stays `common/taxonomy/flag_denylist.json` (code-loaded); Pro does not propose denylist changes in v1.
 
 ---
 
@@ -423,7 +476,7 @@ After **each** cycle (same dual gate as §3.2):
 | **Report only** | Stratified rates by `mutation_kind`; Pass B; per-verb rates (do not hard-fail on bucket/verb alone) |
 
 
-Same **eval improve round** as §3.2 (one automatic Flash→Pro round on gate fail or polish-after-pass). Post-improve metrics drive `continueOnEvalKo` / persist.
+Same **eval gate recovery** as §3.2 (fail-retry up to 4; polish up to 2). Post-recovery metrics drive `continueOnEvalKo` / persist.
 
 Example log shape:
 
