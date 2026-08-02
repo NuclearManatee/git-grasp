@@ -7,12 +7,20 @@ import {
   classifyEvalMisses,
   needsBankRewrite,
   needsImproveRound,
+  needsCoverageGeneration,
 } from '../../../common/src/build/evalRecovery/classifyMisses.ts';
 import {
   shouldAcceptRecoveryAttempt,
   isFlatMetrics,
   metricsSlice,
 } from '../../../common/src/build/evalRecovery/accept.ts';
+import { buildRecipeVerbCoverage } from '../../../common/src/build/evalRecovery/coverageHelpers.ts';
+import { recipeFingerprint } from '../../../common/src/build/dedup.ts';
+import { polishRecipeHygiene } from '../../../common/src/build/polishRecipe.ts';
+import {
+  evalBankMeetsFloors,
+  medianNumber,
+} from '../../../common/src/build/evalGate.ts';
 import {
   applyGoldenActions,
   snapshotGoldenBank,
@@ -182,6 +190,210 @@ describe('classifyMiss', () => {
     );
     expect(needsBankRewrite(classified)).toBe(true);
     expect(needsImproveRound(classified)).toBe(true);
+  });
+
+  it('flags coverage_gap when multi-verb query has no covering recipe', () => {
+    const coverage = buildRecipeVerbCoverage([
+      {
+        row_id: 1,
+        command_recipe: {
+          commands: [{ command: 'git prune' }],
+        },
+      },
+    ]);
+    expect(
+      classifyMiss(
+        {
+          pass: false,
+          via: 'ko',
+          utility: 0.4,
+          query: {
+            command_id: 59,
+            query_text:
+              'show unreachable objects with git fsck and clean them up with git prune',
+            primary_verb: 'git fsck',
+            mutation_kind: 'composition',
+          },
+          displayed: [{ example: 'git prune', snippet: 'git prune' }],
+        },
+        { familyIndex, recipeVerbCoverage: coverage },
+      ),
+    ).toBe('coverage_gap');
+  });
+
+  it('does not treat "git repository" as a second verb for coverage_gap', () => {
+    const coverage = buildRecipeVerbCoverage([
+      {
+        row_id: 13,
+        command_recipe: {
+          commands: [{ command: 'git count-objects' }],
+        },
+      },
+    ]);
+    expect(
+      classifyMiss(
+        {
+          pass: false,
+          via: 'ko',
+          utility: 0.3,
+          query: {
+            command_id: 13,
+            query_text:
+              'How to count loose objects in the git repository with git count-objects?',
+            primary_verb: 'git count-objects',
+          },
+          displayed: [{ example: 'git fsck', snippet: 'git fsck' }],
+        },
+        { familyIndex, recipeVerbCoverage: coverage },
+      ),
+    ).toBe('retrieval_sibling');
+  });
+
+  it('does not flag coverage_gap when a composite recipe already covers verbs', () => {
+    const coverage = buildRecipeVerbCoverage([
+      {
+        row_id: 2,
+        command_recipe: {
+          commands: [
+            { command: 'git fsck --unreachable' },
+            { command: 'git prune' },
+          ],
+        },
+      },
+    ]);
+    const cls = classifyMiss(
+      {
+        pass: false,
+        via: 'ko',
+        utility: 0.4,
+        query: {
+          command_id: 59,
+          query_text:
+            'show unreachable objects with git fsck and clean them up with git prune',
+          primary_verb: 'git fsck',
+          mutation_kind: 'composition',
+        },
+        displayed: [{ example: 'git prune', snippet: 'git prune' }],
+      },
+      { familyIndex, recipeVerbCoverage: coverage },
+    );
+    expect(cls).not.toBe('coverage_gap');
+  });
+
+  it('needsCoverageGeneration detects coverage_gap class', () => {
+    expect(
+      needsCoverageGeneration([{ class: 'coverage_gap' }, { class: 'other' }]),
+    ).toBe(true);
+    expect(needsCoverageGeneration([{ class: 'retrieval_sibling' }])).toBe(false);
+  });
+});
+
+describe('additive-only accept', () => {
+  it('allows commandsUnchanged=false when additiveOnly', () => {
+    const r = shouldAcceptRecoveryAttempt({
+      mode: 'fail',
+      before: { passed: 40, hitPassed: 40, ok: false },
+      after: { passed: 41, hitPassed: 40, ok: false },
+      holdoutBefore: { total: 0, hitRate: 1, rate: 1 },
+      holdoutAfter: { total: 0, hitRate: 1, rate: 1 },
+      bankBeforeLen: 100,
+      bankAfterLen: 100,
+      bankFloor: 0.85,
+      commandsUnchanged: false,
+      additiveOnly: true,
+    });
+    expect(r.ok).toBe(true);
+  });
+
+  it('rejects non-additive command changes', () => {
+    expect(
+      shouldAcceptRecoveryAttempt({
+        mode: 'fail',
+        before: { passed: 40, hitPassed: 40, ok: false },
+        after: { passed: 41, hitPassed: 40, ok: false },
+        holdoutBefore: { total: 0, hitRate: 1, rate: 1 },
+        holdoutAfter: { total: 0, hitRate: 1, rate: 1 },
+        bankBeforeLen: 100,
+        bankAfterLen: 100,
+        bankFloor: 0.85,
+        commandsUnchanged: false,
+        additiveOnly: false,
+      }).reason,
+    ).toBe('commands_changed');
+  });
+});
+
+describe('eval bank floors + judge median', () => {
+  it('evalBankMeetsFloors uses absolute counts', () => {
+    const bank = Array.from({ length: 150 }, (_, i) => ({
+      command_id: i + 1,
+      mutation_kind: i < 30 ? 'composition' : 'ground',
+    }));
+    expect(evalBankMeetsFloors(bank).ok).toBe(true);
+    expect(evalBankMeetsFloors(bank.slice(0, 100)).ok).toBe(false);
+    expect(
+      evalBankMeetsFloors(
+        Array.from({ length: 150 }, (_, i) => ({
+          command_id: i + 1,
+          mutation_kind: 'ground',
+        })),
+      ).ok,
+    ).toBe(false);
+  });
+
+  it('medianNumber picks middle', () => {
+    expect(medianNumber([0.7, 0.9, 0.5])).toBe(0.7);
+    expect(medianNumber([0.8, 0.9])).toBeCloseTo(0.85);
+  });
+});
+
+describe('polishRecipeHygiene fingerprint gate', () => {
+  it('keeps original when fingerprint would change', async () => {
+    const recipe = {
+      initial_state: 'git commit --allow-empty -m init',
+      command_recipe: {
+        commands: [{ command: 'git status', comment: 'sandbox note about f.txt' }],
+      },
+      risk: 0.1,
+      initial_state_physical_hash: 'a',
+      final_state_physical_hash: 'b',
+    };
+    const before = recipeFingerprint(recipe.command_recipe);
+    const out = await polishRecipeHygiene(recipe, {
+      skipSandbox: true,
+      llmJsonObject: async () => ({
+        initial_state: recipe.initial_state,
+        command_recipe: {
+          commands: [{ command: 'git diff', comment: 'changed verb' }],
+        },
+        risk: 0.1,
+      }),
+    });
+    expect(recipeFingerprint(out.command_recipe)).toBe(before);
+    expect(out.command_recipe.commands[0].command).toBe('git status');
+  });
+
+  it('accepts comment-only polish with matching fingerprint', async () => {
+    const recipe = {
+      initial_state: 'git commit --allow-empty -m init',
+      command_recipe: {
+        commands: [{ command: 'git status', comment: 'blob for f.txt' }],
+      },
+      risk: 0.1,
+      initial_state_physical_hash: 'a',
+      final_state_physical_hash: 'b',
+    };
+    const out = await polishRecipeHygiene(recipe, {
+      skipSandbox: true,
+      llmJsonObject: async () => ({
+        initial_state: recipe.initial_state,
+        command_recipe: {
+          commands: [{ command: 'git status', comment: 'Show working tree status' }],
+        },
+        risk: 0.1,
+      }),
+    });
+    expect(out.command_recipe.commands[0].comment).toBe('Show working tree status');
   });
 });
 

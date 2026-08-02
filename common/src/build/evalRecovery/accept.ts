@@ -54,6 +54,7 @@ export function isFlatMetrics(before, after) {
  *   bankAfterLen: number,
  *   bankFloor: number,
  *   commandsUnchanged?: boolean,
+ *   additiveOnly?: boolean,
  * }} args
  */
 export function shouldAcceptRecoveryAttempt(args) {
@@ -67,9 +68,12 @@ export function shouldAcceptRecoveryAttempt(args) {
     bankAfterLen,
     bankFloor,
     commandsUnchanged = true,
+    additiveOnly = false,
   } = args;
 
-  if (!commandsUnchanged) {
+  // Non-additive catalog mutations are forbidden. Additive inserts
+  // (coverage_gap composites) set commandsUnchanged=false + additiveOnly=true.
+  if (!commandsUnchanged && !additiveOnly) {
     return { ok: false, reason: 'commands_changed' };
   }
   if (bankAfterLen + 1e-9 < bankBeforeLen * bankFloor) {

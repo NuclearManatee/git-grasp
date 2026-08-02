@@ -25,8 +25,10 @@ import {
   readVerbFamiliesFile,
   writeVerbFamiliesFile,
   mergeVerbFamilyProposals,
+  pruneDistinguishedEvalRoundFamilies,
 } from './verbFamilies.js';
 import { reexpandIntentsForStaging } from './reexpandIntents.js';
+import { loadBank } from '../evalGate.js';
 
 function missPayload(m) {
   return {
@@ -173,9 +175,25 @@ export async function runImproveRound(opts) {
   writeJson(artDir, 'summary.json', summary);
 
   const trapsSnap = readLexiconTrapsFile({ trapsPath: opts.trapsPath });
-  const familiesSnap = readVerbFamiliesFile({ familiesPath: opts.familiesPath });
+  let familiesSnap = readVerbFamiliesFile({ familiesPath: opts.familiesPath });
+  const goldenBank =
+    opts.goldenBank ||
+    (typeof opts.loadGoldenBank === 'function'
+      ? opts.loadGoldenBank()
+      : loadBank('golden.jsonl'));
+  const pruned = pruneDistinguishedEvalRoundFamilies(familiesSnap, goldenBank);
+  if (pruned.pruned.length) {
+    log(
+      `improve prune ${pruned.pruned.length} eval_round family(ies) distinguished by goldens`,
+    );
+    writeVerbFamiliesFile(pruned.file, { familiesPath: opts.familiesPath });
+    familiesSnap = pruned.file;
+  }
   writeJson(artDir, 'traps-before.json', trapsSnap);
   writeJson(artDir, 'families-before.json', familiesSnap);
+  if (pruned.pruned.length) {
+    writeJson(artDir, 'families-pruned.json', pruned.pruned);
+  }
 
   let rawBatch = { proposals: [] };
   try {
@@ -207,6 +225,7 @@ export async function runImproveRound(opts) {
   const validated = validateProposalBatch(rawBatch, {
     trainMisses: train,
     taxonomyVerbs: opts.taxonomyVerbs || [],
+    goldenBank,
   });
   writeJson(artDir, 'proposals-validated.json', validated);
 

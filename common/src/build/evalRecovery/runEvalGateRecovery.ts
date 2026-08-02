@@ -1,6 +1,6 @@
 // @ts-nocheck
 /**
- * Eval gate recovery: fail-retry (bank + improve) and polish-after-pass.
+ * Eval gate recovery: fail-retry (bank + improve + coverage) and polish-after-pass.
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
@@ -12,6 +12,7 @@ import {
   EVAL_GATE_FAIL_BANK_SIZE_FLOOR,
   EVAL_GATE_POLISH_BANK_SIZE_FLOOR,
 } from '../../db/constants.js';
+import { openDb, listCommands } from '../../db/schema.js';
 import { evalGateRecoveryDir } from '../../lib/paths.js';
 import { activeEvaluationBank } from '../evalGate.js';
 import { countEvalMisses, collectEvalMisses } from '../evalImprove/collectMisses.js';
@@ -23,7 +24,13 @@ import {
   partitionByClass,
   needsBankRewrite,
   needsImproveRound,
+  needsCoverageGeneration,
 } from './classifyMisses.js';
+import { buildRecipeVerbCoverage } from './coverageHelpers.js';
+import {
+  generateCoverageGapComposites,
+  rollbackCoverageInserts,
+} from './generateCoverage.js';
 import {
   snapshotGoldenBank,
   restoreGoldenBank,
@@ -52,6 +59,21 @@ export function polishWarranted(evalResult, opts = {}) {
 function reloadGoldenBank(opts) {
   if (typeof opts.reloadBank === 'function') return opts.reloadBank();
   return activeEvaluationBank({ kinds: ['golden'], excludeFallbacks: true });
+}
+
+function loadRecipeCoverage(opts) {
+  if (Array.isArray(opts.recipeVerbCoverage)) return opts.recipeVerbCoverage;
+  try {
+    const ownsDb = !opts.db;
+    const db = opts.db || openDb(opts.stagingPath);
+    try {
+      return buildRecipeVerbCoverage(listCommands(db));
+    } finally {
+      if (ownsDb) db.close();
+    }
+  } catch {
+    return [];
+  }
 }
 
 /**
@@ -101,7 +123,11 @@ export async function runEvalGateRecovery(opts) {
       mkdirSync(attemptDir, { recursive: true });
       const before = metricsSlice(evalResult);
       const bankSnap = snapshotGoldenBank();
-      const classified = classifyEvalMisses(evalResult.results || [], { familyIndex });
+      const recipeVerbCoverage = loadRecipeCoverage(opts);
+      const classified = classifyEvalMisses(evalResult.results || [], {
+        familyIndex,
+        recipeVerbCoverage,
+      });
       writeJson(
         attemptDir,
         'classification.json',
@@ -122,8 +148,12 @@ export async function runEvalGateRecovery(opts) {
       const doBank = needsBankRewrite(classified) && bankMisses.length > 0;
       const doImprove =
         needsImproveRound(classified) && opts.skipEvalImprove !== true;
+      const doCoverage =
+        needsCoverageGeneration(classified) &&
+        parts.coverage_gap.length > 0 &&
+        opts.embedder;
 
-      if (!doBank && !doImprove) {
+      if (!doBank && !doImprove && !doCoverage) {
         log(`recovery ${mode}#${used} no actionable classes — stop`);
         attempts.push({ mode, used, reason: 'no_actions', accepted: false });
         writeJson(attemptDir, 'decision.json', { accepted: false, reason: 'no_actions' });
@@ -135,6 +165,9 @@ export async function runEvalGateRecovery(opts) {
       const holdoutBefore = metricsForCommandIds(evalResult, holdoutIds);
 
       let mutated = false;
+      /** @type {number[]} */
+      let coverageInsertedIds = [];
+      let additiveOnly = false;
 
       if (doBank) {
         try {
@@ -169,11 +202,36 @@ export async function runEvalGateRecovery(opts) {
         }
       }
 
+      if (doCoverage) {
+        try {
+          const gen = await generateCoverageGapComposites(parts.coverage_gap, {
+            stagingPath: opts.stagingPath,
+            db: opts.db,
+            embedder: opts.embedder,
+            llmJsonObject: opts.llmJsonObject,
+            expandIntents: opts.expandIntents,
+            validate: opts.validate,
+            log,
+          });
+          writeJson(attemptDir, 'coverage-gen.json', gen);
+          if (gen.insertedIds.length) {
+            coverageInsertedIds = gen.insertedIds;
+            mutated = true;
+            additiveOnly = true;
+          }
+        } catch (e) {
+          log(`recovery ${mode}#${used} coverage_gap failed: ${e?.message || e}`);
+          writeJson(attemptDir, 'coverage-error.json', {
+            error: String(e?.message || e),
+          });
+        }
+      }
+
       let afterEval = evalResult;
 
       if (mutated) {
         const freshBank = reloadGoldenBank(opts);
-        log(`recovery ${mode}#${used} re-eval after bank bank=${freshBank.length}`);
+        log(`recovery ${mode}#${used} re-eval after bank/coverage bank=${freshBank.length}`);
         afterEval = await opts.runBankEval(freshBank, opts.stagingPath, {
           llmJsonObject: opts.llmJsonObject,
           verbLookup: opts.verbLookup,
@@ -214,8 +272,6 @@ export async function runEvalGateRecovery(opts) {
           afterEval = improveResult.evalResult;
           mutated = true;
         }
-        // Rejected / no_valid_proposals / propose_failed: do not mark mutated
-        // (avoids fake REJECT + early-stop that burns remaining fail retries).
       }
 
       if (!mutated) {
@@ -240,7 +296,8 @@ export async function runEvalGateRecovery(opts) {
         bankBeforeLen: floorBase,
         bankAfterLen: bankAfter.length,
         bankFloor: floor,
-        commandsUnchanged: true,
+        commandsUnchanged: coverageInsertedIds.length === 0,
+        additiveOnly,
       });
 
       writeJson(attemptDir, 'metrics-before.json', { full: before, holdout: holdoutBefore });
@@ -251,6 +308,7 @@ export async function runEvalGateRecovery(opts) {
       writeJson(attemptDir, 'decision.json', {
         accepted: decision.ok,
         reason: decision.reason,
+        coverageInsertedIds,
       });
 
       if (decision.ok) {
@@ -263,6 +321,9 @@ export async function runEvalGateRecovery(opts) {
       }
 
       restoreGoldenBank(bankSnap);
+      if (coverageInsertedIds.length) {
+        rollbackCoverageInserts(opts.stagingPath, coverageInsertedIds, opts.db);
+      }
       attempts.push({ mode, used, accepted: false, reason: decision.reason });
       log(`recovery ${mode}#${used} REJECT (${decision.reason})`);
       if (isFlatMetrics(before, metricsSlice(afterEval))) break;

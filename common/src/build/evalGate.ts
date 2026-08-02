@@ -20,6 +20,10 @@ import {
   EVAL_PROGRESS_EVERY,
   EVAL_PROGRESS_HEARTBEAT_MS,
   VALIDATION_MAX_REGEN,
+  EVAL_GATE_MIN_BANK_TOTAL,
+  EVAL_GATE_MIN_BANK_COMPOSITION,
+  EVAL_JUDGE_BORDERLINE_BAND,
+  EVAL_JUDGE_VOTES,
 } from '../db/constants.js';
 import { verbFromCommandLine, buildVerbCoverage } from './coverage.js';
 import {
@@ -170,6 +174,41 @@ export function loadBank(fileName) {
     .split('\n')
     .filter(Boolean)
     .map((line) => JSON.parse(line));
+}
+
+/**
+ * Fixed absolute floors for binding loop-phase gates.
+ * @param {object[]} bank
+ * @param {{ minTotal?: number, minComposition?: number }} [opts]
+ */
+export function evalBankMeetsFloors(bank, opts = {}) {
+  const totalMin = opts.minTotal ?? EVAL_GATE_MIN_BANK_TOTAL;
+  const compMin = opts.minComposition ?? EVAL_GATE_MIN_BANK_COMPOSITION;
+  const rows = bank || [];
+  const total = rows.length;
+  const composition = rows.filter((r) => r?.mutation_kind === 'composition').length;
+  return {
+    ok: total >= totalMin && composition >= compMin,
+    total,
+    composition,
+    totalMin,
+    compMin,
+  };
+}
+
+/**
+ * Median of numbers (for judge re-votes).
+ * @param {number[]} values
+ */
+export function medianNumber(values) {
+  const xs = (values || []).filter((n) => typeof n === 'number' && Number.isFinite(n));
+  if (!xs.length) return null;
+  const sorted = [...xs].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  if (sorted.length % 2 === 0) {
+    return (sorted[mid - 1] + sorted[mid]) / 2;
+  }
+  return sorted[mid];
 }
 
 export function appendBank(fileName, rows) {
@@ -521,10 +560,13 @@ export async function evaluateQuery(query, searchFn, opts = {}) {
 
 /**
  * LLM judge for a Phase-1 miss (displayed set already retrieved).
+ * Borderline utilities (± band around threshold) take additional votes and use median.
  * @param {{ query: object, displayed: object[], alert?: string, status?: string, passVerb: boolean, searchMs?: number }} miss
  */
 export async function judgeQueryMiss(miss, opts = {}) {
   const threshold = opts.utilityThreshold ?? EVAL_JUDGE_UTILITY_THRESHOLD;
+  const band = opts.borderlineBand ?? EVAL_JUDGE_BORDERLINE_BAND;
+  const votesWanted = Math.max(1, opts.judgeVotes ?? EVAL_JUDGE_VOTES);
   const call = opts.llmJsonObject || llmJsonObject;
   const displayed = miss.displayed ?? [];
   const familyIndex = opts.familyIndex || buildVerbFamilyIndex();
@@ -532,8 +574,8 @@ export async function judgeQueryMiss(miss, opts = {}) {
     ...verbsInFamily(miss.query?.primary_verb, familyIndex),
   ];
   const tJudge = Date.now();
-  let judge;
-  try {
+
+  const oneVote = async () => {
     const { messages } = renderPrompt('build/judge', {
       user_json: JSON.stringify({
         query: miss.query.query_text,
@@ -548,10 +590,33 @@ export async function judgeQueryMiss(miss, opts = {}) {
         })),
       }),
     });
-    judge = await call({
+    return call({
       schema: StrictJudgeSchema,
       messages,
     });
+  };
+
+  /** @type {number[]} */
+  const utilities = [];
+  /** @type {string[]} */
+  const reasons = [];
+  try {
+    const first = await oneVote();
+    utilities.push(Number(first.utility));
+    reasons.push(String(first.reason || ''));
+
+    const u0 = utilities[0];
+    const borderline =
+      typeof u0 === 'number' &&
+      Math.abs(u0 - threshold) <= band &&
+      votesWanted > 1;
+    if (borderline) {
+      for (let i = 1; i < votesWanted; i += 1) {
+        const next = await oneVote();
+        utilities.push(Number(next.utility));
+        reasons.push(String(next.reason || ''));
+      }
+    }
   } catch (e) {
     const errResult = {
       pass: false,
@@ -569,12 +634,29 @@ export async function judgeQueryMiss(miss, opts = {}) {
     return errResult;
   }
 
+  const utility = utilities.length > 1 ? medianNumber(utilities) : utilities[0];
+  // Prefer the reason from the vote closest to the median utility.
+  let reason = reasons[0] || '';
+  if (utilities.length > 1) {
+    let best = 0;
+    let bestDist = Infinity;
+    for (let i = 0; i < utilities.length; i += 1) {
+      const d = Math.abs(utilities[i] - utility);
+      if (d < bestDist) {
+        bestDist = d;
+        best = i;
+      }
+    }
+    reason = reasons[best] || reason;
+  }
+
   const vote = {
-    pass: judge.utility >= threshold,
+    pass: utility >= threshold,
     passVerb: miss.passVerb,
-    via: judge.utility >= threshold ? 'judge' : 'ko',
-    utility: judge.utility,
-    reason: judge.reason,
+    via: utility >= threshold ? 'judge' : 'ko',
+    utility,
+    reason,
+    judgeVotes: utilities,
     displayed,
     alert: miss.alert,
     status: miss.status,

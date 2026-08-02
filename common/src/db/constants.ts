@@ -34,7 +34,18 @@ export const EMBEDDING_DIM = 384;
  * Hybrid search algorithm version stamped into CLI/web packs.
  * Bump when fusion / display semantics change so clients can detect mismatch.
  */
-export const SEARCH_ALGORITHM_VERSION = 1;
+export const SEARCH_ALGORITHM_VERSION = 2;
+
+/**
+ * Additive hybrid score bump when query names the hit's primary verb.
+ */
+export const PRIMARY_VERB_BOOST = 0.25;
+
+/**
+ * Extra hybrid score bump per query-named verb covered by a multi-step recipe
+ * (beyond the primary). Caps with PRIMARY_VERB_BOOST at 1.0 total score.
+ */
+export const VERB_COVERAGE_BOOST_PER = 0.12;
 
 /**
  * Default per-channel recall depth for intent KNN and command FTS before fusion.
@@ -257,6 +268,30 @@ export const EVAL_GATE_FAIL_BANK_SIZE_FLOOR = 0.85;
  * Drop-only actions that would cut more than (1 - floor) are no-ops.
  */
 export const EVAL_GATE_POLISH_BANK_SIZE_FLOOR = 0.95;
+
+/**
+ * Loop-phase: absolute hard-golden bank floor before a red gate can stop the run.
+ * Below this, eval is advisory (recovery still runs; evolve continues).
+ * CLI: `--eval-min-bank-total=N`
+ */
+export const EVAL_GATE_MIN_BANK_TOTAL = 150;
+
+/**
+ * Loop-phase: minimum composition-kind goldens before the gate is binding.
+ * CLI: `--eval-min-bank-composition=N`
+ */
+export const EVAL_GATE_MIN_BANK_COMPOSITION = 30;
+
+/**
+ * Judge re-vote band around EVAL_JUDGE_UTILITY_THRESHOLD. First utility inside
+ * [threshold - band, threshold + band] triggers additional votes.
+ */
+export const EVAL_JUDGE_BORDERLINE_BAND = 0.15;
+
+/**
+ * Total judge votes (including the first) when borderline; take the median utility.
+ */
+export const EVAL_JUDGE_VOTES = 3;
 
 /**
  * Coverage promote report: warn when a taxonomy verb has fewer than this many

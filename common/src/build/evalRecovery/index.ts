@@ -5,8 +5,21 @@ export {
   partitionByClass,
   needsBankRewrite,
   needsImproveRound,
+  needsCoverageGeneration,
   MISS_CLASSES,
 } from './classifyMisses.js';
+export {
+  queryGitVerbs,
+  recipeVerbSet,
+  recipeCoversVerbs,
+  buildRecipeVerbCoverage,
+  stagingCoversVerbSet,
+} from './coverageHelpers.js';
+export {
+  generateCoverageGapComposites,
+  rollbackCoverageInserts,
+  pickCoverageParent,
+} from './generateCoverage.js';
 export {
   snapshotGoldenBank,
   restoreGoldenBank,

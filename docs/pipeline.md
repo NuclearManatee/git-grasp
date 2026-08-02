@@ -52,6 +52,8 @@ Maintainer entrypoints live under `apps/pipeline` (root `bun run …` wrappers):
 | `--eval-fail-retry-max` | `4` | Fail-retry attempts when gate is red |
 | `--eval-polish-retry-max` | `2` | Polish attempts when green but below nice-to-have |
 | `--polish-miss-min` / `--polish-pass-a` | `5` / `0.95` | Polish trigger / nice-to-have Pass A |
+| `--eval-min-bank-total` | `150` | Absolute golden bank floor before binding loop KO |
+| `--eval-min-bank-composition` | `30` | Composition golden floor before binding loop KO |
 | `--continue-on-eval-ko` | off | Keep going after a failed gate |
 | `--run-dir` / `--no-run-log` | auto / off | Structured run artifacts |
 
@@ -355,7 +357,7 @@ Accepted rows also feed eval banks (`golden` / `extended` / `scrambled`). Ground
 
 ### 3.2 Evaluation
 
-In-build retrieval gate scores what the **CLI would show**: hybrid `displayResults` (confidence-gated, 0–3 slots), not the fuller internal fused `results` list. When the query names a Git verb, hybrid ranking applies a soft **+0.25** boost to hits whose primary step matches that verb (then re-sorts).
+In-build retrieval gate scores what the **CLI would show**: hybrid `displayResults` (confidence-gated, 0–3 slots), not the fuller internal fused `results` list. When the query names a Git verb, hybrid ranking applies a soft **+0.25** boost to hits whose primary step matches that verb (then re-sorts). When the query names **multiple** verbs, multi-step recipes that cover more of those verbs get an extra **+0.12 per additional covered verb** (capped at score 1.0).
 
 **Bank generation** (on each dedup-accepted unique insert, unless `skipEvalBanks`):
 
@@ -386,13 +388,18 @@ After ground eval (and after each loop-cycle eval — §4.2), the orchestrator r
 
 1. If the dual gate is **red**: up to **4** fail-retry attempts.
 2. If the gate is **green** but polish is warranted (`misses ≥ 5` or Pass A `< 0.95`): up to **2** polish attempts (nice-to-have). Polish never fails a green cycle if it cannot improve.
-3. Each attempt **classifies** non-pass rows in code (`partial_multistep`, `over_ask`, `retrieval_sibling`, `destructive_alt`, `other`).
+3. Each attempt **classifies** non-pass rows in code (`partial_multistep`, `over_ask`, `retrieval_sibling`, `destructive_alt`, `coverage_gap`, `other`).
 4. **Bank-only** fixes for over-ask / partial / destructive: **Pro** writes rewrite context (`build/rewrite-eval-context`); **Flash** rewrites or drops golden rows (`build/rewrite-eval-golden`). Staging recipes/leaves are never deleted.
-5. **Retrieval sibling** misses: existing taxonomy **improve** round (Flash summarize → Pro traps/families → optional reintent → re-eval) — see below. `--skip-eval-improve` skips only this lever.
-6. Re-eval; **accept** only if Hit@display does not drop, holdout rates do not drop, bank-size floors hold (fail ≥85% of cycle-start goldens; polish ≥95%), and Pass A gains (≥1 absolute pass) or the gate turns green (fail mode). Otherwise restore golden (and taxonomy if improve rejected).
-7. **Early stop** when Pass A and Hit@display are flat after an attempt.
+5. **Retrieval sibling** misses: existing taxonomy **improve** round (Flash summarize → Pro traps/families → optional reintent → re-eval) — see below. `--skip-eval-improve` skips only this lever. Verb-family proposals are rejected when existing goldens *distinguish* the members (e.g. `diff` vs `difftool`); eval_round families that violate this are pruned at improve time.
+6. **Coverage gap** misses (multi-action query whose full verb set is absent from staging): **additive** composition generate into staging (parent + one step via `evolve-composition`), polish, expand intents, re-eval. Rejected attempts roll back the inserted rows. Never mutates/deletes existing recipes.
+7. Re-eval; **accept** only if Hit@display does not drop, holdout rates do not drop, bank-size floors hold (fail ≥85% of cycle-start goldens; polish ≥95%), and Pass A gains (≥1 absolute pass) or the gate turns green (fail mode). Additive inserts set `additiveOnly` so `commands_changed` does not hard-reject. Otherwise restore golden (and taxonomy / coverage inserts if rejected).
+8. **Early stop** when Pass A and Hit@display are flat after an attempt.
 
 Artifacts: `local/eval/gate-recovery/<ts>/` (and under run-log phase dirs when enabled).
+
+#### Snippet hygiene (automatic)
+
+After sandbox OK and **before** intent expansion / golden generation, each accepted recipe may be polished (`build/polish-recipe`): rewrite fixture names and comments into idiomatic user-facing form while keeping the `recipeFingerprint` (verb + flags) unchanged, then re-sandbox. Failures keep the original recipe (never blocks the build).
 
 #### Eval improve round (inside recovery)
 
@@ -403,11 +410,11 @@ When recovery routes `retrieval_sibling` misses (unless `--skip-eval-improve`):
 3. **Pro** (`deepseek-v4-pro`) proposes schema-locked rules only (`build/propose-eval-rules`):
    - `lexicon_trap` → merged into `common/taxonomy/lexicon_traps.json` (seed traps are regenerable infrastructure, not a hand-grown encyclopedia)
    - `verb_family` → merged into `common/taxonomy/verb_families.json` (Pass B + judge `acceptable_primary_verbs`; Hit@display still requires exact `command_id`)
-4. Validate: evidence ids must be train-miss `command_id`s only (not wrong displayed hits); traps need ≥2 train-miss ids **or** ≥2 needle-matched train queries; ≤5 traps / ≤3 families; prefer_verb ∈ taxonomy; forbid destructive antonym families (e.g. revert↔reset).
+4. Validate: evidence ids must be train-miss `command_id`s only (not wrong displayed hits); traps need ≥2 train-miss ids **or** ≥2 needle-matched train queries; ≤5 traps / ≤3 families; prefer_verb ∈ taxonomy; forbid destructive antonym families (e.g. revert↔reset); reject families whose members are distinguished by the golden bank.
 5. On trap apply: re-expand intents on staging under the new traps; families take effect on the next eval only.
 6. Re-eval once. **Accept** if holdout Hit@display and Pass A do not drop and full-bank Pass A gains ≥1 absolute pass (or Hit@display improves when Pass A is tied); else restore JSON snapshots (and re-expand if traps were rolled back).
 
-Pro must skip incomplete multi-step / partial-match clusters (lexicon/family cannot fix those — recovery uses golden rewrite instead).
+Pro must skip incomplete multi-step / partial-match clusters (lexicon/family cannot fix those — recovery uses golden rewrite or coverage_gap generation instead).
 
 Improve artifacts also land under `local/eval/proposal-rounds/<ts>/` (and nested under gate-recovery attempts). Flag denylist stays `common/taxonomy/flag_denylist.json` (code-loaded); Pro does not propose denylist changes in v1.
 
@@ -463,7 +470,7 @@ Persist `mutation_kind` ∈ `{state, flag, composition}` on the child; set `pare
 
 ### 4.2 Evaluation
 
-On each **dedup-accepted** evolve insert: append **golden + extended + scrambled** (same shape as ground), tagged with the child’s `mutation_kind` + `primary_verb`. Golden / extended prompts are **situation-aware** (prompt-only): still primary-verb focused, but nudged to include one distinguishing cue from extra steps, distinctive flags, or non-minimal `initial_state` when present. Intent expansion stays primary-focused with a soft optional delta (about **1–2 intents per Flash batch** may mention that cue).
+On each **dedup-accepted** evolve insert: append **golden + extended + scrambled** (same shape as ground), tagged with the child’s `mutation_kind` + `primary_verb`. Golden / extended prompts are **situation-aware** (prompt-only): still primary-verb focused, but nudged to include one distinguishing cue from extra steps, distinctive flags, or non-minimal `initial_state` when present. Intent expansion for `mutation_kind=composition` requires every intent to express the **full multi-step goal**; other recipes stay primary-focused with a soft optional delta (about **1–2 intents per Flash batch** may mention that cue).
 
 Hard gate still runs on **golden only** (fallbacks excluded). Extended/scrambled are report banks.
 
@@ -476,7 +483,13 @@ After **each** cycle (same dual gate as §3.2):
 | **Report only** | Stratified rates by `mutation_kind`; Pass B; per-verb rates (do not hard-fail on bucket/verb alone) |
 
 
-Same **eval gate recovery** as §3.2 (fail-retry up to 4; polish up to 2). Post-recovery metrics drive `continueOnEvalKo` / persist.
+Same **eval gate recovery** as §3.2 (fail-retry up to 4; polish up to 2).
+
+**Advisory vs binding (loop only):** while the hard golden bank is below absolute floors (**≥150** total and **≥30** `composition` goldens, CLI-overridable), a red gate is **advisory** — recovery still runs, but the loop keeps evolving. Once floors are met the gate is binding (KO stops the run unless `--continue-on-eval-ko`). The final promote gate requires floors met and (unless continue-on-ko) a green last eval.
+
+**Judge noise:** utilities within ±0.15 of the judge threshold take 3 votes and use the **median** utility.
+
+Post-recovery metrics drive `continueOnEvalKo` / persist.
 
 Example log shape:
 

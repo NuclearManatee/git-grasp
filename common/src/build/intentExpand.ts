@@ -115,6 +115,12 @@ export async function expandIntentsForRecipe(recipe, opts = {}) {
   });
   const { primary, listing } = primaryStepListing(recipe);
   const cellState = createCellState();
+  const isComposition =
+    recipe?.mutation_kind === 'composition' || opts.composition === true;
+  const composition_guidance = isComposition
+    ? `COMPOSITION recipe: every intent must express the FULL multi-step goal (all major verbs/steps in the listing), not only the primary step. Example shape: "find unreachable objects and prune them" — not "prune objects" alone. Never invent verbs absent from the listing / initial_state.`
+    : `Primary focus: the primary command (first step) is the topic of every intent.
+Soft delta (optional): when the recipe listing or initial_state shows extra steps, distinctive flags, or a non-minimal situation, about 1–2 intents in the batch may lightly mention that cue; the rest stay primary-only. Never invent verbs, flags, or situations absent from the recipe / initial_state. Never write intents whose main topic is only a secondary step.`;
 
   /** @type {{ intent: IntentItem, embedding: Float32Array | number[] }[]} */
   const keepers = [];
@@ -138,6 +144,7 @@ export async function expandIntentsForRecipe(recipe, opts = {}) {
       primary,
       listing,
       initial_state: recipe.initial_state,
+      composition_guidance,
     });
 
     const result = await call({

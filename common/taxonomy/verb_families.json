@@ -14,17 +14,6 @@
         "git annotate"
       ],
       "source": "seed"
-    },
-    {
-      "canonical": "git diff",
-      "aliases": [
-        "git difftool"
-      ],
-      "source": "eval_round",
-      "evidence_command_ids": [
-        7,
-        8
-      ]
     }
   ]
 }

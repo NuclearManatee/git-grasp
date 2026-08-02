@@ -119,6 +119,13 @@ export async function evolveCompositionMutation(parent, examples, opts = {}) {
         parent: parentOut,
         examples: examplesOut,
         insert_index_hint: opts.insert_index,
+        ...(opts.target_verbs?.length
+          ? {
+              target_verbs: opts.target_verbs,
+              coverage_hint:
+                'Prefer inserting a step that uses one of target_verbs still missing from the parent, so the child covers the full multi-step user goal.',
+            }
+          : {}),
       },
       null,
       2,

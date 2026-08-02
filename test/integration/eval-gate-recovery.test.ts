@@ -21,7 +21,11 @@ describe('eval gate recovery integration', () => {
 
   afterEach(() => {
     restoreGoldenBank(prior);
-    rmSync(dir, { recursive: true, force: true });
+    try {
+      rmSync(dir, { recursive: true, force: true });
+    } catch (e) {
+      if (e?.code !== 'EBUSY' && e?.code !== 'ENOENT') throw e;
+    }
   });
 
   it('polish accepts Pass A gain then early-stops on flat', async () => {

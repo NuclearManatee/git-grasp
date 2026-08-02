@@ -15,6 +15,8 @@ import {
   EVAL_IMPROVE_POLISH_PASS_A,
   EVAL_GATE_FAIL_RETRY_MAX,
   EVAL_GATE_POLISH_RETRY_MAX,
+  EVAL_GATE_MIN_BANK_TOTAL,
+  EVAL_GATE_MIN_BANK_COMPOSITION,
 } from '../db/constants.js';
 
 export const BUILD_LOOP_HELP = `Usage: bun apps/pipeline/src/build-loop.ts [options]
@@ -27,6 +29,8 @@ Gates (dual hard gate + judge):
   --min-pass-rate=N       Pass A floor (default ${EVAL_MIN_PASS_RATE})
   --min-hit-at-display=N  Hit@display floor (default ${EVAL_MIN_HIT_AT_DISPLAY_RATE})
   --judge-utility=N       Per-query judge utility >= N (default ${EVAL_JUDGE_UTILITY_THRESHOLD})
+  --eval-min-bank-total=N Absolute golden bank floor before binding loop KO (default ${EVAL_GATE_MIN_BANK_TOTAL})
+  --eval-min-bank-composition=N Composition golden floor (default ${EVAL_GATE_MIN_BANK_COMPOSITION})
 
 Loop:
   --max-iterations=N      Cap evolve cycles (default 100, or staging meta on resume)
@@ -131,6 +135,16 @@ export function parseBuildLoopArgs(argv = process.argv.slice(2), ctx = {}) {
       Math.floor(numOpt(argv, '--polish-miss-min', EVAL_IMPROVE_POLISH_MISS_MIN)),
     ),
     polishPassA: numOpt(argv, '--polish-pass-a', EVAL_IMPROVE_POLISH_PASS_A),
+    evalMinBankTotal: Math.max(
+      1,
+      Math.floor(numOpt(argv, '--eval-min-bank-total', EVAL_GATE_MIN_BANK_TOTAL)),
+    ),
+    evalMinBankComposition: Math.max(
+      0,
+      Math.floor(
+        numOpt(argv, '--eval-min-bank-composition', EVAL_GATE_MIN_BANK_COMPOSITION),
+      ),
+    ),
     continueOnEvalKo: flag(argv, '--continue-on-eval-ko'),
     runLog: !noRunLog,
     runDir: runDir || null,
@@ -160,6 +174,8 @@ export function buildLoopOptsFromResolved(resolved) {
     evalPolishRetryMax: resolved.evalPolishRetryMax,
     polishMissMin: resolved.polishMissMin,
     polishPassA: resolved.polishPassA,
+    evalMinBankTotal: resolved.evalMinBankTotal,
+    evalMinBankComposition: resolved.evalMinBankComposition,
     continueOnEvalKo: resolved.continueOnEvalKo,
   };
 }
