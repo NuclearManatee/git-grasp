@@ -257,15 +257,34 @@ export async function runImproveRound(opts) {
     const ownsDb = !opts.db;
     const db = opts.db || openDb(opts.stagingPath);
     try {
-      reexpand = await reexpandIntentsForStaging(db, opts.embedder, {
-        llmJsonObject: call,
-        expandIntents: opts.expandIntents,
-        onProgress: (p) => {
-          if (p.done % 10 === 0 || p.done === p.total) {
-            log(`improve reexpand ${p.done}/${p.total} intents=${p.intentCount}`);
-          }
-        },
-      });
+      try {
+        reexpand = await reexpandIntentsForStaging(db, opts.embedder, {
+          llmJsonObject: call,
+          expandIntents: opts.expandIntents,
+          log,
+          onProgress: (p) => {
+            if (p.done % 10 === 0 || p.done === p.total) {
+              log(
+                `improve reexpand ${p.done}/${p.total} intents=${p.intentCount}${p.failed ? ` failed=${p.failed}` : ''}`,
+              );
+            }
+          },
+        });
+      } catch (e) {
+        log(`improve reexpand aborted: ${e?.message || e}`);
+        writeLexiconTrapsFile(trapsSnap, { trapsPath: opts.trapsPath });
+        writeVerbFamiliesFile(familiesSnap, { familiesPath: opts.familiesPath });
+        writeJson(artDir, 'reexpand-error.json', {
+          error: String(e?.message || e),
+        });
+        return {
+          ran: true,
+          accepted: false,
+          reason: 'reexpand_failed',
+          evalResult: before,
+          artifactsDir: artDir,
+        };
+      }
     } finally {
       if (ownsDb) db.close();
     }

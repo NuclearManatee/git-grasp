@@ -69,7 +69,11 @@ export const IntentExpansionItemSchema = z.object({
 export const IntentExpandSkipSchema = z.object({
   skill_level: SkillLevelTextSchema,
   intent_category: IntentCategorySchema,
-  reason: z.string().min(1).max(500),
+  reason: z
+    .string()
+    .max(500)
+    .optional()
+    .transform((v) => (v && String(v).trim() ? String(v).trim() : 'unspecified')),
 });
 
 /** Wrapper required by providers that enforce response_format=json_object. */
