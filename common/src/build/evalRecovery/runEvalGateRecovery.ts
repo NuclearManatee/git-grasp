@@ -213,10 +213,9 @@ export async function runEvalGateRecovery(opts) {
         if (improveResult?.accepted && improveResult.evalResult) {
           afterEval = improveResult.evalResult;
           mutated = true;
-        } else if (improveResult?.ran) {
-          mutated = true;
-          // rejected improve already restored taxonomy; keep afterEval from bank re-eval
         }
+        // Rejected / no_valid_proposals / propose_failed: do not mark mutated
+        // (avoids fake REJECT + early-stop that burns remaining fail retries).
       }
 
       if (!mutated) {
