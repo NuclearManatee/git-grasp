@@ -1,11 +1,14 @@
 // @ts-nocheck
 /**
- * Soft primary-verb boost for hybrid ranking when the query names the verb.
+ * Soft verb boosts for hybrid ranking when the query names git verbs.
  */
 import { verbFromCommandLine } from '../build/coverage.js';
+import {
+  PRIMARY_VERB_BOOST,
+  VERB_COVERAGE_BOOST_PER,
+} from '../db/constants.js';
 
-/** Additive hybrid score bump when query token matches hit primary verb. */
-export const PRIMARY_VERB_BOOST = 0.25;
+export { PRIMARY_VERB_BOOST, VERB_COVERAGE_BOOST_PER };
 
 /**
  * Tokenize query into lowercase words (alphanumeric + hyphen).
@@ -35,50 +38,106 @@ export function primaryVerbTokenFromHit(hit) {
 }
 
 /**
+ * All verb tokens from a multi-step hit.
+ * @param {{ commands?: { command?: string }[], example?: string, snippet?: string }} hit
+ * @returns {string[]}
+ */
+export function recipeVerbTokensFromHit(hit) {
+  const tokens = [];
+  const steps = hit?.commands || [];
+  if (steps.length) {
+    for (const s of steps) {
+      const verb = verbFromCommandLine(s?.command || '');
+      if (verb) tokens.push(verb.replace(/^git\s+/i, '').toLowerCase());
+    }
+  } else {
+    const text = [hit?.example, hit?.snippet].filter(Boolean).join('\n');
+    for (const line of String(text).split(/\n/)) {
+      const m = line.match(/\bgit\s+[a-z0-9][-a-z0-9]*/i);
+      if (!m) continue;
+      const verb = verbFromCommandLine(m[0]);
+      if (verb) tokens.push(verb.replace(/^git\s+/i, '').toLowerCase());
+    }
+  }
+  return [...new Set(tokens)];
+}
+
+/**
+ * Git verb tokens named in the query (via known verbs list or `git X` phrases).
+ * @param {string} query
+ * @param {readonly string[]} [knownVerbs]
+ * @returns {string[]}
+ */
+export function queryNamedVerbTokens(query, knownVerbs = []) {
+  const tokens = new Set(queryTokens(query));
+  const named = new Set();
+  const q = String(query || '').toLowerCase();
+  const re = /\bgit\s+[a-z0-9][-a-z0-9]*/gi;
+  let m;
+  while ((m = re.exec(q))) {
+    const verb = verbFromCommandLine(m[0]);
+    if (verb) named.add(verb.replace(/^git\s+/i, '').toLowerCase());
+  }
+  for (const v of knownVerbs || []) {
+    const t = String(v || '')
+      .replace(/^git\s+/i, '')
+      .toLowerCase();
+    if (!t) continue;
+    if (tokens.has(t)) named.add(t);
+    if (t.includes('-') && tokens.has(t.replace(/-/g, ''))) named.add(t);
+  }
+  return [...named];
+}
+
+/**
  * True if query tokens include the hit's primary verb token.
- * Prefer exact token match; also accept when known taxonomy verbs list is provided.
  * @param {string} query
  * @param {string} primaryToken
- * @param {readonly string[]} [knownVerbs] e.g. `diff`, `status` or `git diff`
+ * @param {readonly string[]} [knownVerbs]
  */
 export function queryNamesPrimaryVerb(query, primaryToken, knownVerbs = []) {
   const token = String(primaryToken || '')
     .replace(/^git\s+/i, '')
     .toLowerCase();
   if (!token) return false;
-  const tokens = new Set(queryTokens(query));
-  if (tokens.has(token)) return true;
-  // Multi-word verbs like cherry-pick
-  if (token.includes('-') && tokens.has(token.replace(/-/g, ''))) return true;
-  for (const v of knownVerbs || []) {
-    const t = String(v || '')
-      .replace(/^git\s+/i, '')
-      .toLowerCase();
-    if (t === token && tokens.has(t)) return true;
-  }
-  return false;
+  return queryNamedVerbTokens(query, knownVerbs).includes(token) ||
+    queryTokens(query).includes(token);
 }
 
 /**
- * Apply +PRIMARY_VERB_BOOST (capped at 1) when query names the hit primary verb.
- * Mutates/returns new array sorted by caller.
- * @param {Array<{ score: number, example?: string, commands?: object[], command?: string }>} scored
+ * Apply primary-verb boost + multi-verb coverage boost (capped at 1).
+ * @param {Array<{ score: number, example?: string, commands?: object[], command?: string, snippet?: string }>} scored
  * @param {string} query
  * @param {readonly string[]} [knownVerbs]
  */
 export function applyPrimaryVerbBoost(scored, query, knownVerbs = []) {
+  const named = queryNamedVerbTokens(query, knownVerbs);
   return (scored || []).map((hit) => {
-    const token = primaryVerbTokenFromHit(hit);
-    if (!queryNamesPrimaryVerb(query, token, knownVerbs)) {
-      return { ...hit, score_verb_boost: 0 };
+    const primary = primaryVerbTokenFromHit(hit);
+    const recipeVerbs = recipeVerbTokensFromHit(hit);
+    let boost = 0;
+    if (primary && (named.includes(primary) || queryNamesPrimaryVerb(query, primary, knownVerbs))) {
+      boost += PRIMARY_VERB_BOOST;
+    }
+    if (named.length >= 2 && recipeVerbs.length >= 2) {
+      const covered = named.filter((v) => recipeVerbs.includes(v)).length;
+      // Extra for verbs beyond the first covered (primary already boosted).
+      const extra = Math.max(0, covered - 1);
+      boost += extra * VERB_COVERAGE_BOOST_PER;
+    }
+    if (boost <= 0) {
+      return { ...hit, score_verb_boost: 0, score_coverage_boost: 0 };
     }
     const base = Number(hit.score) || 0;
-    const boosted = Math.min(1, base + PRIMARY_VERB_BOOST);
+    const primaryPart = Math.min(boost, PRIMARY_VERB_BOOST);
+    const coveragePart = Math.max(0, boost - PRIMARY_VERB_BOOST);
+    const boosted = Math.min(1, base + boost);
     return {
       ...hit,
       score: boosted,
       score_hybrid: boosted,
-      score_verb_boost: PRIMARY_VERB_BOOST,
+      score_verb_boost: primaryPart,
+      score_coverage_boost: coveragePart,
     };
   });
 }

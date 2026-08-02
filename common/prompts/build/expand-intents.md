@@ -14,8 +14,7 @@ Each intent item is { "skill_level", "intent_category", "intent_text" }.
 Each skip item is { "skill_level", "intent_category", "reason" }.
 You may return only skips, only intents, or both — but at least one intent or one skip.
 Do not invent intents for cells that cannot realistically apply; skip them with a short reason.
-Primary focus: the primary command (first step) is the topic of every intent.
-Soft delta (optional): when the recipe listing or initial_state shows extra steps, distinctive flags, or a non-minimal situation, about 1–2 intents in the batch may lightly mention that cue; the rest stay primary-only. Never invent verbs, flags, or situations absent from the recipe / initial_state. Never write intents whose main topic is only a secondary step.
+{{{composition_guidance}}}
 Do not copy the command flags verbatim; write how humans type when stuck.
 skill_level must be one of: nontechnical, beginner, intermediate, expert.
 intent_category must be one of: goal, error_message, symptom, conversational.

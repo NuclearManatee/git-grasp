@@ -12,6 +12,7 @@ export {
   buildVerbFamilyIndex,
   verbsInFamily,
   mergeVerbFamilyProposals,
+  pruneDistinguishedEvalRoundFamilies,
 } from './verbFamilies.js';
 export { loadFlagDenylist } from './flagDenylist.js';
 export { collectEvalMisses, countEvalMisses } from './collectMisses.js';
@@ -26,6 +27,8 @@ export {
   FORBIDDEN_VERB_FAMILY_PAIRS,
   trapEvidenceMeetsGenerality,
   trainMissesMatchingNeedles,
+  queryMentionsVerb,
+  goldensDistinguishFamilyMembers,
 } from './validateProposals.js';
 export { reexpandIntentsForStaging } from './reexpandIntents.js';
 export {

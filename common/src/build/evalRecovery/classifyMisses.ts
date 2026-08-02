@@ -4,12 +4,17 @@
  */
 import { verbFromCommandLine } from '../coverage.js';
 import { verbsInFamily, buildVerbFamilyIndex } from '../evalImprove/verbFamilies.js';
+import {
+  queryGitVerbs,
+  stagingCoversVerbSet,
+} from './coverageHelpers.js';
 
 export const MISS_CLASSES = /** @type {const} */ ([
   'partial_multistep',
   'over_ask',
   'retrieval_sibling',
   'destructive_alt',
+  'coverage_gap',
   'other',
 ]);
 
@@ -35,18 +40,6 @@ function displayedPrimaryVerb(row) {
   return null;
 }
 
-function queryGitVerbs(queryText) {
-  const found = [];
-  const re = /\bgit\s+[a-z0-9][-a-z0-9]*/gi;
-  let m;
-  const text = String(queryText || '');
-  while ((m = re.exec(text))) {
-    const v = verbFromCommandLine(m[0]);
-    if (v) found.push(normVerb(v));
-  }
-  return [...new Set(found)];
-}
-
 function hasMultiActionCue(queryText) {
   const q = String(queryText || '').toLowerCase();
   if (/\band\b/.test(q) || /\bthen\b/.test(q)) return true;
@@ -56,7 +49,10 @@ function hasMultiActionCue(queryText) {
 
 /**
  * @param {object} row eval result row
- * @param {{ familyIndex?: Map<string, Set<string>> }} [opts]
+ * @param {{
+ *   familyIndex?: Map<string, Set<string>>,
+ *   recipeVerbCoverage?: { verbs: Set<string> }[],
+ * }} [opts]
  * @returns {typeof MISS_CLASSES[number]}
  */
 export function classifyMiss(row, opts = {}) {
@@ -79,6 +75,17 @@ export function classifyMiss(row, opts = {}) {
     return 'destructive_alt';
   }
 
+  const multi = hasMultiActionCue(queryText);
+  const needed = queryGitVerbs(queryText);
+  if (
+    multi &&
+    needed.length >= 2 &&
+    Array.isArray(opts.recipeVerbCoverage) &&
+    !stagingCoversVerbSet(opts.recipeVerbCoverage, needed)
+  ) {
+    return 'coverage_gap';
+  }
+
   const family = expected ? verbsInFamily(expected, familyIndex) : new Set();
   const displayInFamily =
     displayedVerb &&
@@ -88,7 +95,6 @@ export function classifyMiss(row, opts = {}) {
     return 'retrieval_sibling';
   }
 
-  const multi = hasMultiActionCue(queryText);
   if (multi && displayInFamily) {
     if (mutation === 'composition' || mutation === 'flag') return 'over_ask';
     return 'partial_multistep';
@@ -97,7 +103,7 @@ export function classifyMiss(row, opts = {}) {
   if (displayInFamily && (row.via === 'ko' || row.via === 'miss')) {
     const util = row.utility ?? row.judge?.utility;
     if (typeof util === 'number' && util < 0.9) {
-      return multi ? 'partial_multistep' : 'partial_multistep';
+      return 'partial_multistep';
     }
     if (multi) return 'partial_multistep';
   }
@@ -111,14 +117,20 @@ export function classifyMiss(row, opts = {}) {
 
 /**
  * @param {object[]} results
- * @param {{ familyIndex?: Map<string, Set<string>> }} [opts]
+ * @param {{
+ *   familyIndex?: Map<string, Set<string>>,
+ *   recipeVerbCoverage?: { verbs: Set<string> }[],
+ * }} [opts]
  */
 export function classifyEvalMisses(results, opts = {}) {
   const familyIndex = opts.familyIndex || buildVerbFamilyIndex();
   const out = [];
   for (const row of results || []) {
     if (!row || row.pass === true || row.via === 'skipped') continue;
-    const cls = classifyMiss(row, { familyIndex });
+    const cls = classifyMiss(row, {
+      familyIndex,
+      recipeVerbCoverage: opts.recipeVerbCoverage,
+    });
     out.push({
       class: cls,
       row,
@@ -137,6 +149,7 @@ export function partitionByClass(classified) {
     over_ask: [],
     retrieval_sibling: [],
     destructive_alt: [],
+    coverage_gap: [],
     other: [],
   };
   for (const c of classified || []) {
@@ -153,4 +166,8 @@ export function needsBankRewrite(classified) {
 
 export function needsImproveRound(classified) {
   return (classified || []).some((c) => c.class === 'retrieval_sibling');
+}
+
+export function needsCoverageGeneration(classified) {
+  return (classified || []).some((c) => c.class === 'coverage_gap');
 }

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   PRIMARY_VERB_BOOST,
+  VERB_COVERAGE_BOOST_PER,
   applyPrimaryVerbBoost,
   primaryVerbTokenFromHit,
   queryNamesPrimaryVerb,
@@ -55,5 +56,33 @@ describe('verbBoost', () => {
     );
     expect(out[0].score).toBe(0.5);
     expect(out[0].score_verb_boost).toBe(0);
+  });
+
+  it('coverage boost lifts multi-step recipe when query names multiple verbs', () => {
+    const out = applyPrimaryVerbBoost(
+      [
+        {
+          command_id: 1,
+          score: 0.7,
+          example: 'git prune',
+          commands: [{ command: 'git prune' }],
+        },
+        {
+          command_id: 2,
+          score: 0.7,
+          example: 'git fsck --unreachable',
+          commands: [
+            { command: 'git fsck --unreachable' },
+            { command: 'git prune' },
+          ],
+        },
+      ],
+      'show unreachable with git fsck and clean with git prune',
+      ['fsck', 'prune'],
+    );
+    const byId = Object.fromEntries(out.map((h) => [h.command_id, h]));
+    expect(byId[2].score).toBeGreaterThan(byId[1].score);
+    expect(byId[2].score_coverage_boost).toBeGreaterThan(0);
+    expect(byId[2].score_coverage_boost).toBeCloseTo(VERB_COVERAGE_BOOST_PER);
   });
 });

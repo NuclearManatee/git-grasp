@@ -5,6 +5,7 @@
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { verbFamiliesPath } from '../../lib/paths.js';
 import { VerbFamiliesFileSchema } from '../../schemas/evalImprove.js';
+import { goldensDistinguishFamilyMembers } from './validateProposals.js';
 
 function normVerb(v) {
   return String(v || '')
@@ -94,4 +95,35 @@ export function mergeVerbFamilyProposals(file, proposals) {
     }
   }
   return VerbFamiliesFileSchema.parse({ version: file.version || 1, families });
+}
+
+/**
+ * Drop eval_round families whose members are distinguished by goldens.
+ * Seed families are never pruned.
+ * @param {object} file
+ * @param {object[]} goldenBank
+ * @returns {{ file: object, pruned: object[] }}
+ */
+export function pruneDistinguishedEvalRoundFamilies(file, goldenBank) {
+  const pruned = [];
+  const families = [];
+  for (const f of file?.families || []) {
+    if (f.source !== 'eval_round') {
+      families.push(f);
+      continue;
+    }
+    const members = [f.canonical, ...(f.aliases || [])];
+    if (goldensDistinguishFamilyMembers(members, goldenBank || [])) {
+      pruned.push(f);
+      continue;
+    }
+    families.push(f);
+  }
+  return {
+    file: VerbFamiliesFileSchema.parse({
+      version: file?.version || 1,
+      families,
+    }),
+    pruned,
+  };
 }

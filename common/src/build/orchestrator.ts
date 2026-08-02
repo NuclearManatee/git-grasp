@@ -50,6 +50,7 @@ import { prepareSemanticBlocks, readSemanticBlocks, loadGitCommandTaxonomy } fro
 import { isUnsignedVerifySkip } from './taxonomyScrape.js';
 import { generateAndValidate } from './validate.js';
 import { expandIntentsForRecipe, evolveByKind } from './generate.js';
+import { polishRecipeHygiene } from './polishRecipe.js';
 import { shouldPersistIntent } from './intentExpand.js';
 import { makeKnnForeign } from './intentSimilarity.js';
 import { dedupDecision, findCommandByFingerprint, recipeFingerprint } from './dedup.js';
@@ -77,6 +78,7 @@ import {
   JUDGE_SYSTEM_PROMPT,
   resolveEvalConcurrency,
   isFallbackGoldenQuery,
+  evalBankMeetsFloors,
 } from './evalGate.js';
 import { runEvalGateRecovery } from './evalRecovery/runEvalGateRecovery.js';
 import {
@@ -561,11 +563,20 @@ export async function runGroundStep(opts = {}) {
             log(`ground[${i + 1}/${groups.length}] FAIL validate reason=${validated.reason}`);
             return;
           }
+          const polished = opts.skipPolish
+            ? validated
+            : await polishRecipeHygiene(validated, {
+                llmJsonObject: opts.llmJsonObject,
+                validate: opts.validate,
+                workerId: i % concurrency,
+                jobId: `ground-polish-${idx}`,
+                log: (m) => log(`ground[${i + 1}/${groups.length}] ${m}`),
+              });
           log(`ground[${i + 1}/${groups.length}] expand intents`);
           const knnForeign = makeKnnForeign(db, knnRecall, INTENT_FOREIGN_KNN_K);
           const intents = opts.expandIntents
-            ? await opts.expandIntents(validated)
-            : await expandIntentsForRecipe(validated, {
+            ? await opts.expandIntents(polished)
+            : await expandIntentsForRecipe(polished, {
                 llmJsonObject: opts.llmJsonObject,
                 embedder,
                 knnForeign,
@@ -574,7 +585,7 @@ export async function runGroundStep(opts = {}) {
           const persisted = await persistAccepted(
             db,
             writer,
-            { ...validated, intents: list },
+            { ...polished, intents: list },
             embedder,
           );
           if (persisted.inserted) {
@@ -811,6 +822,8 @@ export async function runBuildLoop(opts = {}) {
       taxonomyVerbs = [];
     }
   }
+  /** @type {object|null} */
+  let lastEvalResult = null;
 
   while (iteration < maxIter) {
     iteration += 1;
@@ -913,15 +926,30 @@ export async function runBuildLoop(opts = {}) {
               log(`loop iter=${iteration} parent=${parent.row_id} validate FAIL ${validated.reason}`);
               return;
             }
+            const polished = opts.skipPolish
+              ? validated
+              : await polishRecipeHygiene(
+                  { ...validated, mutation_kind },
+                  {
+                    llmJsonObject: opts.llmJsonObject,
+                    validate: opts.validate,
+                    workerId: idx,
+                    jobId: `loop-polish-${iteration}-${idx}`,
+                    log: (m) => log(`loop iter=${iteration} ${m}`),
+                  },
+                );
             const tIntents = Date.now();
             const knnForeign = makeKnnForeign(db, knnRecall, INTENT_FOREIGN_KNN_K);
             const intents = opts.expandIntents
-              ? await opts.expandIntents(validated)
-              : await expandIntentsForRecipe(validated, {
-                  llmJsonObject: opts.llmJsonObject,
-                  embedder,
-                  knnForeign,
-                });
+              ? await opts.expandIntents(polished)
+              : await expandIntentsForRecipe(
+                  { ...polished, mutation_kind },
+                  {
+                    llmJsonObject: opts.llmJsonObject,
+                    embedder,
+                    knnForeign,
+                  },
+                );
             evolveTiming.intentsMs += Date.now() - tIntents;
             const list = Array.isArray(intents) ? intents : [];
             const tPersist = Date.now();
@@ -929,7 +957,7 @@ export async function runBuildLoop(opts = {}) {
               db,
               writer,
               {
-                ...validated,
+                ...polished,
                 intents: list,
                 parent_row_id: parent.row_id,
                 mutation_kind,
@@ -1076,40 +1104,63 @@ export async function runBuildLoop(opts = {}) {
         });
       }
     }
+    lastEvalResult = evalResult;
 
     if (!evalResult.ok) {
-      // Keep last *successful* iteration on the dataset so relaunch retries this one.
-      persistLoopProgress(db, {
-        iteration: Math.max(0, iteration - 1),
-        zeroStreak,
-        maxIterations: maxIter,
+      const bankNow = activeEvaluationBank({
+        kinds: ['golden'],
+        excludeFallbacks: true,
       });
-      db.close();
-      log(`loop KO at iter=${iteration} â€” stopping (resume will retry from ${Math.max(0, iteration - 1)})`);
-      return {
-        ok: false,
-        phase: 'loop',
-        iteration,
-        newUnique,
-        eval: {
-          ok: evalResult.ok,
-          okHit: evalResult.okHit,
-          okPass: evalResult.okPass,
-          passed: evalResult.passed,
-          hitPassed: evalResult.hitPassed,
-          judgePassed: evalResult.judgePassed,
-          total: evalResult.total,
-          rate: evalResult.rate,
-          hitRate: evalResult.hitRate,
-          minPassRate: evalResult.minPassRate,
-          minHitAtDisplayRate: evalResult.minHitAtDisplayRate,
-          verbRate: evalResult.verbRate,
-          byMutationKind: evalResult.byMutationKind,
-          judgeSummary: evalResult.judgeSummary,
-        },
-        message: 'Eval KO â€” analyze and propose fix',
-        stagingPath,
-      };
+      const floors = evalBankMeetsFloors(bankNow, {
+        minTotal: opts.evalMinBankTotal,
+        minComposition: opts.evalMinBankComposition,
+      });
+      if (!floors.ok) {
+        // Advisory: bank still below absolute floors — keep evolving.
+        log(
+          `loop eval KO advisory (bank total=${floors.total}/${floors.totalMin} composition=${floors.composition}/${floors.compMin}) — continuing evolve`,
+        );
+      } else if (opts.continueOnEvalKo) {
+        log(
+          `loop eval KO at iter=${iteration} but --continue-on-eval-ko — continuing`,
+        );
+      } else {
+        // Binding: floors met and gate red — stop.
+        persistLoopProgress(db, {
+          iteration: Math.max(0, iteration - 1),
+          zeroStreak,
+          maxIterations: maxIter,
+        });
+        db.close();
+        log(
+          `loop KO at iter=${iteration} — stopping (resume will retry from ${Math.max(0, iteration - 1)}; bank floors met=${floors.ok})`,
+        );
+        return {
+          ok: false,
+          phase: 'loop',
+          iteration,
+          newUnique,
+          eval: {
+            ok: evalResult.ok,
+            okHit: evalResult.okHit,
+            okPass: evalResult.okPass,
+            passed: evalResult.passed,
+            hitPassed: evalResult.hitPassed,
+            judgePassed: evalResult.judgePassed,
+            total: evalResult.total,
+            rate: evalResult.rate,
+            hitRate: evalResult.hitRate,
+            minPassRate: evalResult.minPassRate,
+            minHitAtDisplayRate: evalResult.minHitAtDisplayRate,
+            verbRate: evalResult.verbRate,
+            byMutationKind: evalResult.byMutationKind,
+            judgeSummary: evalResult.judgeSummary,
+          },
+          message: 'Eval KO — analyze and propose fix',
+          stagingPath,
+          bankFloors: floors,
+        };
+      }
     }
 
     if (newUnique === 0) zeroStreak += 1;
@@ -1141,9 +1192,9 @@ export async function runBuildLoop(opts = {}) {
       coverageReport = buildCoveragePromoteReport(rows, taxonomyVerbs || []);
       const reportPath = writeCoveragePromoteReport(coverageReport);
       if (coverageReport.warn) {
-        log(`coverage WARN ${coverageReport.summary} â†’ ${reportPath}`);
+        log(`coverage WARN ${coverageReport.summary} → ${reportPath}`);
       } else {
-        log(`coverage ${coverageReport.summary} â†’ ${reportPath}`);
+        log(`coverage ${coverageReport.summary} → ${reportPath}`);
       }
       if (typeof opts.onCoverageReport === 'function') opts.onCoverageReport(coverageReport);
     } finally {
@@ -1153,8 +1204,42 @@ export async function runBuildLoop(opts = {}) {
     log(`coverage report skipped: ${e?.message || e}`);
   }
 
+  const finalBank = activeEvaluationBank({ kinds: ['golden'], excludeFallbacks: true });
+  const finalFloors = evalBankMeetsFloors(finalBank, {
+    minTotal: opts.evalMinBankTotal,
+    minComposition: opts.evalMinBankComposition,
+  });
+  if (!finalFloors.ok) {
+    log(
+      `loop final gate FAIL: bank floors unmet total=${finalFloors.total}/${finalFloors.totalMin} composition=${finalFloors.composition}/${finalFloors.compMin}`,
+    );
+    return {
+      ok: false,
+      phase: 'loop',
+      iteration,
+      message: 'Eval bank floors unmet at loop exit',
+      stagingPath,
+      bankFloors: finalFloors,
+      eval: lastEvalResult,
+      coverage: coverageReport,
+    };
+  }
+  if (lastEvalResult && lastEvalResult.ok === false && !opts.continueOnEvalKo) {
+    log(`loop final gate FAIL: last eval still KO after floors met`);
+    return {
+      ok: false,
+      phase: 'loop',
+      iteration,
+      message: 'Eval KO at loop exit',
+      stagingPath,
+      bankFloors: finalFloors,
+      eval: lastEvalResult,
+      coverage: coverageReport,
+    };
+  }
+
   const prod = opts.prodPath || defaultDbPath();
-  log(`promote start staging=${stagingPath} â†’ ${prod}`);
+  log(`promote start staging=${stagingPath} → ${prod}`);
   promoteStagingDb(stagingPath, prod);
   const { finalizePromotedDb } = await import('../seed.js');
   const finalized = finalizePromotedDb(prod);
@@ -1170,6 +1255,8 @@ export async function runBuildLoop(opts = {}) {
     intents: finalized.intents,
     hash: finalized.hash,
     coverage: coverageReport,
+    bankFloors: finalFloors,
+    eval: lastEvalResult,
   };
 }
 

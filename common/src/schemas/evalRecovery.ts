@@ -6,6 +6,7 @@ export const EvalMissClassSchema = z.enum([
   'over_ask',
   'retrieval_sibling',
   'destructive_alt',
+  'coverage_gap',
   'other',
 ]);
 

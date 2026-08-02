@@ -20,7 +20,12 @@ import {
   needleCopiesJudgeReason,
   isForbiddenVerbFamilyPair,
   trapEvidenceMeetsGenerality,
+  queryMentionsVerb,
+  goldensDistinguishFamilyMembers,
 } from '../../../common/src/build/evalImprove/validateProposals.ts';
+import {
+  pruneDistinguishedEvalRoundFamilies,
+} from '../../../common/src/build/evalImprove/verbFamilies.ts';
 import {
   shouldAcceptImproveRound,
   metricsForCommandIds,
@@ -244,6 +249,72 @@ describe('validateProposalBatch', () => {
     expect(r.proposals).toHaveLength(0);
     expect(r.errors.some((e) => e.includes('forbidden'))).toBe(true);
   });
+
+  it('rejects families when goldens distinguish members (diff vs difftool)', () => {
+    expect(queryMentionsVerb('show unstaged with git diff', 'git diff')).toBe(true);
+    expect(queryMentionsVerb('show unstaged with git diff', 'git difftool')).toBe(false);
+    expect(
+      goldensDistinguishFamilyMembers(
+        ['git diff', 'git difftool'],
+        [
+          { query_text: 'show unstaged changes in working tree with git diff' },
+          {
+            query_text:
+              'show diff of working tree changes using difftool without prompting',
+          },
+        ],
+      ),
+    ).toBe(true);
+    const r = validateProposalBatch(
+      {
+        proposals: [
+          {
+            kind: 'verb_family',
+            canonical: 'git diff',
+            aliases: ['git difftool'],
+            evidence_command_ids: [1],
+          },
+        ],
+      },
+      {
+        trainMisses,
+        taxonomyVerbs: [...verbs, 'git diff', 'git difftool'],
+        goldenBank: [
+          { query_text: 'show unstaged changes in working tree with git diff' },
+          {
+            query_text:
+              'show diff of working tree changes using difftool without prompting',
+          },
+        ],
+      },
+    );
+    expect(r.proposals).toHaveLength(0);
+    expect(r.errors.some((e) => e.includes('distinguish'))).toBe(true);
+  });
+
+  it('pruneDistinguishedEvalRoundFamilies drops eval_round only', () => {
+    const { file, pruned } = pruneDistinguishedEvalRoundFamilies(
+      {
+        version: 1,
+        families: [
+          { canonical: 'git checkout', aliases: ['git switch'], source: 'seed' },
+          {
+            canonical: 'git diff',
+            aliases: ['git difftool'],
+            source: 'eval_round',
+            evidence_command_ids: [7, 8],
+          },
+        ],
+      },
+      [
+        { query_text: 'show unstaged with git diff' },
+        { query_text: 'view with difftool without prompting' },
+      ],
+    );
+    expect(pruned).toHaveLength(1);
+    expect(file.families).toHaveLength(1);
+    expect(file.families[0].canonical).toBe('git checkout');
+  });
 });
 
 describe('accept / reject + taxonomy rollback', () => {
@@ -435,6 +506,7 @@ describe('maybeRunEvalImprove policy', () => {
       familiesPath,
       artifactsDir: artDir,
       taxonomyVerbs: ['git checkout', 'git switch'],
+      goldenBank: [],
       runBankEval: async () => after,
       llmJsonObject: async ({ schema }) => {
         llmCalls += 1;
@@ -535,6 +607,7 @@ describe('maybeRunEvalImprove policy', () => {
       familiesPath,
       artifactsDir: path.join(dir, 'arts'),
       taxonomyVerbs: ['git blame', 'git annotate'],
+      goldenBank: [],
       runBankEval: async () => after,
       llmJsonObject: async ({ schema }) => {
         if (schema?.shape?.clusters) {

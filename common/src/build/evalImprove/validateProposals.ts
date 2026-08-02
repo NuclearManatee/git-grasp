@@ -49,6 +49,45 @@ export function isForbiddenVerbFamilyPair(a, b) {
 }
 
 /**
+ * True when query_text names the verb (with optional "git " prefix).
+ * Word boundaries prevent "git diff" matching inside "git difftool".
+ * @param {string} queryText
+ * @param {string} verb
+ */
+export function queryMentionsVerb(queryText, verb) {
+  const q = String(queryText || '').toLowerCase();
+  const v = normVerb(verb);
+  if (!q || !v) return false;
+  const bare = v.replace(/^git\s+/, '');
+  if (!bare) return false;
+  const escaped = bare.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const re = new RegExp(`\\b(?:git\\s+)?${escaped}\\b`, 'i');
+  return re.test(q);
+}
+
+/**
+ * Reject families when goldens distinguish ≥2 members by naming them
+ * in separate (or the same) query texts — they are not retrieval synonyms.
+ * @param {string[]} members canonical + aliases
+ * @param {object[]} goldenBank rows with query_text
+ */
+export function goldensDistinguishFamilyMembers(members, goldenBank) {
+  const uniq = [...new Set((members || []).map(normVerb).filter(Boolean))];
+  if (uniq.length < 2) return false;
+  const mentioned = new Set();
+  for (const member of uniq) {
+    for (const row of goldenBank || []) {
+      const text = row?.query_text || row?.query?.query_text || '';
+      if (queryMentionsVerb(text, member)) {
+        mentioned.add(member);
+        break;
+      }
+    }
+  }
+  return mentioned.size >= 2;
+}
+
+/**
  * Reject needles that copy judge reason text (simple overlap).
  * @param {string} needle
  * @param {string[]} reasons
@@ -113,6 +152,7 @@ export function trapEvidenceMeetsGenerality(evidenceTrainIds, needles, trainMiss
  * @param {{
  *   trainMisses: object[],
  *   taxonomyVerbs: string[],
+ *   goldenBank?: object[],
  *   maxTraps?: number,
  *   maxFamilies?: number,
  * }} opts
@@ -123,6 +163,7 @@ export function validateProposalBatch(rawBatch, opts) {
     return { ok: false, proposals: [], errors: [`schema: ${parsed.error.message}`] };
   }
   const trainMisses = opts.trainMisses || [];
+  const goldenBank = opts.goldenBank || [];
   const trainIds = new Set(
     trainMisses
       .map((m) => Number(m?.query?.command_id))
@@ -223,6 +264,14 @@ export function validateProposalBatch(rawBatch, opts) {
         }
       }
       if (forbidden) continue;
+
+      const members = [canon, ...aliases];
+      if (goldensDistinguishFamilyMembers(members, goldenBank)) {
+        errors.push(
+          `family: goldens distinguish members (${p.canonical} ↔ ${aliases.join(',')})`,
+        );
+        continue;
+      }
 
       const rawEvidence = [...new Set(p.evidence_command_ids.map(Number))];
       const nonTrain = rawEvidence.filter((id) => !trainIds.has(id));
