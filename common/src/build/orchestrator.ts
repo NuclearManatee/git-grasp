@@ -18,9 +18,6 @@ import {
   getCommand,
   listCommands,
   knnRecall,
-  ftsRecall,
-  loadGitVerbs,
-  finalizeSearchIndex,
   getMetaValue,
   setMetaValue,
 } from '../db/schema.js';
@@ -29,7 +26,6 @@ import {
   defaultDbPath,
   buildCacheDir,
   semanticBlocksPath,
-  defaultThresholdsPath,
 } from '../lib/paths.js';
 import {
   BUILD_CONCURRENCY,
@@ -40,7 +36,6 @@ import {
   EVAL_MIN_PASS_RATE,
   EVAL_MIN_HIT_AT_DISPLAY_RATE,
   EVAL_JUDGE_UTILITY_THRESHOLD,
-  EVAL_SEARCH_POOL_SIZE,
   META_BUILD_LOOP_ITERATION,
   META_BUILD_LOOP_ZERO_STREAK,
   META_BUILD_LOOP_MAX_ITERATIONS,
@@ -82,15 +77,19 @@ import {
 } from './evalGate.js';
 import { runEvalGateRecovery } from './evalRecovery/runEvalGateRecovery.js';
 import {
+  makeEvalSearchSession,
+  resolveEvalSearchPoolSize,
+} from './evalSearchSession.js';
+import {
   retrieveEvolutionExamples,
   selectEvolutionParents,
   loopAllVerbsSaturated,
   countLeaves,
 } from './loop.js';
 import { getEmbedder, mockEmbed } from '../search/embed.js';
-import { parseCommands, primaryCommand, renderSnippet } from '../db/recipeFormat.js';
-import { searchHybrid } from '../search/hybrid.js';
-import { loadThresholds } from '../search/index.js';
+import { parseCommands, primaryCommand } from '../db/recipeFormat.js';
+
+export { makeEvalSearchSession, resolveEvalSearchPoolSize } from './evalSearchSession.js';
 
 function log(...args) {
   const ts = new Date().toISOString().slice(11, 19);
@@ -124,129 +123,6 @@ export function setBuildLogHook(fn) {
 function commandEmbedText(row) {
   const steps = parseCommands(row.command_recipe);
   return `${row.initial_state}\n${steps.map((s) => s.command).join('\n')}`;
-}
-
-/** Serialize async work (bun:sqlite connection is not concurrent-safe). */
-function createAsyncMutex() {
-  let tail = Promise.resolve();
-  return (fn) => {
-    const run = tail.then(() => fn(), () => fn());
-    tail = run.then(
-      () => undefined,
-      () => undefined,
-    );
-    return run;
-  };
-}
-
-function defaultSearchThresholds() {
-  try {
-    return loadThresholds(defaultThresholdsPath());
-  } catch {
-    return {
-      schemaVersion: 5,
-      topK: 3,
-      recallK: 100,
-      confidenceVeryHigh: 0.9,
-      confidenceHigh: 0.75,
-      confidenceMedium: 0.4,
-      normalizeQuery: true,
-    };
-  }
-}
-
-/**
- * One eval session: finalize FTS/verbs once, then open a readonly connection pool.
- * Local embed is mutex-serialized; each RO conn has its own mutex for sqlite.
- * @param {string} dbPath
- * @returns {Promise<{ search: (query: string) => Promise<*>, close: () => void, poolSize: number }>}
- */
-export async function makeEvalSearchSession(dbPath, opts = {}) {
-  const embedder = await getEmbedder({
-    forceMock: process.env.GIT_GRASP_MOCK_EMBEDDINGS === '1',
-  });
-  const thresholds = defaultSearchThresholds();
-  const poolSize = resolveEvalSearchPoolSize(opts);
-
-  // Finalize index on a writable handle, then close it so readers see a stable file.
-  const writeDb = openDb(dbPath, { readonly: false });
-  finalizeSearchIndex(writeDb);
-  const verbs = loadGitVerbs(writeDb);
-  writeDb.close();
-
-  const withEmbed = createAsyncMutex();
-  /** @type {{ db: *, withDb: (fn: Function) => Promise<*> }[]} */
-  const pool = [];
-  for (let i = 0; i < poolSize; i += 1) {
-    const db = openDb(dbPath, { readonly: true });
-    pool.push({ db, withDb: createAsyncMutex() });
-  }
-
-  let cursor = 0;
-  const acquireSlot = () => {
-    const slot = pool[cursor % pool.length];
-    cursor += 1;
-    return slot;
-  };
-
-  const search = async (query) => {
-    const vec = await withEmbed(async () => embedder.embed(query));
-    const slot = acquireSlot();
-    return slot.withDb(async () => {
-      const db = slot.db;
-      return searchHybrid({
-        query,
-        thresholds,
-        preferredSkillOverride: null,
-        verbs,
-        embed: async () => vec,
-        knn: (v, k) => knnRecall(db, v, k),
-        fts: (q, k) => ftsRecall(db, q, k),
-        hydrate: (ids) =>
-          ids.map((id) => {
-            const row = getCommand(db, id);
-            if (!row) {
-              return { command_id: id, commands: [], example: '', snippet: '', risk: 0 };
-            }
-            const commands = parseCommands(row.command_recipe);
-            return {
-              command_id: Number(row.row_id),
-              commands,
-              example: primaryCommand(commands) || '',
-              snippet: renderSnippet(commands),
-              risk: Number(row.risk ?? 0),
-            };
-          }),
-      });
-    });
-  };
-
-  return {
-    search,
-    poolSize,
-    close() {
-      for (const slot of pool) {
-        try {
-          slot.db.close();
-        } catch {
-          /* ignore */
-        }
-      }
-    },
-  };
-}
-
-/** Resolve readonly eval search pool size (opts > env > default). */
-export function resolveEvalSearchPoolSize(opts = {}) {
-  if (opts.poolSize != null && Number.isFinite(Number(opts.poolSize))) {
-    return Math.max(1, Math.floor(Number(opts.poolSize)));
-  }
-  const env = process.env.GIT_GRASP_EVAL_SEARCH_POOL;
-  if (env != null && String(env).trim() !== '') {
-    const n = Number(env);
-    if (Number.isFinite(n) && n >= 1) return Math.floor(n);
-  }
-  return EVAL_SEARCH_POOL_SIZE;
 }
 
 function persistLoopProgress(db, { iteration, zeroStreak, maxIterations }) {

@@ -42,6 +42,10 @@ import {
 } from './generateCoverage.js';
 import { detectGaps } from './detectGaps.js';
 import {
+  makeEvalSearchSession,
+  resolveEvalSearchPoolSize,
+} from '../evalSearchSession.js';
+import {
   snapshotGoldenBank,
   restoreGoldenBank,
   applyGoldenActions,
@@ -206,21 +210,51 @@ export async function runEvalGateRecovery(opts) {
       });
 
       // Judge-based gap detection for goal-shaped (no-verb) misses.
-      if (opts.searchFn && gapCheckMax > 0) {
+      // Prefer injected searchFn (tests); else open a staging eval session like runBankEval.
+      if (gapCheckMax > 0) {
+        let searchFn = opts.searchFn;
+        /** @type {{ close: () => void } | null} */
+        let gapSession = null;
         try {
-          const gapOut = await detectGaps(classified, {
-            searchFn: opts.searchFn,
-            llmJsonObject: opts.llmJsonObject,
-            maxChecks: gapCheckMax,
-            log,
-          });
-          classified = gapOut.classified;
-          writeJson(attemptDir, 'gap-checks.json', gapOut.checks);
+          if (!searchFn) {
+            const poolSize = resolveEvalSearchPoolSize({
+              poolSize: opts.searchPoolSize,
+            });
+            if (typeof opts.makeSearchSession === 'function') {
+              gapSession = await opts.makeSearchSession(opts.stagingPath, {
+                poolSize,
+              });
+              searchFn = gapSession?.search;
+            } else if (opts.stagingPath) {
+              gapSession = await makeEvalSearchSession(opts.stagingPath, {
+                poolSize,
+              });
+              searchFn = gapSession.search;
+            }
+          }
+          if (searchFn) {
+            const gapOut = await detectGaps(classified, {
+              searchFn,
+              llmJsonObject: opts.llmJsonObject,
+              maxChecks: gapCheckMax,
+              log,
+            });
+            classified = gapOut.classified;
+            writeJson(attemptDir, 'gap-checks.json', gapOut.checks);
+          }
         } catch (e) {
           log(`recovery ${mode}#${used} detectGaps failed: ${e?.message || e}`);
           writeJson(attemptDir, 'gap-checks-error.json', {
             error: String(e?.message || e),
           });
+        } finally {
+          if (gapSession) {
+            try {
+              gapSession.close();
+            } catch {
+              /* ignore */
+            }
+          }
         }
       }
 

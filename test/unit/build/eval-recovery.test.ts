@@ -573,6 +573,7 @@ describe('runEvalGateRecovery budgets', () => {
       evalResult,
       evalFailRetryMax: 4,
       evalPolishRetryMax: 0,
+      evalGapCheckMax: 0,
       artifactsDir: dir,
       runBankEval: async () => evalResult,
       embedder: { embed: async () => new Float32Array(384) },
@@ -789,6 +790,103 @@ describe('runEvalGateRecovery budgets', () => {
     const checks = JSON.parse(readFileSync(gapFile, 'utf8'));
     expect(checks[0].class).toBe('coverage_gap');
     expect(coverageCalled || checks[0].reason === 'no_match').toBe(true);
+
+    restoreGoldenBank(prior);
+    try {
+      rmSync(dir, { recursive: true, force: true });
+    } catch (e) {
+      if (e?.code !== 'EBUSY' && e?.code !== 'ENOENT') throw e;
+    }
+  });
+
+  it('opens makeSearchSession when searchFn omitted so gap-check still runs', async () => {
+    const dir = mkdtempSync(path.join(tmpdir(), 'rec-gap-sess-'));
+    mkdirSync(evalDataDir(), { recursive: true });
+    const prior = snapshotGoldenBank();
+    restoreGoldenBank([
+      {
+        command_id: 10,
+        query_text: 'update branch without losing edits',
+        primary_verb: 'git stash',
+        mutation_kind: 'composition',
+      },
+    ]);
+
+    const red = {
+      ok: false,
+      okHit: false,
+      okPass: false,
+      passed: 0,
+      hitPassed: 0,
+      total: 1,
+      rate: 0,
+      hitRate: 0,
+      results: [
+        {
+          pass: false,
+          via: 'miss',
+          query: {
+            command_id: 10,
+            query_text: 'update branch without losing edits',
+            primary_verb: 'git stash',
+            mutation_kind: 'composition',
+          },
+          displayed: [{ example: 'git stash', snippet: 'git stash' }],
+        },
+      ],
+    };
+
+    let sessionOpened = false;
+    let sessionClosed = false;
+    const stagingPath = path.join(dir, 'staging.db');
+
+    const out = await runEvalGateRecovery({
+      evalResult: red,
+      evalFailRetryMax: 1,
+      evalPolishRetryMax: 0,
+      skipEvalImprove: true,
+      evalGapCheckMax: 5,
+      evalCoverageMaxInserts: 0,
+      artifactsDir: dir,
+      stagingPath,
+      // No searchFn — production path relies on session factory / staging DB.
+      makeSearchSession: async (dbPath, sessOpts) => {
+        sessionOpened = true;
+        expect(dbPath).toBe(stagingPath);
+        expect(sessOpts?.poolSize).toBeGreaterThanOrEqual(1);
+        return {
+          search: async () => ({
+            results: [{ command_id: 1, title: 'Stash', snippet: 'git stash' }],
+          }),
+          close() {
+            sessionClosed = true;
+          },
+          poolSize: sessOpts?.poolSize ?? 1,
+        };
+      },
+      recipeVerbCoverage: [
+        { row_id: 1, verbs: new Set(['git stash']), mutation_kind: null },
+      ],
+      reloadBank: () =>
+        snapshotGoldenBank().map((r) => ({ ...r, kind: 'golden' })),
+      runBankEval: async () => red,
+      llmJsonObject: async ({ messages }) => {
+        const sys = (messages || []).find((m) => m.role === 'system')?.content || '';
+        if (/accomplishes what the user query asks/i.test(sys) || /match_command_id/i.test(sys)) {
+          return { match_command_id: null };
+        }
+        return { items: [], actions: [], verbs: ['git stash', 'git pull'] };
+      },
+    });
+
+    expect(sessionOpened).toBe(true);
+    expect(sessionClosed).toBe(true);
+    expect(out.attempts.length).toBeGreaterThanOrEqual(1);
+    const gapFile = path.join(dir, 'fail-1', 'gap-checks.json');
+    const { readFileSync, existsSync } = await import('node:fs');
+    expect(existsSync(gapFile)).toBe(true);
+    const checks = JSON.parse(readFileSync(gapFile, 'utf8'));
+    expect(checks[0].class).toBe('coverage_gap');
 
     restoreGoldenBank(prior);
     try {

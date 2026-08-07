@@ -266,6 +266,7 @@ describe('eval gate recovery integration', () => {
       evalFailRetryMax: 2,
       evalPolishRetryMax: 0,
       skipEvalImprove: true,
+      evalGapCheckMax: 0,
       artifactsDir: path.join(dir, 'arts2'),
       stagingPath: path.join(dir, 'x.db'),
       embedder: { embed: async () => new Float32Array(384) },
