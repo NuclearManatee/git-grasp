@@ -3,7 +3,7 @@ import { renderPrompt, renderPromptRole } from '../lib/prompts.js';
 import { llmJsonObject } from '../lib/llm.js';
 import { GenerationLlmResponseSchema } from '../schemas/command.js';
 import { parseCommands } from '../db/recipeFormat.js';
-import { assertEvolveMutation } from './evolveGuards.js';
+import { assertEvolveMutation, SECONDARY_FILLER_VERBS } from './evolveGuards.js';
 import { parseFlagsFromHelp } from './coverage.js';
 import { fetchGitShortHelp } from './gitShortHelp.js';
 
@@ -114,6 +114,7 @@ export async function evolveCompositionMutation(parent, examples, opts = {}) {
   const { messages } = renderPrompt('build/evolve-composition', {
     parent_steps: n,
     child_steps: n + 1,
+    filler_verbs: [...SECONDARY_FILLER_VERBS].join(', '),
     user_json: JSON.stringify(
       {
         parent: parentOut,

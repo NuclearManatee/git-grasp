@@ -56,6 +56,53 @@ describe('prompt loader', () => {
     expect(out.messages[0].content).toMatch(/STATE mutation/);
   });
 
+  it('evolve-composition prompt includes filler verbs and flag rules', () => {
+    const out = renderPrompt('build/evolve-composition', {
+      parent_steps: 1,
+      child_steps: 2,
+      filler_verbs: 'git status, git log, git diff',
+      user_json: '{}',
+    });
+    const sys = out.messages[0].content;
+    expect(sys).toMatch(/git status, git log, git diff/);
+    expect(sys).toMatch(/filler verbs/i);
+    expect(sys).toMatch(/At most ONE net new flag/i);
+    expect(sys).toMatch(/git <verb> -h/);
+  });
+
+  it('evolve-flag prompt includes allowlist and one-net-flag rules', () => {
+    const out = renderPrompt('build/evolve-flag', {
+      allowlists: 'git pull: --rebase --ff-only',
+      user_json: '{}',
+    });
+    const sys = out.messages[0].content;
+    expect(sys).toMatch(/git pull: --rebase --ff-only/);
+    expect(sys).toMatch(/at most ONE net new flag/i);
+    expect(sys).toMatch(/allowlist/i);
+  });
+
+  it('propose-eval-rules prompt includes generality guidance', () => {
+    const out = renderPrompt('build/propose-eval-rules', {
+      taxonomy_verbs: 'git switch',
+      summary_json: '{}',
+      train_failures_json: '[]',
+      existing_traps_json: '[]',
+      existing_families_json: '[]',
+    });
+    const sys = out.messages[0].content;
+    expect(sys).toMatch(/literal substring/i);
+    expect(sys).toMatch(/Singleton skip/i);
+    expect(sys).toMatch(/archive_vs_bundle/);
+    expect(sys).toMatch(/existing_families_json/);
+    expect(sys).toMatch(/switch to an existing branch/);
+  });
+
+  it('rewrite-eval-golden keeps composition multi-action shape', () => {
+    const sys = renderPromptRole('build/rewrite-eval-golden', 'system');
+    expect(sys).toMatch(/NEVER reduce a multi-action golden/i);
+    expect(sys).toMatch(/composition/i);
+  });
+
   it('unknown id throws', () => {
     expect(() => renderPrompt('build/does-not-exist')).toThrow(/Prompt not found/);
   });

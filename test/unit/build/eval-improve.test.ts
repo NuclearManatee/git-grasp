@@ -31,6 +31,7 @@ import {
   metricsForCommandIds,
   applyProposalsToTaxonomy,
   restoreTaxonomySnapshot,
+  allLexiconTrapsAreSingletons,
 } from '../../../common/src/build/evalImprove/runImproveRound.ts';
 import {
   shouldRunEvalImprove,
@@ -39,6 +40,29 @@ import {
 import { filterIntentsForRecipe } from '../../../common/src/build/intentFidelity.ts';
 import { hitAtDisplayVerb } from '../../../common/src/build/evalGate.ts';
 import { countEvalMisses } from '../../../common/src/build/evalImprove/collectMisses.ts';
+
+describe('allLexiconTrapsAreSingletons', () => {
+  it('detects multi singleton traps and ignores singles/empty', () => {
+    expect(allLexiconTrapsAreSingletons([])).toBe(false);
+    expect(
+      allLexiconTrapsAreSingletons([
+        { kind: 'lexicon_trap', evidence_command_ids: [1] },
+      ]),
+    ).toBe(false);
+    expect(
+      allLexiconTrapsAreSingletons([
+        { kind: 'lexicon_trap', evidence_command_ids: [1] },
+        { kind: 'lexicon_trap', evidence_command_ids: [2] },
+      ]),
+    ).toBe(true);
+    expect(
+      allLexiconTrapsAreSingletons([
+        { kind: 'lexicon_trap', evidence_command_ids: [1, 2] },
+        { kind: 'lexicon_trap', evidence_command_ids: [3] },
+      ]),
+    ).toBe(false);
+  });
+});
 
 describe('evalImprove taxonomy loaders', () => {
   it('loads seed lexicon traps from checked-in JSON', () => {
