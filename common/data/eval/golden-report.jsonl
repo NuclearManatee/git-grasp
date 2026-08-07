@@ -1,9 +1,17 @@
-{"query_text":"How do I use git diagnose to generate a diagnostic report of my repository?","command_id":2,"kind":"golden","mutation_kind":"ground","primary_verb":"git diagnose"}
-{"query_text":"How do I use git backfill to fill in missing commits in my repository?","command_id":6,"kind":"golden","mutation_kind":"ground","primary_verb":"git backfill"}
-{"query_text":"how do I use git count-objects","command_id":8,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"ground","primary_verb":"git count-objects"}
-{"query_text":"how do I use git tag","command_id":51,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"ground","primary_verb":"git tag"}
-{"query_text":"how do I use git submodule","command_id":49,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"ground","primary_verb":"git submodule"}
-{"query_text":"how do I use git commit","command_id":58,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"composition","primary_verb":"git commit"}
-{"query_text":"how do I use git commit","command_id":62,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"composition","primary_verb":"git commit"}
-{"query_text":"how do I use git commit","command_id":68,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"composition","primary_verb":"git commit"}
-{"query_text":"how do I use git commit","command_id":70,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"composition","primary_verb":"git commit"}
+{"query_text":"How do I use git backfill to fill in missing commits?","command_id":4,"kind":"golden","mutation_kind":"ground","primary_verb":"git backfill"}
+{"query_text":"how do I use git count-objects","command_id":3,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"ground","primary_verb":"git count-objects"}
+{"query_text":"how do I use git bugreport","command_id":1,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"ground","primary_verb":"git bugreport"}
+{"query_text":"how do I use git branch","command_id":24,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"ground","primary_verb":"git branch"}
+{"query_text":"how do I use git init","command_id":28,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"ground","primary_verb":"git init"}
+{"query_text":"How do I use git prune to clean up unreachable objects?","command_id":37,"kind":"golden","mutation_kind":"ground","primary_verb":"git prune"}
+{"query_text":"how do I use git remote","command_id":39,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"ground","primary_verb":"git remote"}
+{"query_text":"how do I use git switch","command_id":54,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"ground","primary_verb":"git switch"}
+{"query_text":"how do I use git worktree","command_id":57,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"ground","primary_verb":"git worktree"}
+{"query_text":"how do I use git pack-refs","command_id":58,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"composition","primary_verb":"git pack-refs"}
+{"query_text":"how do I use git count-objects","command_id":61,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"composition","primary_verb":"git count-objects"}
+{"query_text":"how do I use git branch","command_id":83,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"how do I use git remote","command_id":87,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"composition","primary_verb":"git remote"}
+{"query_text":"how do I use git branch","command_id":88,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"how do I use git remote","command_id":98,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"composition","primary_verb":"git remote"}
+{"query_text":"how do I use git tag","command_id":104,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"composition","primary_verb":"git tag"}
+{"query_text":"how do I use git notes","command_id":106,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"composition","primary_verb":"git notes"}

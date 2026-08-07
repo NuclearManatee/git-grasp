@@ -1,61 +1,88 @@
-{"query_text":"how to list all branches in git using git branch","command_id":1,"kind":"golden","mutation_kind":"ground","primary_verb":"git branch"}
-{"query_text":"how to switch branches using git checkout","command_id":3,"kind":"golden","mutation_kind":"ground","primary_verb":"git checkout"}
-{"query_text":"apply patches from mailbox with git am","command_id":4,"kind":"golden","mutation_kind":"ground","primary_verb":"git am"}
-{"query_text":"How do I start a git bisect session to find the commit that introduced a bug?","command_id":5,"kind":"golden","mutation_kind":"ground","primary_verb":"git bisect"}
-{"query_text":"How to stage a specific file with git add?","command_id":7,"kind":"golden","mutation_kind":"ground","primary_verb":"git add"}
-{"query_text":"how to export all git history with fast-export","command_id":10,"kind":"golden","mutation_kind":"ground","primary_verb":"git fast-export"}
-{"query_text":"how to create an empty commit with git commit","command_id":11,"kind":"golden","mutation_kind":"ground","primary_verb":"git commit"}
-{"query_text":"How do I create a git bundle file of my entire repository?","command_id":9,"kind":"golden","mutation_kind":"ground","primary_verb":"git bundle"}
-{"query_text":"How do I clone a local repository into a new directory with git clone?","command_id":12,"kind":"golden","mutation_kind":"ground","primary_verb":"git clone"}
-{"query_text":"How to see who last modified each line of a file with git blame?","command_id":14,"kind":"golden","mutation_kind":"ground","primary_verb":"git blame"}
-{"query_text":"show who last modified each line of a file with git annotate","command_id":13,"kind":"golden","mutation_kind":"ground","primary_verb":"git annotate"}
-{"query_text":"How to create a tar archive of the current commit with git archive?","command_id":15,"kind":"golden","mutation_kind":"ground","primary_verb":"git archive"}
-{"query_text":"How to preview which untracked files would be removed with git clean dry run?","command_id":17,"kind":"golden","mutation_kind":"ground","primary_verb":"git clean"}
-{"query_text":"how to import a large git history quickly with git fast-import","command_id":16,"kind":"golden","mutation_kind":"ground","primary_verb":"git fast-import"}
-{"query_text":"how to rewrite commit messages with git filter-branch","command_id":19,"kind":"golden","mutation_kind":"ground","primary_verb":"git filter-branch"}
-{"query_text":"how to apply a specific commit from another branch with git cherry-pick","command_id":18,"kind":"golden","mutation_kind":"ground","primary_verb":"git cherry-pick"}
-{"query_text":"how to generate a patch file for the last commit with git format-patch","command_id":20,"kind":"golden","mutation_kind":"ground","primary_verb":"git format-patch"}
-{"query_text":"How do I fetch updates from a remote repository with git fetch?","command_id":21,"kind":"golden","mutation_kind":"ground","primary_verb":"git fetch"}
-{"query_text":"How to check the integrity of a Git repository with git fsck?","command_id":22,"kind":"golden","mutation_kind":"ground","primary_verb":"git fsck"}
-{"query_text":"How to search for a string in files using git grep?","command_id":24,"kind":"golden","mutation_kind":"ground","primary_verb":"git grep"}
-{"query_text":"how to view commit history with git log","command_id":26,"kind":"golden","mutation_kind":"ground","primary_verb":"git log"}
-{"query_text":"how to clean up and optimize local git repository with git gc","command_id":23,"kind":"golden","mutation_kind":"ground","primary_verb":"git gc"}
-{"query_text":"how to merge a feature branch into the current branch with git merge","command_id":27,"kind":"golden","mutation_kind":"ground","primary_verb":"git merge"}
-{"query_text":"how to add notes to a git commit","command_id":29,"kind":"golden","mutation_kind":"ground","primary_verb":"git notes"}
-{"query_text":"How to clean up unreachable objects with git prune","command_id":30,"kind":"golden","mutation_kind":"ground","primary_verb":"git prune"}
-{"query_text":"how to view the history of branch references with git reflog","command_id":35,"kind":"golden","mutation_kind":"ground","primary_verb":"git reflog"}
-{"query_text":"how to manage remote repositories with git remote","command_id":36,"kind":"golden","mutation_kind":"ground","primary_verb":"git remote"}
-{"query_text":"how to use git merge-tree to preview merge conflicts without actually merging","command_id":33,"kind":"golden","mutation_kind":"ground","primary_verb":"git merge-tree"}
-{"query_text":"how to list all git refs","command_id":34,"kind":"golden","mutation_kind":"ground","primary_verb":"git refs"}
-{"query_text":"how to initialize a new git repository with git init","command_id":25,"kind":"golden","mutation_kind":"ground","primary_verb":"git init"}
-{"query_text":"How do I enable git maintenance to keep my repository optimized automatically?","command_id":32,"kind":"golden","mutation_kind":"ground","primary_verb":"git maintenance"}
-{"query_text":"how to rebase current branch onto master","command_id":31,"kind":"golden","mutation_kind":"ground","primary_verb":"git rebase"}
-{"query_text":"how to rename a file with git mv","command_id":37,"kind":"golden","mutation_kind":"ground","primary_verb":"git mv"}
-{"query_text":"how to repack git repository to optimize storage","command_id":38,"kind":"golden","mutation_kind":"ground","primary_verb":"git repack"}
-{"query_text":"How to undo the last commit with git reset?","command_id":39,"kind":"golden","mutation_kind":"ground","primary_verb":"git reset"}
-{"query_text":"how to list git replace references","command_id":40,"kind":"golden","mutation_kind":"ground","primary_verb":"git replace"}
-{"query_text":"how to reuse recorded resolution of conflicts with git rerere","command_id":41,"kind":"golden","mutation_kind":"ground","primary_verb":"git rerere"}
-{"query_text":"How to compare two ranges of commits with git range-diff?","command_id":42,"kind":"golden","mutation_kind":"ground","primary_verb":"git range-diff"}
-{"query_text":"How do I undo the last commit with git revert?","command_id":43,"kind":"golden","mutation_kind":"ground","primary_verb":"git revert"}
-{"query_text":"how to pack all refs in git with git pack-refs","command_id":28,"kind":"golden","mutation_kind":"ground","primary_verb":"git pack-refs"}
-{"query_text":"How to remove a file from the repository using git rm","command_id":44,"kind":"golden","mutation_kind":"ground","primary_verb":"git rm"}
-{"query_text":"How to summarize git commit history by author using git shortlog","command_id":45,"kind":"golden","mutation_kind":"ground","primary_verb":"git shortlog"}
-{"query_text":"how to show the details of a commit with git show","command_id":46,"kind":"golden","mutation_kind":"ground","primary_verb":"git show"}
-{"query_text":"how to survey git repository","command_id":48,"kind":"golden","mutation_kind":"ground","primary_verb":"git survey"}
-{"query_text":"how to show branches and their commit history with git show-branch","command_id":47,"kind":"golden","mutation_kind":"ground","primary_verb":"git show-branch"}
-{"query_text":"How do I switch to another branch using git switch?","command_id":50,"kind":"golden","mutation_kind":"ground","primary_verb":"git switch"}
-{"query_text":"how to check git version","command_id":52,"kind":"golden","mutation_kind":"ground","primary_verb":"git version"}
-{"query_text":"how to check git status","command_id":53,"kind":"golden","mutation_kind":"ground","primary_verb":"git status"}
-{"query_text":"how to add a new worktree with git worktree add","command_id":54,"kind":"golden","mutation_kind":"ground","primary_verb":"git worktree"}
-{"query_text":"How to initialize sparse checkout in a Git repository?","command_id":55,"kind":"golden","mutation_kind":"ground","primary_verb":"git sparse-checkout"}
-{"query_text":"How do I temporarily save my changes with git stash?","command_id":56,"kind":"golden","mutation_kind":"ground","primary_verb":"git stash"}
-{"query_text":"show what changed in each commit with git whatchanged","command_id":57,"kind":"golden","mutation_kind":"ground","primary_verb":"git whatchanged"}
-{"query_text":"how to pack all git refs into a single file with git pack-refs","command_id":59,"kind":"golden","mutation_kind":"composition","primary_verb":"git pack-refs"}
-{"query_text":"How do I start a git bisect session to find the bad commit?","command_id":60,"kind":"golden","mutation_kind":"composition","primary_verb":"git bisect"}
-{"query_text":"show branch commit history with git show-branch","command_id":61,"kind":"golden","mutation_kind":"composition","primary_verb":"git show-branch"}
-{"query_text":"How to list all git replace references?","command_id":66,"kind":"golden","mutation_kind":"composition","primary_verb":"git replace"}
-{"query_text":"how to temporarily save and restore changes with git stash","command_id":63,"kind":"golden","mutation_kind":"composition","primary_verb":"git stash"}
-{"query_text":"how to add a remote repository in git","command_id":69,"kind":"golden","mutation_kind":"composition","primary_verb":"git remote"}
-{"query_text":"how to create an empty commit in git","command_id":67,"kind":"golden","mutation_kind":"composition","primary_verb":"git commit"}
-{"query_text":"how to add a new worktree in git and list existing worktrees","command_id":64,"kind":"golden","mutation_kind":"composition","primary_verb":"git worktree"}
-{"query_text":"How to repack and garbage collect a git repository to optimize storage?","command_id":65,"kind":"golden","mutation_kind":"composition","primary_verb":"git repack"}
+{"query_text":"how to run git diagnose to generate a diagnostic bundle","command_id":2,"kind":"golden","mutation_kind":"ground","primary_verb":"git diagnose"}
+{"query_text":"how to stage a file with git add","command_id":5,"kind":"golden","mutation_kind":"ground","primary_verb":"git add"}
+{"query_text":"how to switch to an existing branch with git checkout","command_id":6,"kind":"golden","mutation_kind":"ground","primary_verb":"git checkout"}
+{"query_text":"show who last modified each line of README.md with git blame","command_id":7,"kind":"golden","mutation_kind":"ground","primary_verb":"git blame"}
+{"query_text":"how to import a git fast-import stream","command_id":8,"kind":"golden","mutation_kind":"ground","primary_verb":"git fast-import"}
+{"query_text":"how to use git bisect to find the bad commit between two commits","command_id":9,"kind":"golden","mutation_kind":"ground","primary_verb":"git bisect"}
+{"query_text":"how to check the integrity of my git repository with git fsck","command_id":10,"kind":"golden","mutation_kind":"ground","primary_verb":"git fsck"}
+{"query_text":"how to export git history with fast-export","command_id":11,"kind":"golden","mutation_kind":"ground","primary_verb":"git fast-export"}
+{"query_text":"How do I create a tar archive of the current commit with git archive?","command_id":12,"kind":"golden","mutation_kind":"ground","primary_verb":"git archive"}
+{"query_text":"how to fetch updates from a remote repository with git fetch","command_id":14,"kind":"golden","mutation_kind":"ground","primary_verb":"git fetch"}
+{"query_text":"How do I run git gc to clean up and optimize my repository?","command_id":15,"kind":"golden","mutation_kind":"ground","primary_verb":"git gc"}
+{"query_text":"show file differences with difftool using echo tool without prompting","command_id":13,"kind":"golden","mutation_kind":"ground","primary_verb":"git difftool"}
+{"query_text":"how to commit a staged file with a message in git","command_id":16,"kind":"golden","mutation_kind":"ground","primary_verb":"git commit"}
+{"query_text":"how to view commit history graph with gitk","command_id":17,"kind":"golden","mutation_kind":"ground","primary_verb":"git gitk"}
+{"query_text":"show unstaged changes in working tree with git diff","command_id":18,"kind":"golden","mutation_kind":"ground","primary_verb":"git diff"}
+{"query_text":"how to search for a string in tracked files with git grep","command_id":19,"kind":"golden","mutation_kind":"ground","primary_verb":"git grep"}
+{"query_text":"show merge result without touching working tree using git merge-tree","command_id":20,"kind":"golden","mutation_kind":"ground","primary_verb":"git merge-tree"}
+{"query_text":"how to pack all refs with git pack-refs","command_id":21,"kind":"golden","mutation_kind":"ground","primary_verb":"git pack-refs"}
+{"query_text":"how to generate a patch file for the last commit with git format-patch","command_id":22,"kind":"golden","mutation_kind":"ground","primary_verb":"git format-patch"}
+{"query_text":"how to rename a file with git mv","command_id":23,"kind":"golden","mutation_kind":"ground","primary_verb":"git mv"}
+{"query_text":"show commit history with git log","command_id":25,"kind":"golden","mutation_kind":"ground","primary_verb":"git log"}
+{"query_text":"how to pull changes from a remote repository with git pull","command_id":26,"kind":"golden","mutation_kind":"ground","primary_verb":"git pull"}
+{"query_text":"Show how to use git annotate to display line-by-line authorship for a file.","command_id":27,"kind":"golden","mutation_kind":"ground","primary_verb":"git annotate"}
+{"query_text":"how to rebase current branch onto feature branch in git","command_id":29,"kind":"golden","mutation_kind":"ground","primary_verb":"git rebase"}
+{"query_text":"How do I start git maintenance to optimize my repository?","command_id":30,"kind":"golden","mutation_kind":"ground","primary_verb":"git maintenance"}
+{"query_text":"how to repack git repository objects","command_id":31,"kind":"golden","mutation_kind":"ground","primary_verb":"git repack"}
+{"query_text":"how to restore a file to its last committed state with git restore","command_id":32,"kind":"golden","mutation_kind":"ground","primary_verb":"git restore"}
+{"query_text":"how to attach a note to a commit using git notes add","command_id":33,"kind":"golden","mutation_kind":"ground","primary_verb":"git notes"}
+{"query_text":"how to push current branch to remote with git push origin HEAD","command_id":34,"kind":"golden","mutation_kind":"ground","primary_verb":"git push"}
+{"query_text":"How do I merge a feature branch into main with git merge?","command_id":35,"kind":"golden","mutation_kind":"ground","primary_verb":"git merge"}
+{"query_text":"list git replace references","command_id":36,"kind":"golden","mutation_kind":"ground","primary_verb":"git replace"}
+{"query_text":"how to use git rerere to reuse recorded conflict resolutions","command_id":38,"kind":"golden","mutation_kind":"ground","primary_verb":"git rerere"}
+{"query_text":"how to undo the last commit with git revert","command_id":40,"kind":"golden","mutation_kind":"ground","primary_verb":"git revert"}
+{"query_text":"how to open git gui","command_id":41,"kind":"golden","mutation_kind":"ground","primary_verb":"git gui"}
+{"query_text":"how to remove a file from the repository with git rm","command_id":42,"kind":"golden","mutation_kind":"ground","primary_verb":"git rm"}
+{"query_text":"how to unstage files and undo the last commit with git reset mixed","command_id":43,"kind":"golden","mutation_kind":"ground","primary_verb":"git reset"}
+{"query_text":"how to list git refs","command_id":44,"kind":"golden","mutation_kind":"ground","primary_verb":"git refs"}
+{"query_text":"show the reflog history of HEAD","command_id":45,"kind":"golden","mutation_kind":"ground","primary_verb":"git reflog"}
+{"query_text":"compare two branches with git range-diff","command_id":46,"kind":"golden","mutation_kind":"ground","primary_verb":"git range-diff"}
+{"query_text":"how to temporarily save uncommitted changes with git stash","command_id":47,"kind":"golden","mutation_kind":"ground","primary_verb":"git stash"}
+{"query_text":"how to initialize sparse checkout in git","command_id":48,"kind":"golden","mutation_kind":"ground","primary_verb":"git sparse-checkout"}
+{"query_text":"how to create a git tag","command_id":49,"kind":"golden","mutation_kind":"ground","primary_verb":"git tag"}
+{"query_text":"how to view details of a commit with git show","command_id":50,"kind":"golden","mutation_kind":"ground","primary_verb":"git show"}
+{"query_text":"how to see a summary of commits grouped by author with git shortlog","command_id":51,"kind":"golden","mutation_kind":"ground","primary_verb":"git shortlog"}
+{"query_text":"git survey to see the state of my repository with branches and commits","command_id":52,"kind":"golden","mutation_kind":"ground","primary_verb":"git survey"}
+{"query_text":"show branches and their commits with git show-branch","command_id":53,"kind":"golden","mutation_kind":"ground","primary_verb":"git show-branch"}
+{"query_text":"how to check the current state of the working directory with git status","command_id":55,"kind":"golden","mutation_kind":"ground","primary_verb":"git status"}
+{"query_text":"how to check git version","command_id":56,"kind":"golden","mutation_kind":"ground","primary_verb":"git version"}
+{"query_text":"how to start and run git maintenance tasks","command_id":59,"kind":"golden","mutation_kind":"composition","primary_verb":"git maintenance"}
+{"query_text":"how to start a git bisect session between two commits and save its log","command_id":60,"kind":"golden","mutation_kind":"composition","primary_verb":"git bisect"}
+{"query_text":"how to temporarily save and restore uncommitted changes with git stash and pop","command_id":62,"kind":"golden","mutation_kind":"composition","primary_verb":"git stash"}
+{"query_text":"how to repack a git repository with git repack","command_id":64,"kind":"golden","mutation_kind":"composition","primary_verb":"git repack"}
+{"query_text":"how to add a note to a commit with git notes and list notes","command_id":63,"kind":"golden","mutation_kind":"composition","primary_verb":"git notes"}
+{"query_text":"how to delete a git replace reference","command_id":65,"kind":"golden","mutation_kind":"composition","primary_verb":"git replace"}
+{"query_text":"how to run git gc to clean up the repository","command_id":66,"kind":"golden","mutation_kind":"composition","primary_verb":"git gc"}
+{"query_text":"how to create a lightweight tag with git tag","command_id":67,"kind":"golden","mutation_kind":"composition","primary_verb":"git tag"}
+{"query_text":"Show how to export Git history using git fast-export.","command_id":68,"kind":"golden","mutation_kind":"composition","primary_verb":"git fast-export"}
+{"query_text":"show branch names with latest commit messages using git branch -v","command_id":69,"kind":"golden","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"how to run git gc to clean up the repository","command_id":70,"kind":"golden","mutation_kind":"composition","primary_verb":"git gc"}
+{"query_text":"how to list branches and switch to a feature branch with git branch and git switch","command_id":71,"kind":"golden","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"how to list configured remotes with git remote","command_id":72,"kind":"golden","mutation_kind":"composition","primary_verb":"git remote"}
+{"query_text":"how to use git backfill to fill in missing commits and then verify with fsck","command_id":73,"kind":"golden","mutation_kind":"composition","primary_verb":"git backfill"}
+{"query_text":"how to add a new worktree and list all worktrees in git","command_id":74,"kind":"golden","mutation_kind":"composition","primary_verb":"git worktree"}
+{"query_text":"check repository integrity and count objects with git fsck","command_id":75,"kind":"golden","mutation_kind":"composition","primary_verb":"git fsck"}
+{"query_text":"how to export a git history with fast-export","command_id":76,"kind":"golden","mutation_kind":"composition","primary_verb":"git fast-export"}
+{"query_text":"how to create a tar archive of the current commit with git archive and list its contents","command_id":77,"kind":"golden","mutation_kind":"composition","primary_verb":"git archive"}
+{"query_text":"how to initialize sparse checkout in git with git sparse-checkout","command_id":78,"kind":"golden","mutation_kind":"composition","primary_verb":"git sparse-checkout"}
+{"query_text":"how to see branch details with git branch -v and compare branches with show-branch","command_id":79,"kind":"golden","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"how to fetch and pull from remote repository","command_id":80,"kind":"golden","mutation_kind":"composition","primary_verb":"git fetch"}
+{"query_text":"how to revert a commit without committing immediately using git revert","command_id":81,"kind":"golden","mutation_kind":"composition","primary_verb":"git revert"}
+{"query_text":"show summary of changes with git diff --stat","command_id":82,"kind":"golden","mutation_kind":"composition","primary_verb":"git diff"}
+{"query_text":"how to show branches with last commit message and hash using git branch -v","command_id":84,"kind":"golden","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"How to run git gc and then check the count of objects and prune them?","command_id":85,"kind":"golden","mutation_kind":"composition","primary_verb":"git gc"}
+{"query_text":"how to check repository integrity using git fsck","command_id":86,"kind":"golden","mutation_kind":"composition","primary_verb":"git fsck"}
+{"query_text":"how to export a git repository with git fast-export","command_id":89,"kind":"golden","mutation_kind":"composition","primary_verb":"git fast-export"}
+{"query_text":"How to run git gc to clean up and check repository objects with count-objects, fsck, and prune?","command_id":90,"kind":"golden","mutation_kind":"composition","primary_verb":"git gc"}
+{"query_text":"show verbose branch info with last commit for each branch","command_id":91,"kind":"golden","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"how to verify repository integrity with git fsck","command_id":92,"kind":"golden","mutation_kind":"composition","primary_verb":"git fsck"}
+{"query_text":"how to check repository integrity with git fsck","command_id":93,"kind":"golden","mutation_kind":"composition","primary_verb":"git fsck"}
+{"query_text":"show branch details with last commit and rebase feature","command_id":94,"kind":"golden","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"how to show verbose branch info using git branch","command_id":95,"kind":"golden","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"how to list git tags after creating a tag","command_id":96,"kind":"golden","mutation_kind":"composition","primary_verb":"git tag"}
+{"query_text":"how to run git gc to clean up the repository","command_id":97,"kind":"golden","mutation_kind":"composition","primary_verb":"git gc"}
+{"query_text":"how to run git fsck to check repository integrity","command_id":100,"kind":"golden","mutation_kind":"composition","primary_verb":"git fsck"}
+{"query_text":"how to check repository integrity using git fsck","command_id":101,"kind":"golden","mutation_kind":"composition","primary_verb":"git fsck"}
+{"query_text":"how to check repository integrity with git fsck and clean up objects","command_id":102,"kind":"golden","mutation_kind":"composition","primary_verb":"git fsck"}
+{"query_text":"show verbose branch info and list all branches including remote with git branch","command_id":103,"kind":"golden","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"how to list remote branches and fetch from origin with git remote","command_id":105,"kind":"golden","mutation_kind":"composition","primary_verb":"git remote"}

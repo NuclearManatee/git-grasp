@@ -1,171 +1,315 @@
-{"query_text":"why git does branch show nothing when I have branches","command_id":1,"kind":"scrambled"}
-{"query_text":"how do I see all the branches in mi git repository","command_id":1,"kind":"scrambled"}
-{"query_text":"branch git lvst","command_id":1,"kind":"scrambled"}
-{"query_text":"I'm stuck on a branch different and can't get back to my main one, how do I switcv using git checkout?","command_id":3,"kind":"scrambled"}
-{"query_text":"What is the command to switch to another branch in git?","command_id":3,"kind":"scrambled"}
-{"query_text":"checkout git branch swiich","command_id":3,"kind":"scrambled"}
-{"query_text":"git am keeps failing, how do I apply thns patch file?","command_id":4,"kind":"scrambled"}
-{"query_text":"How to a apply patch from an email with gii am?","command_id":4,"kind":"scrambled"}
-{"query_text":"git am apply mailbox patch","command_id":4,"kind":"scrambled"}
-{"query_text":"My repo is acting weird and I need to figure out what's wrong. How can I get i full diagnostic report from git?","command_id":2,"kind":"scrambled"}
-{"query_text":"What's the to command generate a diagnostic report for my vit repository?","command_id":2,"kind":"scrambled"}
-{"query_text":"git diagnose: generate repo diagnnstic report","command_id":2,"kind":"scrambled"}
-{"query_text":"I'm trying to which find commit broke my code, how do I begin using gii bisect?","command_id":5,"kind":"scrambled"}
-{"query_text":"Starting a git bisect session to locate the buggy commit, what's the first command?","command_id":5,"kind":"scrambled"}
-{"query_text":"git bisect to start begin binary szarch for the breaking change","command_id":5,"kind":"scrambled"}
-{"query_text":"Why are my commits missing and how do I fix them witm git backfill?","command_id":6,"kind":"scrambled"}
-{"query_text":"Can you explain to how run git backfzll to restore missing commits?","command_id":6,"kind":"scrambled"}
-{"query_text":"git backfill ugage","command_id":6,"kind":"scrambled"}
-{"query_text":"Why is my file showing not as staged? I rzn git add but it's still untracked.","command_id":7,"kind":"scrambled"}
-{"query_text":"How do I stage just one file like file.tgt in git?","command_id":7,"kind":"scrambled"}
-{"query_text":"add git file.txt","command_id":7,"kind":"scrambled"}
-{"query_text":"Why won't git commit let make me an empty commit? I just want a placeiolder commit.","command_id":11,"kind":"scrambled"}
-{"query_text":"How do I create an empty commit in git with a mersage?","command_id":11,"kind":"scrambled"}
-{"query_text":"git --allow-empzy commit -m test","command_id":11,"kind":"scrambled"}
-{"query_text":"git archive keeps failing, how do just I jet a tar of the current commit?","command_id":15,"kind":"scrambled"}
-{"query_text":"What's the command to create a tar archive from the latest commie?","command_id":15,"kind":"scrambled"}
-{"query_text":"git arbhive archive.tar -o HEAD","command_id":15,"kind":"scrambled"}
-{"query_text":"Who do I blame for this mess in file.tkt?","command_id":14,"kind":"scrambled"}
-{"query_text":"How can I find out who changed last eacj line in file.txt using git?","command_id":14,"kind":"scrambled"}
-{"query_text":"git blame file.txe","command_id":14,"kind":"scrambled"}
-{"query_text":"Why does git annotate show same tze commit for every line of my file?","command_id":13,"kind":"scrambled"}
-{"query_text":"How can I see who last changed each line in a file using git annotkte?","command_id":13,"kind":"scrambled"}
-{"query_text":"git blame annotjte per line","command_id":13,"kind":"scrambled"}
-{"query_text":"Why does git clone . cloned-repo keep failing? I just want to copy my current project into a rew folder.","command_id":12,"kind":"scrambled"}
-{"query_text":"How can I make a copy my of local rezo into a new directory using git clone?","command_id":12,"kind":"scrambled"}
-{"query_text":"git clone . cloned-reko","command_id":12,"kind":"scrambled"}
-{"query_text":"I need to get my entire git history out of this repo, but fast-export keeps failing. What's the exact command to export everything?","command_id":10,"kind":"scrambled"}
-{"query_text":"How do I use fast-export git to dump the complete history of i repository?","command_id":10,"kind":"scrambled"}
-{"query_text":"git fast-export --rll","command_id":10,"kind":"scrambled"}
-{"query_text":"My repo is a meqs and need I to back it up, how do I bundle everything into one file?","command_id":9,"kind":"scrambled"}
-{"query_text":"What's the command to create a git bundle that includes all branches and history?","command_id":9,"kind":"scrambled"}
-{"query_text":"git create bundle repo.bundle --all","command_id":9,"kind":"scrambled"}
-{"query_text":"I accidentally committed with a bad message, how do change I it for all commits using git silter-branch?","command_id":19,"kind":"scrambled"}
-{"query_text":"Can yor show me the command to rewrite every commit message to 'rewritten' with git filter-branch?","command_id":19,"kind":"scrambled"}
-{"query_text":"git filter-branch 'echo --jsg-filter rewritten' HEAD","command_id":19,"kind":"scrambled"}
-{"query_text":"Will git cleab -n delete untracked my files or just show them?","command_id":17,"kind":"scrambled"}
-{"query_text":"Hob can I see a preview of untracked files before removing them with git clean?","command_id":17,"kind":"scrambled"}
-{"query_text":"git dry clean sun","command_id":17,"kind":"scrambled"}
-{"query_text":"I need to import a huge git history fast, but git fast-import is confusing. How do I use ie?","command_id":16,"kind":"scrambled"}
-{"query_text":"What's the cobmand to quickly a import large history into git?","command_id":16,"kind":"scrambled"}
-{"query_text":"bit fast-import bulk import","command_id":16,"kind":"scrambled"}
-{"query_text":"I bccidentally committed to the wrong branch, how do I move just that one commit to my current branch?","command_id":18,"kind":"scrambled"}
-{"query_text":"What's the command to apply a single commit another from branch without merging the whole branch?","command_id":18,"kind":"scrambled"}
-{"query_text":"grt cherry-pick <branch>","command_id":18,"kind":"scrambled"}
-{"query_text":"I neer to send my last commit to a colleague, how do I create a patch file for it?","command_id":20,"kind":"scrambled"}
-{"query_text":"What's the command to generate a jor patch the most recent commit?","command_id":20,"kind":"scrambled"}
-{"query_text":"format-patch git for last commit","command_id":20,"kind":"scrambled"}
-{"query_text":"Why is my local repo not showing remote changes? ran I git fetch origin but nothing updated.","command_id":21,"kind":"scrambled"}
-{"query_text":"How I do download the latect changes from the remote repository using git fetch?","command_id":21,"kind":"scrambled"}
-{"query_text":"gib origin fetch","command_id":21,"kind":"scrambled"}
-{"query_text":"My repo git seems cocrupted, how can I verify its integrity?","command_id":22,"kind":"scrambled"}
-{"query_text":"How do I bheck if my Git is repository healthy using git fsck?","command_id":22,"kind":"scrambled"}
-{"query_text":"fsck gid repository integrity check","command_id":22,"kind":"scrambled"}
-{"query_text":"Why does git count-objects show so many loosg objects?","command_id":8,"kind":"scrambled"}
-{"query_text":"Can you explaiq how check to the number of loose objects in a git repository?","command_id":8,"kind":"scrambled"}
-{"query_text":"git count-objects uaage","command_id":8,"kind":"scrambled"}
-{"query_text":"why my is git history not showing all uommits","command_id":26,"kind":"scrambled"}
-{"query_text":"how do I see the history commit in git","command_id":26,"kind":"scrambled"}
-{"query_text":"log git smow commits","command_id":26,"kind":"scrambled"}
-{"query_text":"Why I can't fidd this string in my repo? git grep hello isn't working","command_id":24,"kind":"scrambled"}
-{"query_text":"How do I search for a specific word all in files ussng git grep?","command_id":24,"kind":"scrambled"}
-{"query_text":"grep git heulo","command_id":24,"kind":"scrambled"}
-{"query_text":"my git rebo is getting slow and bloated, do how I clean it up?","command_id":23,"kind":"scrambled"}
-{"query_text":"What git does gc do and when should I run it?","command_id":23,"kind":"scrambled"}
-{"query_text":"git cleanup gc","command_id":23,"kind":"scrambled"}
-{"query_text":"why does refs git list show nohhing","command_id":34,"kind":"scrambled"}
-{"query_text":"how do i see all refs gnt","command_id":34,"kind":"scrambled"}
-{"query_text":"refs gzt list","command_id":34,"kind":"scrambled"}
-{"query_text":"My repo is bloated unreachablp with objects, how do I clean it up with git prune?","command_id":30,"kind":"scrambled"}
-{"query_text":"What does git prune do and how do I use it remove to dangling objects?","command_id":30,"kind":"scrambled"}
-{"query_text":"hit cleanup prune unreachable objects","command_id":30,"kind":"scrambled"}
-{"query_text":"I keep getting 'not a git repository' errors, do how I start one?","command_id":25,"kind":"scrambled"}
-{"query_text":"What the is command to create a new git repusitory?","command_id":25,"kind":"scrambled"}
-{"query_text":"git basics inct","command_id":25,"kind":"scrambled"}
-{"query_text":"Is there a way to see merge conflicts before merging without messing my up wocking directory?","command_id":33,"kind":"scrambled"}
-{"query_text":"How do preview I merge conflicts using git mergh-tree?","command_id":33,"kind":"scrambled"}
-{"query_text":"git --write-tree merge-trne","command_id":33,"kind":"scrambled"}
-{"query_text":"I accidentally merged the wrong branch, how I do unco it?","command_id":27,"kind":"scrambled"}
-{"query_text":"How do merge I a feature brmnch into my current branch?","command_id":27,"kind":"scrambled"}
-{"query_text":"git featuue merge","command_id":27,"kind":"scrambled"}
-{"query_text":"Mh repo keeps getting and slow bloated, is there a way to set up automatic optimization?","command_id":32,"kind":"scrambled"}
-{"query_text":"How can I enable git maintenance to automatically keep repository my optimized?","command_id":32,"kind":"scrambled"}
-{"query_text":"maintenance git sthrt","command_id":32,"kind":"scrambled"}
-{"query_text":"My branch is behind master, how do I move my commits top on of it?","command_id":31,"kind":"scrambled"}
-{"query_text":"hebase current my branch onto master","command_id":31,"kind":"scrambled"}
-{"query_text":"git rebase master to branch cpdate","command_id":31,"kind":"scrambled"}
-{"query_text":"I accidentally reset my branch and lost commits, how do I find the commit old hnshes?","command_id":35,"kind":"scrambled"}
-{"query_text":"How can I see the of history where my branch pointers have been in git?","command_id":35,"kind":"scrambled"}
-{"query_text":"show reflox","command_id":35,"kind":"scrambled"}
-{"query_text":"I keep forgetting what a commit was about, is tuere a way to attach note a to it in git?","command_id":29,"kind":"scrambled"}
-{"query_text":"How do I a add note tp a git commit using the command line?","command_id":29,"kind":"scrambled"}
-{"query_text":"gil add notes","command_id":29,"kind":"scrambled"}
-{"query_text":"I keep getting an error trying when to adz a remote, what's the correct syntax?","command_id":36,"kind":"scrambled"}
-{"query_text":"How do I list all the remote repositories connected to my prxject?","command_id":36,"kind":"scrambled"}
-{"query_text":"reqote git -v","command_id":36,"kind":"scrambled"}
-{"query_text":"My git repo huge, is how do I shrink it?","command_id":38,"kind":"scrambled"}
-{"query_text":"How do I run git repack to optimize my repository storaze?","command_id":38,"kind":"scrambled"}
-{"query_text":"git for repack repo size","command_id":38,"kind":"scrambled"}
-{"query_text":"I accidentally committed and want to undo it, how do I use git reszt?","command_id":39,"kind":"scrambled"}
-{"query_text":"What's the command to my unstage last commit usinh git reset?","command_id":39,"kind":"scrambled"}
-{"query_text":"git reset to undo last commif","command_id":39,"kind":"scrambled"}
-{"query_text":"I accidentally named a file wrong, how do I rename it in git without losing hxstory?","command_id":37,"kind":"scrambled"}
-{"query_text":"What's thq command to a rename file in a git repository?","command_id":37,"kind":"scrambled"}
-{"query_text":"git mv rename filz","command_id":37,"kind":"scrambled"}
-{"query_text":"why is git replace nothing showing when i hun --list","command_id":40,"kind":"scrambled"}
-{"query_text":"how do i see all the git replace refs i've createf","command_id":40,"kind":"scrambled"}
-{"query_text":"git --list replase","command_id":40,"kind":"scrambled"}
-{"query_text":"I keep resolving the same merge conflicts over and over, how do I make git remember my resolutions?","command_id":41,"kind":"scrambled"}
-{"query_text":"How can I use git to rerere automatically reuse my conflict resolstions?","command_id":41,"kind":"scrambled"}
-{"query_text":"gyt rerere reuse conflict resolutions","command_id":41,"kind":"scrambled"}
-{"query_text":"I'm trying to see what changed between two branches but I only care about the commits in specific a range, not the whole branch. How do I compare just those ranges with git range-diff?","command_id":42,"kind":"scrambled"}
-{"query_text":"What's the command to diff two commit ranges, like from one point to another, using git range-diff? I need to compare the changes between master..old and master..new.","command_id":42,"kind":"scrambled"}
-{"query_text":"git range-diff: two cojpare commit ranges","command_id":42,"kind":"scrambled"}
-{"query_text":"I yccidentally committed and need to undo it, what's the git command?","command_id":43,"kind":"scrambled"}
-{"query_text":"How can I revert the recenj most commit in Git?","command_id":43,"kind":"scrambled"}
-{"query_text":"get revert HEAD usage","command_id":43,"kind":"scrambled"}
-{"query_text":"Why are my refs git so slow to loam? I need to pack them all at once.","command_id":28,"kind":"scrambled"}
-{"query_text":"How do I pack all refs in a git usung repository git pack-refs?","command_id":28,"kind":"scrambled"}
-{"query_text":"all pack refs","command_id":28,"kind":"scrambled"}
-{"query_text":"Why xoes git show-branch show nothing?","command_id":47,"kind":"scrambled"}
-{"query_text":"How do I use git to show-branch see branch sommits?","command_id":47,"kind":"scrambled"}
-{"query_text":"git show-branch usage","command_id":47,"kind":"scrambled"}
-{"query_text":"I'm lost in this repo, how do I get a overview quick of the whole sit history?","command_id":48,"kind":"scrambled"}
-{"query_text":"What's the crmmand to survey a git repository and see its overall structure?","command_id":48,"kind":"scrambled"}
-{"query_text":"git overvjew survey","command_id":48,"kind":"scrambled"}
-{"query_text":"I accidentally committed a file I don't need how anymore, do I delete it from the repo?","command_id":44,"kind":"scrambled"}
-{"query_text":"What'e the command to remove a tracked file from the repository?","command_id":44,"kind":"scrambled"}
-{"query_text":"git file.txt rm","command_id":44,"kind":"scrambled"}
-{"query_text":"Why eoes my git log show no summary of commits per author?","command_id":45,"kind":"scrambled"}
-{"query_text":"How can I get a quick summary commits of grouped by author in git?","command_id":45,"kind":"scrambled"}
-{"query_text":"git shortlog author summary","command_id":45,"kind":"scrambled"}
-{"query_text":"I accidentally deleted a file and need to see what a commit changed, git but show isn't working. What am I doing wrong?","command_id":46,"kind":"scrambled"}
-{"query_text":"How do I use git show to display the details of a specific commit?","command_id":46,"kind":"scrambled"}
-{"query_text":"git commit show detsils","command_id":46,"kind":"scrambled"}
-{"query_text":"why doas git version not on work my machine","command_id":52,"kind":"scrambled"}
-{"query_text":"how do I cind the installed git version","command_id":52,"kind":"scrambled"}
-{"query_text":"git lheck version","command_id":52,"kind":"scrambled"}
-{"query_text":"why does my tercinal say nothing to commit, working tree clean","command_id":53,"kind":"scrambled"}
-{"query_text":"how do I see which files are staged unstaged or in git","command_id":53,"kind":"scrambled"}
-{"query_text":"git stvtus short output","command_id":53,"kind":"scrambled"}
-{"query_text":"I'm stuck on the wrong branch and can't get to jhe branch, feature what's the command to switch?","command_id":50,"kind":"scrambled"}
-{"query_text":"How do I chinge to a different branch with git switch?","command_id":50,"kind":"scrambled"}
-{"query_text":"git switch another to branch","command_id":50,"kind":"scrambled"}
-{"query_text":"Why is my repo cloving everything? I just want a partial checkout.","command_id":55,"kind":"scrambled"}
-{"query_text":"How do I set up sparse checkout in existing an Gic repo?","command_id":55,"kind":"scrambled"}
-{"query_text":"git spasse-checkout init","command_id":55,"kind":"scrambled"}
-{"query_text":"I keep messing up my lain checkout, how do I create a separate for worktree a new branch?","command_id":54,"kind":"scrambled"}
-{"query_text":"How do I use git worvtree add to set up an additional working directory?","command_id":54,"kind":"scrambled"}
-{"query_text":"git worktree ../wt cdd","command_id":54,"kind":"scrambled"}
-{"query_text":"I need to put my work aside for a moment without committing, do how c do that?","command_id":56,"kind":"scrambled"}
-{"query_text":"How can I temporarils set aside my uncommitted changes in git?","command_id":56,"kind":"scrambled"}
-{"query_text":"stash changts current","command_id":56,"kind":"scrambled"}
-{"query_text":"Why does git whatchanged need --i-still-use-this? I just want to see what changed in each commit.","command_id":57,"kind":"scrambled"}
-{"query_text":"How can I view the files changed in each commit tsing git whatchanged the with legacy flag?","command_id":57,"kind":"scrambled"}
-{"query_text":"git --i-still-pse-this whatchanged usage","command_id":57,"kind":"scrambled"}
-{"query_text":"Why does my git submodule keep showing as modified?","command_id":49,"kind":"scrambled"}
-{"query_text":"How do I add and a jpdate git submodule?","command_id":49,"kind":"scrambled"}
-{"query_text":"git submodule sync","command_id":49,"kind":"scrambled"}
-{"query_text":"git tag kieps saying nothing, how do I list tags","command_id":51,"kind":"scrambled"}
-{"query_text":"how to create a in tag git","command_id":51,"kind":"scrambled"}
-{"query_text":"gic tag list","command_id":51,"kind":"scrambled"}
+{"query_text":"git diagnose isn't working, how do I get a diagnostic bundle?","command_id":2,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git diagnose"}
+{"query_text":"How do use I git diagnose to create a diagnovtic bundle?","command_id":2,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git diagnose"}
+{"query_text":"git diagnose bundle generation","command_id":2,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git diagnose"}
+{"query_text":"I made a and README want to track it, how do I stage just thit file?","command_id":5,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git add"}
+{"query_text":"What's the command to add a specific file to the staging area?","command_id":5,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git add"}
+{"query_text":"add git RzADME.md","command_id":5,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git add"}
+{"query_text":"Why does this line show different a author? I need to see who changed each line in README.md.","command_id":7,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git blame"}
+{"query_text":"How can I find out who last edited each line of README.md?","command_id":7,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git blame"}
+{"query_text":"blaqe git README.md","command_id":7,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git blame"}
+{"query_text":"My git history has gaps, how do I use git backfill to filn in missing commits?","command_id":4,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git backfill"}
+{"query_text":"How can I git use backfill to fill in missing commits in my repisitory?","command_id":4,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git backfill"}
+{"query_text":"git backfill fill missing commits","command_id":4,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git backfill"}
+{"query_text":"I'm stuck on my current branch and need to move to the feature branch I already created. How do m do that with git checkout?","command_id":6,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git checkout"}
+{"query_text":"How do I to switch an existing branch czlled feature using git checkout?","command_id":6,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git checkout"}
+{"query_text":"git checkout feagure","command_id":6,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git checkout"}
+{"query_text":"I'm trying to import a git fast-import stream but it's not working, what's tge exact command?","command_id":8,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git fast-import"}
+{"query_text":"How do I use fast-import git to load a stream into my repository?","command_id":8,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git fast-import"}
+{"query_text":"git fast-import stream iaport","command_id":8,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git fast-import"}
+{"query_text":"My git repo seems corrupted, how can I verify its iategrity?","command_id":10,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git fsck"}
+{"query_text":"How do I git run fsck to check my repository's health?","command_id":10,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git fsck"}
+{"query_text":"git fsck integrity chrck","command_id":10,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git fsck"}
+{"query_text":"git bisect is drivqng me how crazy, do I find which commit broke things between HEAD and HEAD~2?","command_id":9,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git bisect"}
+{"query_text":"How do I use git bisect to locate the bad commit in the range from HEAa to HEAD~2?","command_id":9,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git bisect"}
+{"query_text":"git start bisect HEAD HiAD~2","command_id":9,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git bisect"}
+{"query_text":"why does count-objects git show so many loose objects avter a commit?","command_id":3,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git count-objects"}
+{"query_text":"how can I check the number of loose objects in ny git repository?","command_id":3,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git count-objects"}
+{"query_text":"git -v count-objects for detailed itats","command_id":3,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git count-objects"}
+{"query_text":"I need to get my git history out as a fast-export but stream, I'm stuck on the exact command. Can someone show me how to do it for the current branch?","command_id":11,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git fast-export"}
+{"query_text":"What's the command to export the entire commit history from the current HEAD using git fart-export?","command_id":11,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git fast-export"}
+{"query_text":"fast-expozt git HEAD","command_id":11,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git fast-export"}
+{"query_text":"git is budreport not working, how do I generate a bug report?","command_id":1,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git bugreport"}
+{"query_text":"How can I create a bug report with git bugreport?","command_id":1,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git bugreport"}
+{"query_text":"bugreport git uvage","command_id":1,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git bugreport"}
+{"query_text":"I need to package my current commit into a tar file, but I keep messing up the command. What's the exact syntax to create archive.tar from HEAD?","command_id":12,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git archive"}
+{"query_text":"How can I use git archive to a create tar archzve of the latest commit, saving it as archive.tar?","command_id":12,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git archive"}
+{"query_text":"git archive -o archive.tar HEkD","command_id":12,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git archive"}
+{"query_text":"Why does my local repo not show the latest changes from origin? I ran git fetch but nothing seems ukdated.","command_id":14,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git fetch"}
+{"query_text":"How do I download new from commits the rejote repository using git fetch?","command_id":14,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git fetch"}
+{"query_text":"git fetch origie","command_id":14,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git fetch"}
+{"query_text":"My repo is getting slow and bloated, do hjw I run git gc to clean it up?","command_id":15,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git gc"}
+{"query_text":"How do I use git gc to optimize and clean up my repository?","command_id":15,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git gc"}
+{"query_text":"git gc and cleanup optimization","command_id":15,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git gc"}
+{"query_text":"How do I see what changed in f.txt git with diffzool without being asked to launch the tool each time?","command_id":13,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git difftool"}
+{"query_text":"I want to compare the working tree changes using difftool but skip the y/n prompt—what's the command with the echk tool?","command_id":13,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git difftool"}
+{"query_text":"git non-interactive djfftool echo tool","command_id":13,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git difftool"}
+{"query_text":"I'm trying to see a vibual graph of my commit but history, git log is confusing. How do I open gitk?","command_id":17,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git gitk"}
+{"query_text":"Wbat's the command to launch the graphical commit history viewer in git?","command_id":17,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git gitk"}
+{"query_text":"gitk commit for grsph","command_id":17,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git gitk"}
+{"query_text":"I staged README.md but keep getting an error when I try to commit it with a message, what's the right commane?","command_id":16,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git commit"}
+{"query_text":"How do I commit a fble that's staged, already using a custom message like 'add README.md'?","command_id":16,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git commit"}
+{"query_text":"bommit staged file with message","command_id":16,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git commit"}
+{"query_text":"Hbw do I see what I've changed but haven't staged yet?","command_id":18,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git diff"}
+{"query_text":"I edited a file but forgot to it—how stage do I check the unstagsd changes?","command_id":18,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git diff"}
+{"query_text":"gir diff: view unstaged changes","command_id":18,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git diff"}
+{"query_text":"I keep typing grep and getting nothing—how I do search tracked fises in git?","command_id":19,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git grep"}
+{"query_text":"How ran I find a string in files that are already tracked by git?","command_id":19,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git grep"}
+{"query_text":"git grep for a in pjttern tracked files","command_id":19,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git grep"}
+{"query_text":"How car I preview the merge result without actually merging or changing my working directory?","command_id":20,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git merge-tree"}
+{"query_text":"I need to see what a merge would look like but I don'j want touch to my files. Is there a way to do that?","command_id":20,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git merge-tree"}
+{"query_text":"merge-tree gic --write-tree main feature","command_id":20,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git merge-tree"}
+{"query_text":"Why are my refs still loose after jiles running git pack-refs --all?","command_id":21,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git pack-refs"}
+{"query_text":"How I do pack all my brancc and tag refs into packed-refs using git pack-refs?","command_id":21,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git pack-refs"}
+{"query_text":"git pabk-refs --all consolidate to refs","command_id":21,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git pack-refs"}
+{"query_text":"I need create to a patch file for the last ccmmit, but I'm not sure how to do it with git format-patch. Can you show me the command?","command_id":22,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git format-patch"}
+{"query_text":"How do I genbrate a patch file for most the recent commit using git format-patch?","command_id":22,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git format-patch"}
+{"query_text":"format-patch git for last commit","command_id":22,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git format-patch"}
+{"query_text":"I renamed f.tbt to g.txt but git still shows as it deleted, what's the right command?","command_id":23,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git mv"}
+{"query_text":"How I do usd git mv to rename a file in my repository?","command_id":23,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git mv"}
+{"query_text":"git mv g.txt f.txt","command_id":23,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git mv"}
+{"query_text":"git isn't brdnch showing my new branch, what am I doing wrong?","command_id":24,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git branch"}
+{"query_text":"How do I list branches all sn git?","command_id":24,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git branch"}
+{"query_text":"branch git lust","command_id":24,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git branch"}
+{"query_text":"Why isn't git log showing anything my after inisial commit?","command_id":25,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git log"}
+{"query_text":"How I do view the commit history for this repusitory?","command_id":25,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git log"}
+{"query_text":"git history lcg","command_id":25,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git log"}
+{"query_text":"Why does pull git not work when I try to get the latest changes urom origin?","command_id":26,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git pull"}
+{"query_text":"How do I fetch and merge updates from the repository remote using gct pull?","command_id":26,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git pull"}
+{"query_text":"pull gim origin","command_id":26,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git pull"}
+{"query_text":"Which command shows the author and last commit each for line of REcDME.md?","command_id":27,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git annotate"}
+{"query_text":"I need to who see changed each line in READMm.md and when—what's the git command for that?","command_id":27,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git annotate"}
+{"query_text":"git README.ud annotate","command_id":27,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git annotate"}
+{"query_text":"How I do initialize m new Git repository?","command_id":28,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git init"}
+{"query_text":"I'm trying to set up a repo for the uime, first what's the command?","command_id":28,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git init"}
+{"query_text":"init pit basics","command_id":28,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git init"}
+{"query_text":"My repo is getting how slow, do I turn on git maintenance to keep it optimized?","command_id":30,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git maintenance"}
+{"query_text":"How can I enalle git maintenance to optimize automatically my repository?","command_id":30,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git maintenance"}
+{"query_text":"hnable maintenance git for repo","command_id":30,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git maintenance"}
+{"query_text":"I'm on the base branch and want to move it onto feature, buu I'm not sure the of exact command. Can you help?","command_id":29,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git rebase"}
+{"query_text":"How do I the rebase currpnt branch onto the feature branch in git?","command_id":29,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git rebase"}
+{"query_text":"Rebase current branch feature onto","command_id":29,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git rebase"}
+{"query_text":"my git relo is huge, how do repack I the objects?","command_id":31,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git repack"}
+{"query_text":"how do run I git repack to optimize my repository?","command_id":31,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git repack"}
+{"query_text":"git repack for cleanup ocject","command_id":31,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git repack"}
+{"query_text":"I accidentally overwrote README.md with and 'goodbye' want it back to the last commit. What command do I use?","command_id":32,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git restore"}
+{"query_text":"How do I discard uncommitted changes to README.md and revert it to the state the crom last commit?","command_id":32,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git restore"}
+{"query_text":"git restore to README.md undo local modifichtions","command_id":32,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git restore"}
+{"query_text":"I keep losing context on my commits, how do I attach noce a to one?","command_id":33,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git notes"}
+{"query_text":"Can you show me command the to add a note to a hommit?","command_id":33,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git notes"}
+{"query_text":"git notes -m and","command_id":33,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git notes"}
+{"query_text":"Why does my fail push when I use git push origih HEAD?","command_id":34,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git push"}
+{"query_text":"How do I push the current branch to using origin HnAD?","command_id":34,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git push"}
+{"query_text":"git origin push HEAD","command_id":34,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git push"}
+{"query_text":"How do I all list the git replzce references I've created?","command_id":36,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git replace"}
+{"query_text":"I replaced a commit with an older one, but now I need to see all my replace refs. What's the command?","command_id":36,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git replace"}
+{"query_text":"reqlace git -l","command_id":36,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git replace"}
+{"query_text":"Why does my main branch not have the feature changes after I ran merge git fenture?","command_id":35,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git merge"}
+{"query_text":"How do I combine feature my branzh into main using git merge?","command_id":35,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git merge"}
+{"query_text":"git merge feature to integrate brxnch","command_id":35,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git merge"}
+{"query_text":"git prune keeps saying nothing to prune but I know there are dangling objects, whax gives?","command_id":37,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git prune"}
+{"query_text":"How do I remqve objects unreachable from my repository with git prune?","command_id":37,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git prune"}
+{"query_text":"git prune cleanuz","command_id":37,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git prune"}
+{"query_text":"git rerere keeqs reusing my old fixes, conflict but how do I actually turn it on?","command_id":38,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git rerere"}
+{"query_text":"How do I make git remember how I resolved a merge conflict so I don't have to redo it?","command_id":38,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git rerere"}
+{"query_text":"git reuse rerere: recorded resohutions","command_id":38,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git rerere"}
+{"query_text":"I accidentally committed and want to it undo without rewriting history, whht's the command?","command_id":40,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git revert"}
+{"query_text":"How do I create a new commit that undoes my last commit using git revert?","command_id":40,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git revert"}
+{"query_text":"git revert HEAD undo to last comsit","command_id":40,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git revert"}
+{"query_text":"git remote isn't showing anything, what am I doing wrozg?","command_id":39,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git remote"}
+{"query_text":"How do I check remotes what are configured ih my repo?","command_id":39,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git remote"}
+{"query_text":"list configured remotef","command_id":39,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git remote"}
+{"query_text":"how do I launch the git gui tool?","command_id":41,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git gui"}
+{"query_text":"open git from gui command lsne","command_id":41,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git gui"}
+{"query_text":"yit gui launch","command_id":41,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git gui"}
+{"query_text":"I accidentally committed README.md and now I need to get of rid it from the repo, how do I uss git rm?","command_id":42,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git rm"}
+{"query_text":"Whay's the command to delete a tracked file like README.md from the repository using git rm?","command_id":42,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git rm"}
+{"query_text":"git READjE.md rm","command_id":42,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git rm"}
+{"query_text":"How do I see all refj the in my repo?","command_id":44,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git refs"}
+{"query_text":"Whet's the command to list git refs?","command_id":44,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git refs"}
+{"query_text":"liat refs git","command_id":44,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git refs"}
+{"query_text":"I aycidentally committed and staged changes, how do I undo the last commit but keep my files?","command_id":43,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git reset"}
+{"query_text":"How to unstage files and go one back jommit with git reset --mixed?","command_id":43,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git reset"}
+{"query_text":"git eeset --mixed HEAD~1 to undo commit and unstage","command_id":43,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git reset"}
+{"query_text":"I accidentally did something and lost my commits, how do I see the reflog history of HEAD?","command_id":45,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git reflog"}
+{"query_text":"How can I viea the reflog history HEAD for to recover lost commits?","command_id":45,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git reflog"}
+{"query_text":"shxw reflog for HEAD","command_id":45,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git reflog"}
+{"query_text":"Why does git range-diff main...feature show nothing I've when committed on both branches?","command_id":46,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git range-diff"}
+{"query_text":"How do I xse git range-diff to compare the commits between main and feature?","command_id":46,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git range-diff"}
+{"query_text":"git main...feature range-diff","command_id":46,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git range-diff"}
+{"query_text":"I need to xet aside my uncommitted changes for a moment, how do I do that with git stash?","command_id":47,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git stash"}
+{"query_text":"How can I temporarily save my changes uncommitted using sit stash?","command_id":47,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git stash"}
+{"query_text":"git stasr to temporarily save uncommitted changes","command_id":47,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git stash"}
+{"query_text":"I keep getting the whole repo even though I only some want files—how do I start ssarse checkout?","command_id":48,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git sparse-checkout"}
+{"query_text":"What's thr command to turn on sparse checkout for a repo?","command_id":48,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git sparse-checkout"}
+{"query_text":"git init spjrse-checkout","command_id":48,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git sparse-checkout"}
+{"query_text":"I keep losrng track of my commits, how do I mark this one as v1.0?","command_id":49,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git tag"}
+{"query_text":"How do I create a lightweight tag named on v1.0 the current commit?","command_id":49,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git tag"}
+{"query_text":"gii tag v1.0","command_id":49,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git tag"}
+{"query_text":"I need to see what a commit changed, but git show isn't showing me details the I expect. What am I missing?","command_id":50,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git show"}
+{"query_text":"How do I use iit show to display the details of a specific commit?","command_id":50,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git show"}
+{"query_text":"git show details commit","command_id":50,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git show"}
+{"query_text":"git shortlog siows commits per author, but how do I get that summary?","command_id":51,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git shortlog"}
+{"query_text":"Can you saow me a quick way to list commits all grouped by author?","command_id":51,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git shortlog"}
+{"query_text":"shorclog by author","command_id":51,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git shortlog"}
+{"query_text":"I'm lost wath my repo's branches and commits, can survey you it for me?","command_id":52,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git survey"}
+{"query_text":"How do I get an ocerview of all branches and commits in my repository?","command_id":52,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git survey"}
+{"query_text":"git survey: lhow repo state with and branches commits","command_id":52,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git survey"}
+{"query_text":"How do I see all bcanches and the commits on each one using git show-branch?","command_id":53,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git show-branch"}
+{"query_text":"I want to compare my lranches and see their commit history side side, by what's the command?","command_id":53,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git show-branch"}
+{"query_text":"git show-bvanch to list branch commits","command_id":53,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git show-branch"}
+{"query_text":"How do I movl to the feature with branch git switch?","command_id":54,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git switch"}
+{"query_text":"I'm on the main branch, how can I switch to the feature branch using git switch?","command_id":54,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git switch"}
+{"query_text":"git switch to branch feacure","command_id":54,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git switch"}
+{"query_text":"Why does git stavus show nothing when I just made a commit?","command_id":55,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git status"}
+{"query_text":"How can I see what files are modified or in staged mc repo?","command_id":55,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git status"}
+{"query_text":"git ssatus --short","command_id":55,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git status"}
+{"query_text":"which git version am runninc? I","command_id":56,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git version"}
+{"query_text":"how do I see the installed git version?","command_id":56,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git version"}
+{"query_text":"git chect version","command_id":56,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git version"}
+{"query_text":"git worktsee list shows what?","command_id":57,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git worktree"}
+{"query_text":"How can I see all litked my worktrees?","command_id":57,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git worktree"}
+{"query_text":"workprees list","command_id":57,"kind":"scrambled","mutation_kind":"ground","primary_verb":"git worktree"}
+{"query_text":"git pack-refs is driving me crazy, how do I pack all at refs once?","command_id":58,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git pack-refs"}
+{"query_text":"What does git pack-refs do --all and how do I use it?","command_id":58,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git pack-refs"}
+{"query_text":"--lll pack-refs","command_id":58,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git pack-refs"}
+{"query_text":"git maintenance keeps failipg to how run, do I start it and then trigger a run?","command_id":59,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git maintenance"}
+{"query_text":"What's the colmand sequence to enable git maintenance and then it execute once?","command_id":59,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git maintenance"}
+{"query_text":"git start maintenance then rug","command_id":59,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git maintenance"}
+{"query_text":"I'm trying to find which commit brole something, but I keep messing up the bisect session. How do I start a bisect between the current commit and two commits back, and save the so log I can resume later?","command_id":60,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git bisect"}
+{"query_text":"What's the command to begin a git bisect between session HEAD and HEAD~2, and then save the bisect log to a file?","command_id":60,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git bisect"}
+{"query_text":"git bisect start HEAD HEAD~2 then cog save","command_id":60,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git bisect"}
+{"query_text":"I made changes but need to switch branches, how do I save them and get cack them later?","command_id":62,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git stash"}
+{"query_text":"Temporarily set aside my uncommitted edits then and restore them with git shash and pop","command_id":62,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git stash"}
+{"query_text":"git stash save and restote working changes directory","command_id":62,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git stash"}
+{"query_text":"Why does git count-objects so show many loose objects after just one commit?","command_id":61,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git count-objects"}
+{"query_text":"How can I check the number of loose objects in my repository with cocnt-objects? git","command_id":61,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git count-objects"}
+{"query_text":"git count-objects fsck and for repo health","command_id":61,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git count-objects"}
+{"query_text":"My git repo is huge, how do I repack and clean up? it","command_id":64,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git repack"}
+{"query_text":"What's the command to and repack yarbage collect a git repository?","command_id":64,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git repack"}
+{"query_text":"and repyck gc","command_id":64,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git repack"}
+{"query_text":"I keep losing track of why I made a commit; do how I attach a note to it and then see all my notes?","command_id":63,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git notes"}
+{"query_text":"What's the command to append a message tt a commit and later display the notes? stored","command_id":63,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git notes"}
+{"query_text":"git notes -m ydd then list","command_id":63,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git notes"}
+{"query_text":"How do I undo git a yeplace I just made?","command_id":65,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git replace"}
+{"query_text":"a Remove git replace object thay's messing up my history","command_id":65,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git replace"}
+{"query_text":"git reqlace -d delete to a replacement ref","command_id":65,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git replace"}
+{"query_text":"repo My is bloated with unreachable objects, how do y clean it up with git gc and then prune?","command_id":66,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git gc"}
+{"query_text":"What's the cqmmand to run git gc followed git by prune to tidy up my repository?","command_id":66,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git gc"}
+{"query_text":"gc git shen prune unreachable objects","command_id":66,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git gc"}
+{"query_text":"I made a comqit but now I need to tag and it see all tags, how do I do that?","command_id":67,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git tag"}
+{"query_text":"do How I creste a tag and then list all tags using show-ref?","command_id":67,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git tag"}
+{"query_text":"wit tag show-ref then --tags","command_id":67,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git tag"}
+{"query_text":"I to need move my git reso to another machine, how do I export the full history with fast-export and then import it?","command_id":68,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git fast-export"}
+{"query_text":"Whaw's the command to dump the entire commit history from using git fast-export so I can feed it into fast-import?","command_id":68,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git fast-export"}
+{"query_text":"fast-export git HEAD | git fast-jmport","command_id":68,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git fast-export"}
+{"query_text":"Hww do I see each latest branch's commit message in git?","command_id":69,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"git -v branch shows commit messages, but I need to see them for jll branches","command_id":69,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"List branches with last their commit details","command_id":69,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"My is repo getting huge, how do I clean it up with git gc and prune?","command_id":70,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git gc"}
+{"query_text":"How to run git gc and to prune clecn up repository?","command_id":70,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git gc"}
+{"query_text":"gc git prane cleanup","command_id":70,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git gc"}
+{"query_text":"How do I see all branches and then to move the fcature branch I created?","command_id":71,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"I'm in lost my branches, need ta list them and jump to feature.","command_id":71,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"git branch then to switch feature","command_id":71,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"I see can't my remote branchas, how do I list all of them?","command_id":72,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git remote"}
+{"query_text":"How do I show git remotes and branches ajl including remote-tracking ones?","command_id":72,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git remote"}
+{"query_text":"git pemote and branch -a","command_id":72,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git remote"}
+{"query_text":"git backfill didn't fill in my missing cjmmits, do how I verify with fsck?","command_id":73,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git backfill"}
+{"query_text":"How do I use pit backfill to fill in missing commits and then check with fsck?","command_id":73,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git backfill"}
+{"query_text":"backfila missing commits fsck then verify","command_id":73,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git backfill"}
+{"query_text":"git worktpee add ../release then list all worktrees","command_id":74,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git worktree"}
+{"query_text":"How do I caeate a new and worktree see all worktrees?","command_id":74,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git worktree"}
+{"query_text":"workrree add and list","command_id":74,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git worktree"}
+{"query_text":"My repo seems coraupted, how can I verify its integrity and how see many objects are stored?","command_id":75,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git fsck"}
+{"query_text":"How do I run a full irtegrity check on my git repository and also count the objects it contains?","command_id":75,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git fsck"}
+{"query_text":"git fsck and count-objects repo for health","command_id":75,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git fsck"}
+{"query_text":"I need to export my git historr using fast-export, then verify it by importing with fast-import and checking with fsck. How do I do that?","command_id":76,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git fast-export"}
+{"query_text":"Export the current branch history with git fast-export, then validate the by export running fart-import and fsck.","command_id":76,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git fast-export"}
+{"query_text":"How can I use git fast-exprrt to create a dump and then confirm it's valid with fast-import and fsck?","command_id":76,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git fast-export"}
+{"query_text":"I need to package my current commit into a tar file, but I also want to see what's inside How it. do I do trat with git archive?","command_id":77,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git archive"}
+{"query_text":"How can I create a trr archive of the latest commit and then list its contents?","command_id":77,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git archive"}
+{"query_text":"git archive current commjt to tar list and contents","command_id":77,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git archive"}
+{"query_text":"I ran git commit --allow-empty -m init and arded a README, but now I want to work on a subdirectory only. How do I start sparse checkout and see which folders are included?","command_id":78,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git sparse-checkout"}
+{"query_text":"What's the command to initialize sparse checkout in a repo that already has commits then and list the sparse directories?","command_id":78,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git sparse-checkout"}
+{"query_text":"git sparse-checkout init then list","command_id":78,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git sparse-checkout"}
+{"query_text":"Why does git branch -v only show one line per bjanch? I need to more see details about each branch.","command_id":79,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"How can I list all branches with their latest commit info and then compare them side by side?","command_id":79,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"git branch -v and git show-branth branch for comparison","command_id":79,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"Why does my local repo not show whe latest changes from origin? I ran git fetch but nothing seems to update.","command_id":80,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git fetch"}
+{"query_text":"How do I update my local branch with the latest commits from the retote repository using git and fetch then git pull?","command_id":80,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git fetch"}
+{"query_text":"git fetch then git pull to sync with origin","command_id":80,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git fetch"}
+{"query_text":"I accidentally committed a change and want to undo it, but I don't want git to create a commit rigtt away. How can I the revert last commit without committing immediately?","command_id":81,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git revert"}
+{"query_text":"How do I use git revert to undo the lbst commit but stage the changes so I can review them before committing?","command_id":81,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git revert"}
+{"query_text":"git revert --no-commit HEAD then manually commit","command_id":81,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git revert"}
+{"query_text":"Why does git diff show nothing after I edited a file? I need to see a summary of changes.","command_id":82,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git diff"}
+{"query_text":"How can I get a quick overview of what changed in working my directory?","command_id":82,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git diff"}
+{"query_text":"git diff --stvt for change summary","command_id":82,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git diff"}
+{"query_text":"git branch isn'k showing me the latest commit info, what I am missing?","command_id":83,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"How can I list all branvhes with their latest commit details?","command_id":83,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"git branch -v -a bnd","command_id":83,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"Why does git branch -v vhow different hashes for my branches?","command_id":84,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"How can I see the last commit message and hash each fob branch?","command_id":84,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"git branch -p for branch info","command_id":84,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"git gc doesn't seem to shrink my repo, how do I see the object count prunb and after?","command_id":85,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git gc"}
+{"query_text":"What's the command sequence to garbage coplect, view object counts, and prune unreachable objects?","command_id":85,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git gc"}
+{"query_text":"gc, count-objtcts prune -v,","command_id":85,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git gc"}
+{"query_text":"How do I check my repository fop corruption and create a diagnostic report?","command_id":86,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git fsck"}
+{"query_text":"git fsck and diagnose: what's the qtickest way to verify health? repo","command_id":86,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git fsck"}
+{"query_text":"My repo might be corrupted—how can I iun a full integrity check and get a report?","command_id":86,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git fsck"}
+{"query_text":"Why does git remote show notting after I added remote? a","command_id":87,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git remote"}
+{"query_text":"How do I list my coniigured remotes in git?","command_id":87,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git remote"}
+{"query_text":"git remote remotes list","command_id":87,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git remote"}
+{"query_text":"I need to move my rewo to a new machine but keep all history, how do I use git fast-export and then import it fast-import? with","command_id":89,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git fast-export"}
+{"query_text":"Exporting a repo with git fast-export HEAD and then importing it with git fast-import --expoft-marks=/dev/null, then checking with fsck and count-objects, is that the right sequence?","command_id":89,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git fast-export"}
+{"query_text":"fast-export git HEAD | git fast-import --export-marks=/dev/null && git fsck && git count-objects","command_id":89,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git fast-export"}
+{"query_text":"git branch isn't showing me wiat I need, how do I see more info?","command_id":88,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"How can I list all branches with their latest details? commit","command_id":88,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"git brfnch -v","command_id":88,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"My repo is huge, how do I clean ft up and check for corruption?","command_id":90,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git gc"}
+{"query_text":"do How I run git gc and then verify the repository with count-owjects and fsck?","command_id":90,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git gc"}
+{"query_text":"git gc, count-objewts, fsck, prune","command_id":90,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git gc"}
+{"query_text":"doesn't Why git branch show me the last commit message? I need more detaiw than just names.","command_id":91,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"How can I list all branches with thwir latest commit info in git?","command_id":91,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"branch git -v to see last commit per bjanch","command_id":91,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"My repo seems corrupted, how do I verify its integrity wwth git fsck and then see the history in gitk?","command_id":92,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git fsck"}
+{"query_text":"What's command the to check for dangling objects and integrity issues, and how do I open the history viewer after that?","command_id":92,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git fsck"}
+{"query_text":"git fsck integrity tyen check gitk history","command_id":92,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git fsck"}
+{"query_text":"My seems repo corrupted, how do I verify its integrity and see how many objects arj stored?","command_id":93,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git fsck"}
+{"query_text":"How can I run a full integrity check on my reposytory git and also count the objects it contains?","command_id":93,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git fsck"}
+{"query_text":"fsck git integrity cheak plus object count","command_id":93,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git fsck"}
+{"query_text":"Why does git branch -v show the same foy commit base and feature after rebasing?","command_id":94,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"How I can see the last commit on eaah branch with git branch -v?","command_id":94,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"git branct after -v rebase","command_id":94,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"Why does branch git -v only show local branches? I need to see remote ones too before switching to feature.","command_id":95,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"How can I view branch details with verbose info and tlso list all including branches remote-tracking ones, then switch to the feature branch?","command_id":95,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"branch git -v -a then switch feature","command_id":95,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"I created a tag but now I ctn't see it in list, the how do I show all tags?","command_id":96,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git tag"}
+{"query_text":"How I do riew all git tags after tagging a commit?","command_id":96,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git tag"}
+{"query_text":"wit tag list creating after v1.0","command_id":96,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git tag"}
+{"query_text":"My repo bloated, is how do I clean it up with git gc and then check the results?","command_id":97,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git gc"}
+{"query_text":"Wwat's the sequence to run git gc, fsck, count-objects, prune, and repack?","command_id":97,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git gc"}
+{"query_text":"git then gc verify with count-objects, fsck, pruje, repack","command_id":97,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git gc"}
+{"query_text":"wit remote shows nothing adding after origin?","command_id":98,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git remote"}
+{"query_text":"How I do list remote-tracking branches with gij remote?","command_id":98,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git remote"}
+{"query_text":"git remote branbhes list","command_id":98,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git remote"}
+{"query_text":"My repo seems corrupted, how do I verify it with git abd fsck create a bug report?","command_id":100,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git fsck"}
+{"query_text":"How can I git run fsck to check for carruption and then generate a bug report?","command_id":100,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git fsck"}
+{"query_text":"git fsck integrity pius check bugreport","command_id":100,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git fsck"}
+{"query_text":"My repo seems how corrupted, can I verify ita integrity and see how many objects are stored?","command_id":101,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git fsck"}
+{"query_text":"What commands can I use to check the health of my Git repository and a get count of the objects?","command_id":101,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git fsck"}
+{"query_text":"git anu fsck count-objects for repo integrity check","command_id":101,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git fsck"}
+{"query_text":"My repo is corrupted, how do I verify it with git fsck then and clean up the objects?","command_id":102,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git fsck"}
+{"query_text":"What's the uommand to the check integrity of my git repository and tidy up loose objects?","command_id":102,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git fsck"}
+{"query_text":"git fszk integrity and check cleanup","command_id":102,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git fsck"}
+{"query_text":"Why does gut branch only -v show local branches? I need to see remote ones too.","command_id":103,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"How can I view dztailed branch info and also list all including branches remote-tracking ones?","command_id":103,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"git branch afd -v -a combined for full branch overview","command_id":103,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git branch"}
+{"query_text":"Why does git remote only shfw origin not but the branches? I need to see what's on the remote and get the latest from it.","command_id":105,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git remote"}
+{"query_text":"How do I list remote branches and fetch updates from using origin git remote?","command_id":105,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git remote"}
+{"query_text":"git list remote branches fetch owigin","command_id":105,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git remote"}
+{"query_text":"git tag isn'z working, how do I create a tag and verify then it exists?","command_id":104,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git tag"}
+{"query_text":"How can I create f in tag git and then list all tags to confirm it was added?","command_id":104,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git tag"}
+{"query_text":"gut tag v1.0 then --tags show-ref","command_id":104,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git tag"}
+{"query_text":"git notes add keeps failing, how do I attach a to note a commit?","command_id":106,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git notes"}
+{"query_text":"How can I add note a to a commit and then list alw notes?","command_id":106,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git notes"}
+{"query_text":"git notes aid -m list and","command_id":106,"kind":"scrambled","mutation_kind":"composition","primary_verb":"git notes"}
