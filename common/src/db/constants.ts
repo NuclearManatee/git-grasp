@@ -329,6 +329,23 @@ export const EVAL_JUDGE_BORDERLINE_BAND = 0.15;
  */
 export const EVAL_JUDGE_VOTES = 3;
 
+
+/**
+ * Recovery: max LLM gap-check calls per attempt (no-verb misses only).
+ * CLI: `--eval-gap-check-max=N`
+ */
+export const EVAL_GAP_CHECK_MAX = 10;
+
+/**
+ * Recovery: deeper retrieve size for gap-check (beyond displayResults).
+ */
+export const EVAL_GAP_CHECK_TOP_K = 10;
+
+/**
+ * Recovery: max additive coverage-gap recipe inserts per attempt.
+ * CLI: `--eval-coverage-max-inserts=N`
+ */
+export const EVAL_COVERAGE_MAX_INSERTS = 3;
 /**
  * Coverage promote report: warn when a taxonomy verb has fewer than this many
  * accepted recipes (report-only; does not fail the build).
