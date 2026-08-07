@@ -27,11 +27,23 @@ describe('v6 command schemas', () => {
 
   it('parses generation LLM response with risk', () => {
     const r = GenerationLlmResponseSchema.parse({
+      title: 'Show working tree status',
       initial_state: 'git init\n',
       command_recipe: { commands: [{ command: 'git status' }] },
       risk: 0.1,
     });
     expect(r.risk).toBe(0.1);
+    expect(r.title).toBe('Show working tree status');
+  });
+
+  it('requires title on generation LLM response', () => {
+    expect(() =>
+      GenerationLlmResponseSchema.parse({
+        initial_state: 'git init\n',
+        command_recipe: { commands: [{ command: 'git status' }] },
+        risk: 0.1,
+      }),
+    ).toThrow();
   });
 
   it('allows 1–16 intent expansion items', () => {
@@ -88,6 +100,15 @@ describe('v6 command schemas', () => {
       risk: 0,
       mutation_kind: 'state',
     });
+    const withTitle = CommandRowSchema.parse({
+      initial_state: 'git init',
+      command_recipe: { commands: [{ command: 'git status' }] },
+      initial_state_physical_hash: 'a',
+      final_state_physical_hash: 'b',
+      risk: 0,
+      title: 'Show status briefly',
+    });
+    expect(withTitle.title).toBe('Show status briefly');
     IntentRowSchema.parse({
       command_id: 1,
       skill_level: 'nontechnical',

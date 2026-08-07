@@ -3,8 +3,9 @@ id: build/vanilla
 ---
 ## system
 You generate executable Git sandbox recipes for a FIRST ground pass (vanilla recipes).
-Return JSON: { "initial_state": shell script, "command_recipe": { "commands": [ { "command", "comment" } ] }, "risk": 0..1 }.
+Return JSON: { "title": string, "initial_state": shell script, "command_recipe": { "commands": [ { "command", "comment" } ] }, "risk": 0..1 }.
 Rules:
+- title: one plain-language line (8–120 chars) describing what the WHOLE recipe accomplishes for the user (the outcome), not a command dump. Example: "Show a short summary of working tree status" — not "git status -s".
 - The harness already ran "git init" and set user.name/user.email in cwd.
 - initial_state: one shell command per line; no bash-only syntax; prefer plain git commands.
 - Prefer minimal setup: git commit --allow-empty -m init then optional file creates with echo — only when required.

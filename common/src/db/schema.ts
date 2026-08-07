@@ -48,7 +48,8 @@ CREATE TABLE IF NOT EXISTS commands (
   final_state_physical_hash TEXT NOT NULL,
   risk REAL NOT NULL CHECK (risk >= 0 AND risk <= 1),
   parent_row_id INTEGER REFERENCES commands(row_id),
-  mutation_kind TEXT CHECK (mutation_kind IS NULL OR mutation_kind IN ('state','flag','composition'))
+  mutation_kind TEXT CHECK (mutation_kind IS NULL OR mutation_kind IN ('state','flag','composition')),
+  title TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_commands_initial_hash ON commands(initial_state_physical_hash);
 CREATE INDEX IF NOT EXISTS idx_commands_final_hash ON commands(final_state_physical_hash);
@@ -244,8 +245,8 @@ export function insertCommand(clientOrCatalog, row) {
       `
     INSERT INTO commands
       (initial_state, command_recipe, initial_state_physical_hash,
-       final_state_physical_hash, risk, parent_row_id, mutation_kind)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+       final_state_physical_hash, risk, parent_row_id, mutation_kind, title)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `,
     )
     .run(
@@ -256,6 +257,9 @@ export function insertCommand(clientOrCatalog, row) {
       row.risk,
       row.parent_row_id ?? null,
       row.mutation_kind ?? null,
+      row.title != null && String(row.title).trim() !== ''
+        ? String(row.title).trim()
+        : null,
     );
   return Number(result.lastInsertRowid);
 }
@@ -382,7 +386,10 @@ export function hydrateSearchHit(intentRow, commandRow, distance) {
     example,
     commands,
     snippet: renderSnippet(commands),
-    title: example,
+    title: (() => {
+      const t = commandRow.title != null ? String(commandRow.title).trim() : '';
+      return t || example;
+    })(),
     usage: example,
     intent_family: '',
     simplicity_rank: commands.length,
@@ -502,7 +509,8 @@ export function knnRecall(clientOrCatalog, queryEmbedding, k = DEFAULT_RECALL_K,
         c.row_id AS c_id,
         c.initial_state AS initial_state,
         c.command_recipe AS command_recipe,
-        c.risk AS risk
+        c.risk AS risk,
+        c.title AS title
       FROM intents i
       JOIN commands c ON c.row_id = i.command_id
       WHERE CAST(i.row_id AS TEXT) IN (${placeholders})
@@ -527,6 +535,7 @@ export function knnRecall(clientOrCatalog, queryEmbedding, k = DEFAULT_RECALL_K,
           initial_state: meta.initial_state,
           command_recipe: meta.command_recipe,
           risk: meta.risk,
+          title: meta.title,
         },
         h.distance,
       );
@@ -571,7 +580,8 @@ export function loadAllRows(clientOrCatalog) {
         i.intent_category AS intent_category,
         c.initial_state AS initial_state,
         c.command_recipe AS command_recipe,
-        c.risk AS risk
+        c.risk AS risk,
+        c.title AS title
       FROM intents i
       JOIN commands c ON c.row_id = i.command_id
       `,
@@ -580,11 +590,12 @@ export function loadAllRows(clientOrCatalog) {
     .map((r) => {
       const commands = parseCommands(r.command_recipe);
       const example = primaryCommand(commands);
+      const storedTitle = r.title != null ? String(r.title).trim() : '';
       return {
         id: String(r.intent_id),
         recipe_id: String(r.command_id),
         command_id: Number(r.command_id),
-        title: example,
+        title: storedTitle || example,
         command: deriveCommandFamily(example),
         example,
         primary_example: example,

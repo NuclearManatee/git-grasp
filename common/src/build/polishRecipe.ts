@@ -5,7 +5,7 @@
  */
 import { renderPrompt } from '../lib/prompts.js';
 import { llmJsonObject } from '../lib/llm.js';
-import { GenerationLlmResponseSchema } from '../schemas/command.js';
+import { RecipeBodyLlmResponseSchema } from '../schemas/command.js';
 import { parseCommands } from '../db/recipeFormat.js';
 import { recipeFingerprint } from './dedup.js';
 import { validateInSandboxAndDestroy } from './sandbox.js';
@@ -44,7 +44,7 @@ export async function polishRecipeHygiene(recipe, opts = {}) {
         'Prefer realistic file names and comments. Do not change verbs or flags.',
     });
     polished = await call({
-      schema: GenerationLlmResponseSchema,
+      schema: RecipeBodyLlmResponseSchema,
       messages,
     });
   } catch (e) {

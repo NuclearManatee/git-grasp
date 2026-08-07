@@ -44,6 +44,15 @@ export const CommandRowSchema = z.object({
   risk: z.number().min(0).max(1),
   parent_row_id: z.number().int().positive().nullable().optional(),
   mutation_kind: z.enum(['state', 'flag', 'composition']).nullable().optional(),
+  /** Plain-language whole-recipe goal; nullable for pre-v8 catalogs. */
+  title: z
+    .union([z.string().max(120), z.null()])
+    .optional()
+    .transform((v) => {
+      if (v == null) return null;
+      const t = String(v).trim();
+      return t ? t : null;
+    }),
 });
 
 export const IntentRowSchema = z.object({
@@ -54,10 +63,20 @@ export const IntentRowSchema = z.object({
   intent_text: z.string().min(1).max(2000),
 });
 
-export const GenerationLlmResponseSchema = z.object({
+/** Recipe body without title — used by polish (must not overwrite title). */
+export const RecipeBodyLlmResponseSchema = z.object({
   initial_state: z.string().min(1),
   command_recipe: CommandRecipeSchema,
   risk: z.union([z.number(), z.string()]).transform((v) => Number(v)).pipe(z.number().min(0).max(1)),
+});
+
+export const GenerationLlmResponseSchema = RecipeBodyLlmResponseSchema.extend({
+  title: z
+    .string()
+    .trim()
+    .min(8)
+    .max(120)
+    .transform((v) => String(v).trim()),
 });
 
 export const IntentExpansionItemSchema = z.object({

@@ -35,6 +35,8 @@ export function exportCatalogFromDb(db, {
     final_state_physical_hash: r.final_state_physical_hash,
     risk: r.risk,
     parent_row_id: r.parent_row_id,
+    mutation_kind: r.mutation_kind ?? null,
+    title: r.title ?? null,
   }));
   writeFileSync(commandsPath, `${JSON.stringify(commands, null, 2)}\n`);
   const intents = loadAllRows(db).map((r) => ({

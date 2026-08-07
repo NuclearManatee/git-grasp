@@ -22,7 +22,7 @@
 // ---------------------------------------------------------------------------
 
 /** Catalog / staging SQLite schema version. Bump only with a deliberate migration. */
-export const SCHEMA_VERSION = 7;
+export const SCHEMA_VERSION = 8;
 
 /**
  * Embedding width (bge-small-en-v1.5 / prior MiniLM). Must match the loaded

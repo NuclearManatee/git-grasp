@@ -27,6 +27,8 @@ describe('vanilla generation from semantic_block', () => {
     expect(VANILLA_GENERATION_SYSTEM).toMatch(/MINIMUM args\/flags/i);
     expect(VANILLA_GENERATION_SYSTEM).toMatch(/SINGLE command_recipe step/i);
     expect(VANILLA_GENERATION_SYSTEM).toMatch(/Command anchor/i);
+    expect(VANILLA_GENERATION_SYSTEM).toMatch(/"title"/i);
+    expect(VANILLA_GENERATION_SYSTEM).toMatch(/WHOLE recipe/i);
   });
 
   it('generateRecipeFromSemanticBlock passes prompt to llm', async () => {
@@ -35,6 +37,7 @@ describe('vanilla generation from semantic_block', () => {
       llmJsonObject: async (args) => {
         seen = args;
         return {
+          title: 'Show working tree status',
           initial_state: 'git commit --allow-empty -m init\n',
           command_recipe: { commands: [{ command: 'git status', comment: 'check' }] },
           risk: 0.05,
@@ -42,6 +45,7 @@ describe('vanilla generation from semantic_block', () => {
       },
     });
     expect(out.command_recipe.commands[0].command).toBe('git status');
+    expect(out.title).toBe('Show working tree status');
     expect(seen.messages[0].content).toBe(VANILLA_GENERATION_SYSTEM);
     expect(seen.messages[1].content).toContain('Command anchor: git status');
   });

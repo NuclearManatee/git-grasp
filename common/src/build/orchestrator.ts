@@ -443,6 +443,7 @@ async function persistAccepted(db, writer, accepted, embedder) {
       risk: accepted.risk,
       parent_row_id: accepted.parent_row_id ?? null,
       mutation_kind: accepted.mutation_kind ?? null,
+      title: accepted.title ?? null,
     });
     const intents = accepted.intents || [];
     /** @type {(Float32Array|number[])[]} */

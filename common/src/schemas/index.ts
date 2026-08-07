@@ -130,6 +130,7 @@ export {
   CommandRecipeSchema,
   CommandRowSchema,
   IntentRowSchema,
+  RecipeBodyLlmResponseSchema,
   GenerationLlmResponseSchema,
   IntentExpansionItemSchema,
   IntentExpandSkipSchema,

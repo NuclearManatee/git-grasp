@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'bun:test';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync, rmSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import {
@@ -21,7 +21,7 @@ import { mockEmbed } from '../../common/src/search/embed.js';
 import { compareSimplicity, dedupDecision, countFlags } from '../../common/src/build/dedup.js';
 import { createWriterQueue } from '../../common/src/build/writerQueue.js';
 
-describe('schema v7', () => {
+describe('schema v8', () => {
   it('opens commands + intents + vec tables', () => {
     const db = openDb(':memory:');
     const names = db
@@ -32,7 +32,41 @@ describe('schema v7', () => {
     expect(names).toContain('intents');
     expect(names).toContain('vec_intents');
     expect(names).toContain('vec_commands');
-    expect(SCHEMA_VERSION).toBe(7);
+    expect(SCHEMA_VERSION).toBe(8);
+    db.close();
+  });
+
+  it('stores title on command rows and surfaces it on knn hits', () => {
+    const db = openDb(':memory:');
+    const id = insertCommand(db, {
+      initial_state: 'git commit --allow-empty -m init\n',
+      command_recipe: {
+        commands: [
+          { command: 'git stash push -u', comment: 'save' },
+          { command: 'git pull --rebase', comment: 'update' },
+          { command: 'git stash pop', comment: 'restore' },
+        ],
+      },
+      initial_state_physical_hash: 'i',
+      final_state_physical_hash: 'f',
+      risk: 0.2,
+      mutation_kind: 'composition',
+      title: 'Update branch without losing uncommitted work',
+    });
+    const row = db.prepare('SELECT title, mutation_kind FROM commands WHERE row_id = ?').get(id);
+    expect(row.title).toBe('Update branch without losing uncommitted work');
+    expect(row.mutation_kind).toBe('composition');
+
+    const text = 'update my branch without losing local edits';
+    insertIntentWithEmbedding(db, {
+      command_id: id,
+      skill_level: 'beginner',
+      intent_category: 'goal',
+      intent_text: text,
+      embedding: mockEmbed(text),
+    });
+    const hits = knnRecall(db, mockEmbed(text), 5);
+    expect(hits[0].title).toBe('Update branch without losing uncommitted work');
     db.close();
   });
 
@@ -132,6 +166,34 @@ describe('schema v7', () => {
     expect(parseCommands('{"commands":[{"command":"git status","comment":"x"}]}')[0].command).toBe(
       'git status',
     );
+  });
+
+  it('exportCatalogFromDb round-trips title', async () => {
+    const { exportCatalogFromDb } = await import('../../common/src/seed.js');
+    const dir = mkdtempSync(path.join(tmpdir(), 'gh-title-export-'));
+    const db = openDb(':memory:');
+    insertCommand(db, {
+      initial_state: 'git commit --allow-empty -m init\n',
+      command_recipe: { commands: [{ command: 'git status -s' }] },
+      initial_state_physical_hash: 'i',
+      final_state_physical_hash: 'f',
+      risk: 0.1,
+      mutation_kind: 'flag',
+      title: 'Show a short status summary',
+    });
+    const commandsPath = path.join(dir, 'commands.json');
+    const intentsPath = path.join(dir, 'intents.jsonl');
+    exportCatalogFromDb(db, { commandsPath, intentsPath });
+    db.close();
+    const exported = JSON.parse(readFileSync(commandsPath, 'utf8'));
+    expect(exported).toHaveLength(1);
+    expect(exported[0].title).toBe('Show a short status summary');
+    expect(exported[0].mutation_kind).toBe('flag');
+    try {
+      rmSync(dir, { recursive: true, force: true });
+    } catch {
+      /* */
+    }
   });
 });
 

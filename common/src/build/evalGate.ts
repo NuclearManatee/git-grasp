@@ -1,6 +1,6 @@
 // @ts-nocheck
 /**
- * Eval banks + Hit@display / judge-utility gate (schema v7).
+ * Eval banks + Hit@display / judge-utility gate (schema v8).
  */
 import { mkdirSync, appendFileSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
@@ -55,6 +55,10 @@ const GoldenQuerySchema = z.object({
   query_text: z.string().min(1),
 });
 
+const GoldenFidelitySchema = z.object({
+  ok: z.boolean(),
+});
+
 /** Normalize text for near-dup / overlap checks. */
 export function normalizeQueryText(text) {
   return String(text || '')
@@ -65,23 +69,74 @@ export function normalizeQueryText(text) {
 }
 
 /**
- * True if query has enough fidelity to the recipe (verb token + not a banned generic).
+ * Extract verb tokens (`status`, `stash`, …) from primaryVerb string(s).
+ * Accepts a single `git <verb>` string or an array of them.
+ * @param {string|string[]|null|undefined} primaryVerbs
+ * @returns {string[]}
+ */
+export function verbTokensFromPrimaryVerbs(primaryVerbs) {
+  const list = Array.isArray(primaryVerbs)
+    ? primaryVerbs
+    : primaryVerbs != null && String(primaryVerbs).trim() !== ''
+      ? [primaryVerbs]
+      : [];
+  /** @type {string[]} */
+  const tokens = [];
+  for (const v of list) {
+    const verb = String(v || '').toLowerCase();
+    const token = verb.replace(/^git\s+/, '').trim();
+    if (token) tokens.push(token);
+  }
+  return [...new Set(tokens)];
+}
+
+/**
+ * All step verbs (`git <cmd>`) from a recipe row.
+ * @param {object} commandRow
+ * @returns {string[]}
+ */
+export function stepVerbsFromRecipe(commandRow) {
+  const steps = parseCommands(commandRow?.command_recipe ?? commandRow);
+  /** @type {string[]} */
+  const out = [];
+  for (const s of steps) {
+    const v = verbFromCommandLine(s?.command);
+    if (v) out.push(v);
+  }
+  return [...new Set(out)];
+}
+
+/**
+ * True if query text contains any of the given verb tokens.
  * @param {string} queryText
- * @param {string} primaryVerb e.g. `git status`
+ * @param {string[]} verbTokens
+ */
+export function queryHasVerbToken(queryText, verbTokens) {
+  const q = String(queryText || '');
+  for (const verbToken of verbTokens) {
+    if (!verbToken) continue;
+    if (new RegExp(`\\b${verbToken.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(q)) {
+      return true;
+    }
+    const loose = verbToken.replace(/-/g, '[- ]?');
+    if (new RegExp(`\\b${loose}\\b`, 'i').test(q)) return true;
+  }
+  return false;
+}
+
+/**
+ * True if query has enough fidelity to the recipe (verb token(s) + not a banned generic).
+ * @param {string} queryText
+ * @param {string|string[]} primaryVerb e.g. `git status` or list of step verbs
  * @param {string[]} [priorNormalized] existing bank queries (normalized)
  */
 export function goldenQueryAcceptable(queryText, primaryVerb, priorNormalized = []) {
   const q = normalizeQueryText(queryText);
   if (q.length < 6) return { ok: false, reason: 'too_short' };
 
-  const verb = String(primaryVerb || '').toLowerCase();
-  const verbToken = verb.replace(/^git\s+/, '').trim();
-  if (verbToken && !new RegExp(`\\b${verbToken.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i').test(q)) {
-    // Allow hyphenated verbs matched loosely (cherry-pick / cherrypick)
-    const loose = verbToken.replace(/-/g, '[- ]?');
-    if (!new RegExp(`\\b${loose}\\b`, 'i').test(q)) {
-      return { ok: false, reason: 'missing_verb_token' };
-    }
+  const verbTokens = verbTokensFromPrimaryVerbs(primaryVerb);
+  if (verbTokens.length && !queryHasVerbToken(q, verbTokens)) {
+    return { ok: false, reason: 'missing_verb_token' };
   }
 
   // Generic pickaxe/log-search template that poisoned the first ground run.
@@ -89,7 +144,8 @@ export function goldenQueryAcceptable(queryText, primaryVerb, priorNormalized = 
     /find the commit that introduced a specific string/.test(q) ||
     /introduced a specific string/.test(q)
   ) {
-    if (verbToken !== 'log' && verbToken !== 'grep' && verbToken !== 'blame') {
+    const allowPickaxe = verbTokens.some((t) => t === 'log' || t === 'grep' || t === 'blame');
+    if (!allowPickaxe) {
       return { ok: false, reason: 'generic_pickaxe_template' };
     }
   }
@@ -343,13 +399,30 @@ export async function generateGoldenQuery(commandRow, commandId, opts = {}) {
   const listing = steps.map((s) => s.command).join('\n');
   const primary = steps[0]?.command || '';
   const primaryVerb = verbFromCommandLine(primary);
+  const stepVerbs = stepVerbsFromRecipe(commandRow);
   const priorNormalized = (opts.priorQueries || []).map(normalizeQueryText);
   const maxAttempts = opts.maxAttempts ?? Math.max(2, VALIDATION_MAX_REGEN);
   const mutationKind =
     commandRow.mutation_kind != null && String(commandRow.mutation_kind).trim() !== ''
       ? String(commandRow.mutation_kind)
       : 'ground';
+  const isComposition = mutationKind === 'composition';
   const initialState = String(commandRow.initial_state ?? '').trim() || '(none)';
+  const title =
+    commandRow.title != null && String(commandRow.title).trim() !== ''
+      ? String(commandRow.title).trim()
+      : '(none)';
+
+  // Ground: primary verb only. Composition: any step verb.
+  const verbCheckList = isComposition
+    ? stepVerbs.length
+      ? stepVerbs
+      : primaryVerb
+        ? [primaryVerb]
+        : []
+    : primaryVerb
+      ? [primaryVerb]
+      : [];
 
   const { messages } = renderPrompt('build/golden-query', {
     primary_verb: primaryVerb || 'unknown',
@@ -357,6 +430,8 @@ export async function generateGoldenQuery(commandRow, commandId, opts = {}) {
     listing: listing || '(none)',
     mutation_kind: mutationKind,
     initial_state: initialState,
+    title,
+    is_composition: isComposition,
   });
 
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
@@ -364,9 +439,40 @@ export async function generateGoldenQuery(commandRow, commandId, opts = {}) {
       schema: GoldenQuerySchema,
       messages,
     });
-    const check = goldenQueryAcceptable(out.query_text, primaryVerb, priorNormalized);
+    const check = goldenQueryAcceptable(out.query_text, verbCheckList, priorNormalized);
     if (check.ok) {
       return { query_text: out.query_text, command_id: commandId, kind: 'golden' };
+    }
+
+    // Composition: when the only failure is missing verb token, LLM fidelity check.
+    if (isComposition && check.reason === 'missing_verb_token') {
+      const baseCheck = goldenQueryAcceptable(out.query_text, [], priorNormalized);
+      if (baseCheck.ok) {
+        const { messages: fidelityMessages } = renderPrompt('build/golden-fidelity', {
+          title,
+          primary_verb: primaryVerb || 'unknown',
+          mutation_kind: mutationKind,
+          query_text: out.query_text,
+          initial_state: initialState,
+          listing: listing || '(none)',
+        });
+        try {
+          const fidelity = await call({
+            schema: GoldenFidelitySchema,
+            messages: fidelityMessages,
+          });
+          if (fidelity?.ok === true) {
+            return {
+              query_text: out.query_text,
+              command_id: commandId,
+              kind: 'golden',
+              fidelity: 'llm',
+            };
+          }
+        } catch {
+          // treat as reject; retry / fallback
+        }
+      }
     }
   }
 
