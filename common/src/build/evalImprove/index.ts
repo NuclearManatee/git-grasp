@@ -38,5 +38,6 @@ export {
   applyProposalsToTaxonomy,
   readTaxonomySnapshot,
   restoreTaxonomySnapshot,
+  allLexiconTrapsAreSingletons,
 } from './runImproveRound.js';
 export { maybeRunEvalImprove, shouldRunEvalImprove } from './maybeRunEvalImprove.js';

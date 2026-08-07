@@ -372,6 +372,7 @@ export async function runEvalGateRecovery(opts) {
         afterEval = await opts.runBankEval(freshBank, opts.stagingPath, {
           llmJsonObject: opts.llmJsonObject,
           verbLookup: opts.verbLookup,
+          lineage: opts.lineage,
           minPassRate: opts.minPassRate,
           minHitAtDisplayRate: opts.minHitAtDisplayRate,
           searchFn: opts.searchFn,
@@ -389,6 +390,7 @@ export async function runEvalGateRecovery(opts) {
           runBankEval: opts.runBankEval,
           taxonomyVerbs: opts.taxonomyVerbs,
           verbLookup: opts.verbLookup,
+          lineage: opts.lineage,
           llmJsonObject: opts.llmJsonObject,
           trapsPath: opts.trapsPath,
           familiesPath: opts.familiesPath,

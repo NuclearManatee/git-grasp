@@ -65,6 +65,7 @@ import {
   buildCoveragePromoteReport,
   writeCoveragePromoteReport,
   verbLookupFromRows,
+  lineageFromRows,
   evalDataDir,
   loadBank,
   formatEvalProgress,
@@ -152,6 +153,7 @@ async function runBankEval(bank, stagingPath, opts = {}) {
   const minPassRate = opts.minPassRate ?? EVAL_MIN_PASS_RATE;
   const minHitAtDisplayRate = opts.minHitAtDisplayRate ?? EVAL_MIN_HIT_AT_DISPLAY_RATE;
   const verbLookup = opts.verbLookup;
+  const lineage = opts.lineage;
   const onProgress =
     opts.onProgress ||
     ((p) => {
@@ -181,6 +183,7 @@ async function runBankEval(bank, stagingPath, opts = {}) {
     minHitAtDisplayRate,
     utilityThreshold: opts.utilityThreshold,
     verbLookup,
+    lineage,
     concurrency: opts.evalConcurrency,
     onProgress,
     onJudgeVote,
@@ -237,7 +240,14 @@ export function wipeEvalBanks() {
  * @param {number} commandId
  * @param {(Float32Array|number[])[]} existingEmbeddings
  */
-async function persistIntentIfAllowed(d, embedder, intent, commandId, existingEmbeddings) {
+async function persistIntentIfAllowed(
+  d,
+  embedder,
+  intent,
+  commandId,
+  existingEmbeddings,
+  excludeCommandIds = null,
+) {
   const emb = await embedder.embed(intent.intent_text);
   const knnForeign = makeKnnForeign(d, knnRecall, INTENT_FOREIGN_KNN_K);
   const gate = await shouldPersistIntent({
@@ -246,6 +256,7 @@ async function persistIntentIfAllowed(d, embedder, intent, commandId, existingEm
     existingEmbeddings,
     knnForeign,
     selfCommandId: commandId,
+    excludeCommandIds,
   });
   if (!gate.ok) return { inserted: false, reason: gate.reason, embedding: emb };
   insertIntentWithEmbedding(d, {
@@ -260,6 +271,10 @@ async function persistIntentIfAllowed(d, embedder, intent, commandId, existingEm
 }
 
 async function persistAccepted(db, writer, accepted, embedder) {
+  const parentExclude =
+    accepted.parent_row_id != null
+      ? new Set([Number(accepted.parent_row_id)])
+      : null;
   return writer.run(async (d) => {
     let existing = findCommandByHashPair(
       d,
@@ -303,6 +318,7 @@ async function persistAccepted(db, writer, accepted, embedder) {
             intent,
             existing.row_id,
             existingEmbeddings,
+            parentExclude,
           );
         }
       }
@@ -325,7 +341,14 @@ async function persistAccepted(db, writer, accepted, embedder) {
     /** @type {(Float32Array|number[])[]} */
     const existingEmbeddings = [];
     for (const intent of intents) {
-      await persistIntentIfAllowed(d, embedder, intent, row_id, existingEmbeddings);
+      await persistIntentIfAllowed(
+        d,
+        embedder,
+        intent,
+        row_id,
+        existingEmbeddings,
+        parentExclude,
+      );
     }
     const cEmb = await embedder.embed(
       commandEmbedText({ ...accepted, command_recipe: accepted.command_recipe }),
@@ -525,13 +548,16 @@ export async function runGroundStep(opts = {}) {
     log(
       `ground eval bank size=${bank.length} minHitAtDisplay=${minHitAtDisplayRate} minPassRate=${minPassRate}`,
     );
-    const verbLookup = verbLookupFromRows(listCommands(db));
+    const commandRows = listCommands(db);
+    const verbLookup = verbLookupFromRows(commandRows);
+    const lineage = lineageFromRows(commandRows);
     evalResult = await runBankEval(bank, resolvedStaging, {
       llmJsonObject: opts.llmJsonObject,
       minPassRate,
       minHitAtDisplayRate,
       utilityThreshold: opts.utilityThreshold,
       verbLookup,
+      lineage,
       searchFn: opts.searchFn,
       evalConcurrency: opts.evalConcurrency,
       searchPoolSize: opts.searchPoolSize,
@@ -575,6 +601,7 @@ export async function runGroundStep(opts = {}) {
         activeEvaluationBank({ kinds: ['golden'], excludeFallbacks: true }),
       taxonomyVerbs,
       verbLookup,
+      lineage,
       llmJsonObject: opts.llmJsonObject,
       trapsPath: opts.trapsPath,
       familiesPath: opts.familiesPath,
@@ -820,6 +847,7 @@ export async function runBuildLoop(opts = {}) {
                 );
             const tIntents = Date.now();
             const knnForeign = makeKnnForeign(db, knnRecall, INTENT_FOREIGN_KNN_K);
+            const excludeCommandIds = new Set([Number(parent.row_id)]);
             const intents = opts.expandIntents
               ? await opts.expandIntents(polished)
               : await expandIntentsForRecipe(
@@ -828,6 +856,7 @@ export async function runBuildLoop(opts = {}) {
                     llmJsonObject: opts.llmJsonObject,
                     embedder,
                     knnForeign,
+                    excludeCommandIds,
                   },
                 );
             evolveTiming.intentsMs += Date.now() - tIntents;
@@ -918,13 +947,16 @@ export async function runBuildLoop(opts = {}) {
     log(
       `loop iter=${iteration} evolve done ok=${evolvedOk} fail=${evolvedFail} newUnique=${newUnique}; eval bank=${bank.length} minHitAtDisplay=${minHitAtDisplayRate} minPassRate=${minPassRate}`,
     );
-    const verbLookup = verbLookupFromRows(listCommands(db));
+    const commandRows = listCommands(db);
+    const verbLookup = verbLookupFromRows(commandRows);
+    const lineage = lineageFromRows(commandRows);
     let evalResult = await runBankEval(bank, stagingPath, {
       llmJsonObject: opts.llmJsonObject,
       minPassRate,
       minHitAtDisplayRate,
       utilityThreshold: opts.utilityThreshold,
       verbLookup,
+      lineage,
       searchFn: opts.searchFn,
       evalConcurrency: opts.evalConcurrency,
       searchPoolSize: opts.searchPoolSize,
@@ -962,6 +994,7 @@ export async function runBuildLoop(opts = {}) {
         activeEvaluationBank({ kinds: ['golden'], excludeFallbacks: true }),
       taxonomyVerbs,
       verbLookup,
+      lineage,
       llmJsonObject: opts.llmJsonObject,
       trapsPath: opts.trapsPath,
       familiesPath: opts.familiesPath,

@@ -30,6 +30,20 @@ import {
 import { reexpandIntentsForStaging } from './reexpandIntents.js';
 import { loadBank } from '../evalGate.js';
 
+/**
+ * True when there are multiple lexicon_trap proposals and each has exactly one evidence id.
+ * Used as a log warning when the model one-traps-per-member instead of skipping.
+ * @param {object[]} proposals
+ */
+export function allLexiconTrapsAreSingletons(proposals) {
+  const traps = (proposals || []).filter((p) => p?.kind === 'lexicon_trap');
+  if (traps.length <= 1) return false;
+  return traps.every(
+    (p) =>
+      Array.isArray(p.evidence_command_ids) && p.evidence_command_ids.length === 1,
+  );
+}
+
 function missPayload(m) {
   return {
     query_text: m?.query?.query_text || '',
@@ -222,6 +236,14 @@ export async function runImproveRound(opts) {
   }
   writeJson(artDir, 'proposals-raw.json', rawBatch);
 
+  if (allLexiconTrapsAreSingletons(rawBatch?.proposals)) {
+    const n = (rawBatch?.proposals || []).filter((p) => p?.kind === 'lexicon_trap')
+      .length;
+    log(
+      `improve warn: all ${n} lexicon_trap proposals are singletons (evidence_command_ids.length===1); prefer empty proposals over one trap per cluster member`,
+    );
+  }
+
   const validated = validateProposalBatch(rawBatch, {
     trainMisses: train,
     taxonomyVerbs: opts.taxonomyVerbs || [],
@@ -301,6 +323,7 @@ export async function runImproveRound(opts) {
   const after = await opts.runBankEval(opts.bank, opts.stagingPath, {
     llmJsonObject: call,
     verbLookup: opts.verbLookup,
+    lineage: opts.lineage,
     minPassRate: opts.minPassRate,
     minHitAtDisplayRate: opts.minHitAtDisplayRate,
     utilityThreshold: opts.utilityThreshold,

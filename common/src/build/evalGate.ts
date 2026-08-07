@@ -556,6 +556,34 @@ export function hitAtDisplay(hitsOrResult, commandId) {
   );
 }
 
+/**
+ * Downward-only family hit: a displayed recipe is a child of the expected command_id.
+ * lineage: Map<childId, parentId> (or Record).
+ * @param {*} hitsOrResult
+ * @param {number|string} expectedId
+ * @param {Map<number, number> | Record<string|number, number> | null | undefined} lineage
+ */
+export function hitAtFamilyDisplay(hitsOrResult, expectedId, lineage) {
+  if (!lineage || expectedId == null) return false;
+  const expected = Number(expectedId);
+  if (!Number.isFinite(expected)) return false;
+  const parentOf = (id) => {
+    if (lineage instanceof Map) return lineage.get(id);
+    return lineage[id] ?? lineage[String(id)];
+  };
+  const displayed = displayedFromSearchOutput(hitsOrResult);
+  return displayed.some((h) => {
+    const cid = Number(h.command_id ?? h.recipe_id);
+    if (!Number.isFinite(cid)) return false;
+    return Number(parentOf(cid)) === expected;
+  });
+}
+
+/** True when via is an exact or family display hit (binding). */
+export function isDisplayHitVia(via) {
+  return via === 'hit@display' || via === 'hit@family';
+}
+
 /** @deprecated use hitAtDisplay */
 export function hitAt3(hitsOrResult, commandId) {
   return hitAtDisplay(hitsOrResult, commandId);
@@ -612,6 +640,7 @@ export async function evaluateQuery(query, searchFn, opts = {}) {
   const threshold = opts.utilityThreshold ?? EVAL_JUDGE_UTILITY_THRESHOLD;
   const verbLookup = opts.verbLookup || {};
   const familyIndex = opts.familyIndex || buildVerbFamilyIndex();
+  const lineage = opts.lineage || null;
   const tSearch = Date.now();
   const raw = await searchFn(query.query_text, { limit: 3 });
   const searchMs = Date.now() - tSearch;
@@ -629,6 +658,20 @@ export async function evaluateQuery(query, searchFn, opts = {}) {
       pass: true,
       passVerb,
       via: 'hit@display',
+      displayed,
+      alert: meta.alert,
+      status: meta.status,
+      query,
+      searchMs,
+      judgeMs: 0,
+    };
+  }
+
+  if (hitAtFamilyDisplay(raw, query.command_id, lineage)) {
+    return {
+      pass: true,
+      passVerb,
+      via: 'hit@family',
       displayed,
       alert: meta.alert,
       status: meta.status,
@@ -922,7 +965,7 @@ export async function evaluateBank(bank, searchFn, opts = {}) {
         results[i] = r;
         searchMsTotal += r.searchMs || 0;
         completed += 1;
-        if (r.via === 'hit@display') {
+        if (isDisplayHitVia(r.via)) {
           hit += 1;
           passedSoFar += 1;
         }
@@ -937,7 +980,9 @@ export async function evaluateBank(bank, searchFn, opts = {}) {
   const phase1Ms = Date.now() - phase1Started;
   emitProgress(true, 'search');
 
-  const hitPassed = results.filter((r) => r.via === 'hit@display').length;
+  const exactHitPassed = results.filter((r) => r.via === 'hit@display').length;
+  const familyPassed = results.filter((r) => r.via === 'hit@family').length;
+  const hitPassed = exactHitPassed + familyPassed;
   const hitRate = total ? hitPassed / total : 1;
   const okHit = hitRate + 1e-9 >= minHitAtDisplayRate;
 
@@ -957,7 +1002,15 @@ export async function evaluateBank(bank, searchFn, opts = {}) {
       }
     }
     if (onSkipJudge) {
-      onSkipJudge({ hitRate, hitPassed, total, minHitAtDisplayRate, phase1Abort });
+      onSkipJudge({
+        hitRate,
+        hitPassed,
+        exactHitPassed,
+        familyPassed,
+        total,
+        minHitAtDisplayRate,
+        phase1Abort,
+      });
     }
     const verbPassed = results.filter((r) => r.passVerb).length;
     return {
@@ -966,6 +1019,8 @@ export async function evaluateBank(bank, searchFn, opts = {}) {
       okPass: false,
       passed: hitPassed,
       hitPassed,
+      exactHitPassed,
+      familyPassed,
       judgePassed: 0,
       total,
       rate: total ? hitPassed / total : 1,
@@ -1057,6 +1112,8 @@ export async function evaluateBank(bank, searchFn, opts = {}) {
     okPass,
     passed,
     hitPassed,
+    exactHitPassed,
+    familyPassed,
     judgePassed,
     total,
     rate,
@@ -1144,14 +1201,23 @@ export function formatEvolveTiming(timing) {
 export function formatEvalReport(evalResult) {
   const rate = (evalResult.rate ?? 0).toFixed(2);
   const hitRate = (evalResult.hitRate ?? 0).toFixed(2);
+  const exact = evalResult.exactHitPassed ?? null;
+  const family = evalResult.familyPassed ?? 0;
+  const hitCount =
+    exact != null
+      ? `${exact}+${family}family/${evalResult.total}`
+      : `${evalResult.hitPassed ?? 0}/${evalResult.total}`;
   const lines = [
-    `eval hit@display=${hitRate} (${evalResult.hitPassed ?? 0}/${evalResult.total})` +
+    `eval hit@display=${hitRate} (${hitCount})` +
       ` okHit=${evalResult.okHit} minHitAtDisplay=${evalResult.minHitAtDisplayRate ?? EVAL_MIN_HIT_AT_DISPLAY_RATE}`,
     `eval passA=${rate} (${evalResult.passed}/${evalResult.total})` +
       ` okPass=${evalResult.okPass} minPassRate=${evalResult.minPassRate}` +
       ` (hit=${evalResult.hitPassed ?? 0} judge=${evalResult.judgePassed ?? 0})`,
     `eval overall ok=${evalResult.ok} (requires hit@display>=min AND passA>=min)`,
   ];
+  if (family > 0) {
+    lines.push(`eval family=${family} (child-of-expected display credit, binding)`);
+  }
   if (evalResult.skippedJudge) {
     lines.push(
       `eval skipJudge hitRate=${hitRate} < minHitAtDisplay=${evalResult.minHitAtDisplayRate ?? EVAL_MIN_HIT_AT_DISPLAY_RATE}`,
@@ -1235,13 +1301,26 @@ export function writeCoveragePromoteReport(report, fileName = 'coverage-report.j
   return p;
 }
 
-/** Build command_id â†’ primary_verb map from command rows. */
+/** Build command_id → primary_verb map from command rows. */
 export function verbLookupFromRows(rows) {
   /** @type {Record<number, string>} */
   const map = {};
   for (const row of rows || []) {
     const v = primaryVerbFromRecipe(row);
     if (v && row.row_id != null) map[row.row_id] = v;
+  }
+  return map;
+}
+
+/** Build child row_id → parent_row_id map from command rows. */
+export function lineageFromRows(rows) {
+  /** @type {Map<number, number>} */
+  const map = new Map();
+  for (const row of rows || []) {
+    const id = Number(row.row_id);
+    const parent = Number(row.parent_row_id);
+    if (!Number.isFinite(id) || !Number.isFinite(parent) || parent <= 0) continue;
+    map.set(id, parent);
   }
   return map;
 }
