@@ -418,7 +418,7 @@ When recovery routes `retrieval_sibling` misses (unless `--skip-eval-improve`):
    - `lexicon_trap` → merged into `common/taxonomy/lexicon_traps.json` (seed traps are regenerable infrastructure, not a hand-grown encyclopedia)
    - `verb_family` → merged into `common/taxonomy/verb_families.json` (Pass B + judge `acceptable_primary_verbs`; Hit@display still requires exact `command_id` or family credit)
 4. Validate: evidence ids must be train-miss `command_id`s only (not wrong displayed hits); traps need ≥2 train-miss ids **or** ≥2 needle-matched train queries; needles must be **literal substrings** of train `query_text`; ≤5 traps / ≤3 families; prefer_verb ∈ taxonomy; forbid destructive antonym families (e.g. revert↔reset); reject families whose members are distinguished by the golden bank; skip verb pairs already in `existing_families_json`. When every proposed trap is a singleton, the improve round logs a warning (prefer empty proposals over one trap per cluster member).
-5. On trap apply: re-expand intents on staging under the new traps; families take effect on the next eval only.
+5. On trap apply: re-expand intents on staging under the new traps (`INTENT_REEXPAND_CONCURRENCY`, default 24): parallel expand against a fixed DB snapshot, then serial delete+insert. Families take effect on the next eval only.
 6. Re-eval once. **Accept** if holdout Hit@display and Pass A do not drop and full-bank Pass A gains ≥1 absolute pass (or Hit@display improves when Pass A is tied); else restore JSON snapshots (and re-expand if traps were rolled back).
 
 Pro must skip incomplete multi-step / partial-match clusters (lexicon/family cannot fix those — recovery uses golden rewrite or coverage_gap generation instead).

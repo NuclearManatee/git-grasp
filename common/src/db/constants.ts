@@ -227,6 +227,13 @@ export const INTENT_FOREIGN_REWRITE_MAX = 1;
  */
 export const INTENT_FOREIGN_KNN_K = 8;
 
+/**
+ * Parallel recipes during improve-round intent re-expand (expand phase).
+ * Matches BUILD_CONCURRENCY by default. Write-back (delete+insert) stays
+ * serial to avoid SQLite writer races. Raise carefully vs LLM rate limits.
+ */
+export const INTENT_REEXPAND_CONCURRENCY = 24;
+
 // ---------------------------------------------------------------------------
 // Build-time evaluation (dual hard gate)
 // ---------------------------------------------------------------------------

@@ -283,11 +283,13 @@ export async function runImproveRound(opts) {
         reexpand = await reexpandIntentsForStaging(db, opts.embedder, {
           llmJsonObject: call,
           expandIntents: opts.expandIntents,
+          concurrency: opts.reexpandConcurrency ?? opts.concurrency,
           log,
           onProgress: (p) => {
             if (p.done % 10 === 0 || p.done === p.total) {
+              const phase = p.phase ? ` ${p.phase}` : '';
               log(
-                `improve reexpand ${p.done}/${p.total} intents=${p.intentCount}${p.failed ? ` failed=${p.failed}` : ''}`,
+                `improve reexpand${phase} ${p.done}/${p.total} intents=${p.intentCount}${p.failed ? ` failed=${p.failed}` : ''}`,
               );
             }
           },
@@ -356,6 +358,7 @@ export async function runImproveRound(opts) {
         await reexpandIntentsForStaging(db, opts.embedder, {
           llmJsonObject: call,
           expandIntents: opts.expandIntents,
+          concurrency: opts.reexpandConcurrency ?? opts.concurrency,
         });
       } finally {
         if (ownsDb) db.close();
