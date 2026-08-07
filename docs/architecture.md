@@ -30,7 +30,7 @@ flowchart LR
 | Path | Contents | Tracked? |
 |------|----------|----------|
 | `common/data/catalog/` | `commands.json`, `intents.jsonl`, docs mirror, glossary | yes (improve gate) |
-| `common/data/eval/` | Build banks + golden cases + judge criteria. Bank rows carry `source` (`llm` now; `telemetry` later) so the gate can weight real queries without a schema change | yes |
+| `common/data/eval/` | Build banks + golden cases + judge criteria. Bank rows carry `source` (`llm` now; `telemetry` later) so the gate can weight real queries without a schema change. In-build Hit@display counts exact `command_id` matches plus downward **Hit@family** (displayed child of expected) | yes |
 | `common/data/git-commands.db` | Seeded schema-v6 DB | yes (improve gate) |
 | `common/config/thresholds.json` | Search/display thresholds | yes |
 | `local/cache/` | Sources, prepare, build staging | no |

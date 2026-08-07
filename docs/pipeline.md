@@ -373,15 +373,15 @@ Banks live under `common/data/eval/` (`golden.jsonl`, `extended.jsonl`, `scrambl
 
 **Pass / miss (per query):**
 
-1. Search the staging DB; take `displayResults` (**Hit@display** = exact expected `command_id` among shown hits).
+1. Search the staging DB; take `displayResults`. **Hit@display** = exact expected `command_id` among shown hits (`via: hit@display`). **Hit@family** (binding, downward-only) = a displayed recipe whose `parent_row_id` is the expected id (`via: hit@family`) — i.e. a child of the expected recipe, never the reverse. Combined exact + family count toward the hit gate; the report shows the split (`exact+Nfamily`).
 2. On miss only: LLM utility judge (`build/judge`) scores honest usefulness 0–1 (no pass cliff in the prompt); Pass A if `utility >= 0.8` (CLI `--judge-utility`).
-3. Dual hard gate (both required): Hit@display-only rate ≥ **0.7**, then Pass A (hit OR judge) ≥ **0.85**. If Hit@display already cannot clear 0.7, Phase-2 judge is skipped.
+3. Dual hard gate (both required): Hit@display-only rate (exact + family) ≥ **0.7**, then Pass A (hit OR judge) ≥ **0.85**. If Hit@display already cannot clear 0.7, Phase-2 judge is skipped.
 
 
 | Check             | Rule                                                                                          |
 | ----------------- | --------------------------------------------------------------------------------------------- |
-| **Hard gate**     | Golden **Hit@display** ≥ **0.7** **and** **Pass A** ≥ **0.9** (exact `command_id` in `displayResults`, or judge) |
-| **Report only**   | Pass B (expected primary verb among displayed hit verbs); rates by `mutation_kind`            |
+| **Hard gate**     | Golden **Hit@display** ≥ **0.7** **and** **Pass A** ≥ **0.9** (exact `command_id` **or** child-of-expected family credit in `displayResults`, or judge) |
+| **Report only**   | Pass B (expected primary verb among displayed hit verbs); rates by `mutation_kind`; exact vs family split |
 
 
 Ground fails if the dual gate fails. Product-facing `bun run eval` / `eval:loop` after promote is a separate improve-branch workflow; this section is the **in-build** gate while staging grows.
@@ -392,9 +392,9 @@ After ground eval (and after each loop-cycle eval — §4.2), the orchestrator r
 
 1. If the dual gate is **red**: up to **4** fail-retry attempts.
 2. If the gate is **green** but polish is warranted (`misses ≥ 5` or Pass A `< 0.95`): up to **2** polish attempts (nice-to-have). Polish never fails a green cycle if it cannot improve.
-3. Each attempt **classifies** non-pass rows in code (`partial_multistep`, `over_ask`, `retrieval_sibling`, `destructive_alt`, `coverage_gap`, `other`).
+3. Each attempt **classifies** non-pass rows in code (`partial_multistep`, `over_ask`, `retrieval_sibling`, `destructive_alt`, `coverage_gap`, `other`). Multi-action misses whose expected recipe is `mutation_kind=composition` classify as **`retrieval_sibling`** (goal-shaped composition goldens are aligned with the recipe — the miss is retrieval-side). `over_ask` is reserved for single-step / flag recipes whose query asks for more than the recipe covers.
 4. **Gap-check stage** (for `retrieval_sibling` / `other` misses whose query has fewer than 2 git verbs): retrieve top-10 fused hits, LLM (`build/gap-check`) decides whether any candidate recipe accomplishes the goal. Match → keep `retrieval_sibling`; no match → reclassify as `coverage_gap`. Cap: `--eval-gap-check-max` (default 10).
-5. **Bank-only** fixes for over-ask / partial / destructive: **Pro** writes rewrite context (`build/rewrite-eval-context`); **Flash** rewrites or drops golden rows (`build/rewrite-eval-golden`). Staging recipes/leaves are never deleted.
+5. **Bank-only** fixes for over-ask / partial / destructive: **Pro** writes rewrite context (`build/rewrite-eval-context`); **Flash** rewrites or drops golden rows (`build/rewrite-eval-golden`). Rewrite must **never** reduce a multi-action golden to a single action when the expected recipe is composition. Staging recipes/leaves are never deleted.
 6. **Retrieval sibling** misses: existing taxonomy **improve** round (Flash summarize → Pro traps/families → optional reintent → re-eval) — see below. `--skip-eval-improve` skips only this lever. Verb-family proposals are rejected when existing goldens *distinguish* the members (e.g. `diff` vs `difftool`); eval_round families that violate this are pruned at improve time.
 7. **Coverage gap** misses: **additive** composition generate into staging. Target verbs come from the query when present; otherwise LLM (`build/goal-to-verbs`) maps the goal to 2–4 known taxonomy verbs. Parent pick → `evolve-composition` → sandbox validate → polish → expand intents → insert. Cap: `--eval-coverage-max-inserts` (default 3). Rejected attempts roll back the inserted rows. Never mutates/deletes existing recipes.
 8. Re-eval; **accept** only if Hit@display does not drop, holdout rates do not drop, bank-size floors hold (fail ≥85% of cycle-start goldens; polish ≥95%), and Pass A gains (≥1 absolute pass) or the gate turns green (fail mode). Additive inserts set `additiveOnly` so `commands_changed` does not hard-reject. Otherwise restore golden (and taxonomy / coverage inserts if rejected).
@@ -415,8 +415,8 @@ When recovery routes `retrieval_sibling` misses (unless `--skip-eval-improve`):
 2. Split misses **70/30 by `command_id`** (stable hash); Pro sees train only.
 3. **Pro** (`deepseek-v4-pro`) proposes schema-locked rules only (`build/propose-eval-rules`):
    - `lexicon_trap` → merged into `common/taxonomy/lexicon_traps.json` (seed traps are regenerable infrastructure, not a hand-grown encyclopedia)
-   - `verb_family` → merged into `common/taxonomy/verb_families.json` (Pass B + judge `acceptable_primary_verbs`; Hit@display still requires exact `command_id`)
-4. Validate: evidence ids must be train-miss `command_id`s only (not wrong displayed hits); traps need ≥2 train-miss ids **or** ≥2 needle-matched train queries; ≤5 traps / ≤3 families; prefer_verb ∈ taxonomy; forbid destructive antonym families (e.g. revert↔reset); reject families whose members are distinguished by the golden bank.
+   - `verb_family` → merged into `common/taxonomy/verb_families.json` (Pass B + judge `acceptable_primary_verbs`; Hit@display still requires exact `command_id` or family credit)
+4. Validate: evidence ids must be train-miss `command_id`s only (not wrong displayed hits); traps need ≥2 train-miss ids **or** ≥2 needle-matched train queries; needles must be **literal substrings** of train `query_text`; ≤5 traps / ≤3 families; prefer_verb ∈ taxonomy; forbid destructive antonym families (e.g. revert↔reset); reject families whose members are distinguished by the golden bank; skip verb pairs already in `existing_families_json`. When every proposed trap is a singleton, the improve round logs a warning (prefer empty proposals over one trap per cluster member).
 5. On trap apply: re-expand intents on staging under the new traps; families take effect on the next eval only.
 6. Re-eval once. **Accept** if holdout Hit@display and Pass A do not drop and full-bank Pass A gains ≥1 absolute pass (or Hit@display improves when Pass A is tied); else restore JSON snapshots (and re-expand if traps were rolled back).
 
@@ -462,13 +462,13 @@ Interactive evolve loop (`bun run build:loop`): grow diversity from accepted **l
 | Kind            | Action                                                                                                                                                                                              |
 | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **State**       | Harden `initial_state` (remotes, dirty tree, detached HEAD, divergence). Recipe **verbs** unchanged.                                                                                                |
-| **Flag**        | Change flags/args on existing steps using that step’s `git <cmd> -h` allowlist; ≤ **3** flags per step. **Never** change git verbs.                                                                |
-| **Composition** | Insert a command line before / middle / after (`insert_index`); hard cap **≤ 7** steps; any `git` subcommand whose `-h` returns usage; flags fail-closed allowlisted like ground; no shell metacharacters. Skip if parent already has 7 steps. |
+| **Flag**        | Change flags/args on existing steps using that step’s `git <cmd> -h` allowlist; ≤ **3** flags per step; at most **one** net new flag vs parent. Prompt receives the allowlist + these rules up front. **Never** change git verbs. |
+| **Composition** | Insert a command line before / middle / after (`insert_index`); hard cap **≤ 7** steps; any `git` subcommand whose `-h` returns usage; **no filler secondaries** (`git status` / `git log` / `git diff` unless already on the parent); flags fail-closed allowlisted like ground; at most one net new flag; no shell metacharacters. Prompt receives filler-verb + flag rules up front. Skip if parent already has 7 steps. |
 
 
 Persist `mutation_kind` ∈ `{state, flag, composition}` on the child; set `parent_row_id`.
 
-**Then re-run** validation → intent expansion → dedup on the child (same construction pipeline as ground).
+**Then re-run** validation → intent expansion → dedup on the child (same construction pipeline as ground). Foreign-collision intent dedup **excludes the parent** `command_id` for evolved children (and coverage inserts), so composition intents are not dropped solely for near-matching the parent's intents.
 
 ---
 
@@ -476,9 +476,9 @@ Persist `mutation_kind` ∈ `{state, flag, composition}` on the child; set `pare
 
 ### 4.2 Evaluation
 
-On each **dedup-accepted** evolve insert: append **golden + extended + scrambled** (same shape as ground), tagged with the child’s `mutation_kind` + `primary_verb` + `source: "llm"`. Golden generation is the same **user simulator** as §3.2 (title + initial_state only; composition goal-shaped). Intent expansion for `mutation_kind=composition` requires every intent to express the **full multi-step goal**; other recipes stay primary-focused with a soft optional delta (about **1–2 intents per Flash batch** may mention that cue).
+On each **dedup-accepted** evolve insert: append **golden + extended + scrambled** (same shape as ground), tagged with the child’s `mutation_kind` + `primary_verb` + `source: "llm"`. Golden generation is the same **user simulator** as §3.2 (title + initial_state only; composition goal-shaped). Intent expansion for `mutation_kind=composition` requires every intent to express the **full multi-step goal**; other recipes stay primary-focused with a soft optional delta (about **1–2 intents per Flash batch** may mention that cue). Parent lineage is excluded from foreign-collision dedup during expand + persist (see §4.1).
 
-Hard gate still runs on **golden only** (fallbacks excluded). Extended/scrambled are report banks.
+Hard gate still runs on **golden only** (fallbacks excluded). Extended/scrambled are report banks. Hit scoring includes downward **Hit@family** credit (§3.2).
 
 After **each** cycle (same dual gate as §3.2):
 
@@ -500,7 +500,8 @@ Post-recovery metrics drive `continueOnEvalKo` / persist.
 Example log shape:
 
 ```text
-eval hit@display=0.80 (40/50) okHit=true minHitAtDisplay=0.7
+eval hit@display=0.80 (35+5family/50) okHit=true minHitAtDisplay=0.7
+eval family=5 (child-of-expected display credit, binding)
 eval passA=0.92 (46/50) okPass=true minPassRate=0.9 (hit=40 judge=6)
 eval overall ok=true (requires hit@display>=min AND passA>=min)
 eval byKind ground=0.95 state=0.90 flag=0.88 composition=0.85
