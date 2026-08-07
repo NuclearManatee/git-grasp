@@ -2,12 +2,20 @@
 /**
  * Hybrid score normalization, fusion, confidence, and display cardinality.
  */
+import {
+  DISPLAY_ABSTAIN_COSINE_FLOOR,
+  DISPLAY_GAP_EXACT,
+  DISPLAY_GAP_NARROW,
+} from '../db/constants.js';
 
 export type DisplayGateThresholds = {
   topK?: number;
   confidenceVeryHigh: number;
   confidenceHigh: number;
   confidenceMedium: number;
+  gapExact?: number;
+  gapNarrow?: number;
+  abstainCosineFloor?: number;
 };
 
 export type ConfidenceAlert = 'none' | 'yellow' | 'orange' | 'red';
@@ -15,6 +23,14 @@ export type ConfidenceAlert = 'none' | 'yellow' | 'orange' | 'red';
 export type DisplayCountResult = {
   count: number;
   alert: ConfidenceAlert;
+};
+
+/** Absolute-channel evidence for abstain (red) decisions. */
+export type DisplayGateEvidence = {
+  /** Top hit raw cosine similarity in [0,1], or null if channel absent. */
+  topRawCosine: number | null;
+  topHasBm25: boolean;
+  topHasVerbBoost: boolean;
 };
 
 /** Normalize recipe steps for display diversity (ignore comments / initial_state). */
@@ -119,43 +135,69 @@ export function fuseScores(
 }
 
 /**
- * C = min(1, S1 * (1 + max(0, S1 - S2))); missing S2 â‡’ 0.
+ * C = min(1, S1 * (1 + max(0, S1 - S2))); missing S2 → gap 0 (C = S1).
  */
 export function computeConfidence(s1: number, s2: number | null | undefined): number {
-  const second = s2 == null ? 0 : s2;
-  const gap = Math.max(0, s1 - second);
+  if (s2 == null) return Math.min(1, Math.max(0, s1));
+  const gap = Math.max(0, s1 - s2);
   return Math.min(1, s1 * (1 + gap));
 }
 
 /**
- * Map confidence C to display count + alert.
+ * True when every absolute channel is weak (abstain candidate).
+ * Omitted evidence → not weak (relative bands decide alone).
+ */
+export function weakAbsoluteEvidence(
+  evidence: DisplayGateEvidence | null | undefined,
+  floor: number,
+): boolean {
+  if (!evidence) return false;
+  const cos = evidence.topRawCosine;
+  const cosineWeak = cos == null || cos < floor;
+  return cosineWeak && !evidence.topHasBm25 && !evidence.topHasVerbBoost;
+}
+
+/**
+ * Map confidence C + gap + absolute evidence to display count + alert.
  *
- * - C > veryHigh (0.9) â†’ 1 result, no alert (exact)
- * - C > high (0.75)    â†’ 2 results, yellow
- * - C > medium (0.4)   â†’ 3 results, orange
- * - else               â†’ 0 results, red
+ * Abstain (red/0): only when absolute evidence is weak on every channel.
+ * Count 1/2/3: relative C bands, gated by fused-score gap to next distinct recipe.
+ * Near-ties widen display; crowded ≠ absent.
  */
 export function displayCountFromConfidence(
   confidence: number,
-  _s1: number,
-  _s2: number | null | undefined,
+  s1: number,
+  s2: number | null | undefined,
   available: number,
   thr: DisplayGateThresholds,
+  evidence?: DisplayGateEvidence | null,
 ): DisplayCountResult {
   const topK = thr.topK ?? 3;
   const n = Math.max(0, available);
   if (n === 0) return { count: 0, alert: 'red' };
 
-  if (confidence > thr.confidenceVeryHigh) {
-    return { count: Math.min(1, n), alert: 'none' };
+  const floor = thr.abstainCosineFloor ?? DISPLAY_ABSTAIN_COSINE_FLOOR;
+  if (weakAbsoluteEvidence(evidence, floor)) {
+    return { count: 0, alert: 'red' };
   }
-  if (confidence > thr.confidenceHigh) {
-    return { count: Math.min(2, n), alert: 'yellow' };
+
+  const gapExact = thr.gapExact ?? DISPLAY_GAP_EXACT;
+  const gapNarrow = thr.gapNarrow ?? DISPLAY_GAP_NARROW;
+  const gap = s2 == null ? 0 : Math.max(0, s1 - s2);
+  const show = (count: number, alert: ConfidenceAlert): DisplayCountResult => ({
+    count: Math.min(count, topK, 3, n),
+    alert,
+  });
+
+  if (confidence > thr.confidenceVeryHigh && gap >= gapExact) {
+    return show(1, 'none');
   }
-  if (confidence > thr.confidenceMedium) {
-    return { count: Math.min(topK, 3, n), alert: 'orange' };
+  if (confidence > thr.confidenceHigh && gap >= gapNarrow) {
+    return show(2, 'yellow');
   }
-  return { count: 0, alert: 'red' };
+  // Below-medium / near-tie / sole hit: show alternatives (orange), never red
+  // on relative signal alone.
+  return show(Math.min(topK, 3), 'orange');
 }
 
 /** @deprecated use displayCountFromConfidence directly */
@@ -165,6 +207,7 @@ export function resolveDisplayCount(
   s2: number | null | undefined,
   available: number,
   thr: DisplayGateThresholds,
+  evidence?: DisplayGateEvidence | null,
 ): DisplayCountResult {
-  return displayCountFromConfidence(confidence, s1, s2, available, thr);
+  return displayCountFromConfidence(confidence, s1, s2, available, thr, evidence);
 }

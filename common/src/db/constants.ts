@@ -47,6 +47,42 @@ export const PRIMARY_VERB_BOOST = 0.25;
  */
 export const VERB_COVERAGE_BOOST_PER = 0.12;
 
+// ---------------------------------------------------------------------------
+// Display gate (fusion.ts displayCountFromConfidence)
+// ---------------------------------------------------------------------------
+//
+// Two decoupled decisions:
+//   count 1/2/3 — relative: confidence C plus the fused-score gap to the next
+//                 distinct recipe. Near-ties widen the display, never shrink it.
+//   abstain (red/empty) — absolute: only when the top hit has weak evidence on
+//                 every channel (raw cosine below floor, no BM25 hit, no verb
+//                 boost). Crowded-but-plausible lists show 3 + orange instead.
+//
+// Runtime thresholds.json may override via optional gapExact / gapNarrow /
+// abstainCosineFloor fields.
+
+/**
+ * Min fused-score gap (S1 − S2, next *distinct* recipe) for the single
+ * "exact" slot. Prevents full ties from rendering as an exact match.
+ * Calibrated 2026-08 on staging.db × eval banks (860 queries): 0.20 beat
+ * 0.15 on hit@display (+12 absolute) with more 3-slot orange displays.
+ */
+export const DISPLAY_GAP_EXACT = 0.2;
+
+/**
+ * Min gap for the 2-result band; below this a high-C list still shows 3.
+ * Paired with DISPLAY_GAP_EXACT from the same gate-sweep (local/eval/gate-sweep-report.json).
+ */
+export const DISPLAY_GAP_NARROW = 0.08;
+
+/**
+ * Abstain floor on the top hit's raw cosine similarity (bge-small-en-v1.5).
+ * Staging bank cosine p10≈0.75 / min≈0.63; floor 0.6 abstains only junk
+ * (no BM25, no verb boost) while floors ≤0.65 were identical on the sweep.
+ * Red/empty requires cosine below this AND no BM25 match AND no verb boost.
+ */
+export const DISPLAY_ABSTAIN_COSINE_FLOOR = 0.6;
+
 /**
  * Default per-channel recall depth for intent KNN and command FTS before fusion.
  * Higher → more candidates / slower search; lower → risk missing the right hit.

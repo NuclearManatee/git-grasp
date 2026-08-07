@@ -165,4 +165,161 @@ describe('searchHybrid', () => {
       expect(result.displayResults.map((h) => h.command_id)).toContain(3);
     }
   });
+
+  it('crowded near-tie distinct recipes → show 3 + orange (not red)', async () => {
+    // Absolute scores nearly tied at the top so post-min-max gap stays < gapNarrow.
+    const result = await searchHybrid({
+      query: 'show branch history',
+      thresholds: thr,
+      preferredSkillOverride: 'beginner',
+      verbs: [],
+      embed: async () => new Float32Array(384),
+      knn: async () => [
+        {
+          command_id: 10,
+          skill_level_text: 'beginner',
+          intent_text: 'log graph',
+          _forcedScore: 0.85,
+          commands: [{ command: 'git log --oneline --graph' }],
+          risk: 0,
+          example: 'git log --oneline --graph',
+          snippet: 'git log --oneline --graph',
+        },
+        {
+          command_id: 11,
+          skill_level_text: 'beginner',
+          intent_text: 'branch list',
+          _forcedScore: 0.849,
+          commands: [{ command: 'git branch -vv' }],
+          risk: 0,
+          example: 'git branch -vv',
+          snippet: 'git branch -vv',
+        },
+        {
+          command_id: 12,
+          skill_level_text: 'beginner',
+          intent_text: 'reflog',
+          _forcedScore: 0.5,
+          commands: [{ command: 'git reflog' }],
+          risk: 0,
+          example: 'git reflog',
+          snippet: 'git reflog',
+        },
+      ],
+      fts: async () => [],
+      hydrate: async (ids) =>
+        ids.map((id) => ({
+          command_id: id,
+          commands: [
+            {
+              command:
+                id === 10
+                  ? 'git log --oneline --graph'
+                  : id === 11
+                    ? 'git branch -vv'
+                    : 'git reflog',
+            },
+          ],
+          example:
+            id === 10
+              ? 'git log --oneline --graph'
+              : id === 11
+                ? 'git branch -vv'
+                : 'git reflog',
+          snippet: '',
+          risk: 0,
+        })),
+    });
+    expect(result.status).toBe('ok');
+    expect(result.alert).toBe('orange');
+    expect(result.displayResults.length).toBe(3);
+    expect(result.gateEvidence).toBeDefined();
+    expect(result.gateEvidence.topRawCosine).toBeGreaterThan(0.7);
+  });
+
+  it('junk query with weak absolute evidence → empty + red', async () => {
+    const result = await searchHybrid({
+      query: 'asdf qwerty zxcv unrelated nonsense',
+      thresholds: thr,
+      preferredSkillOverride: null,
+      verbs: [],
+      embed: async () => new Float32Array(384),
+      knn: async () => [
+        {
+          command_id: 99,
+          skill_level_text: 'beginner',
+          intent_text: 'noise',
+          _forcedScore: 0.35,
+          commands: [{ command: 'git status' }],
+          risk: 0,
+          example: 'git status',
+          snippet: 'git status',
+        },
+        {
+          command_id: 98,
+          skill_level_text: 'beginner',
+          intent_text: 'noise2',
+          _forcedScore: 0.3,
+          commands: [{ command: 'git help' }],
+          risk: 0,
+          example: 'git help',
+          snippet: 'git help',
+        },
+      ],
+      fts: async () => [],
+      hydrate: async (ids) =>
+        ids.map((id) => ({
+          command_id: id,
+          commands: [{ command: id === 99 ? 'git status' : 'git help' }],
+          example: id === 99 ? 'git status' : 'git help',
+          snippet: '',
+          risk: 0,
+        })),
+    });
+    expect(result.status).toBe('empty');
+    expect(result.alert).toBe('red');
+    expect(result.displayResults).toEqual([]);
+    expect(result.gateEvidence).toEqual({
+      topRawCosine: 0.35,
+      topHasBm25: false,
+      topHasVerbBoost: false,
+    });
+  });
+
+  it('exposes gateEvidence on ok results', async () => {
+    const result = await searchHybrid({
+      query: 'git status overview',
+      thresholds: thr,
+      preferredSkillOverride: 'beginner',
+      verbs: ['status'],
+      embed: async () => new Float32Array(384),
+      knn: async () => [
+        {
+          command_id: 1,
+          skill_level_text: 'beginner',
+          intent_text: 'status',
+          _forcedScore: 0.92,
+          commands: [{ command: 'git status' }],
+          risk: 0,
+          example: 'git status',
+          snippet: 'git status',
+        },
+      ],
+      fts: async () => [{ command_id: 1, bm25: -10 }],
+      hydrate: async () => [
+        {
+          command_id: 1,
+          commands: [{ command: 'git status' }],
+          example: 'git status',
+          snippet: '',
+          risk: 0,
+        },
+      ],
+    });
+    expect(result.gateEvidence).toMatchObject({
+      topRawCosine: 0.92,
+      topHasBm25: true,
+      topHasVerbBoost: true,
+    });
+  });
 });

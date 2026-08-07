@@ -9,9 +9,10 @@ import {
   fuseScores,
   minMaxNormalize,
   normalizeBm25Batch,
-  resolveDisplayCount,
+  displayCountFromConfidence,
   diversifyByRecipe,
   nextDistinctRecipeScore,
+  type DisplayGateEvidence,
 } from './fusion.js';
 import { applyPrimaryVerbBoost } from './verbBoost.js';
 import { DEFAULT_RECALL_K } from '../db/constants.js';
@@ -41,6 +42,8 @@ export type SearchHybridResult = {
   preferredSkill: SkillLevelText;
   query: string;
   alert?: 'none' | 'yellow' | 'orange' | 'red';
+  /** Absolute-channel evidence used by the display gate (verbose / calibration). */
+  gateEvidence?: DisplayGateEvidence;
 };
 
 export function normalizeQuery(query: string, enabled = true): string {
@@ -119,6 +122,11 @@ export async function searchHybrid(opts: {
       preferredSkill: profile.preferredSkill,
       query: q,
       alert: 'red',
+      gateEvidence: {
+        topRawCosine: null,
+        topHasBm25: false,
+        topHasVerbBoost: false,
+      },
     };
   }
 
@@ -239,12 +247,20 @@ export async function searchHybrid(opts: {
   const s2 = s2Distinct != null ? s2Distinct : null;
   const confidence = computeConfidence(s1, s2);
   const uniqueRecipes = diversifyByRecipe(results, results.length);
-  const gate = resolveDisplayCount(
+
+  const top = boosted[0];
+  const gateEvidence: DisplayGateEvidence = {
+    topRawCosine: top?.rawCosine ?? null,
+    topHasBm25: top?.rawBm25 != null,
+    topHasVerbBoost: Number(top?.score_verb_boost ?? 0) > 0,
+  };
+  const gate = displayCountFromConfidence(
     confidence,
     s1,
     s2,
     uniqueRecipes.length,
     thr,
+    gateEvidence,
   );
   const displayResults = diversifyByRecipe(results, gate.count);
 
@@ -257,5 +273,6 @@ export async function searchHybrid(opts: {
     preferredSkill: profile.preferredSkill,
     query: q,
     alert: gate.alert,
+    gateEvidence,
   };
 }

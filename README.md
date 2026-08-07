@@ -14,7 +14,7 @@ Bun workspaces:
 
 | Package | Role |
 |---------|------|
-| `@git-grasp/common` | Schema v6 (`commands` + `intents` + `vec_intents` + `commands_fts`), MiniLM embeddings, hybrid search, seed/search facades; ships `common/data` + `common/config` |
+| `@git-grasp/common` | Schema v6 (`commands` + `intents` + `vec_intents` + `commands_fts`), BGE-small embeddings, hybrid search, seed/search facades; ships `common/data` + `common/config` |
 | `@git-grasp/cli` | CLI UX |
 | `@git-grasp/pipeline` | Catalog build (prepare/ground/loop), seed, golden eval / improve loop |
 | `@git-grasp/web` | Astro marketing site + in-browser Xterm playground |
@@ -117,8 +117,8 @@ Perf budget / Docker profiles: **[docs/perf.md](docs/perf.md)**.
 
 - Schema v6: `commands` + `intents` (skill-tagged query text) → `vec_intents` KNN + `commands_fts` BM25 → hybrid fusion.
 - Catalog generation: cheat sheet + tldr (command universe) + Pro Git (multi-step context); flags validated via git-scm docs + `git help`. Sources stay in gitignored `local/cache/`; commit derived `commands.json` / `intents.jsonl` / DB on `improve/*` after eval.
-- Search: sqlite-vec cosine KNN + FTS5 BM25 → weighted fusion + confidence-gated display.
-- Web playground: **web-catalog.db** (sql.js) + Transformers.js MiniLM (`@git-grasp/common/browser`) — no `bun:sqlite` in the browser bundle.
+- Search: sqlite-vec cosine KNN + FTS5 BM25 → weighted fusion + confidence-gated display (relative gap for 1/2/3 slots; absolute evidence for red abstain).
+- Web playground: **web-catalog.db** (sql.js) + Transformers.js BGE-small (`@git-grasp/common/browser`) — no `bun:sqlite` in the browser bundle.
 - Bun path uses `BunSqliteAdapter`. Release binaries use `bun build --compile` plus adjacent `common/data/` / `common/config/`.
 
 ### Web playground / e2e

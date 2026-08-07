@@ -359,6 +359,8 @@ Accepted rows also feed eval banks (`golden` / `extended` / `scrambled`). Ground
 
 In-build retrieval gate scores what the **CLI would show**: hybrid `displayResults` (confidence-gated, 0–3 slots), not the fuller internal fused `results` list. When the query names a Git verb, hybrid ranking applies a soft **+0.25** boost to hits whose primary step matches that verb (then re-sorts). When the query names **multiple** verbs, multi-step recipes that cover more of those verbs get an extra **+0.12 per additional covered verb** (capped at score 1.0).
 
+Display cardinality (`displayCountFromConfidence`): high confidence **and** a real fused-score gap → 1 (exact) or 2 (yellow); near-ties / lower C → up to 3 (orange). Red/empty abstain is absolute-evidence only (weak raw cosine **and** no BM25 **and** no verb boost) — crowded sibling lists no longer collapse to an empty miss for Hit@display.
+
 **Bank generation** (on each dedup-accepted unique insert, unless `skipEvalBanks`):
 
 1. **Golden** — LLM (`build/golden-query`) writes one NL query for the recipe (primary-verb focused; may include one distinguishing cue when the recipe is richer). Fidelity checks require the primary verb token and reject near-dups / banned templates. Failures fall back to `how do I use git <verb>` and are routed to `golden-report.jsonl` (excluded from the hard gate). Tagged `mutation_kind: "ground"` + `primary_verb`.
