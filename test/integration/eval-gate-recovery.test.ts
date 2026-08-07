@@ -31,7 +31,7 @@ describe('eval gate recovery integration', () => {
   it('polish accepts Pass A gain then early-stops on flat', async () => {
     restoreGoldenBank([
       { command_id: 1, query_text: 'status of repo', primary_verb: 'git status' },
-      { command_id: 2, query_text: 'list and delete replace refs', primary_verb: 'git replace', mutation_kind: 'composition' },
+      { command_id: 2, query_text: 'list and delete replace refs', primary_verb: 'git replace', mutation_kind: 'flag' },
     ]);
 
     const mkResult = (passed, hitPassed, missPass) => ({
@@ -58,7 +58,7 @@ describe('eval gate recovery integration', () => {
             command_id: 2,
             query_text: 'list and delete replace refs',
             primary_verb: 'git replace',
-            mutation_kind: 'composition',
+            mutation_kind: 'flag',
           },
           displayed: [{ example: 'git replace -l', snippet: 'git replace -l' }],
         },

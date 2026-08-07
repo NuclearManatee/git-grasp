@@ -96,7 +96,9 @@ export function classifyMiss(row, opts = {}) {
   }
 
   if (multi && displayInFamily) {
-    if (mutation === 'composition' || mutation === 'flag') return 'over_ask';
+    // Composition goldens are meant to be multi-action; a miss is retrieval, not bank defect.
+    if (mutation === 'composition') return 'retrieval_sibling';
+    if (mutation === 'flag') return 'over_ask';
     return 'partial_multistep';
   }
 
@@ -108,7 +110,10 @@ export function classifyMiss(row, opts = {}) {
     if (multi) return 'partial_multistep';
   }
 
-  if (multi && (mutation === 'composition' || mutation === 'flag')) {
+  if (multi && mutation === 'composition') {
+    return 'retrieval_sibling';
+  }
+  if (multi && mutation === 'flag') {
     return 'over_ask';
   }
 

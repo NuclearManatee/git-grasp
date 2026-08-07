@@ -17,6 +17,7 @@ Rules:
 - Do NOT change command_id.
 - Mode={{mode}}: in polish mode prefer rewrite; avoid mass drops.
 - Only emit actions for the provided misses.
+- NEVER reduce a multi-action golden to a single action when the expected recipe mutation_kind is composition — keep the full multi-step goal shape.
 
 ## user
 ## Mode

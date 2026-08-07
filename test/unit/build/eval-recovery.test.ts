@@ -88,7 +88,7 @@ describe('classifyMiss', () => {
     ).toBe('destructive_alt');
   });
 
-  it('flags over_ask for composition multi-action with matching verb', () => {
+  it('flags retrieval_sibling for composition multi-action with matching verb', () => {
     expect(
       classifyMiss(
         {
@@ -100,6 +100,26 @@ describe('classifyMiss', () => {
             query_text: 'list git replace references and delete one',
             primary_verb: 'git replace',
             mutation_kind: 'composition',
+          },
+          displayed: [{ example: 'git replace -l', snippet: 'git replace -l' }],
+        },
+        { familyIndex },
+      ),
+    ).toBe('retrieval_sibling');
+  });
+
+  it('flags over_ask for flag multi-action with matching verb', () => {
+    expect(
+      classifyMiss(
+        {
+          pass: false,
+          via: 'ko',
+          utility: 0.4,
+          query: {
+            command_id: 58,
+            query_text: 'list git replace references and delete one',
+            primary_verb: 'git replace',
+            mutation_kind: 'flag',
           },
           displayed: [{ example: 'git replace -l', snippet: 'git replace -l' }],
         },
@@ -166,7 +186,7 @@ describe('classifyMiss', () => {
   });
 
   it('needsBankRewrite / needsImproveRound partition levers', () => {
-    const classified = classifyEvalMisses(
+    const compositionMisses = classifyEvalMisses(
       [
         {
           pass: false,
@@ -188,8 +208,26 @@ describe('classifyMiss', () => {
       ],
       { familyIndex },
     );
-    expect(needsBankRewrite(classified)).toBe(true);
-    expect(needsImproveRound(classified)).toBe(true);
+    expect(needsBankRewrite(compositionMisses)).toBe(false);
+    expect(needsImproveRound(compositionMisses)).toBe(true);
+
+    const flagMisses = classifyEvalMisses(
+      [
+        {
+          pass: false,
+          via: 'ko',
+          query: {
+            command_id: 3,
+            query_text: 'list and delete replace',
+            primary_verb: 'git replace',
+            mutation_kind: 'flag',
+          },
+          displayed: [{ example: 'git replace -l', snippet: 'git replace -l' }],
+        },
+      ],
+      { familyIndex },
+    );
+    expect(needsBankRewrite(flagMisses)).toBe(true);
   });
 
   it('flags coverage_gap when multi-verb query has no covering recipe', () => {
@@ -598,7 +636,7 @@ describe('runEvalGateRecovery budgets', () => {
         command_id: 10,
         query_text: 'list replace refs and delete one',
         primary_verb: 'git replace',
-        mutation_kind: 'composition',
+        mutation_kind: 'flag',
       },
       {
         command_id: 11,
@@ -626,7 +664,7 @@ describe('runEvalGateRecovery budgets', () => {
             command_id: 10,
             query_text: 'list replace refs and delete one',
             primary_verb: 'git replace',
-            mutation_kind: 'composition',
+            mutation_kind: 'flag',
           },
           displayed: [{ example: 'git replace -l', snippet: 'git replace -l' }],
         },
