@@ -1,6 +1,6 @@
 # Performance budget
 
-Interactive search target: **CLI wall-time p95 &lt; 500ms** (cold + warm) when MiniLM is already on disk, measured on Docker profile **`gate`** (1 vCPU / 1GB). Cheap-VPS scenario uses the same caps.
+Interactive search target: **CLI wall-time p95 &lt; 500ms** (cold + warm) when the embedding model is already on disk, measured on Docker profile **`gate`** (1 vCPU / 1GB). Cheap-VPS scenario uses the same caps.
 
 Workflow: change → eval loop → local Docker perf (PR checklist). **No CI latency job.**
 
@@ -31,7 +31,7 @@ Queries: [`test/performance/queries.json`](../test/performance/queries.json) (30
 
 | Mode | Meaning |
 |------|---------|
-| **cold** | Fresh process per sample; model files on disk; includes process start + MiniLM load into RAM + search |
+| **cold** | Fresh process per sample; model files on disk; includes process start + embedder load into RAM + search |
 | **warm** | Same as cold after N discard samples (disk caches hot); still **reloads model each process** |
 | **sticky-warm** | Diagnostic: one process, model resident; times `search()` only |
 
@@ -65,7 +65,7 @@ In-process search after model load remains well under 500ms on mid; gate sticky 
 
 ## Bottlenecks
 
-1. **Per-process MiniLM ONNX session load** dominates CLI wall time (~1.1s @ 1 vCPU; ~300–400ms on a warm desktop). Product UX is one process per invocation, so cold≈warm for process-per-call.
+1. **Per-process embedder ONNX session load** dominates CLI wall time (~1.1s @ 1 vCPU with MiniLM; BGE-small is similar order). Product UX is one process per invocation, so cold≈warm for process-per-call.
 2. Bun/CLI startup + barrel imports — mitigated by `@git-grasp/common/cli` slim entry + fast-path `bin/index.ts`.
 3. Search path after model load is **well under budget** (sqlite-vec KNN + JS re-rank).
 4. Skill filter: SQL hydrate `skill_level <= ?` with KNN overfetch when skill is set.
@@ -93,7 +93,7 @@ Synthetic rank-only projection (duplicated KNN candidates):
 
 Catalog today: **9925** intents, **342** recipes, **~7.3 intents / skill / example**.
 
-**Go:** keep defaults around **4–5+ intents** per skill/example. Rank cost is negligible vs MiniLM process load. Prefer sparse intents only for rare commands for **catalog quality/size**, not latency.
+**Go:** keep defaults around **4–5+ intents** per skill/example. Rank cost is negligible vs embedder process load. Prefer sparse intents only for rare commands for **catalog quality/size**, not latency.
 
 ## Gate verdict (2026-07-26)
 
@@ -101,7 +101,7 @@ Catalog today: **9925** intents, **342** recipes, **~7.3 intents / skill / examp
 |-------|--------|
 | In-process / sticky-warm @ mid (2/4GB) | **PASS** ~191ms p95 |
 | Full CLI process-per-call @ mid | **~0.6s p95** — public “sub-second on low-end” basis |
-| Full CLI process-per-call @ gate (1/1GB) | **NO-GO** for &lt;500ms (~1.2s p95) — MiniLM reload |
+| Full CLI process-per-call @ gate (1/1GB) | **NO-GO** for &lt;500ms (~1.2s p95) — embedder reload |
 | Intent 3 vs 5 | **GO** (latency-neutral) |
 
 To meet &lt;500ms for **product** CLI on cheap VPS, next options (out of this pass): resident embed worker/daemon, smaller/quantized model, or raise the cold-CLI budget (~1.5s) while keeping sticky/in-process &lt;500ms as the search-path gate.

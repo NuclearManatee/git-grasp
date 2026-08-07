@@ -63,7 +63,7 @@ export function doctor() {
     || process.env.GIT_GRASP_MOCK_EMBEDDINGS === '1';
   if (!hasModel) {
     ok = false;
-    lines.push('Model: MISSING ÔÇö first real search downloads Xenova/all-MiniLM-L6-v2, or set GIT_GRASP_MOCK_EMBEDDINGS=1');
+    lines.push(`Model: MISSING — first real search downloads Xenova/bge-small-en-v1.5, or set GIT_GRASP_MOCK_EMBEDDINGS=1`);
   } else if (process.env.GIT_GRASP_MOCK_EMBEDDINGS === '1') {
     lines.push('Model: OK (mock embeddings)');
   } else {

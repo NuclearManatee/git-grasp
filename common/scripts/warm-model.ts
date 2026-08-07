@@ -1,9 +1,9 @@
 #!/usr/bin/env bun
 // @ts-nocheck
-/** Bake Xenova MiniLM into the environment (Docker image build). */
+/** Bake the pinned embedding model into the environment (Docker image build). */
 import { getEmbedder, embeddingModelId } from '@git-grasp/common';
 
-console.log(`Warming ${embeddingModelId()}ÔÇª`);
+console.log(`Warming ${embeddingModelId()}…`);
 const embedder = await getEmbedder({
   onStatus: (m) => console.log(m),
 });

@@ -1,6 +1,6 @@
 # Web (`apps/web`)
 
-Astro marketing site plus an in-browser playground (Xterm + sql.js catalog + Transformers.js MiniLM).
+Astro marketing site plus an in-browser playground (Xterm + sql.js catalog + Transformers.js BGE-small).
 
 ## Features
 

@@ -8,7 +8,7 @@ try {
   const result = await seedCatalog({ forceMock });
   console.log(`Seeded ${result.recipes} recipes / ${result.n} intents (skipped ${result.skipped}) → ${result.dbPath}`);
   console.log(`sha256 ${result.hash}`);
-  console.log(`embeddings: ${result.mock ? 'mock' : 'all-MiniLM-L6-v2'}`);
+  console.log(`embeddings: ${result.mock ? 'mock' : 'Xenova/bge-small-en-v1.5'}`);
 } catch (e) {
   console.error(e.message || e);
   process.exit(1);

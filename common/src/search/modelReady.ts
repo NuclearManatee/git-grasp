@@ -7,7 +7,7 @@ import { EMBEDDING_MODEL_ID, EMBEDDING_MODEL_REVISION } from './embeddingModel.j
 const MODEL_ID = EMBEDDING_MODEL_ID;
 
 /**
- * Heuristic: is the MiniLM cache likely already on disk?
+ * Heuristic: is the embedding model cache likely already on disk?
  * (transformers may still download shards if incomplete.)
  */
 export function isEmbeddingModelCached() {
@@ -15,6 +15,8 @@ export function isEmbeddingModelCached() {
 
   const home = process.env.USERPROFILE || process.env.HOME || '';
   const needle = MODEL_ID.replace('/', '--');
+  const orgName = MODEL_ID.split('/')[0];
+  const shortName = MODEL_ID.split('/')[1] || MODEL_ID;
   const xfCache = path.join(
     PACKAGE_ROOT,
     'node_modules',
@@ -28,7 +30,15 @@ export function isEmbeddingModelCached() {
     path.join(packageDataDir(), 'models'),
     xfCache,
     path.join(xfCache, `models--${needle}`),
-    path.join(PACKAGE_ROOT, 'node_modules', '@huggingface', 'transformers', 'models', 'Xenova', 'all-MiniLM-L6-v2'),
+    path.join(
+      PACKAGE_ROOT,
+      'node_modules',
+      '@huggingface',
+      'transformers',
+      'models',
+      orgName,
+      shortName,
+    ),
     process.env.HF_HOME,
     process.env.TRANSFORMERS_CACHE,
     path.join(home, '.cache', 'huggingface'),
@@ -41,7 +51,7 @@ export function isEmbeddingModelCached() {
     try {
       if (existsSync(path.join(root, `models--${needle}`))) return true;
       if (existsSync(path.join(root, needle))) return true;
-      if (existsSync(path.join(root, 'Xenova', 'all-MiniLM-L6-v2'))) return true;
+      if (existsSync(path.join(root, orgName, shortName))) return true;
       if (existsSync(path.join(root, 'config.json'))) return true;
       if (root === xfCache && readdirSync(root).length > 0) return true;
     } catch {
