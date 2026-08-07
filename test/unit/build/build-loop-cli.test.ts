@@ -77,6 +77,24 @@ describe('parseBuildLoopArgs', () => {
     expect(BUILD_LOOP_HELP).toContain('--eval-coverage-max-inserts');
   });
 
+  it('parses optional --post-floor-iterations (disabled by default)', () => {
+    const def = parseBuildLoopArgs([], { hasStaging: true }).resolved;
+    expect(def.postFloorIterations).toBe(null);
+    expect(buildLoopOptsFromResolved(def).postFloorIterations).toBeUndefined();
+
+    const { resolved } = parseBuildLoopArgs(['--post-floor-iterations=5'], {
+      hasStaging: true,
+    });
+    expect(resolved.postFloorIterations).toBe(5);
+    expect(buildLoopOptsFromResolved(resolved).postFloorIterations).toBe(5);
+    expect(BUILD_LOOP_HELP).toContain('--post-floor-iterations');
+
+    expect(
+      parseBuildLoopArgs(['--post-floor-iterations=0'], { hasStaging: true }).resolved
+        .postFloorIterations,
+    ).toBe(0);
+  });
+
   it('auto-fresh when staging missing unless --resume', () => {
     expect(parseBuildLoopArgs([], { hasStaging: false }).resolved.fresh).toBe(true);
     expect(parseBuildLoopArgs(['--resume'], { hasStaging: false }).resolved.fresh).toBe(

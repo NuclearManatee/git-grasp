@@ -43,7 +43,8 @@ Maintainer entrypoints live under `apps/pipeline` (root `bun run …` wrappers):
 | `--min-pass-rate` | `0.9` | Pass A hard-gate floor |
 | `--min-hit-at-display` | `0.7` | Hit@display hard-gate floor |
 | `--judge-utility` | `0.8` | Per-query judge pass (`utility >=`) |
-| `--max-iterations` | `100` / staging meta | Evolve cycle cap |
+| `--max-iterations` | `100` / staging meta | Evolve cycle cap (hard overall) |
+| `--post-floor-iterations` | unset (disabled) | After bank floors met, run N more binding-phase iterations then stop (whichever of this or `--max-iterations` hits first) |
 | `--exit-zero-streak` | `3` | Stop after N zero-unique cycles |
 | `--batch-size` / `--concurrency` | `256` / `24` | Evolve batch + job concurrency |
 | `--eval-concurrency` / `--eval-search-pool` | `64` / `8` | Eval parallelism |

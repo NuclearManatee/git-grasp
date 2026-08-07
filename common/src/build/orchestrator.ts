@@ -87,6 +87,10 @@ import {
   loopAllVerbsSaturated,
   countLeaves,
 } from './loop.js';
+import {
+  recordFloorMetAtIter,
+  shouldStopAfterPostFloorBudget,
+} from './loopBudget.js';
 import { getEmbedder, mockEmbed } from '../search/embed.js';
 import { parseCommands, primaryCommand } from '../db/recipeFormat.js';
 
@@ -731,6 +735,8 @@ export async function runBuildLoop(opts = {}) {
   }
   /** @type {object|null} */
   let lastEvalResult = null;
+  /** @type {number|null} first iteration at which eval bank floors pass */
+  let floorMetAtIter = null;
 
   while (iteration < maxIter) {
     iteration += 1;
@@ -1021,15 +1027,24 @@ export async function runBuildLoop(opts = {}) {
     }
     lastEvalResult = evalResult;
 
+    // Floors every iteration (green or red) so floorMetAtIter is not KO-only.
+    const bankNow = activeEvaluationBank({
+      kinds: ['golden'],
+      excludeFallbacks: true,
+    });
+    const floors = evalBankMeetsFloors(bankNow, {
+      minTotal: opts.evalMinBankTotal,
+      minComposition: opts.evalMinBankComposition,
+    });
+    const prevFloorMet = floorMetAtIter;
+    floorMetAtIter = recordFloorMetAtIter(floorMetAtIter, floors.ok, iteration);
+    if (prevFloorMet == null && floorMetAtIter != null) {
+      log(
+        `loop bank floors met at iter=${iteration} (total=${floors.total}/${floors.totalMin} composition=${floors.composition}/${floors.compMin})`,
+      );
+    }
+
     if (!evalResult.ok) {
-      const bankNow = activeEvaluationBank({
-        kinds: ['golden'],
-        excludeFallbacks: true,
-      });
-      const floors = evalBankMeetsFloors(bankNow, {
-        minTotal: opts.evalMinBankTotal,
-        minComposition: opts.evalMinBankComposition,
-      });
       if (!floors.ok) {
         // Advisory: bank still below absolute floors — keep evolving.
         log(
@@ -1093,6 +1108,17 @@ export async function runBuildLoop(opts = {}) {
     }
     if (saturatedNow) {
       log(`loop exit: all taxonomy verbs saturated after iter=${iteration}`);
+      break;
+    }
+    const postFloorStop = shouldStopAfterPostFloorBudget({
+      iteration,
+      floorMetAtIter,
+      postFloorIterations: opts.postFloorIterations,
+    });
+    if (postFloorStop.stop) {
+      log(
+        `loop stop: post-floor budget exhausted (floor met at iter=${postFloorStop.floorMetAtIter}, ran ${postFloorStop.ranMore} more)`,
+      );
       break;
     }
   }

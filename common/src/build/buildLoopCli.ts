@@ -36,6 +36,7 @@ Gates (dual hard gate + judge):
 
 Loop:
   --max-iterations=N      Cap evolve cycles (default 100, or staging meta on resume)
+  --post-floor-iterations=N  After bank floors met, run N more iters then stop (disabled if unset)
   --exit-zero-streak=N    Stop after N consecutive zero-unique cycles (default ${LOOP_EXIT_ZERO_STREAK})
   --batch-size=N          Evolve parent batch cap (default ${LOOP_MAX_BATCH})
   --concurrency=N         Ground/evolve job concurrency (default ${BUILD_CONCURRENCY})
@@ -98,6 +99,11 @@ export function parseBuildLoopArgs(argv = process.argv.slice(2), ctx = {}) {
   const maxIterationsRaw = numOpt(argv, '--max-iterations', null);
   const maxIterations =
     maxIterationsRaw == null ? undefined : Math.max(1, Math.floor(maxIterationsRaw));
+  const postFloorIterationsRaw = numOpt(argv, '--post-floor-iterations', null);
+  const postFloorIterations =
+    postFloorIterationsRaw == null
+      ? undefined
+      : Math.max(0, Math.floor(postFloorIterationsRaw));
 
   const runDir = strOpt(argv, '--run-dir');
   const noRunLog = flag(argv, '--no-run-log');
@@ -107,6 +113,7 @@ export function parseBuildLoopArgs(argv = process.argv.slice(2), ctx = {}) {
     fresh,
     resume: !fresh,
     maxIterations: maxIterations ?? null,
+    postFloorIterations: postFloorIterations ?? null,
     minPassRate: numOpt(argv, '--min-pass-rate', EVAL_MIN_PASS_RATE),
     minHitAtDisplayRate: numOpt(argv, '--min-hit-at-display', EVAL_MIN_HIT_AT_DISPLAY_RATE),
     utilityThreshold: numOpt(argv, '--judge-utility', EVAL_JUDGE_UTILITY_THRESHOLD),
@@ -175,6 +182,9 @@ export function buildLoopOptsFromResolved(resolved) {
     minHitAtDisplayRate: resolved.minHitAtDisplayRate,
     utilityThreshold: resolved.utilityThreshold,
     ...(resolved.maxIterations != null ? { maxIterations: resolved.maxIterations } : {}),
+    ...(resolved.postFloorIterations != null
+      ? { postFloorIterations: resolved.postFloorIterations }
+      : {}),
     exitZeroStreak: resolved.exitZeroStreak,
     batchSize: resolved.batchSize,
     concurrency: resolved.concurrency,
