@@ -34,6 +34,136 @@
       ],
       "prefer_verb": "git config",
       "source": "seed"
+    },
+    {
+      "role": "branch_vs_show_branch",
+      "needles": [
+        "list branches",
+        "show branches",
+        "branch -v"
+      ],
+      "prefer_verb": "git branch",
+      "source": "eval_round",
+      "evidence_command_ids": [
+        18,
+        78
+      ]
+    },
+    {
+      "role": "log_vs_shortlog",
+      "needles": [
+        "commit history",
+        "git log"
+      ],
+      "prefer_verb": "git log",
+      "source": "eval_round",
+      "evidence_command_ids": [
+        27
+      ]
+    },
+    {
+      "role": "notes_vs_commit",
+      "needles": [
+        "add a note",
+        "git notes add"
+      ],
+      "prefer_verb": "git notes",
+      "source": "eval_round",
+      "evidence_command_ids": [
+        49,
+        76,
+        91,
+        94,
+        102
+      ]
+    },
+    {
+      "role": "fsck_vs_fast_export",
+      "needles": [
+        "check the integrity",
+        "git fsck"
+      ],
+      "prefer_verb": "git fsck",
+      "source": "eval_round",
+      "evidence_command_ids": [
+        16,
+        82,
+        87,
+        88,
+        97
+      ]
+    },
+    {
+      "role": "fast_export_vs_fast_import",
+      "needles": [
+        "fast-export",
+        "export git history",
+        "export and import"
+      ],
+      "prefer_verb": "git fast-export",
+      "source": "eval_round",
+      "evidence_command_ids": [
+        85,
+        100,
+        104
+      ]
+    },
+    {
+      "role": "gc_vs_count_objects",
+      "needles": [
+        "git gc",
+        "count-objects",
+        "clean up",
+        "check repository objects"
+      ],
+      "prefer_verb": "git gc",
+      "source": "eval_round",
+      "evidence_command_ids": [
+        93,
+        107
+      ]
+    },
+    {
+      "role": "remote_vs_show",
+      "needles": [
+        "remote URLs",
+        "git remote",
+        "show remote"
+      ],
+      "prefer_verb": "git remote",
+      "source": "eval_round",
+      "evidence_command_ids": [
+        71,
+        89
+      ]
+    },
+    {
+      "role": "revert_vs_reset",
+      "needles": [
+        "undo the last commit",
+        "git reset",
+        "revert a commit"
+      ],
+      "prefer_verb": "git revert",
+      "source": "eval_round",
+      "evidence_command_ids": [
+        34,
+        81
+      ]
+    },
+    {
+      "role": "fetch_vs_pull",
+      "needles": [
+        "fetch updates",
+        "fetch and pull",
+        "git fetch"
+      ],
+      "prefer_verb": "git fetch",
+      "source": "eval_round",
+      "evidence_command_ids": [
+        14,
+        80
+      ]
     }
   ]
 }
