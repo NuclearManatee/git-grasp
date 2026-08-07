@@ -17,6 +17,8 @@ import {
   EVAL_GATE_POLISH_RETRY_MAX,
   EVAL_GATE_MIN_BANK_TOTAL,
   EVAL_GATE_MIN_BANK_COMPOSITION,
+  EVAL_GAP_CHECK_MAX,
+  EVAL_COVERAGE_MAX_INSERTS,
 } from '../db/constants.js';
 
 export const BUILD_LOOP_HELP = `Usage: bun apps/pipeline/src/build-loop.ts [options]
@@ -47,6 +49,8 @@ Eval / improve / recovery:
   --eval-polish-retry-max=N Polish attempts when green but below nice (default ${EVAL_GATE_POLISH_RETRY_MAX})
   --polish-miss-min=N     Polish if misses >= N (default ${EVAL_IMPROVE_POLISH_MISS_MIN})
   --polish-pass-a=N       Polish if Pass A < N / nice-to-have (default ${EVAL_IMPROVE_POLISH_PASS_A})
+  --eval-gap-check-max=N  Max LLM gap-checks per recovery attempt (default ${EVAL_GAP_CHECK_MAX})
+  --eval-coverage-max-inserts=N Max coverage-gap inserts per attempt (default ${EVAL_COVERAGE_MAX_INSERTS})
   --continue-on-eval-ko   Do not stop the run when a gate fails
 
 Logging:
@@ -145,6 +149,14 @@ export function parseBuildLoopArgs(argv = process.argv.slice(2), ctx = {}) {
         numOpt(argv, '--eval-min-bank-composition', EVAL_GATE_MIN_BANK_COMPOSITION),
       ),
     ),
+    evalGapCheckMax: Math.max(
+      0,
+      Math.floor(numOpt(argv, '--eval-gap-check-max', EVAL_GAP_CHECK_MAX)),
+    ),
+    evalCoverageMaxInserts: Math.max(
+      0,
+      Math.floor(numOpt(argv, '--eval-coverage-max-inserts', EVAL_COVERAGE_MAX_INSERTS)),
+    ),
     continueOnEvalKo: flag(argv, '--continue-on-eval-ko'),
     runLog: !noRunLog,
     runDir: runDir || null,
@@ -176,6 +188,8 @@ export function buildLoopOptsFromResolved(resolved) {
     polishPassA: resolved.polishPassA,
     evalMinBankTotal: resolved.evalMinBankTotal,
     evalMinBankComposition: resolved.evalMinBankComposition,
+    evalGapCheckMax: resolved.evalGapCheckMax,
+    evalCoverageMaxInserts: resolved.evalCoverageMaxInserts,
     continueOnEvalKo: resolved.continueOnEvalKo,
   };
 }

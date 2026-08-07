@@ -19,7 +19,15 @@ export {
   generateCoverageGapComposites,
   rollbackCoverageInserts,
   pickCoverageParent,
+  goalToVerbs,
+  resolveCoverageVerbs,
+  filterKnownVerbs,
+  normalizeGoalVerb,
 } from './generateCoverage.js';
+export {
+  detectGaps,
+  candidatesFromSearchOutput,
+} from './detectGaps.js';
 export {
   snapshotGoldenBank,
   restoreGoldenBank,
@@ -37,4 +45,8 @@ export {
   proposeGoldenRewrites,
   filterValidGoldenActions,
 } from './rewriteGoldens.js';
-export { runEvalGateRecovery, polishWarranted } from './runEvalGateRecovery.js';
+export {
+  runEvalGateRecovery,
+  polishWarranted,
+  mintBirthQueryGoldens,
+} from './runEvalGateRecovery.js';

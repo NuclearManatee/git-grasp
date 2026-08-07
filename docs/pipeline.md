@@ -52,6 +52,8 @@ Maintainer entrypoints live under `apps/pipeline` (root `bun run …` wrappers):
 | `--eval-fail-retry-max` | `4` | Fail-retry attempts when gate is red |
 | `--eval-polish-retry-max` | `2` | Polish attempts when green but below nice-to-have |
 | `--polish-miss-min` / `--polish-pass-a` | `5` / `0.95` | Polish trigger / nice-to-have Pass A |
+| `--eval-gap-check-max` | `10` | Max LLM gap-checks per recovery attempt (no-verb misses) |
+| `--eval-coverage-max-inserts` | `3` | Max additive coverage-gap recipe inserts per attempt |
 | `--eval-min-bank-total` | `150` | Absolute golden bank floor before binding loop KO |
 | `--eval-min-bank-composition` | `30` | Composition golden floor before binding loop KO |
 | `--continue-on-eval-ko` | off | Keep going after a failed gate |
@@ -363,11 +365,11 @@ Display cardinality (`displayCountFromConfidence`): high confidence **and** a re
 
 **Bank generation** (on each dedup-accepted unique insert, unless `skipEvalBanks`):
 
-1. **Golden** — LLM (`build/golden-query`) writes one NL query for the recipe (primary-verb focused; may include one distinguishing cue when the recipe is richer). Fidelity checks require the primary verb token and reject near-dups / banned templates. Failures fall back to `how do I use git <verb>` and are routed to `golden-report.jsonl` (excluded from the hard gate). Tagged `mutation_kind: "ground"` + `primary_verb`.
-2. **Extended** — LLM (`build/expand-queries`) emits **3** paraphrases of the golden → `extended.jsonl` (same tags).
+1. **Golden (user simulator)** — LLM (`build/golden-query`) writes one NL query from the recipe **title + initial_state + mutation_kind** only (it does **not** see the recipe steps). Ground recipes stay primary-verb focused; composition recipes are goal-shaped (verb optional) with one cue grounded in title/initial_state. Deterministic fidelity still requires a verb token for ground; composition may omit the verb and pass via LLM grader (`build/golden-fidelity`, which **does** see full steps). Failures fall back to `how do I use git <verb>` → `golden-report.jsonl` (excluded from the hard gate). Tagged `mutation_kind`, `primary_verb`, and `source: "llm"` (telemetry-compatible shape).
+2. **Extended** — LLM (`build/expand-queries`) emits **3** paraphrases of the golden → `extended.jsonl` (same tags): (1) frustrated, (2) **no-subcommand goal/situation**, (3) expert short. Variant 2 must not contain the primary verb token.
 3. **Scrambled** — light adversarial noise (`scrambleQuery`) over each extended variant → `scrambled.jsonl` (same tags).
 
-Banks live under `common/data/eval/` (`golden.jsonl`, `extended.jsonl`, `scrambled.jsonl`). The hard gate runs on **golden only** (fallbacks excluded).
+Banks live under `common/data/eval/` (`golden.jsonl`, `extended.jsonl`, `scrambled.jsonl`). The hard gate runs on **golden only** (fallbacks excluded). Extended/scrambled are generated for reporting and future use, not binding.
 
 **Pass / miss (per query):**
 
@@ -391,11 +393,13 @@ After ground eval (and after each loop-cycle eval — §4.2), the orchestrator r
 1. If the dual gate is **red**: up to **4** fail-retry attempts.
 2. If the gate is **green** but polish is warranted (`misses ≥ 5` or Pass A `< 0.95`): up to **2** polish attempts (nice-to-have). Polish never fails a green cycle if it cannot improve.
 3. Each attempt **classifies** non-pass rows in code (`partial_multistep`, `over_ask`, `retrieval_sibling`, `destructive_alt`, `coverage_gap`, `other`).
-4. **Bank-only** fixes for over-ask / partial / destructive: **Pro** writes rewrite context (`build/rewrite-eval-context`); **Flash** rewrites or drops golden rows (`build/rewrite-eval-golden`). Staging recipes/leaves are never deleted.
-5. **Retrieval sibling** misses: existing taxonomy **improve** round (Flash summarize → Pro traps/families → optional reintent → re-eval) — see below. `--skip-eval-improve` skips only this lever. Verb-family proposals are rejected when existing goldens *distinguish* the members (e.g. `diff` vs `difftool`); eval_round families that violate this are pruned at improve time.
-6. **Coverage gap** misses (multi-action query whose full verb set is absent from staging): **additive** composition generate into staging (parent + one step via `evolve-composition`), polish, expand intents, re-eval. Rejected attempts roll back the inserted rows. Never mutates/deletes existing recipes.
-7. Re-eval; **accept** only if Hit@display does not drop, holdout rates do not drop, bank-size floors hold (fail ≥85% of cycle-start goldens; polish ≥95%), and Pass A gains (≥1 absolute pass) or the gate turns green (fail mode). Additive inserts set `additiveOnly` so `commands_changed` does not hard-reject. Otherwise restore golden (and taxonomy / coverage inserts if rejected).
-8. **Early stop** when Pass A and Hit@display are flat after an attempt.
+4. **Gap-check stage** (for `retrieval_sibling` / `other` misses whose query has fewer than 2 git verbs): retrieve top-10 fused hits, LLM (`build/gap-check`) decides whether any candidate recipe accomplishes the goal. Match → keep `retrieval_sibling`; no match → reclassify as `coverage_gap`. Cap: `--eval-gap-check-max` (default 10).
+5. **Bank-only** fixes for over-ask / partial / destructive: **Pro** writes rewrite context (`build/rewrite-eval-context`); **Flash** rewrites or drops golden rows (`build/rewrite-eval-golden`). Staging recipes/leaves are never deleted.
+6. **Retrieval sibling** misses: existing taxonomy **improve** round (Flash summarize → Pro traps/families → optional reintent → re-eval) — see below. `--skip-eval-improve` skips only this lever. Verb-family proposals are rejected when existing goldens *distinguish* the members (e.g. `diff` vs `difftool`); eval_round families that violate this are pruned at improve time.
+7. **Coverage gap** misses: **additive** composition generate into staging. Target verbs come from the query when present; otherwise LLM (`build/goal-to-verbs`) maps the goal to 2–4 known taxonomy verbs. Parent pick → `evolve-composition` → sandbox validate → polish → expand intents → insert. Cap: `--eval-coverage-max-inserts` (default 3). Rejected attempts roll back the inserted rows. Never mutates/deletes existing recipes.
+8. Re-eval; **accept** only if Hit@display does not drop, holdout rates do not drop, bank-size floors hold (fail ≥85% of cycle-start goldens; polish ≥95%), and Pass A gains (≥1 absolute pass) or the gate turns green (fail mode). Additive inserts set `additiveOnly` so `commands_changed` does not hard-reject. Otherwise restore golden (and taxonomy / coverage inserts if rejected).
+9. **Birth-query golden (circularity guard):** only **after** accept, the gap query that triggered a coverage insert becomes that new recipe’s golden (`source: "llm"`, `birth_query: true`) plus extended/scrambled. The attempt’s re-eval never saw these rows; they are first graded on the next iteration.
+10. **Early stop** when Pass A and Hit@display are flat after an attempt.
 
 Artifacts: `local/eval/gate-recovery/<ts>/` (and under run-log phase dirs when enabled).
 
@@ -472,7 +476,7 @@ Persist `mutation_kind` ∈ `{state, flag, composition}` on the child; set `pare
 
 ### 4.2 Evaluation
 
-On each **dedup-accepted** evolve insert: append **golden + extended + scrambled** (same shape as ground), tagged with the child’s `mutation_kind` + `primary_verb`. Golden / extended prompts are **situation-aware** (prompt-only): still primary-verb focused, but nudged to include one distinguishing cue from extra steps, distinctive flags, or non-minimal `initial_state` when present. Intent expansion for `mutation_kind=composition` requires every intent to express the **full multi-step goal**; other recipes stay primary-focused with a soft optional delta (about **1–2 intents per Flash batch** may mention that cue).
+On each **dedup-accepted** evolve insert: append **golden + extended + scrambled** (same shape as ground), tagged with the child’s `mutation_kind` + `primary_verb` + `source: "llm"`. Golden generation is the same **user simulator** as §3.2 (title + initial_state only; composition goal-shaped). Intent expansion for `mutation_kind=composition` requires every intent to express the **full multi-step goal**; other recipes stay primary-focused with a soft optional delta (about **1–2 intents per Flash batch** may mention that cue).
 
 Hard gate still runs on **golden only** (fallbacks excluded). Extended/scrambled are report banks.
 

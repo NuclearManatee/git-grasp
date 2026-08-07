@@ -11,10 +11,19 @@ import {
   EVAL_IMPROVE_POLISH_PASS_A,
   EVAL_GATE_FAIL_BANK_SIZE_FLOOR,
   EVAL_GATE_POLISH_BANK_SIZE_FLOOR,
+  EVAL_GAP_CHECK_MAX,
+  EVAL_COVERAGE_MAX_INSERTS,
 } from '../../db/constants.js';
-import { openDb, listCommands } from '../../db/schema.js';
+import { openDb, listCommands, getCommand } from '../../db/schema.js';
 import { evalGateRecoveryDir } from '../../lib/paths.js';
-import { activeEvaluationBank } from '../evalGate.js';
+import {
+  activeEvaluationBank,
+  appendBank,
+  appendExtendedScrambledBanks,
+  expandQueries,
+  tagGolden,
+  primaryVerbFromRecipe,
+} from '../evalGate.js';
 import { countEvalMisses, collectEvalMisses } from '../evalImprove/collectMisses.js';
 import { runImproveRound } from '../evalImprove/runImproveRound.js';
 import { splitTrainHoldoutByCommandId } from '../evalImprove/splitHoldout.js';
@@ -31,6 +40,7 @@ import {
   generateCoverageGapComposites,
   rollbackCoverageInserts,
 } from './generateCoverage.js';
+import { detectGaps } from './detectGaps.js';
 import {
   snapshotGoldenBank,
   restoreGoldenBank,
@@ -77,6 +87,70 @@ function loadRecipeCoverage(opts) {
 }
 
 /**
+ * After an accepted coverage attempt, mint the gap query as the new recipe's
+ * golden (+ extended/scrambled). Circularity guard: only called after accept,
+ * so this attempt's re-eval never saw these rows.
+ *
+ * @param {object[]} birthQueries from generateCoverageGapComposites
+ * @param {object} opts recovery opts
+ */
+export async function mintBirthQueryGoldens(birthQueries, opts = {}) {
+  const log = opts.log || (() => {});
+  /** @type {object[]} */
+  const minted = [];
+  if (!birthQueries?.length) return minted;
+
+  for (const bq of birthQueries) {
+    if (!bq?.row_id || !bq?.query_text) continue;
+    let commandRow = null;
+    try {
+      if (opts.db) commandRow = getCommand(opts.db, bq.row_id);
+      else if (opts.stagingPath) {
+        const db = openDb(opts.stagingPath);
+        try {
+          commandRow = getCommand(db, bq.row_id);
+        } finally {
+          db.close();
+        }
+      }
+    } catch {
+      commandRow = null;
+    }
+    const recipe = commandRow || {
+      row_id: bq.row_id,
+      mutation_kind: 'composition',
+      command_recipe: { commands: [{ command: bq.primary_verb || 'git status' }] },
+    };
+    const golden = tagGolden(
+      {
+        query_text: bq.query_text,
+        command_id: bq.row_id,
+        kind: 'golden',
+        birth_query: true,
+      },
+      {
+        mutation_kind: 'composition',
+        primary_verb: bq.primary_verb || primaryVerbFromRecipe(recipe),
+        source: 'llm',
+      },
+    );
+    appendBank('golden.jsonl', [golden]);
+    try {
+      const extendedRaw = opts.expandQueries
+        ? await opts.expandQueries(golden, recipe)
+        : await expandQueries(golden, recipe, {
+            llmJsonObject: opts.llmJsonObject,
+          });
+      appendExtendedScrambledBanks(recipe, extendedRaw, bq.row_id);
+    } catch (e) {
+      log(`birth-query expand failed for ${bq.row_id}: ${e?.message || e}`);
+    }
+    minted.push(golden);
+  }
+  return minted;
+}
+
+/**
  * @param {object} opts
  */
 export async function runEvalGateRecovery(opts) {
@@ -98,6 +172,8 @@ export async function runEvalGateRecovery(opts) {
   const failMax = opts.evalFailRetryMax ?? EVAL_GATE_FAIL_RETRY_MAX;
   const polishMax = opts.evalPolishRetryMax ?? EVAL_GATE_POLISH_RETRY_MAX;
   const familyIndex = opts.familyIndex || buildVerbFamilyIndex();
+  const gapCheckMax = opts.evalGapCheckMax ?? EVAL_GAP_CHECK_MAX;
+  const coverageMaxInserts = opts.evalCoverageMaxInserts ?? EVAL_COVERAGE_MAX_INSERTS;
 
   const ts = new Date().toISOString().replace(/[:.]/g, '-');
   const artRoot = opts.artifactsDir || path.join(evalGateRecoveryDir(), ts);
@@ -124,10 +200,30 @@ export async function runEvalGateRecovery(opts) {
       const before = metricsSlice(evalResult);
       const bankSnap = snapshotGoldenBank();
       const recipeVerbCoverage = loadRecipeCoverage(opts);
-      const classified = classifyEvalMisses(evalResult.results || [], {
+      let classified = classifyEvalMisses(evalResult.results || [], {
         familyIndex,
         recipeVerbCoverage,
       });
+
+      // Judge-based gap detection for goal-shaped (no-verb) misses.
+      if (opts.searchFn && gapCheckMax > 0) {
+        try {
+          const gapOut = await detectGaps(classified, {
+            searchFn: opts.searchFn,
+            llmJsonObject: opts.llmJsonObject,
+            maxChecks: gapCheckMax,
+            log,
+          });
+          classified = gapOut.classified;
+          writeJson(attemptDir, 'gap-checks.json', gapOut.checks);
+        } catch (e) {
+          log(`recovery ${mode}#${used} detectGaps failed: ${e?.message || e}`);
+          writeJson(attemptDir, 'gap-checks-error.json', {
+            error: String(e?.message || e),
+          });
+        }
+      }
+
       writeJson(
         attemptDir,
         'classification.json',
@@ -136,6 +232,7 @@ export async function runEvalGateRecovery(opts) {
           command_id: c.command_id,
           query_text: c.query_text,
           primary_verb: c.primary_verb,
+          gap_via: c.gap_via || null,
         })),
       );
 
@@ -167,6 +264,8 @@ export async function runEvalGateRecovery(opts) {
       let mutated = false;
       /** @type {number[]} */
       let coverageInsertedIds = [];
+      /** @type {object[]} */
+      let coverageBirthQueries = [];
       let additiveOnly = false;
 
       if (doBank) {
@@ -212,10 +311,14 @@ export async function runEvalGateRecovery(opts) {
             expandIntents: opts.expandIntents,
             validate: opts.validate,
             log,
+            maxInserts: coverageMaxInserts,
+            taxonomyVerbs: opts.taxonomyVerbs,
+            knownVerbs: opts.taxonomyVerbs,
           });
           writeJson(attemptDir, 'coverage-gen.json', gen);
           if (gen.insertedIds.length) {
             coverageInsertedIds = gen.insertedIds;
+            coverageBirthQueries = gen.birthQueries || [];
             mutated = true;
             additiveOnly = true;
           }
@@ -312,6 +415,11 @@ export async function runEvalGateRecovery(opts) {
       });
 
       if (decision.ok) {
+        // Circularity guard: mint birth-query goldens only after accept.
+        if (coverageBirthQueries.length) {
+          const minted = await mintBirthQueryGoldens(coverageBirthQueries, opts);
+          writeJson(attemptDir, 'birth-goldens.json', minted);
+        }
         evalResult = afterEval;
         bestAccepted = { evalResult, bank: snapshotGoldenBank() };
         attempts.push({ mode, used, accepted: true, reason: decision.reason });

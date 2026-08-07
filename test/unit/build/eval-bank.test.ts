@@ -241,4 +241,58 @@ describe('golden query fidelity', () => {
     );
     expect(g.query_text).toMatch(/how do I use git status/i);
   });
+
+  it('user-simulator golden prompt omits recipe steps and primary command', async () => {
+    /** @type {object[]} */
+    const captured = [];
+    await generateGoldenQuery(
+      {
+        title: 'Update branch without losing uncommitted work',
+        initial_state: 'echo x > f.txt\ngit add f.txt\n',
+        mutation_kind: 'composition',
+        command_recipe: {
+          commands: [
+            { command: 'git stash push -u' },
+            { command: 'git pull --rebase' },
+            { command: 'git stash pop' },
+          ],
+        },
+      },
+      11,
+      {
+        maxAttempts: 1,
+        llmJsonObject: async ({ messages }) => {
+          captured.push(messages);
+          return {
+            query_text: 'update my branch from remote without losing local edits',
+          };
+        },
+      },
+    );
+    expect(captured).toHaveLength(2); // golden + fidelity
+    const userText = (captured[0] || [])
+      .filter((m) => m.role === 'user')
+      .map((m) => m.content)
+      .join('\n');
+    expect(userText).toContain('Title:');
+    expect(userText).toContain('Initial state:');
+    expect(userText).not.toMatch(/Full recipe steps/i);
+    expect(userText).not.toMatch(/Primary command:/i);
+    expect(userText).not.toContain('git stash push');
+  });
+});
+
+describe('tagGolden source', () => {
+  it('defaults source to llm and accepts explicit source', () => {
+    const a = tagGolden(
+      { query_text: 'show status', command_id: 1, kind: 'golden' },
+      { mutation_kind: 'ground', primary_verb: 'git status' },
+    );
+    expect(a.source).toBe('llm');
+    const b = tagGolden(
+      { query_text: 'undo commit', command_id: 2, kind: 'golden' },
+      { mutation_kind: 'ground', primary_verb: 'git reset', source: 'telemetry' },
+    );
+    expect(b.source).toBe('telemetry');
+  });
 });

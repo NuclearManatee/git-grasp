@@ -63,6 +63,20 @@ describe('parseBuildLoopArgs', () => {
     expect(opts.skipEvalImprove).toBe(true);
   });
 
+  it('parses gap-check and coverage insert caps', () => {
+    const { resolved } = parseBuildLoopArgs(
+      ['--eval-gap-check-max=7', '--eval-coverage-max-inserts=2'],
+      { hasStaging: true },
+    );
+    expect(resolved.evalGapCheckMax).toBe(7);
+    expect(resolved.evalCoverageMaxInserts).toBe(2);
+    const opts = buildLoopOptsFromResolved(resolved);
+    expect(opts.evalGapCheckMax).toBe(7);
+    expect(opts.evalCoverageMaxInserts).toBe(2);
+    expect(BUILD_LOOP_HELP).toContain('--eval-gap-check-max');
+    expect(BUILD_LOOP_HELP).toContain('--eval-coverage-max-inserts');
+  });
+
   it('auto-fresh when staging missing unless --resume', () => {
     expect(parseBuildLoopArgs([], { hasStaging: false }).resolved.fresh).toBe(true);
     expect(parseBuildLoopArgs(['--resume'], { hasStaging: false }).resolved.fresh).toBe(

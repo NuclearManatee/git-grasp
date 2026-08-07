@@ -306,4 +306,164 @@ describe('eval gate recovery integration', () => {
     });
     expect(snapshotGoldenBank()).toEqual(before);
   });
+
+  it('no-verb miss → gap-check → coverage insert → accept mints birth golden', async () => {
+    const { openDb, insertCommand, listCommands } = await import(
+      '../../common/src/db/schema.js'
+    );
+    const { loadBank } = await import('../../common/src/build/evalGate.js');
+    const { EMBEDDING_DIM } = await import('../../common/src/db/constants.js');
+    const { existsSync, readFileSync } = await import('node:fs');
+
+    const prevEval = process.env.GIT_GRASP_EVAL_DIR;
+    const evalDir = mkdtempSync(path.join(tmpdir(), 'rec-birth-eval-'));
+    process.env.GIT_GRASP_EVAL_DIR = evalDir;
+
+    try {
+      restoreGoldenBank([
+        {
+          command_id: 10,
+          query_text: 'update branch without losing edits',
+          primary_verb: 'git stash',
+          mutation_kind: 'composition',
+          source: 'llm',
+        },
+      ]);
+
+      const dbPath = path.join(dir, 'staging.db');
+      const db = openDb(dbPath);
+      insertCommand(db, {
+        initial_state: 'git commit --allow-empty -m init\n',
+        command_recipe: { commands: [{ command: 'git stash' }] },
+        initial_state_physical_hash: 'i1',
+        final_state_physical_hash: 'f1',
+        risk: 0.1,
+        mutation_kind: null,
+        title: 'Stash changes',
+      });
+
+      const red = {
+        ok: false,
+        okHit: false,
+        okPass: false,
+        passed: 0,
+        hitPassed: 0,
+        total: 1,
+        rate: 0,
+        hitRate: 0,
+        results: [
+          {
+            pass: false,
+            via: 'miss',
+            query: {
+              command_id: 10,
+              query_text: 'update branch without losing edits',
+              primary_verb: 'git stash',
+              mutation_kind: 'composition',
+            },
+            displayed: [{ example: 'git stash', snippet: 'git stash' }],
+          },
+        ],
+      };
+
+      const green = {
+        ...red,
+        ok: true,
+        okHit: true,
+        okPass: true,
+        passed: 1,
+        hitPassed: 1,
+        rate: 1,
+        hitRate: 1,
+        results: [{ ...red.results[0], pass: true, via: 'hit@display' }],
+      };
+
+      const childRecipe = {
+        initial_state:
+          'git commit --allow-empty -m init\necho x > f.txt\ngit add f.txt\n',
+        command_recipe: {
+          commands: [{ command: 'git stash' }, { command: 'git pull' }],
+        },
+        risk: 0.2,
+        title: 'Stash then pull latest',
+      };
+
+      const bankLenBefore = snapshotGoldenBank().length;
+      const cmdsBefore = listCommands(db).length;
+
+      const out = await runEvalGateRecovery({
+        evalResult: red,
+        evalFailRetryMax: 1,
+        evalPolishRetryMax: 0,
+        skipEvalImprove: true,
+        evalGapCheckMax: 5,
+        evalCoverageMaxInserts: 1,
+        artifactsDir: path.join(dir, 'arts-birth'),
+        stagingPath: dbPath,
+        db,
+        taxonomyVerbs: ['git stash', 'git pull', 'git status'],
+        embedder: { embed: async () => new Float32Array(EMBEDDING_DIM) },
+        expandIntents: async () => [],
+        validate: async (generated) => ({
+          ok: true,
+          ...generated,
+          initial_state_physical_hash: 'i2',
+          final_state_physical_hash: 'f2',
+        }),
+        expandQueries: async () => [
+          { query_text: 'frustrated update keep edits' },
+          { query_text: 'keep edits while updating branch' },
+          { query_text: 'stash pull' },
+        ],
+        searchFn: async () => ({
+          results: [{ command_id: 1, title: 'Stash', snippet: 'git stash' }],
+        }),
+        reloadBank: () =>
+          snapshotGoldenBank().map((r) => ({ ...r, kind: 'golden' })),
+        runBankEval: async () => green,
+        llmJsonObject: async ({ messages }) => {
+          const sys =
+            (messages || []).find((m) => m.role === 'system')?.content || '';
+          if (/match_command_id|accomplishes what the user/i.test(sys)) {
+            return { match_command_id: null };
+          }
+          if (/Translate a user's Git goal/i.test(sys)) {
+            return { verbs: ['git stash', 'git pull'] };
+          }
+          if (/COMPOSITION mutation/i.test(sys)) {
+            return childRecipe;
+          }
+          throw new Error('skip polish');
+        },
+      });
+
+      expect(out.attempts.some((a) => a.accepted)).toBe(true);
+      expect(listCommands(db).length).toBe(cmdsBefore + 1);
+
+      const birthPath = path.join(dir, 'arts-birth', 'fail-1', 'birth-goldens.json');
+      expect(existsSync(birthPath)).toBe(true);
+      const birth = JSON.parse(readFileSync(birthPath, 'utf8'));
+      expect(birth[0].birth_query).toBe(true);
+      expect(birth[0].query_text).toMatch(/without losing/i);
+
+      // Birth golden appended after accept (bank grew).
+      expect(snapshotGoldenBank().length).toBeGreaterThan(bankLenBefore);
+      expect(
+        loadBank('golden.jsonl').some(
+          (r) => r.birth_query && /without losing/i.test(r.query_text),
+        ),
+      ).toBe(true);
+      expect(loadBank('extended.jsonl').length).toBeGreaterThanOrEqual(3);
+
+      db.close();
+    } finally {
+      if (prevEval === undefined) delete process.env.GIT_GRASP_EVAL_DIR;
+      else process.env.GIT_GRASP_EVAL_DIR = prevEval;
+      try {
+        rmSync(evalDir, { recursive: true, force: true });
+      } catch {
+        /* */
+      }
+    }
+  });
 });
