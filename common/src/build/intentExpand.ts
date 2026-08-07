@@ -37,6 +37,7 @@ import {
   dedupeBatchByCosine,
   findForeignCollision,
   findWithinNearDup,
+  normalizeExcludeIds,
 } from './intentSimilarity.js';
 import { mockEmbed } from '../search/embed.js';
 
@@ -86,6 +87,7 @@ export function loadTaxonomy(opts = {}) {
  *   matrix?: object,
  *   matrixPath?: string,
  *   selfCommandId?: number | null,
+ *   excludeCommandIds?: Set<number> | number[] | null,
  *   batchSize?: number,
  *   cap?: number,
  *   zeroStreakMax?: number,
@@ -108,6 +110,10 @@ export async function expandIntentsForRecipe(recipe, opts = {}) {
   const foreignCosine = opts.foreignCosine ?? INTENT_FOREIGN_COSINE;
   const rewriteMax = opts.rewriteMax ?? INTENT_FOREIGN_REWRITE_MAX;
   const selfCommandId = opts.selfCommandId ?? null;
+  const excludeIds = normalizeExcludeIds(opts.excludeCommandIds);
+  if (selfCommandId != null && Number.isFinite(Number(selfCommandId))) {
+    excludeIds.add(Number(selfCommandId));
+  }
 
   const { matrixText } = loadTaxonomy({
     matrix: opts.matrix,
@@ -195,7 +201,7 @@ Soft delta (optional): when the recipe listing or initial_state shows extra step
         let rewrites = 0;
         while (true) {
           const hits = await knnForeign(accepted.embedding);
-          const foreign = findForeignCollision(hits, selfCommandId, foreignCosine);
+          const foreign = findForeignCollision(hits, excludeIds, foreignCosine);
           if (!foreign.collision) break;
           if (rewrites >= rewriteMax) {
             accepted = null;
@@ -296,6 +302,7 @@ async function rewriteIntentContrast(args) {
  *   existingEmbeddings: (Float32Array | number[])[],
  *   knnForeign?: KnnForeign | null,
  *   selfCommandId?: number | null,
+ *   excludeCommandIds?: Set<number> | number[] | null,
  *   withinCosine?: number,
  *   foreignCosine?: number,
  * }} args
@@ -314,8 +321,12 @@ export async function shouldPersistIntent(args) {
   if (within.dup) return { ok: false, reason: 'within_near_dup' };
 
   if (args.knnForeign) {
+    const excludeIds = normalizeExcludeIds(args.excludeCommandIds);
+    if (args.selfCommandId != null && Number.isFinite(Number(args.selfCommandId))) {
+      excludeIds.add(Number(args.selfCommandId));
+    }
     const hits = await args.knnForeign(args.embedding);
-    const foreign = findForeignCollision(hits, args.selfCommandId ?? null, foreignCosine);
+    const foreign = findForeignCollision(hits, excludeIds, foreignCosine);
     if (foreign.collision) return { ok: false, reason: 'foreign_collision' };
   }
   return { ok: true };

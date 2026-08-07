@@ -72,6 +72,27 @@ describe('intentSimilarity', () => {
     expect(r.neighbor?.intent_text).toBe('foreign');
   });
 
+  it('findForeignCollision ignores excludeCommandIds set (parent lineage)', () => {
+    const excluded = new Set([1, 16]);
+    const ignored = findForeignCollision(
+      [{ command_id: 16, intent_text: 'parent intent', similarity: 0.99 }],
+      excluded,
+      0.94,
+    );
+    expect(ignored.collision).toBe(false);
+
+    const other = findForeignCollision(
+      [
+        { command_id: 16, intent_text: 'parent', similarity: 0.99 },
+        { command_id: 99, intent_text: 'unrelated', similarity: 0.95 },
+      ],
+      excluded,
+      0.94,
+    );
+    expect(other.collision).toBe(true);
+    expect(other.neighbor?.command_id).toBe(99);
+  });
+
   it('dedupeBatchByCosine keeps first of near-dup cluster', () => {
     const a = vec(1, 0);
     const near = vec(0.95, Math.sqrt(1 - 0.95 * 0.95));

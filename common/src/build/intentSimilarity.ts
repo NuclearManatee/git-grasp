@@ -51,17 +51,50 @@ export function dedupeBatchByCosine(items, threshold = INTENT_WITHIN_COSINE) {
 }
 
 /**
+ * Normalize a lone id, array, or Set into an exclusion Set.
+ * @param {number | null | undefined | Set<number> | number[]} value
+ * @returns {Set<number>}
+ */
+export function normalizeExcludeIds(value) {
+  /** @type {Set<number>} */
+  const out = new Set();
+  if (value == null) return out;
+  if (value instanceof Set) {
+    for (const v of value) {
+      const n = Number(v);
+      if (Number.isFinite(n)) out.add(n);
+    }
+    return out;
+  }
+  if (Array.isArray(value)) {
+    for (const v of value) {
+      const n = Number(v);
+      if (Number.isFinite(n)) out.add(n);
+    }
+    return out;
+  }
+  const n = Number(value);
+  if (Number.isFinite(n)) out.add(n);
+  return out;
+}
+
+/**
  * Classify a neighbor hit as a foreign collision (other command_id).
- * Same command_id or missing id is ignored.
+ * Same command_id / ids in the exclude set are ignored.
  * @param {{ command_id?: number | null, intent_text?: string, similarity?: number, _forcedScore?: number, score?: number }} hit
- * @param {number | null | undefined} selfCommandId
+ * @param {number | null | undefined | Set<number> | number[]} selfCommandIdOrExclude
  * @param {number} [threshold]
  * @returns {{ collision: boolean, neighbor: ForeignNeighbor | null }}
  */
-export function classifyForeignHit(hit, selfCommandId, threshold = INTENT_FOREIGN_COSINE) {
+export function classifyForeignHit(
+  hit,
+  selfCommandIdOrExclude,
+  threshold = INTENT_FOREIGN_COSINE,
+) {
   if (!hit) return { collision: false, neighbor: null };
   const cid = hit.command_id == null ? null : Number(hit.command_id);
-  if (selfCommandId != null && cid === Number(selfCommandId)) {
+  const excluded = normalizeExcludeIds(selfCommandIdOrExclude);
+  if (cid != null && Number.isFinite(cid) && excluded.has(cid)) {
     return { collision: false, neighbor: null };
   }
   if (cid == null || !Number.isFinite(cid)) {
@@ -89,12 +122,16 @@ export function classifyForeignHit(hit, selfCommandId, threshold = INTENT_FOREIG
 /**
  * Scan knnForeign results for first foreign collision.
  * @param {ForeignNeighbor[] | object[]} hits
- * @param {number | null | undefined} selfCommandId
+ * @param {number | null | undefined | Set<number> | number[]} selfCommandIdOrExclude
  * @param {number} [threshold]
  */
-export function findForeignCollision(hits, selfCommandId, threshold = INTENT_FOREIGN_COSINE) {
+export function findForeignCollision(
+  hits,
+  selfCommandIdOrExclude,
+  threshold = INTENT_FOREIGN_COSINE,
+) {
   for (const hit of hits || []) {
-    const r = classifyForeignHit(hit, selfCommandId, threshold);
+    const r = classifyForeignHit(hit, selfCommandIdOrExclude, threshold);
     if (r.collision) return r;
   }
   return { collision: false, neighbor: null };

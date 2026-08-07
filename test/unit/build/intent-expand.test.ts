@@ -50,6 +50,8 @@ describe('expand-intents / rewrite prompts', () => {
       primary: 'git status',
       listing: '- git status',
       initial_state: 'git init',
+      composition_guidance:
+        'Soft delta (optional): when the recipe listing shows extra steps, about 1–2 intents may lightly mention that cue.',
     });
     expect(messages[0].content).toContain('EMPTY CELLS');
     expect(messages[0].content).toContain('Soft delta');
@@ -264,6 +266,32 @@ describe('expandIntentsForRecipe iterative loop', () => {
     expect(intents).toHaveLength(0);
   });
 
+  it('keeps intents colliding with excluded parent command_id', async () => {
+    const intents = await expandIntentsForRecipe(RECIPE, {
+      matrix: minimalMatrix(),
+      selfCommandId: 89,
+      excludeCommandIds: new Set([16]),
+      rewriteMax: 0,
+      embedder: { embed: async () => unitVec(2) },
+      knnForeign: async () => [
+        { command_id: 16, intent_text: 'parent intent', similarity: 0.99 },
+      ],
+      llmJsonObject: async () => ({
+        intents: [
+          {
+            skill_level: 'beginner',
+            intent_category: 'goal',
+            intent_text: 'check the working tree status now',
+          },
+        ],
+        skips: allCells()
+          .filter((c) => !(c.skill_level === 'beginner' && c.intent_category === 'goal'))
+          .map((c) => ({ ...c, reason: 'skip' })),
+      }),
+    });
+    expect(intents).toHaveLength(1);
+  });
+
   it('works without knnForeign (within-only)', async () => {
     const intents = await expandIntentsForRecipe(RECIPE, {
       matrix: minimalMatrix(),
@@ -333,5 +361,30 @@ describe('shouldPersistIntent', () => {
       ],
     });
     expect(ok.ok).toBe(true);
+  });
+
+  it('honors excludeCommandIds for parent lineage', async () => {
+    const dropped = await shouldPersistIntent({
+      intent_text: 'child',
+      embedding: unitVec(5),
+      existingEmbeddings: [],
+      selfCommandId: 89,
+      knnForeign: async () => [
+        { command_id: 16, intent_text: 'parent', similarity: 0.99 },
+      ],
+    });
+    expect(dropped.ok).toBe(false);
+
+    const kept = await shouldPersistIntent({
+      intent_text: 'child',
+      embedding: unitVec(5),
+      existingEmbeddings: [],
+      selfCommandId: 89,
+      excludeCommandIds: new Set([16]),
+      knnForeign: async () => [
+        { command_id: 16, intent_text: 'parent', similarity: 0.99 },
+      ],
+    });
+    expect(kept.ok).toBe(true);
   });
 });

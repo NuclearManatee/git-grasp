@@ -337,6 +337,7 @@ export async function generateCoverageGapComposites(coverageGapMisses, opts) {
                 llmJsonObject: opts.llmJsonObject,
                 embedder: opts.embedder,
                 knnForeign: null,
+                excludeCommandIds: new Set([Number(parent.row_id)]),
               },
             );
 
