@@ -325,25 +325,28 @@ export function primaryVerbFromRecipe(commandRow) {
 }
 
 /**
- * Tag a golden (or other bank row) with mutation_kind / primary_verb.
+ * Tag a golden (or other bank row) with mutation_kind / primary_verb / source.
  * @param {object} query
- * @param {{ mutation_kind?: string|null, primary_verb?: string }} meta
+ * @param {{ mutation_kind?: string|null, primary_verb?: string, source?: string }} meta
  */
 export function tagGolden(query, meta = {}) {
   const out = { ...query };
   if (meta.mutation_kind !== undefined) out.mutation_kind = meta.mutation_kind;
   if (meta.primary_verb !== undefined) out.primary_verb = meta.primary_verb;
+  if (meta.source !== undefined) out.source = meta.source;
+  else if (out.source == null) out.source = 'llm';
   return out;
 }
 
 /**
- * Append one evolve golden (tagged with mutation_kind + primary_verb).
+ * Append one evolve golden (tagged with mutation_kind + primary_verb + source).
  * @returns {object} tagged golden row
  */
 export function appendEvolveGolden(commandRow, goldenQuery) {
   const tagged = tagGolden(goldenQuery, {
     mutation_kind: commandRow.mutation_kind ?? null,
     primary_verb: primaryVerbFromRecipe(commandRow),
+    source: goldenQuery?.source || 'llm',
   });
   appendBank('golden.jsonl', [tagged]);
   return tagged;
@@ -360,6 +363,7 @@ export function appendExtendedScrambledBanks(commandRow, extendedRows, commandId
   const meta = {
     mutation_kind: commandRow.mutation_kind ?? null,
     primary_verb: primaryVerbFromRecipe(commandRow),
+    source: 'llm',
   };
   const extended = (extendedRows || []).map((e) =>
     tagGolden(
@@ -424,10 +428,10 @@ export async function generateGoldenQuery(commandRow, commandId, opts = {}) {
       ? [primaryVerb]
       : [];
 
+  // User-simulator: prompt sees title + initial_state only (not recipe steps).
+  // Fidelity grader below still gets full listing.
   const { messages } = renderPrompt('build/golden-query', {
     primary_verb: primaryVerb || 'unknown',
-    primary,
-    listing: listing || '(none)',
     mutation_kind: mutationKind,
     initial_state: initialState,
     title,

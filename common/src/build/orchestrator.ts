@@ -611,6 +611,7 @@ export async function runGroundStep(opts = {}) {
               const golden = tagGolden(goldenRaw, {
                 mutation_kind: 'ground',
                 primary_verb: primaryVerbFromRecipe(groundRow),
+                source: 'llm',
               });
               appendBank('golden.jsonl', [golden]);
               const extendedRaw = opts.expandQueries
