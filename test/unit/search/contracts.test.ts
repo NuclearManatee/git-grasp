@@ -12,9 +12,9 @@ import { SKILL_LEVELS } from '../../../common/src/lib/skills.ts';
 
 describe('search hybrid contracts', () => {
   it('exports SEARCH_ALGORITHM_VERSION and recallK=100', () => {
-    expect(SEARCH_ALGORITHM_VERSION).toBe(2);
+    expect(SEARCH_ALGORITHM_VERSION).toBe(3);
     expect(DEFAULT_RECALL_K).toBe(100);
-    expect(SCHEMA_VERSION).toBe(8);
+    expect(SCHEMA_VERSION).toBe(9);
   });
 
   it('parses hybrid thresholds shape exactly', () => {

@@ -1,531 +1,62 @@
-# Pipeline
+# Pipeline (index)
 
-How git-grasp builds its offline Git catalog: validated **recipes** (what to run) plus **intents** (how people ask for them). Runtime CLI/web never run this path; they only search the shipped database.
+How git-grasp builds and ships its offline Git recipe catalog.
 
-Catalog philosophy ([CLAUDE.md](../CLAUDE.md)): models derive catalog **content** from sources. Code may constrain (Zod, caps, sandbox rules). Checked-in encyclopedias of recipes or queries are not the normal path—LLM artifacts should be regenerable.
+**Philosophy** ([CLAUDE.md](../CLAUDE.md)): models derive catalog **content** from `git help` + an LLM goal taxonomy. Code constrains (Zod, caps, sandbox). Hand-authored goldens are not the normal path.
 
-This document follows four sections:
+Schema **v9**: `recipes` + `vec_recipes` (description embeddings) + `recipes_fts`.
 
-1. **Resources** — inventory of knowledge inputs (not a pipeline step).
-2. **Prerequisites** — frozen language of the system, plus intermediate pipelines that produce inputs for ground.
-3. **Ground** — first construction pass and its evaluation gate.
-4. **Iterate** — evolve loop construction and its evaluation gate.
-
-Schema for staging and product is **v7** (`commands` + `intents`, with `mutation_kind` on recipes). Caps: ≤ 25 000 commands, ≤ 250 000 intents.
-
-```text
-Resources (docs, git -h, taxonomies, …)
-        → Prerequisites (scrape → matrix → ingest → prepare)
-        → Ground (generate → validate → intents → dedup + eval gate)
-        → Iterate (mutate → same pipeline + eval gate)
-        → promote / seed product DB
+```mermaid
+flowchart TB
+  subgraph prepare [PREPARE]
+    scrape[git help scrape]
+    tax[goal taxonomy]
+    scrape --> tax
+  end
+  subgraph generate [GENERATE]
+    gen[generate]
+    val[validate]
+    sat[saturate]
+    gen --> val --> sat
+  end
+  subgraph expand [EXPAND]
+    hold[held-out Hit@10]
+    triage[triage 1/2/3]
+    reg[regression]
+    hold --> triage --> hold
+    hold --> reg
+  end
+  prepare --> generate --> expand --> ship[SHIP]
+  subgraph search [SEARCH]
+    cli[CLI]
+    web[WEB]
+  end
+  ship --> search
+  search --> observe[OBSERVE]
+  observe -.-> evolve[EVOLVE]
+  evolve -.-> expand
 ```
 
-Maintainer entrypoints live under `apps/pipeline` (root `bun run …` wrappers):
+## Stage docs
 
+| Stage | Doc | Script |
+|-------|-----|--------|
+| PREPARE | [prepare.md](prepare.md) | `prepare:scrape`, `prepare:goals` |
+| GENERATE | [generate.md](generate.md) | `generate` |
+| EXPAND | [expand.md](expand.md) | `expand` |
+| SHIP | [ship.md](ship.md) | `ship` |
+| SEARCH | [search.md](search.md) | `cli` / web |
+| OBSERVE | [observe.md](observe.md) | `telemetry` |
+| EVOLVE | [evolve.md](evolve.md) | *(planned)* |
 
-| Script                                     | Phase                         |
-| ------------------------------------------ | ----------------------------- |
-| `bun run taxonomy:scrape`                  | Prerequisites                 |
-| `bun run taxonomy:matrix`                  | Prerequisites (intent matrix) |
-| `bun run ingest-sources` / `download-docs` | Prerequisites                 |
-| `bun run build:prepare`                    | Prerequisites (intermediate)  |
-| `bun run build:ground`                     | Ground                        |
-| `bun run build:loop`                       | Iterate                       |
-| `bun run seed` / `eval` / `eval:loop`      | After catalog promote         |
+Apps layout: `apps/pipeline/src/{prepare,generate,expand,ship,eval}/`. Shared libs still live under `common/src/build/` with stage facades in `common/src/{prepare,…}/`.
 
+## Recipe model (shared)
 
-**`build:loop` tunables** (`bun apps/pipeline/src/build-loop.ts --help`):
+Each recipe: `id`, `commands[]`, `title`, `description`, `tags`, `taxonomy_leaf`, `paraphrases[]`, provenance, validation metadata.
 
-| Flag | Default | Meaning |
-| ---- | ------- | ------- |
-| `--fresh` / `--resume` | auto | Wipe staging+eval then ground+loop, or resume loop only |
-| `--min-pass-rate` | `0.9` | Pass A hard-gate floor |
-| `--min-hit-at-display` | `0.7` | Hit@display hard-gate floor |
-| `--judge-utility` | `0.8` | Per-query judge pass (`utility >=`) |
-| `--max-iterations` | `100` / staging meta | Evolve cycle cap (hard overall) |
-| `--post-floor-iterations` | unset (disabled) | After bank floors met, run N more binding-phase iterations then stop (whichever of this or `--max-iterations` hits first) |
-| `--exit-zero-streak` | `3` | Stop after N zero-unique cycles |
-| `--batch-size` / `--concurrency` | `256` / `24` | Evolve batch + job concurrency |
-| `--eval-concurrency` / `--eval-search-pool` | `64` / `8` | Eval parallelism |
-| `--skip-eval-recovery` | off | Disable bank recovery + improve after eval |
-| `--skip-eval-improve` | off | Allow bank rewrite but skip taxonomy improve |
-| `--eval-fail-retry-max` | `4` | Fail-retry attempts when gate is red |
-| `--eval-polish-retry-max` | `2` | Polish attempts when green but below nice-to-have |
-| `--polish-miss-min` / `--polish-pass-a` | `5` / `0.95` | Polish trigger / nice-to-have Pass A |
-| `--eval-gap-check-max` | `10` | Max LLM gap-checks per recovery attempt (no-verb misses) |
-| `--eval-coverage-max-inserts` | `3` | Max additive coverage-gap recipe inserts per attempt |
-| `--eval-min-bank-total` | `150` | Absolute golden bank floor before binding loop KO |
-| `--eval-min-bank-composition` | `30` | Composition golden floor before binding loop KO |
-| `--continue-on-eval-ko` | off | Keep going after a failed gate |
-| `--run-dir` / `--no-run-log` | auto / off | Structured run artifacts |
+**Embed `description` (+ paraphrases after triage aliases).** Search never embeds raw commands.
 
-**Run artifacts** (default on): `local/build-pipeline/run_<ISO-ts>/`
+## Parallelism
 
-```text
-config.json          # resolved CLI + paths
-console.log          # teed build log lines
-events.jsonl         # chronological structured events
-summary.json         # final ok/phase/timing + phase index
-phases/ground/       # eval-report.json, eval-results.json, improve/
-phases/loop/iter-NNN/
-latest.json          # pointer to most recent run dir
-```
-
-Example:
-
-```bash
-bun apps/pipeline/src/build-loop.ts --fresh --max-iterations=200 --min-pass-rate=0.85
-```
-
-
----
-
-
-
-## 1. Resources
-
-Not a step. This is the **inventory of knowledge** the pipeline may read. Everything below is input material or frozen vocabulary; none of it is a shipped recipe by itself.
-
-### 1.1 Frozen taxonomies (system language)
-
-These define *how* the catalog talks about users and commands. They are infrastructure, not catalog content. **How they are created** is documented in §2.0.
-
-
-| Resource               | Path                                 | What it is                                                 | Source                                |
-| ---------------------- | ------------------------------------ | ---------------------------------------------------------- | ------------------------------------- |
-| Intent matrix          | `common/taxonomy/intent_matrix.json` | 4×4 skill × category cells (description + dos/donts)       | LLM builder (`taxonomy:matrix`)       |
-| Skill / category enums | `common/src/lib/skills.ts` + Zod     | Closed label ids for intent rows                           | Architectural Decision (Human Driven) |
-| Command list           | `common/taxonomy/git_commands.json`  | Which Git verbs exist (first three `git help -a` sections) | Scrape                                |
-
-
-
-
-### 1.2 External documentation
-
-Authoritative prose the prepare step chunks and routes onto commands.
-
-
-| Kind                   | Typical origin                      | Cache / ship location                                                    |
-| ---------------------- | ----------------------------------- | ------------------------------------------------------------------------ |
-| Pro Git (AsciiDoc)     | Upstream book                       | Maintainer cache under `local/cache/sources/` (or legacy `data/cache/…`) |
-| tldr pages             | Upstream tldr                       | Same sources cache                                                       |
-| Cheat sheets / mirrors | Fetched HTML or mirrors             | Sources cache + optional `common/data/catalog/docs`                      |
-| Man / help text        | Live `git <cmd> -h` at prepare time | Embedded as default blocks per verb (not a separate file tree)           |
-
-
-Upstream fetches are **gitignored** scratch. Shipped doc mirrors under `common/data/catalog/docs` are improve-gate artifacts when promoted.
-
-### 1.3 What resources are *not*
-
-- Not hand-written goldens for every goal.
-- Not a curated per-verb recipe encyclopedia maintained by humans.
-- Not role/pin encyclopedias (`GOAL_ROLES`, canonical pins)—removed; coverage comes from scrape + ground/iterate.
-- Not runtime search indexes (`vec_intents`, FTS)—those are **outputs** after ground/iterate/promote/seed.
-
----
-
-
-
-## 2. Prerequisites
-
-Everything that must exist **before** ground can generate vanilla recipes. Split into: how the system language is created, one-shot taxonomy jobs, source ingest, and **prepare** (the main intermediate pipeline).
-
-**Order:**
-
-```text
-create / freeze skill×category enums   (code)
-    → taxonomy:scrape                  (git_commands.json)
-    → taxonomy:matrix                  (intent_matrix.json; Flash draft, Pro judge)
-    → ingest / download-docs
-    → build:prepare                    → semantic_blocks.json (+ unrouted report)
-    → ready for ground
-```
-
-Prepare does **not** re-scrape or rebuild the matrix. It only reads checked-in taxonomy files and cached sources.
-
----
-
-
-
-### 2.0 How the language of the system is created
-
-
-| Artifact             | Path / symbol                                      | How it is created                                                                              | Regenerable?                                    |
-| -------------------- | -------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ----------------------------------------------- |
-| Intent matrix        | `common/taxonomy/intent_matrix.json`               | **LLM builder**: Flash drafts/rewrites cells; Pro blind-judges samples; all 16 cells must pass | Yes — `bun run taxonomy:matrix`                 |
-| Skill / category ids | `SKILL_LEVELS` / `INTENT_CATEGORIES` in code + Zod | Frozen closed vocabularies (matrix axes)                                                       | Only when the product’s label space must change |
-| Command list         | `common/taxonomy/git_commands.json`                | **Programmatic scrape** (`git help -a`)                                                        | Yes — when the Git CLI verb list changes        |
-
-
-**Do not** hand-curate matrix cells as a living encyclopedia. Prefer the machine-checkable builder (draft → sample via real expand path → blind judge → rewrite). Code may constrain (Zod, exactly 16 cells); humans approve freezes, they do not invent ad-hoc labels per recipe.
-
-```text
-Product goals + Git UX context
-        → freeze skill × category enums in code
-        → taxonomy:matrix (Flash + Pro judge) → intent_matrix.json
-
-Installed `git` binary
-        → taxonomy:scrape → git_commands.json
-```
-
-
-
-#### Intent matrix (LLM builder)
-
-**Output:** `common/taxonomy/intent_matrix.json` — 16 cells, each `{ skill_level, intent_category, description, dos[], donts[] }`.
-
-**Creation process (**`bun run taxonomy:matrix`**):**
-
-1. **Draft** (DeepSeek Flash): one focused call per cell using frozen axis context.
-2. **Sample**: generate intents via `taxonomy/sample-cell-intents` + shared `filterIntentsForRecipe` on a minimal recipe fixture (not the ground `build/expand-intents` prompt).
-3. **Judge** (DeepSeek **Pro only**): blind eval — judge sees guidance + sample texts, **never** skill/category labels. Rubrics from dos/donts + usefulness (diversity, jargon leaks). Success = **all 16 cells pass**.
-4. **Rewrite** (Flash): failing cells only; do not mirror judge wording (anti-overfit).
-5. Stop after **10 consecutive failed rounds**, or write the matrix on first all-pass.
-
-Reports land under `local/eval/intent-matrix/` (gitignored). Ground and build/eval loops stay on **Flash** (default model); only the matrix judge uses Pro.
-
-
-| Skill          | Plain meaning                                               |
-| -------------- | ----------------------------------------------------------- |
-| `nontechnical` | Little Git vocabulary; symptoms and panic in plain language |
-| `beginner`     | Knows basic nouns; asks how-to; may misuse commands         |
-| `intermediate` | Daily porcelain; remotes and conflicts in practice          |
-| `expert`       | Mechanics, flags, shorthand; high-signal phrasing           |
-
-
-
-| Category         | Plain meaning                             |
-| ---------------- | ----------------------------------------- |
-| `goal`           | Desired outcome (“create a new branch”)   |
-| `error_message`  | Echo or paraphrase of a Git error/warning |
-| `symptom`        | Broken state without naming the fix       |
-| `conversational` | Chatty / incomplete phrasing              |
-
-
-Together these labels are the **label space** for `intents` rows. Expand-intents injects the full matrix (description + dos/donts per cell).
-
-#### Command taxonomy (scrape — not LLM)
-
-See §2.3. This is the only prerequisite whose **source of truth is the installed Git binary**, not an LLM.
-
----
-
-
-
-### 2.1 Intent matrix (checked-in output)
-
-See §2.0. Checked-in file: `common/taxonomy/intent_matrix.json`. Rebuild with `bun run taxonomy:matrix`.
-
----
-
-
-
-### 2.3 Command taxonomy (`taxonomy:scrape`)
-
-```bash
-bun run taxonomy:scrape
-```
-
-**Creation process (programmatic):**
-
-1. Spawn `git help -a` on the maintainer machine (`apps/pipeline` → `taxonomyScrape` / `gitExec`).
-2. Parse sections; keep the **first three**: Main Porcelain Commands, Ancillary Commands / Manipulators, Ancillary Commands / Interrogators.
-3. Probe each help name for local availability:
-   - `git <name> -h` usable → `command: "git <name>"`, `runner: "git"`, `available: true`
-   - else standalone on PATH under a trusted Git prefix (`gitk`, `scalar`) → `runner: "standalone"` (rejects Windows `System32\CiTool.exe` false positives)
-   - else → `available: false` (kept for reporting; prepare/ground skip these)
-4. Build a versioned JSON document (`version: 2`, name, section, summary, `command`, `available`, `runner`, `scraped_at`, `availability` stats).
-5. Write `common/taxonomy/git_commands.json`. Fail closed if section count ≠ 3 or the command count looks suspiciously low. Scrape CLI prints available / unavailable / standalone counts.
-
-**Why it exists:** every later stage needs a closed list of “what is a real Git verb here,” plus whether it is runnable on the maintainer machine. Prepare anchors use the normalized `command` (may be standalone) plus the help summary. Ground skips `available: false` and unsigned `verify-*` (no GPG fixture in v1) with structured reasons (`unavailable`, `verify_unsigned`)—not `regen_exhausted`.
-
-**When to re-run:** only when the Git CLI command list or install capabilities meaningfully change. Not part of every prepare. Never hand-edit the JSON as a catalog of recipes—re-scrape instead.
-
----
-
-
-
-### 2.5 Doc sources (ingest)
-
-```bash
-bun run ingest-sources
-bun run download-docs
-```
-
-**What they do:** fetch or refresh Pro Git, tldr, cheat-sheet, and related mirrors into the maintainer sources cache; optionally refresh the catalog docs mirror.
-
-**Why before prepare:** prepare only chunks and routes what is already on disk. No network inventiveness inside the chunker.
-
-Scratch lives under `local/cache/sources/` (gitignored). Promoted mirrors, when checked in, follow improve-branch discipline.
-
----
-
-
-
-### 2.6 Prepare — intermediate pipeline (`build:prepare`)
-
-```bash
-bun run build:prepare
-```
-
-**Role:** turn resources + taxonomy into **one documentation bundle per Git command**, ready for ground. Outputs are cached under the prepare cache and are **not** wiped by ground/loop cache clears.
-
-
-| Output                  | Meaning                                                                                     |
-| ----------------------- | ------------------------------------------------------------------------------------------- |
-| `semantic_blocks.json`  | For every **groundable** taxonomy command: `-h` + goal-stub + routed doc chunks             |
-| `unrouted_chunks.jsonl` | Chunks that never cleared the similarity floor (logged; not fed to ground)                  |
-| `goal_gaps.json`        | Groundable verbs whose blocks are help/stub only (no routed prose) — maintainer report      |
-
-
-**Steps inside prepare:**
-
-1. **Taxonomy load** — Read checked-in `git_commands.json`. Anchors = groundable verbs only (`available !== false`, skip unsigned `verify-*`) using normalized `command` + summary. No re-scrape.
-2. **Hierarchical chunking** — Parse AsciiDoc/Markdown; paragraph-level chunks; keep code fences / tldr backtick examples bound to nearby prose; prepend path prefixes (e.g. `[Pro Git > Chapter 3 > Basic Branching]`).
-3. **Embed & multi-anchor route** — Embed chunks and taxonomy nodes with build-time `text-embedding-3-small`. Assign each chunk to up to **N ≤ 3** anchors by cosine similarity: absolute floor **0.75**, keep scores within **Δ = 0.05** of the chunk’s best score, then hard-cap N. A matched chunk is **duplicated** into each assigned command’s block list. Literal `git <name>` mentions are lifted to at least the floor. Below-floor for all anchors → `unrouted_chunks.jsonl`.
-4. **Default blocks** — For **every groundable** verb: (a) taxonomy summary + `git <cmd> -h` (`metadata_source` = `git/-h/<name>`; exit 129 is normal — do **not** call plain `git help <cmd>`); (b) a short **goal-stub** block (`goal-stub/<name>`).
-5. **Compile** — Deterministic `semantic_blocks[]` with **one entry per groundable command**: `command` + `blocks[]` (`-h` first, then goal-stub, then routed children). Also write `goal_gaps.json` for help/stub-only verbs.
-
-Clustering, functional category, and synthesized snippet fields are **not** produced here.
-
-**Data model preview (filled later by ground/iterate):**
-
-
-| Table      | Role                                                                                                                |
-| ---------- | ------------------------------------------------------------------------------------------------------------------- |
-| `commands` | Recipe rows: `initial_state`, `command_recipe`, physical hashes, `risk`, optional `parent_row_id` / `mutation_kind` |
-| `intents`  | NL variants linked to a `command_id`, with `skill_level` + `intent_category`                                        |
-
-
-Build-only `vec_commands` may exist for the evolve neighbor search; it is dropped on promote. Product ships `vec_intents` (384-d `bge-small-en-v1.5`), `commands_fts`, and `meta`.
-
----
-
-
-
-## 3. Ground
-
-First catalog construction: **vanilla** recipes—one primary command, minimum args/flags—plus intents. Runs over `semantic_blocks` into a **staging** DB (`bun run build:ground`).
-
----
-
-
-
-### 3.1 Construction
-
-Four steps per semantic block:
-
-
-| Step                   | Input                            | Action                                                                                                                         | Output                                      |
-| ---------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------- |
-| **1 Generation**       | one `semantic_block`             | LLM → vanilla recipe JSON                                                                                                      | candidate                                   |
-| **2 Validation**       | state + recipe                   | Fail-closed flag allowlist (`git -h` + tiny denylist), then sandbox run; reflective regen on failure; hash physical Git state on success | `*_physical_hash`                           |
-| **3 Intent expansion** | validated recipe + intent matrix | Iterative Flash expand (cell coverage + local embed dedup); see below                                                               | `intents[]` (≤ 32)                          |
-| **4 Deduplication**    | hash pair + recipe fingerprint   | Collision against global DB (physical hashes, then secondary fingerprint); keep the simpler recipe (fewer commands/flags); merge intents with authoritative cosine prune | unique row or keep-existing                 |
-
-
-**Intent expansion (iterative)**
-
-Per accepted recipe, grow intents until every matrix cell is **filled** or honestly **skipped** (not a forced 16-intent fill):
-
-1. Flash batch (≤ **8**) biased toward **empty** cells; may return `skips[]` with reasons for cells that do not fit. Primary remains the topic; about **1–2** intents per batch may lightly mention a recipe delta (extra step / flag / situation) when present in the full listing or `initial_state`.
-2. Fidelity filter (command-like / cross-verb traps).
-3. Embed with local `bge-small-en-v1.5`; drop **within-recipe** near-dups (cosine ≥ **0.90**).
-4. Best-effort **foreign** check vs staging `vec_intents` (cosine ≥ **0.94**, other `command_id`): one contrastive Flash rewrite, else drop. Lag under concurrency is OK.
-5. Persist-time (writer queue): authoritative within + foreign cosine drop (no rewrite) before insert.
-6. Exit when all cells decided, **zero-growth** streak of **3**, per-recipe cap **32**, or global `MAX_INTENTS`.
-
-Same path for ground and evolve children. Flash only (no Pro). The expand prompt receives the **full** recipe step listing (primary marked).
-
-**Sandbox headlessness:** each job gets PATH stubs under `sandbox/shims/` (`gitk`, `git-gui`, diff/merge tools, no-op `grasp-editor`). GUI verbs invoke stubs (log argv, exit 0) instead of opening windows. `GIT_EDITOR` / `EDITOR` / `VISUAL` / `GIT_SEQUENCE_EDITOR` always point at the editor shim. Opt-in `blockGui: true` restores fail-closed `sandbox_gui_blocked` for regression tests. `$GIT_GRASP_REMOTES` is set to a per-job remotes directory for push/pull fixtures.
-
-**Generation contract**
-
-- **In:** one `semantic_block` (`command` + all `blocks[].content` as context).
-- **Out:** `{ "initial_state": string, "command_recipe": { "commands": [{ "command", "comment" }] }, "risk": number }`
-- **Vanilla rules:**
-  - Primary recipe step must be the block’s `command` with the **minimum** args/flags to be valid in the sandbox.
-  - Prefer a **single** step; allow 1–2 only when the command cannot demonstrate alone.
-  - `initial_state`: minimal setup after harness `git init` + identity (empty commit / one file only when required). Push/pull may create a bare remote under `$GIT_GRASP_REMOTES`. Describe/restore/history follow the vanilla prompt constraints.
-  - Each step is a single invocation (`git …` or standalone like `gitk`/`scalar`)—**no** shell metacharacters (`&&`, `|`, `;`, backticks) in the command line.
-  - Flags must appear in that verb’s `git -h` allowlist (**fail closed** if help/allowlist empty and flags are present). Denylist includes known junk (e.g. `--i-still-use-this`) even if Git accepts it.
-  - `risk` ∈ `[0, 1]` (destructive risk).
-
-Accepted rows also feed eval banks (`golden` / `extended` / `scrambled`). Ground DB rows keep `mutation_kind = NULL`; eval bank rows are tagged `mutation_kind: "ground"`.
-
----
-
-
-
-### 3.2 Evaluation
-
-In-build retrieval gate scores what the **CLI would show**: hybrid `displayResults` (confidence-gated, 0–3 slots), not the fuller internal fused `results` list. When the query names a Git verb, hybrid ranking applies a soft **+0.25** boost to hits whose primary step matches that verb (then re-sorts). When the query names **multiple** verbs, multi-step recipes that cover more of those verbs get an extra **+0.12 per additional covered verb** (capped at score 1.0).
-
-Display cardinality (`displayCountFromConfidence`): high confidence **and** a real fused-score gap → 1 (exact) or 2 (yellow); near-ties / lower C → up to 3 (orange). Red/empty abstain is absolute-evidence only (weak raw cosine **and** no BM25 **and** no verb boost) — crowded sibling lists no longer collapse to an empty miss for Hit@display.
-
-**Bank generation** (on each dedup-accepted unique insert, unless `skipEvalBanks`):
-
-1. **Golden (user simulator)** — LLM (`build/golden-query`) writes one NL query from the recipe **title + initial_state + mutation_kind** only (it does **not** see the recipe steps). Ground recipes stay primary-verb focused; composition recipes are goal-shaped (verb optional) with one cue grounded in title/initial_state. Deterministic fidelity still requires a verb token for ground; composition may omit the verb and pass via LLM grader (`build/golden-fidelity`, which **does** see full steps). Failures fall back to `how do I use git <verb>` → `golden-report.jsonl` (excluded from the hard gate). Tagged `mutation_kind`, `primary_verb`, and `source: "llm"` (telemetry-compatible shape).
-2. **Extended** — LLM (`build/expand-queries`) emits **3** paraphrases of the golden → `extended.jsonl` (same tags): (1) frustrated, (2) **no-subcommand goal/situation**, (3) expert short. Variant 2 must not contain the primary verb token.
-3. **Scrambled** — light adversarial noise (`scrambleQuery`) over each extended variant → `scrambled.jsonl` (same tags).
-
-Banks live under `common/data/eval/` (`golden.jsonl`, `extended.jsonl`, `scrambled.jsonl`). The hard gate runs on **golden only** (fallbacks excluded). Extended/scrambled are generated for reporting and future use, not binding.
-
-**Pass / miss (per query):**
-
-1. Search the staging DB; take `displayResults`. **Hit@display** = exact expected `command_id` among shown hits (`via: hit@display`). **Hit@family** (binding, downward-only) = a displayed recipe whose `parent_row_id` is the expected id (`via: hit@family`) — i.e. a child of the expected recipe, never the reverse. Combined exact + family count toward the hit gate; the report shows the split (`exact+Nfamily`).
-2. On miss only: LLM utility judge (`build/judge`) scores honest usefulness 0–1 (no pass cliff in the prompt); Pass A if `utility >= 0.8` (CLI `--judge-utility`).
-3. Dual hard gate (both required): Hit@display-only rate (exact + family) ≥ **0.7**, then Pass A (hit OR judge) ≥ **0.85**. If Hit@display already cannot clear 0.7, Phase-2 judge is skipped.
-
-
-| Check             | Rule                                                                                          |
-| ----------------- | --------------------------------------------------------------------------------------------- |
-| **Hard gate**     | Golden **Hit@display** ≥ **0.7** **and** **Pass A** ≥ **0.9** (exact `command_id` **or** child-of-expected family credit in `displayResults`, or judge) |
-| **Report only**   | Pass B (expected primary verb among displayed hit verbs); rates by `mutation_kind`; exact vs family split |
-
-
-Ground fails if the dual gate fails. Product-facing `bun run eval` / `eval:loop` after promote is a separate improve-branch workflow; this section is the **in-build** gate while staging grows.
-
-#### Eval gate recovery (automatic)
-
-After ground eval (and after each loop-cycle eval — §4.2), the orchestrator runs **eval gate recovery** (`--skip-eval-recovery` disables it):
-
-1. If the dual gate is **red**: up to **4** fail-retry attempts.
-2. If the gate is **green** but polish is warranted (`misses ≥ 5` or Pass A `< 0.95`): up to **2** polish attempts (nice-to-have). Polish never fails a green cycle if it cannot improve.
-3. Each attempt **classifies** non-pass rows in code (`partial_multistep`, `over_ask`, `retrieval_sibling`, `destructive_alt`, `coverage_gap`, `other`). Multi-action misses whose expected recipe is `mutation_kind=composition` classify as **`retrieval_sibling`** (goal-shaped composition goldens are aligned with the recipe — the miss is retrieval-side). `over_ask` is reserved for single-step / flag recipes whose query asks for more than the recipe covers.
-4. **Gap-check stage** (for `retrieval_sibling` / `other` misses whose query has fewer than 2 git verbs): retrieve top-10 fused hits, LLM (`build/gap-check`) decides whether any candidate recipe accomplishes the goal. Match → keep `retrieval_sibling`; no match → reclassify as `coverage_gap`. Cap: `--eval-gap-check-max` (default 10).
-5. **Bank-only** fixes for over-ask / partial / destructive: **Pro** writes rewrite context (`build/rewrite-eval-context`); **Flash** rewrites or drops golden rows (`build/rewrite-eval-golden`). Rewrite must **never** reduce a multi-action golden to a single action when the expected recipe is composition. Staging recipes/leaves are never deleted.
-6. **Retrieval sibling** misses: existing taxonomy **improve** round (Flash summarize → Pro traps/families → optional reintent → re-eval) — see below. `--skip-eval-improve` skips only this lever. Verb-family proposals are rejected when existing goldens *distinguish* the members (e.g. `diff` vs `difftool`); eval_round families that violate this are pruned at improve time.
-7. **Coverage gap** misses: **additive** composition generate into staging. Target verbs come from the query when present; otherwise LLM (`build/goal-to-verbs`) maps the goal to 2–4 known taxonomy verbs. Parent pick → `evolve-composition` → sandbox validate → polish → expand intents → insert. Cap: `--eval-coverage-max-inserts` (default 3). Rejected attempts roll back the inserted rows. Never mutates/deletes existing recipes.
-8. Re-eval; **accept** only if Hit@display does not drop, holdout rates do not drop, bank-size floors hold (fail ≥85% of cycle-start goldens; polish ≥95%), and Pass A gains (≥1 absolute pass) or the gate turns green (fail mode). Additive inserts set `additiveOnly` so `commands_changed` does not hard-reject. Otherwise restore golden (and taxonomy / coverage inserts if rejected).
-9. **Birth-query golden (circularity guard):** only **after** accept, the gap query that triggered a coverage insert becomes that new recipe’s golden (`source: "llm"`, `birth_query: true`) plus extended/scrambled. The attempt’s re-eval never saw these rows; they are first graded on the next iteration.
-10. **Early stop** when Pass A and Hit@display are flat after an attempt.
-
-Artifacts: `local/eval/gate-recovery/<ts>/` (and under run-log phase dirs when enabled).
-
-#### Snippet hygiene (automatic)
-
-After sandbox OK and **before** intent expansion / golden generation, each accepted recipe may be polished (`build/polish-recipe`): rewrite fixture names and comments into idiomatic user-facing form while keeping the `recipeFingerprint` (verb + flags) unchanged, then re-sandbox. Failures keep the original recipe (never blocks the build).
-
-#### Eval improve round (inside recovery)
-
-When recovery routes `retrieval_sibling` misses (unless `--skip-eval-improve`):
-
-1. **Flash** clusters non-pass rows (`build/summarize-eval-failures`).
-2. Split misses **70/30 by `command_id`** (stable hash); Pro sees train only.
-3. **Pro** (`deepseek-v4-pro`) proposes schema-locked rules only (`build/propose-eval-rules`):
-   - `lexicon_trap` → merged into `common/taxonomy/lexicon_traps.json` (seed traps are regenerable infrastructure, not a hand-grown encyclopedia)
-   - `verb_family` → merged into `common/taxonomy/verb_families.json` (Pass B + judge `acceptable_primary_verbs`; Hit@display still requires exact `command_id` or family credit)
-4. Validate: evidence ids must be train-miss `command_id`s only (not wrong displayed hits); traps need ≥2 train-miss ids **or** ≥2 needle-matched train queries; needles must be **literal substrings** of train `query_text`; ≤5 traps / ≤3 families; prefer_verb ∈ taxonomy; forbid destructive antonym families (e.g. revert↔reset); reject families whose members are distinguished by the golden bank; skip verb pairs already in `existing_families_json`. When every proposed trap is a singleton, the improve round logs a warning (prefer empty proposals over one trap per cluster member).
-5. On trap apply: re-expand intents on staging under the new traps (`INTENT_REEXPAND_CONCURRENCY`, default 24): parallel expand against a fixed DB snapshot, then serial delete+insert. Families take effect on the next eval only.
-6. Re-eval once. **Accept** if holdout Hit@display and Pass A do not drop and full-bank Pass A gains ≥1 absolute pass (or Hit@display improves when Pass A is tied); else restore JSON snapshots (and re-expand if traps were rolled back).
-
-Pro must skip incomplete multi-step / partial-match clusters (lexicon/family cannot fix those — recovery uses golden rewrite or coverage_gap generation instead).
-
-Improve artifacts also land under `local/eval/proposal-rounds/<ts>/` (and nested under gate-recovery attempts). Flag denylist stays `common/taxonomy/flag_denylist.json` (code-loaded); Pro does not propose denylist changes in v1.
-
----
-
-
-
-## 4. Iterate
-
-Interactive evolve loop (`bun run build:loop`): grow diversity from accepted **leaves** (recipes with no children) until coverage saturates or caps hit.
-
----
-
-
-
-### 4.1 Construction
-
-**Stop when any of:**
-
-- Dedup inserts **no new unique rows** for **N** consecutive cycles (default **N = 3**), or
-- **Every** taxonomy verb is saturated (below), or
-- Global hard caps (`MAX_COMMANDS` / `MAX_INTENTS`) or max iterations hit.
-
-**Saturation (per verb, multi-bucket).** Each accepted recipe increments coverage for its **primary** verb only (first recipe step). A verb is saturated when it has **K ≥ 24** unique recipes **and**:
-
-
-| Axis            | Floor                                                                                                                           |
-| --------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| **State**       | ≥ 3 of `{minimal, dirty_worktree, with_remote, detached_or_diverged}` among recipes whose primary verb is that verb              |
-| **Flags**       | ≥ **3** distinct flag-fingerprints (normalized flags on steps for that verb)                                                    |
-| **Composition** | ≥ 1 length-1 recipe, ≥ 3 with length ∈ [2, 3], ≥ 2 with length ∈ [4, 7] (or axis exhausted, e.g. all leaves already at 7 steps) |
-
-
-**Batch each cycle:** size = `min(|leaves|, 256)`. Prefer **undersampled** verbs first; within the pool, stratify by risk. First fan-out mutates ground bases; later cycles compound via unsaturated leaves.
-
-**Multi-axis mutation** — For each selected leaf, pick the **weakest coverage axis** across its verbs (tie-break: **State → Flag → Composition**). Retrieve ~10 neighbors (similar/distant intents and recipes + random), biased toward the mutation kind. Then:
-
-
-| Kind            | Action                                                                                                                                                                                              |
-| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **State**       | Harden `initial_state` (remotes, dirty tree, detached HEAD, divergence). Recipe **verbs** unchanged.                                                                                                |
-| **Flag**        | Change flags/args on existing steps using that step’s `git <cmd> -h` allowlist; ≤ **3** flags per step; at most **one** net new flag vs parent. Prompt receives the allowlist + these rules up front. **Never** change git verbs. |
-| **Composition** | Insert a command line before / middle / after (`insert_index`); hard cap **≤ 7** steps; any `git` subcommand whose `-h` returns usage; **no filler secondaries** (`git status` / `git log` / `git diff` unless already on the parent); flags fail-closed allowlisted like ground; at most one net new flag; no shell metacharacters. Prompt receives filler-verb + flag rules up front. Skip if parent already has 7 steps. |
-
-
-Persist `mutation_kind` ∈ `{state, flag, composition}` on the child; set `parent_row_id`.
-
-**Then re-run** validation → intent expansion → dedup on the child (same construction pipeline as ground). Foreign-collision intent dedup **excludes the parent** `command_id` for evolved children (and coverage inserts), so composition intents are not dropped solely for near-matching the parent's intents.
-
----
-
-
-
-### 4.2 Evaluation
-
-On each **dedup-accepted** evolve insert: append **golden + extended + scrambled** (same shape as ground), tagged with the child’s `mutation_kind` + `primary_verb` + `source: "llm"`. Golden generation is the same **user simulator** as §3.2 (title + initial_state only; composition goal-shaped). Intent expansion for `mutation_kind=composition` requires every intent to express the **full multi-step goal**; other recipes stay primary-focused with a soft optional delta (about **1–2 intents per Flash batch** may mention that cue). Parent lineage is excluded from foreign-collision dedup during expand + persist (see §4.1).
-
-Hard gate still runs on **golden only** (fallbacks excluded). Extended/scrambled are report banks. Hit scoring includes downward **Hit@family** credit (§3.2).
-
-After **each** cycle (same dual gate as §3.2):
-
-
-| Check           | Rule                                                                                                |
-| --------------- | --------------------------------------------------------------------------------------------------- |
-| **Hard gate**   | Full golden bank **Hit@display** ≥ **0.7** **and** **Pass A** ≥ **0.9** (same definition as ground) |
-| **Report only** | Stratified rates by `mutation_kind`; Pass B; per-verb rates (do not hard-fail on bucket/verb alone) |
-
-
-Same **eval gate recovery** as §3.2 (fail-retry up to 4; polish up to 2).
-
-**Advisory vs binding (loop only):** while the hard golden bank is below absolute floors (**≥150** total and **≥30** `composition` goldens, CLI-overridable), a red gate is **advisory** — recovery still runs, but the loop keeps evolving. Once floors are met the gate is binding (KO stops the run unless `--continue-on-eval-ko`). The final promote gate requires floors met and (unless continue-on-ko) a green last eval.
-
-**Judge noise:** utilities within ±0.15 of the judge threshold take 3 votes and use the **median** utility.
-
-Post-recovery metrics drive `continueOnEvalKo` / persist.
-
-Example log shape:
-
-```text
-eval hit@display=0.80 (35+5family/50) okHit=true minHitAtDisplay=0.7
-eval family=5 (child-of-expected display credit, binding)
-eval passA=0.92 (46/50) okPass=true minPassRate=0.9 (hit=40 judge=6)
-eval overall ok=true (requires hit@display>=min AND passA>=min)
-eval byKind ground=0.95 state=0.90 flag=0.88 composition=0.85
-eval verbPassB=0.84 (42/50)
-```
-
-**Promote handoff** (after ground/iterate succeed):
-
-- Write coverage report (`common/data/eval/coverage-report.json`) from per-verb coverage.
-- **Warn** (do not block) if fewer than **80%** of taxonomy verbs have ≥ **3** recipes.
-- Finalize FTS + `git_verbs` meta, drop build-only `vec_commands`, promote staging → shipped catalog / DB. Checksum is produced by `bun run seed`, not by promote itself.
-- Catalog quality merges follow git-flow `improve/*` after the product eval gate (`bun run eval` / `eval:loop`).
-
-Changing prepare / generation / evolve contracts requires a **full rebuild** (prepare → ground → iterate → promote). There is no migrate path from prior prepare artifacts or schema v6 staging DBs.
-
----
-
-
-
-## Related docs
-
-- [Architecture](architecture.md) — packages and data layout
-- [Layout](layout.md) — where caches vs shipped artifacts live
-- [Goals](goals.md) — product goals
-- Spec scratch: `local/spec/FULL_STEP_PROCESS.md` (authoring notes; this file is the explained maintainer doc)
-
+Leaves and candidates run concurrently (`LEAF_CONCURRENCY`, `CANDIDATE_CONCURRENCY`). Corpus version / SHIP is the serial choke point.

@@ -1,86 +1,51 @@
 import { describe, expect, it } from 'vitest';
 import { collapseToCommands } from '../../../common/src/search/collapse.ts';
 
-describe('collapseToCommands Q12-D', () => {
-  it('picks exact preferred skill intent for vector score', () => {
-    const intentHits = [
+describe('collapseToCommands (description KNN)', () => {
+  it('picks highest cosine when multiple hits share an id', () => {
+    const knnHits = [
       {
-        command_id: 1,
-        skill_level_text: 'expert',
-        intent_text: 'expert undo',
-        intent_category: 'goal',
-        _forcedScore: 0.9,
-        commands: [{ command: 'git reset --hard' }],
-        risk: 0.8,
-      },
-      {
-        command_id: 1,
-        skill_level_text: 'beginner',
-        intent_text: 'beginner undo',
-        intent_category: 'goal',
+        command_id: 'r1',
+        description: 'low',
         _forcedScore: 0.5,
         commands: [{ command: 'git reset --hard' }],
         risk: 0.8,
       },
-    ];
-    const out = collapseToCommands(intentHits, [], 'beginner');
-    expect(out).toHaveLength(1);
-    expect(out[0].command_id).toBe(1);
-    expect(out[0].rawCosine).toBe(0.5);
-    expect(out[0].intent_text).toBe('beginner undo');
-  });
-
-  it('falls back to closest skill rank then best sim', () => {
-    const intentHits = [
       {
-        command_id: 2,
-        skill_level_text: 'nontechnical',
-        intent_text: 'nt',
-        _forcedScore: 0.4,
-        commands: [{ command: 'git status' }],
-        risk: 0,
-      },
-      {
-        command_id: 2,
-        skill_level_text: 'expert',
-        intent_text: 'ex',
-        _forcedScore: 0.99,
-        commands: [{ command: 'git status' }],
-        risk: 0,
+        command_id: 'r1',
+        description: 'high',
+        _forcedScore: 0.9,
+        commands: [{ command: 'git reset --hard' }],
+        risk: 0.8,
       },
     ];
-    // preferred intermediate: expert is closer (rank 4 vs 3) than nontechnical (1)
-    const out = collapseToCommands(intentHits, [], 'intermediate');
-    expect(out[0].intent_text).toBe('ex');
-    expect(out[0].rawCosine).toBe(0.99);
+    const out = collapseToCommands(knnHits, []);
+    expect(out).toHaveLength(1);
+    expect(out[0].command_id).toBe('r1');
+    expect(out[0].rawCosine).toBe(0.9);
+    expect(out[0].description).toBe('high');
   });
 
-  it('merges FTS-only commands with bm25', () => {
-    const out = collapseToCommands(
-      [],
-      [{ command_id: 7, bm25: -3.5 }],
-      'beginner',
-    );
+  it('merges FTS-only recipes with bm25', () => {
+    const out = collapseToCommands([], [{ command_id: 'r7', bm25: -3.5 }]);
     expect(out).toHaveLength(1);
-    expect(out[0].command_id).toBe(7);
+    expect(out[0].command_id).toBe('r7');
     expect(out[0].rawBm25).toBe(-3.5);
     expect(out[0].rawCosine).toBeNull();
   });
 
-  it('unions vec + fts on same command_id', () => {
+  it('unions vec + fts on same recipe id', () => {
     const out = collapseToCommands(
       [
         {
-          command_id: 3,
-          skill_level_text: 'beginner',
-          intent_text: 'x',
+          command_id: 'r3',
+          description: 'stash work',
           _forcedScore: 0.8,
           commands: [{ command: 'git stash' }],
           risk: 0.1,
         },
       ],
-      [{ command_id: 3, bm25: -2 }],
-      'beginner',
+      [{ recipe_id: 'r3', bm25: -2 }],
     );
     expect(out).toHaveLength(1);
     expect(out[0].rawCosine).toBe(0.8);

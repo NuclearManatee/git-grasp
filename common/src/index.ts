@@ -22,9 +22,11 @@ export {
   insertIntentWithEmbedding,
   insertCommandEmbedding,
   knnRecall,
+  knnRecallRecipes,
   knnRecallCommands,
   ftsRecall,
   rebuildCommandsFts,
+  rebuildRecipesFts,
   finalizeSearchIndex,
   stripVecCommandsForShip,
   loadAllRows,
@@ -35,7 +37,15 @@ export {
   loadSqliteVec,
   promoteStagingDb,
   countCommands,
+  countRecipes,
   countIntents,
+  commandFingerprint,
+  getRecipe,
+  listRecipes,
+  listRecipesByLeaf,
+  findRecipeByFingerprint,
+  appendParaphrase,
+  hydrateRecipeHit,
 } from './db/schema.js';
 
 export {
@@ -107,3 +117,13 @@ export {
 export { validateIntentRow } from './lib/validator.js';
 export { formatSearchResult, primaryCommand } from './ux/format.js';
 export * from './schemas/index.js';
+
+/** Stage facades (PREPARE → … → EVOLVE). Prefer these for new code. */
+export * as prepare from './prepare/index.js';
+export * as generate from './generate/index.js';
+export * as expand from './expand/index.js';
+export * as ship from './ship/index.js';
+export * as observe from './observe/index.js';
+export * as evolve from './evolve/index.js';
+// search already lives at ./search — keep direct imports; stage alias:
+export * as searchStage from './search/index.js';

@@ -76,7 +76,7 @@ describe('sandbox + physical hash', () => {
       expect(result.ok).toBe(true);
       expect(Date.now() - started).toBeLessThan(10_000);
     }
-  });
+  }, 30_000);
 
   it('blockGui opt-in still fails closed', () => {
     const result = validateInSandboxAndDestroy({

@@ -88,6 +88,12 @@ export function flagFingerprintForVerb(recipe, verb) {
 export function parseFlagsFromHelp(helpText) {
   const flags = new Set();
   const text = String(helpText || '');
+  // git -h uses --[no-]foo[=…] ; expand both polarities before bare scan
+  for (const m of text.matchAll(/--\[no-\]([a-z0-9][a-z0-9-]*)/gi)) {
+    const name = m[1].toLowerCase();
+    flags.add(`--${name}`);
+    flags.add(`--no-${name}`);
+  }
   for (const m of text.matchAll(/--[a-z0-9][a-z0-9-]*/gi)) {
     flags.add(m[0].toLowerCase());
   }

@@ -1,4 +1,7 @@
 // @ts-nocheck
+/**
+ * Catalog SQLite schema v9 — recipes + description embeddings + FTS.
+ */
 import { Database } from 'bun:sqlite';
 import { existsSync, mkdirSync, copyFileSync, unlinkSync } from 'node:fs';
 import path from 'node:path';
@@ -16,13 +19,14 @@ import {
   renderSnippet,
   primaryCommand,
 } from './recipeFormat.js';
-import { SKILL_RANK, normalizeSkillLevelText } from '../lib/skills.js';
-import { buildFtsMatchQuery, commandFtsBody } from '../search/ftsQuery.js';
+import { buildFtsMatchQuery, recipeFtsBody } from '../search/ftsQuery.js';
 import {
   collectGitVerbsFromRecipes,
   serializeGitVerbsMeta,
   parseGitVerbsMeta,
 } from '../search/gitVerbs.js';
+import { createHash } from 'node:crypto';
+import { structuralCommandFingerprint } from '../build/argvNormalize.js';
 
 export {
   SCHEMA_VERSION,
@@ -40,49 +44,38 @@ export {
 } from './recipeFormat.js';
 
 export const DDL = `
-CREATE TABLE IF NOT EXISTS commands (
-  row_id INTEGER PRIMARY KEY AUTOINCREMENT,
-  initial_state TEXT NOT NULL,
-  command_recipe TEXT NOT NULL,
-  initial_state_physical_hash TEXT NOT NULL,
-  final_state_physical_hash TEXT NOT NULL,
-  risk REAL NOT NULL CHECK (risk >= 0 AND risk <= 1),
-  parent_row_id INTEGER REFERENCES commands(row_id),
-  mutation_kind TEXT CHECK (mutation_kind IS NULL OR mutation_kind IN ('state','flag','composition')),
-  title TEXT
+CREATE TABLE IF NOT EXISTS recipes (
+  id TEXT PRIMARY KEY,
+  commands TEXT NOT NULL,
+  title TEXT NOT NULL,
+  description TEXT NOT NULL,
+  tags TEXT NOT NULL DEFAULT '[]',
+  taxonomy_leaf TEXT NOT NULL,
+  paraphrases TEXT NOT NULL DEFAULT '[]',
+  provenance TEXT NOT NULL CHECK (provenance IN ('synthetic','real-failure-seeded','gap-filled')),
+  validated INTEGER NOT NULL DEFAULT 0,
+  initial_state TEXT NOT NULL DEFAULT '',
+  command_fingerprint TEXT NOT NULL,
+  initial_state_physical_hash TEXT NOT NULL DEFAULT '',
+  final_state_physical_hash TEXT NOT NULL DEFAULT '',
+  risk REAL NOT NULL CHECK (risk >= 0 AND risk <= 1)
 );
-CREATE INDEX IF NOT EXISTS idx_commands_initial_hash ON commands(initial_state_physical_hash);
-CREATE INDEX IF NOT EXISTS idx_commands_final_hash ON commands(final_state_physical_hash);
-CREATE INDEX IF NOT EXISTS idx_commands_hash_pair ON commands(initial_state_physical_hash, final_state_physical_hash);
-CREATE INDEX IF NOT EXISTS idx_commands_parent ON commands(parent_row_id);
-
-CREATE TABLE IF NOT EXISTS intents (
-  row_id INTEGER PRIMARY KEY AUTOINCREMENT,
-  command_id INTEGER NOT NULL REFERENCES commands(row_id),
-  skill_level TEXT NOT NULL CHECK (skill_level IN ('nontechnical','beginner','intermediate','expert')),
-  intent_category TEXT NOT NULL CHECK (intent_category IN ('goal','error_message','symptom','conversational')),
-  intent_text TEXT NOT NULL
-);
-CREATE INDEX IF NOT EXISTS idx_intents_command ON intents(command_id);
-CREATE INDEX IF NOT EXISTS idx_intents_skill ON intents(skill_level);
+CREATE INDEX IF NOT EXISTS idx_recipes_leaf ON recipes(taxonomy_leaf);
+CREATE INDEX IF NOT EXISTS idx_recipes_fingerprint ON recipes(command_fingerprint);
+CREATE INDEX IF NOT EXISTS idx_recipes_hash_pair ON recipes(initial_state_physical_hash, final_state_physical_hash);
 
 CREATE TABLE IF NOT EXISTS meta (
   key TEXT PRIMARY KEY,
   value TEXT NOT NULL
 );
 
-CREATE VIRTUAL TABLE IF NOT EXISTS vec_intents USING vec0(
+CREATE VIRTUAL TABLE IF NOT EXISTS vec_recipes USING vec0(
   id TEXT PRIMARY KEY,
   embedding float[${EMBEDDING_DIM}] distance_metric=cosine
 );
 
-CREATE VIRTUAL TABLE IF NOT EXISTS vec_commands USING vec0(
-  id TEXT PRIMARY KEY,
-  embedding float[${EMBEDDING_DIM}] distance_metric=cosine
-);
-
-CREATE VIRTUAL TABLE IF NOT EXISTS commands_fts USING fts5(
-  command_id UNINDEXED,
+CREATE VIRTUAL TABLE IF NOT EXISTS recipes_fts USING fts5(
+  recipe_id UNINDEXED,
   body,
   tokenize = 'unicode61 remove_diacritics 2'
 );
@@ -129,7 +122,7 @@ export function openDb(dbPath, { readonly = false } = {}) {
   }
   loadSqliteVec(db);
   if (!readonly) {
-    ensureSchemaV6(db);
+    ensureSchemaV9(db);
   }
   return db;
 }
@@ -155,13 +148,15 @@ function tableNames(db) {
 
 function dropAllCatalogTables(db) {
   for (const t of [
+    'recipes_fts',
     'commands_fts',
+    'vec_recipes',
     'vec_intents',
     'vec_commands',
     'intents',
     'commands',
-    'search_intents',
     'recipes',
+    'search_intents',
     'git_commands',
     'meta',
   ]) {
@@ -169,20 +164,18 @@ function dropAllCatalogTables(db) {
   }
 }
 
-function ensureSchemaV6(db) {
+function ensureSchemaV9(db) {
   const tables = tableNames(db);
-  const hasCommands = tables.includes('commands');
-  const hasIntents = tables.includes('intents');
-  const hasVecI = tables.includes('vec_intents');
-  const hasVecC = tables.includes('vec_commands');
-  const hasFts = tables.includes('commands_fts');
+  const hasRecipes = tables.includes('recipes');
+  const hasVec = tables.includes('vec_recipes');
   const hasLegacy =
-    tables.includes('recipes') ||
+    tables.includes('commands') ||
+    tables.includes('intents') ||
+    tables.includes('vec_intents') ||
     tables.includes('search_intents') ||
     tables.includes('git_commands');
 
-  // vec_commands is optional on shipped product DBs (dropped at promote).
-  if (hasLegacy || !hasCommands || !hasIntents || !hasVecI) {
+  if (hasLegacy || !hasRecipes || !hasVec) {
     dropAllCatalogTables(db);
     db.exec(DDL);
     db.prepare('INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)').run(
@@ -203,26 +196,25 @@ function ensureSchemaV6(db) {
     return;
   }
 
-  if (!hasFts) {
+  if (!tables.includes('recipes_fts')) {
     db.exec(`
-CREATE VIRTUAL TABLE IF NOT EXISTS commands_fts USING fts5(
-  command_id UNINDEXED,
+CREATE VIRTUAL TABLE IF NOT EXISTS recipes_fts USING fts5(
+  recipe_id UNINDEXED,
   body,
   tokenize = 'unicode61 remove_diacritics 2'
 );
 `);
   }
+}
 
-  // Recreate vec_commands only when absent AND caller needs build-loop support.
-  // Product DBs omit it intentionally; create empty shell if other vec table exists
-  // and we're in a write path that already had commands (no-op for shipped after promote).
-  if (!hasVecC && process.env.GIT_GRASP_ENSURE_VEC_COMMANDS === '1') {
-    db.exec(`
-CREATE VIRTUAL TABLE IF NOT EXISTS vec_commands USING vec0(
-  id TEXT PRIMARY KEY,
-  embedding float[${EMBEDDING_DIM}] distance_metric=cosine
-);
-`);
+function parseJsonArray(raw) {
+  if (Array.isArray(raw)) return raw.map(String);
+  if (typeof raw !== 'string' || !raw.trim()) return [];
+  try {
+    const v = JSON.parse(raw);
+    return Array.isArray(v) ? v.map(String) : [];
+  } catch {
+    return [];
   }
 }
 
@@ -234,174 +226,255 @@ function deriveCommandFamily(example) {
   return parts[0] === 'git' ? 'git' : String(example || '').trim();
 }
 
+/** Canonical template fingerprint for recipe argv (placeholders + demo literals normalized). */
+export function commandFingerprint(commands) {
+  return structuralCommandFingerprint(commands);
+}
+
+function rowToRecipe(r) {
+  if (!r) return null;
+  const commands = parseCommands(r.commands);
+  return {
+    id: String(r.id),
+    commands,
+    title: String(r.title || ''),
+    description: String(r.description || ''),
+    tags: parseJsonArray(r.tags),
+    taxonomy_leaf: String(r.taxonomy_leaf || ''),
+    paraphrases: parseJsonArray(r.paraphrases),
+    provenance: r.provenance || 'synthetic',
+    validated: Boolean(r.validated),
+    initial_state: String(r.initial_state || ''),
+    command_fingerprint: String(r.command_fingerprint || ''),
+    initial_state_physical_hash: String(r.initial_state_physical_hash || ''),
+    final_state_physical_hash: String(r.final_state_physical_hash || ''),
+    risk: Number(r.risk ?? 0),
+  };
+}
+
 /**
- * Insert a commands row. Returns row_id.
+ * Insert or replace a recipe. Optionally writes description embedding to vec_recipes.
+ * @returns {string} recipe id
  */
-export function insertCommand(clientOrCatalog, row) {
+export function insertRecipe(clientOrCatalog, recipe, embedding = null) {
   const db = clientOrCatalog._db ?? clientOrCatalog;
-  const recipeJson = serializeCommandRecipe(row.command_recipe);
-  const result = db
-    .prepare(
-      `
-    INSERT INTO commands
-      (initial_state, command_recipe, initial_state_physical_hash,
-       final_state_physical_hash, risk, parent_row_id, mutation_kind, title)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `,
-    )
-    .run(
-      row.initial_state,
-      recipeJson,
-      row.initial_state_physical_hash,
-      row.final_state_physical_hash,
-      row.risk,
-      row.parent_row_id ?? null,
-      row.mutation_kind ?? null,
-      row.title != null && String(row.title).trim() !== ''
-        ? String(row.title).trim()
-        : null,
-    );
-  return Number(result.lastInsertRowid);
-}
-
-export function insertIntentWithEmbedding(clientOrCatalog, intent) {
-  const db = clientOrCatalog._db ?? clientOrCatalog;
-  const embedding =
-    intent.embedding instanceof Float32Array
-      ? intent.embedding
-      : new Float32Array(intent.embedding);
-
-  if (embedding.length !== EMBEDDING_DIM) {
-    throw new Error(`embedding dim ${embedding.length} !== ${EMBEDDING_DIM}`);
-  }
-
-  const skill = normalizeSkillLevelText(intent.skill_level) || intent.skill_level;
+  const id = String(recipe.id);
+  const commandsJson = serializeCommandRecipe({
+    commands: parseCommands(recipe.commands),
+  });
+  const fp =
+    recipe.command_fingerprint ||
+    commandFingerprint(recipe.commands);
+  const tags = JSON.stringify(Array.isArray(recipe.tags) ? recipe.tags : []);
+  const paraphrases = JSON.stringify(
+    Array.isArray(recipe.paraphrases) ? recipe.paraphrases : [],
+  );
 
   const tx = db.transaction(() => {
-    const result = db
-      .prepare(
-        `
-      INSERT INTO intents (command_id, skill_level, intent_category, intent_text)
-      VALUES (?, ?, ?, ?)
+    db.prepare(
+      `
+      INSERT OR REPLACE INTO recipes (
+        id, commands, title, description, tags, taxonomy_leaf, paraphrases,
+        provenance, validated, initial_state, command_fingerprint,
+        initial_state_physical_hash, final_state_physical_hash, risk
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
-      )
-      .run(
-        intent.command_id,
-        skill,
-        intent.intent_category,
-        intent.intent_text || intent.intent_description,
-      );
-    const rowId = Number(result.lastInsertRowid);
-    const id = String(rowId);
-    db.prepare('DELETE FROM vec_intents WHERE id = ?').run(id);
-    db.prepare('INSERT INTO vec_intents (id, embedding) VALUES (?, ?)').run(
+    ).run(
       id,
-      embedding,
+      commandsJson,
+      String(recipe.title || '').trim(),
+      String(recipe.description || '').trim(),
+      tags,
+      String(recipe.taxonomy_leaf || ''),
+      paraphrases,
+      recipe.provenance || 'synthetic',
+      recipe.validated ? 1 : 0,
+      String(recipe.initial_state || ''),
+      fp,
+      String(recipe.initial_state_physical_hash || ''),
+      String(recipe.final_state_physical_hash || ''),
+      Number(recipe.risk ?? 0),
     );
-    return rowId;
-  });
-  return tx();
-}
 
-export function insertCommandEmbedding(clientOrCatalog, commandId, embedding) {
-  const db = clientOrCatalog._db ?? clientOrCatalog;
-  const vec =
-    embedding instanceof Float32Array ? embedding : new Float32Array(embedding);
-  if (vec.length !== EMBEDDING_DIM) {
-    throw new Error(`embedding dim ${vec.length} !== ${EMBEDDING_DIM}`);
-  }
-  const id = String(commandId);
-  db.prepare('DELETE FROM vec_commands WHERE id = ?').run(id);
-  db.prepare('INSERT INTO vec_commands (id, embedding) VALUES (?, ?)').run(id, vec);
-}
-
-export function findCommandByHashPair(clientOrCatalog, initialHash, finalHash) {
-  const db = clientOrCatalog._db ?? clientOrCatalog;
-  return db
-    .prepare(
-      `
-    SELECT * FROM commands
-    WHERE initial_state_physical_hash = ? AND final_state_physical_hash = ?
-    LIMIT 1
-  `,
-    )
-    .get(initialHash, finalHash);
-}
-
-export function deleteIntentsForCommand(clientOrCatalog, commandId) {
-  const db = clientOrCatalog._db ?? clientOrCatalog;
-  const tx = db.transaction(() => {
-    const intents = db
-      .prepare('SELECT row_id FROM intents WHERE command_id = ?')
-      .all(commandId);
-    for (const i of intents) {
-      db.prepare('DELETE FROM vec_intents WHERE id = ?').run(String(i.row_id));
+    if (embedding) {
+      const emb =
+        embedding instanceof Float32Array
+          ? embedding
+          : new Float32Array(embedding);
+      if (emb.length !== EMBEDDING_DIM) {
+        throw new Error(`embedding dim ${emb.length} !== ${EMBEDDING_DIM}`);
+      }
+      db.prepare('DELETE FROM vec_recipes WHERE id = ?').run(id);
+      db.prepare('INSERT INTO vec_recipes (id, embedding) VALUES (?, ?)').run(
+        id,
+        emb,
+      );
     }
-    db.prepare('DELETE FROM intents WHERE command_id = ?').run(commandId);
   });
   tx();
-  return true;
+  return id;
 }
 
-export function deleteCommandCascade(clientOrCatalog, rowId) {
-  const db = clientOrCatalog._db ?? clientOrCatalog;
-  const tx = db.transaction(() => {
-    const intents = db
-      .prepare('SELECT row_id FROM intents WHERE command_id = ?')
-      .all(rowId);
-    for (const i of intents) {
-      db.prepare('DELETE FROM vec_intents WHERE id = ?').run(String(i.row_id));
-    }
-    db.prepare('DELETE FROM intents WHERE command_id = ?').run(rowId);
-    db.prepare('DELETE FROM vec_commands WHERE id = ?').run(String(rowId));
-    db.prepare('DELETE FROM commands WHERE row_id = ?').run(rowId);
+/** @deprecated use insertRecipe — accepts legacy command_recipe shape */
+export function insertCommand(clientOrCatalog, row) {
+  const id =
+    row.id != null
+      ? String(row.id)
+      : `legacy-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const commands = parseCommands(row.command_recipe || row.commands);
+  return insertRecipe(clientOrCatalog, {
+    id,
+    commands,
+    title: row.title || primaryCommand(commands) || id,
+    description: row.description || row.title || primaryCommand(commands) || id,
+    tags: row.tags || [],
+    taxonomy_leaf: row.taxonomy_leaf || 'unspecified',
+    paraphrases: row.paraphrases || [],
+    provenance: row.provenance || 'synthetic',
+    validated: row.validated ?? true,
+    initial_state: row.initial_state || '',
+    command_fingerprint: row.command_fingerprint,
+    initial_state_physical_hash: row.initial_state_physical_hash || '',
+    final_state_physical_hash: row.final_state_physical_hash || '',
+    risk: row.risk ?? 0,
   });
-  tx();
+}
+
+/** @deprecated intents removed in v9 */
+export function insertIntentWithEmbedding() {
+  throw new Error('intents removed in schema v9 — embed recipe.description via insertRecipe');
+}
+
+/** @deprecated */
+export function insertCommandEmbedding() {
+  throw new Error('vec_commands removed in schema v9');
+}
+
+export function countRecipes(clientOrCatalog) {
+  const db = clientOrCatalog._db ?? clientOrCatalog;
+  return Number(db.prepare('SELECT COUNT(*) AS n FROM recipes').get().n);
 }
 
 export function countCommands(clientOrCatalog) {
-  const db = clientOrCatalog._db ?? clientOrCatalog;
-  return Number(db.prepare('SELECT COUNT(*) AS n FROM commands').get().n);
+  return countRecipes(clientOrCatalog);
 }
 
-export function countIntents(clientOrCatalog) {
-  const db = clientOrCatalog._db ?? clientOrCatalog;
-  return Number(db.prepare('SELECT COUNT(*) AS n FROM intents').get().n);
+export function countIntents() {
+  return 0;
 }
 
-export function hydrateSearchHit(intentRow, commandRow, distance) {
-  const commands = parseCommands(commandRow.command_recipe || commandRow.commands);
+export function getRecipe(clientOrCatalog, id) {
+  const db = clientOrCatalog._db ?? clientOrCatalog;
+  return rowToRecipe(db.prepare('SELECT * FROM recipes WHERE id = ?').get(id));
+}
+
+export function getCommand(clientOrCatalog, rowId) {
+  return getRecipe(clientOrCatalog, rowId);
+}
+
+export function listRecipes(clientOrCatalog) {
+  const db = clientOrCatalog._db ?? clientOrCatalog;
+  return db
+    .prepare('SELECT * FROM recipes ORDER BY id')
+    .all()
+    .map(rowToRecipe);
+}
+
+export function listCommands(clientOrCatalog) {
+  return listRecipes(clientOrCatalog);
+}
+
+export function listRecipesByLeaf(clientOrCatalog, leafId) {
+  const db = clientOrCatalog._db ?? clientOrCatalog;
+  return db
+    .prepare('SELECT * FROM recipes WHERE taxonomy_leaf = ? ORDER BY id')
+    .all(leafId)
+    .map(rowToRecipe);
+}
+
+export function findRecipeByFingerprint(clientOrCatalog, fingerprint) {
+  const db = clientOrCatalog._db ?? clientOrCatalog;
+  return rowToRecipe(
+    db
+      .prepare('SELECT * FROM recipes WHERE command_fingerprint = ? LIMIT 1')
+      .get(fingerprint),
+  );
+}
+
+export function appendParaphrase(clientOrCatalog, recipeId, paraphrase) {
+  const db = clientOrCatalog._db ?? clientOrCatalog;
+  const row = db.prepare('SELECT paraphrases FROM recipes WHERE id = ?').get(recipeId);
+  if (!row) return false;
+  const list = parseJsonArray(row.paraphrases);
+  const text = String(paraphrase || '').trim();
+  if (!text || list.includes(text)) return false;
+  list.push(text);
+  db.prepare('UPDATE recipes SET paraphrases = ? WHERE id = ?').run(
+    JSON.stringify(list),
+    recipeId,
+  );
+  return true;
+}
+
+/** Text embedded for KNN: description + paraphrases (not raw commands). */
+export function recipeEmbedText(recipe) {
+  const parts = [String(recipe?.description || '').trim()];
+  for (const p of recipe?.paraphrases || []) {
+    const t = String(p || '').trim();
+    if (t) parts.push(t);
+  }
+  return parts.filter(Boolean).join('\n');
+}
+
+export function upsertRecipeEmbedding(clientOrCatalog, recipeId, embedding) {
+  const db = clientOrCatalog._db ?? clientOrCatalog;
+  const id = String(recipeId);
+  const emb =
+    embedding instanceof Float32Array
+      ? embedding
+      : new Float32Array(embedding);
+  if (emb.length !== EMBEDDING_DIM) {
+    throw new Error(`embedding dim ${emb.length} !== ${EMBEDDING_DIM}`);
+  }
+  db.prepare('DELETE FROM vec_recipes WHERE id = ?').run(id);
+  db.prepare('INSERT INTO vec_recipes (id, embedding) VALUES (?, ?)').run(id, emb);
+}
+
+export function hydrateRecipeHit(recipeRow, distance) {
+  const commands = parseCommands(recipeRow.commands);
   const example = primaryCommand(commands) || commands[0]?.command || '';
-  const skillText =
-    typeof intentRow.skill_level === 'string'
-      ? normalizeSkillLevelText(intentRow.skill_level) || intentRow.skill_level
-      : intentRow.skill_level;
-  const skillRank =
-    typeof skillText === 'string' ? SKILL_RANK[skillText] ?? 4 : Number(skillText);
+  const title = String(recipeRow.title || '').trim() || example;
+  const description = String(recipeRow.description || '');
   return {
-    id: String(intentRow.row_id ?? intentRow.id),
-    recipe_id: String(commandRow.row_id ?? commandRow.id),
-    command_id: Number(commandRow.row_id ?? commandRow.id),
+    id: String(recipeRow.id),
+    recipe_id: String(recipeRow.id),
+    command_id: String(recipeRow.id),
     command: deriveCommandFamily(example),
     example,
     commands,
     snippet: renderSnippet(commands),
-    title: (() => {
-      const t = commandRow.title != null ? String(commandRow.title).trim() : '';
-      return t || example;
-    })(),
+    title,
+    description,
     usage: example,
     intent_family: '',
     simplicity_rank: commands.length,
-    topic: '',
-    skill_level: skillRank,
-    skill_level_text: skillText,
-    intent_category: intentRow.intent_category ?? '',
-    intent_description: intentRow.intent_text,
-    intent_text: intentRow.intent_text,
-    explanation: '',
-    risk: Number(commandRow.risk ?? 0),
-    initial_state: commandRow.initial_state ?? '',
+    topic: recipeRow.taxonomy_leaf || '',
+    taxonomy_leaf: recipeRow.taxonomy_leaf || '',
+    tags: Array.isArray(recipeRow.tags)
+      ? recipeRow.tags
+      : parseJsonArray(recipeRow.tags),
+    paraphrases: Array.isArray(recipeRow.paraphrases)
+      ? recipeRow.paraphrases
+      : parseJsonArray(recipeRow.paraphrases),
+    skill_level: 4,
+    skill_level_text: '',
+    intent_category: '',
+    intent_description: description,
+    intent_text: description,
+    explanation: description,
+    risk: Number(recipeRow.risk ?? 0),
+    initial_state: recipeRow.initial_state ?? '',
+    provenance: recipeRow.provenance || 'synthetic',
     schema_version: SCHEMA_VERSION,
     embedding: null,
     _vecDistance: Number(distance),
@@ -409,38 +482,72 @@ export function hydrateSearchHit(intentRow, commandRow, distance) {
   };
 }
 
-/** Rebuild commands_fts from all commands rows (+ intent_text for NL recall). */
-export function rebuildCommandsFts(clientOrCatalog) {
-  const db = clientOrCatalog._db ?? clientOrCatalog;
-  db.exec('DELETE FROM commands_fts;');
-  const rows = db.prepare('SELECT row_id, command_recipe FROM commands').all();
-  const intentStmt = db.prepare(
-    'SELECT intent_text FROM intents WHERE command_id = ? ORDER BY row_id LIMIT 24',
+/** @deprecated */
+export function hydrateSearchHit(intentRow, commandRow, distance) {
+  return hydrateRecipeHit(
+    {
+      id: commandRow.row_id ?? commandRow.id,
+      commands: commandRow.command_recipe || commandRow.commands,
+      title: commandRow.title,
+      description: intentRow?.intent_text || commandRow.description || '',
+      taxonomy_leaf: commandRow.taxonomy_leaf,
+      tags: commandRow.tags,
+      paraphrases: commandRow.paraphrases,
+      risk: commandRow.risk,
+      initial_state: commandRow.initial_state,
+      provenance: commandRow.provenance,
+    },
+    distance,
   );
+}
+
+export function rebuildRecipesFts(clientOrCatalog) {
+  const db = clientOrCatalog._db ?? clientOrCatalog;
+  db.exec('DELETE FROM recipes_fts;');
+  const rows = db
+    .prepare(
+      'SELECT id, commands, title, description, tags, paraphrases FROM recipes',
+    )
+    .all();
   const insert = db.prepare(
-    'INSERT INTO commands_fts (command_id, body) VALUES (?, ?)',
+    'INSERT INTO recipes_fts (recipe_id, body) VALUES (?, ?)',
   );
   const tx = db.transaction(() => {
     for (const r of rows) {
-      const steps = parseCommands(r.command_recipe);
-      const intents = intentStmt.all(r.row_id).map((i) => i.intent_text);
-      insert.run(String(r.row_id), commandFtsBody(steps, intents));
+      const steps = parseCommands(r.commands);
+      insert.run(
+        String(r.id),
+        recipeFtsBody(steps, {
+          title: r.title,
+          description: r.description,
+          tags: parseJsonArray(r.tags),
+          paraphrases: parseJsonArray(r.paraphrases),
+        }),
+      );
     }
   });
   tx();
   return rows.length;
 }
 
-export function countCommandsFts(clientOrCatalog) {
+export function rebuildCommandsFts(clientOrCatalog) {
+  return rebuildRecipesFts(clientOrCatalog);
+}
+
+export function countRecipesFts(clientOrCatalog) {
   const db = clientOrCatalog._db ?? clientOrCatalog;
   return Number(
-    db.prepare('SELECT COUNT(*) AS n FROM commands_fts').get()?.n ?? 0,
+    db.prepare('SELECT COUNT(*) AS n FROM recipes_fts').get()?.n ?? 0,
   );
 }
 
+export function countCommandsFts(clientOrCatalog) {
+  return countRecipesFts(clientOrCatalog);
+}
+
 /**
- * Lexical BM25 recall over commands_fts.
- * @returns {{ command_id: number, bm25: number }[]}
+ * Lexical BM25 recall over recipes_fts.
+ * @returns {{ recipe_id: string, command_id: string, bm25: number }[]}
  */
 export function ftsRecall(clientOrCatalog, query, k = DEFAULT_RECALL_K) {
   const db = clientOrCatalog._db ?? clientOrCatalog;
@@ -451,16 +558,17 @@ export function ftsRecall(clientOrCatalog, query, k = DEFAULT_RECALL_K) {
     const rows = db
       .prepare(
         `
-      SELECT command_id AS command_id, bm25(commands_fts) AS bm25
-      FROM commands_fts
-      WHERE commands_fts MATCH ?
+      SELECT recipe_id AS recipe_id, bm25(recipes_fts) AS bm25
+      FROM recipes_fts
+      WHERE recipes_fts MATCH ?
       ORDER BY bm25
       LIMIT ?
       `,
       )
       .all(match, want);
     return rows.map((r) => ({
-      command_id: Number(r.command_id),
+      recipe_id: String(r.recipe_id),
+      command_id: String(r.recipe_id),
       bm25: Number(r.bm25),
     }));
   } catch {
@@ -469,163 +577,57 @@ export function ftsRecall(clientOrCatalog, query, k = DEFAULT_RECALL_K) {
 }
 
 export function knnRecall(clientOrCatalog, queryEmbedding, k = DEFAULT_RECALL_K, opts = {}) {
-  const db = clientOrCatalog._db ?? clientOrCatalog;
-  const embedding =
-    queryEmbedding instanceof Float32Array
-      ? queryEmbedding
-      : new Float32Array(queryEmbedding);
-  const want = Math.max(1, Math.floor(k));
-  // Skill filter removed from product search (blend-only). opts.maxSkillLevel ignored.
   void opts;
-  const fetchK = want;
-
-  const hits = db
-    .prepare(
-      `
-      SELECT id, distance
-      FROM vec_intents
-      WHERE embedding MATCH ?
-        AND k = ?
-      ORDER BY distance
-      `,
-    )
-    .all(embedding, fetchK);
-
-  if (hits.length === 0) return [];
-
-  const ids = hits.map((h) => h.id);
-  const placeholders = ids.map(() => '?').join(',');
-  const params = [...ids];
-
-  const metaRows = db
-    .prepare(
-      `
-      SELECT
-        i.row_id AS intent_id,
-        i.command_id AS command_id,
-        i.intent_text AS intent_text,
-        i.skill_level AS skill_level,
-        i.intent_category AS intent_category,
-        c.row_id AS c_id,
-        c.initial_state AS initial_state,
-        c.command_recipe AS command_recipe,
-        c.risk AS risk,
-        c.title AS title
-      FROM intents i
-      JOIN commands c ON c.row_id = i.command_id
-      WHERE CAST(i.row_id AS TEXT) IN (${placeholders})
-      `,
-    )
-    .all(...params);
-
-  const byId = new Map(metaRows.map((r) => [String(r.intent_id), r]));
-  return hits
-    .map((h) => {
-      const meta = byId.get(String(h.id));
-      if (!meta) return null;
-      return hydrateSearchHit(
-        {
-          row_id: meta.intent_id,
-          intent_text: meta.intent_text,
-          skill_level: meta.skill_level,
-          intent_category: meta.intent_category,
-        },
-        {
-          row_id: meta.c_id,
-          initial_state: meta.initial_state,
-          command_recipe: meta.command_recipe,
-          risk: meta.risk,
-          title: meta.title,
-        },
-        h.distance,
-      );
-    })
-    .filter(Boolean);
-}
-
-export function knnRecallCommands(clientOrCatalog, queryEmbedding, k = 10) {
   const db = clientOrCatalog._db ?? clientOrCatalog;
   const embedding =
     queryEmbedding instanceof Float32Array
       ? queryEmbedding
       : new Float32Array(queryEmbedding);
   const want = Math.max(1, Math.floor(k));
+
   const hits = db
     .prepare(
       `
       SELECT id, distance
-      FROM vec_commands
+      FROM vec_recipes
       WHERE embedding MATCH ?
         AND k = ?
       ORDER BY distance
       `,
     )
     .all(embedding, want);
-  return hits.map((h) => ({
-    command_id: Number(h.id),
-    distance: Number(h.distance),
-  }));
+
+  if (hits.length === 0) return [];
+
+  const ids = hits.map((h) => h.id);
+  const placeholders = ids.map(() => '?').join(',');
+  const metaRows = db
+    .prepare(`SELECT * FROM recipes WHERE id IN (${placeholders})`)
+    .all(...ids);
+  const byId = new Map(metaRows.map((r) => [String(r.id), r]));
+
+  return hits
+    .map((h) => {
+      const meta = byId.get(String(h.id));
+      if (!meta) return null;
+      return hydrateRecipeHit(rowToRecipe(meta), h.distance);
+    })
+    .filter(Boolean);
+}
+
+export function knnRecallRecipes(clientOrCatalog, queryEmbedding, k = DEFAULT_RECALL_K) {
+  return knnRecall(clientOrCatalog, queryEmbedding, k);
+}
+
+/** @deprecated */
+export function knnRecallCommands() {
+  return [];
 }
 
 export function loadAllRows(clientOrCatalog) {
-  const db = clientOrCatalog._db ?? clientOrCatalog;
-  return db
-    .prepare(
-      `
-      SELECT
-        i.row_id AS intent_id,
-        i.command_id AS command_id,
-        i.intent_text AS intent_text,
-        i.skill_level AS skill_level,
-        i.intent_category AS intent_category,
-        c.initial_state AS initial_state,
-        c.command_recipe AS command_recipe,
-        c.risk AS risk,
-        c.title AS title
-      FROM intents i
-      JOIN commands c ON c.row_id = i.command_id
-      `,
-    )
-    .all()
-    .map((r) => {
-      const commands = parseCommands(r.command_recipe);
-      const example = primaryCommand(commands);
-      const storedTitle = r.title != null ? String(r.title).trim() : '';
-      return {
-        id: String(r.intent_id),
-        recipe_id: String(r.command_id),
-        command_id: Number(r.command_id),
-        title: storedTitle || example,
-        command: deriveCommandFamily(example),
-        example,
-        primary_example: example,
-        commands,
-        snippet: renderSnippet(commands),
-        usage: example,
-        intent_family: '',
-        simplicity_rank: commands.length,
-        topic: '',
-        skill_level: SKILL_RANK[r.skill_level] ?? 4,
-        skill_level_text: r.skill_level,
-        intent_category: r.intent_category,
-        intent_description: r.intent_text,
-        intent_text: r.intent_text,
-        explanation: '',
-        risk: Number(r.risk),
-        schema_version: SCHEMA_VERSION,
-        embedding: null,
-      };
-    });
-}
-
-export function getCommand(clientOrCatalog, rowId) {
-  const db = clientOrCatalog._db ?? clientOrCatalog;
-  return db.prepare('SELECT * FROM commands WHERE row_id = ?').get(rowId);
-}
-
-export function listCommands(clientOrCatalog) {
-  const db = clientOrCatalog._db ?? clientOrCatalog;
-  return db.prepare('SELECT * FROM commands ORDER BY row_id').all();
+  return listRecipes(clientOrCatalog).map((r) =>
+    hydrateRecipeHit(r, 0),
+  );
 }
 
 export function promoteStagingDb(stagingPath, prodPath) {
@@ -635,29 +637,22 @@ export function promoteStagingDb(stagingPath, prodPath) {
   const db = openDb(prodPath);
   try {
     finalizeSearchIndex(db);
-    stripVecCommandsForShip(db);
   } finally {
     db.close();
   }
   return prodPath;
 }
 
-/** Drop vec_commands from a product/shipped DB (build loop keeps it on staging). */
-export function stripVecCommandsForShip(clientOrCatalog) {
-  const db = clientOrCatalog._db ?? clientOrCatalog;
-  db.exec('DROP TABLE IF EXISTS vec_commands;');
-}
+/** no-op — vec_commands removed */
+export function stripVecCommandsForShip() {}
 
-/**
- * Rebuild FTS, write git_verbs + search_algorithm_version meta.
- */
 export function finalizeSearchIndex(clientOrCatalog) {
   const db = clientOrCatalog._db ?? clientOrCatalog;
-  rebuildCommandsFts(db);
-  const rows = db.prepare('SELECT command_recipe FROM commands').all();
+  rebuildRecipesFts(db);
+  const rows = db.prepare('SELECT commands FROM recipes').all();
   const recipes = rows.map((r) => {
     try {
-      return JSON.parse(r.command_recipe);
+      return JSON.parse(r.commands);
     } catch {
       return { commands: [] };
     }
@@ -678,7 +673,6 @@ export function getMetaValue(clientOrCatalog, key) {
   return row?.value ?? null;
 }
 
-/** Persist a meta key on an open DB / catalog handle. */
 export function setMetaValue(clientOrCatalog, key, value) {
   const db = clientOrCatalog._db ?? clientOrCatalog;
   db.prepare('INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)').run(
@@ -704,21 +698,4 @@ export function smokeTestSqliteVec() {
   } catch (e) {
     return { ok: false, reason: e?.message || String(e) };
   }
-}
-
-/** @deprecated use insertCommand */
-export function insertRecipe(clientOrCatalog, recipe) {
-  return insertCommand(clientOrCatalog, {
-    initial_state: recipe.initial_state || 'git init\n',
-    command_recipe: recipe.command_recipe || {
-      commands: parseCommands(recipe.commands).map((s) => ({
-        command: s.command,
-        comment: s.comment,
-      })),
-    },
-    initial_state_physical_hash: recipe.initial_state_physical_hash || 'legacy',
-    final_state_physical_hash: recipe.final_state_physical_hash || 'legacy',
-    risk: recipe.risk ?? 0,
-    parent_row_id: recipe.parent_row_id ?? null,
-  });
 }

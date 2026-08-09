@@ -27,4 +27,15 @@ describe('ftsQuery', () => {
       ]),
     ).toContain('keep staged');
   });
+
+  it('builds recipe FTS body with title and description', async () => {
+    const { recipeFtsBody } = await import('../../../common/src/search/ftsQuery.ts');
+    expect(
+      recipeFtsBody([{ command: 'git status' }], {
+        title: 'Status',
+        description: 'show tree',
+        tags: ['inspect'],
+      }),
+    ).toContain('show tree');
+  });
 });

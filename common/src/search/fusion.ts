@@ -7,6 +7,7 @@ import {
   DISPLAY_GAP_EXACT,
   DISPLAY_GAP_NARROW,
 } from '../db/constants.js';
+import { structuralRecipeKey } from '../build/argvNormalize.js';
 
 export type DisplayGateThresholds = {
   topK?: number;
@@ -33,24 +34,15 @@ export type DisplayGateEvidence = {
   topHasVerbBoost: boolean;
 };
 
-/** Normalize recipe steps for display diversity (ignore comments / initial_state). */
+/** Normalize recipe steps for display diversity (structural argv identity). */
 export function recipeFingerprint(hit: {
   commands?: { command?: string; run?: string }[];
   example?: string;
   command?: string;
 }): string {
-  const cmds = hit.commands;
-  if (Array.isArray(cmds) && cmds.length) {
-    return cmds
-      .map((c) => String(c.command ?? c.run ?? '').trim().replace(/\s+/g, ' '))
-      .filter(Boolean)
-      .join('\n')
-      .toLowerCase();
-  }
-  return String(hit.example || hit.command || '')
-    .trim()
-    .replace(/\s+/g, ' ')
-    .toLowerCase();
+  // Lazy require to keep fusion usable from browser bundles that tree-shake build/
+  // — actually common search already imports from build in Node CLI. Use static import.
+  return structuralRecipeKey(hit);
 }
 
 /**

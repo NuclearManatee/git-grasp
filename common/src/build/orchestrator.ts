@@ -1,1204 +1,501 @@
 // @ts-nocheck
 /**
- * Build+Eval orchestrator: prepare â†’ ground â†’ interactive loop with staging.
+ * Leaf-parallel catalog orchestrator (taxonomy → generate/saturate → holdout → improve).
  */
-import { mkdirSync, existsSync, rmSync } from 'node:fs';
+import { mkdirSync, existsSync, unlinkSync } from 'node:fs';
 import path from 'node:path';
 import pLimit from 'p-limit';
 import {
   openDb,
-  insertCommand,
-  insertIntentWithEmbedding,
-  insertCommandEmbedding,
-  findCommandByHashPair,
-  deleteCommandCascade,
-  countCommands,
-  countIntents,
+  finalizeSearchIndex,
   promoteStagingDb,
-  getCommand,
-  listCommands,
   knnRecall,
-  getMetaValue,
-  setMetaValue,
+  ftsRecall,
+  getRecipe,
+  loadGitVerbs,
+  listRecipes,
+  appendParaphrase,
+  recipeEmbedText,
+  upsertRecipeEmbedding,
 } from '../db/schema.js';
 import {
   buildStagingDbPath,
-  defaultDbPath,
   buildCacheDir,
-  semanticBlocksPath,
+  defaultDbPath,
+  goalTaxonomyPath,
 } from '../lib/paths.js';
+import { LEAF_CONCURRENCY, HELDOUT_IMPROVE_ROUNDS } from '../db/constants.js';
+import { readGoalTaxonomy } from './goalTaxonomy.js';
+import { saturateLeaf } from './leafSaturate.js';
+import { runLeafHoldout } from './leafHoldout.js';
 import {
-  BUILD_CONCURRENCY,
-  LOOP_EXIT_ZERO_STREAK,
-  LOOP_MAX_BATCH,
-  MAX_COMMANDS,
-  MAX_INTENTS,
-  EVAL_MIN_PASS_RATE,
-  EVAL_MIN_HIT_AT_DISPLAY_RATE,
-  EVAL_JUDGE_UTILITY_THRESHOLD,
-  META_BUILD_LOOP_ITERATION,
-  META_BUILD_LOOP_ZERO_STREAK,
-  META_BUILD_LOOP_MAX_ITERATIONS,
-  INTENT_FOREIGN_KNN_K,
-} from '../db/constants.js';
-import { prepareSemanticBlocks, readSemanticBlocks, loadGitCommandTaxonomy } from './prepare.js';
-import { isUnsignedVerifySkip } from './taxonomyScrape.js';
-import { generateAndValidate } from './validate.js';
-import { expandIntentsForRecipe, evolveByKind } from './generate.js';
-import { polishRecipeHygiene } from './polishRecipe.js';
-import { shouldPersistIntent } from './intentExpand.js';
-import { makeKnnForeign } from './intentSimilarity.js';
-import { dedupDecision, findCommandByFingerprint, recipeFingerprint } from './dedup.js';
-import { createWriterQueue } from './writerQueue.js';
+  triageFailure,
+  applyTriageAction,
+  clusterGapQueries,
+  expandTaxonomyFromGapClusters,
+  classifyMissHeuristic,
+} from './improveTriage.js';
 import {
-  appendBank,
-  evaluateBank,
-  activeEvaluationBank,
-  generateGoldenQuery,
-  expandQueries,
-  tagGolden,
-  primaryVerbFromRecipe,
-  formatEvalReport,
-  formatJudgeVote,
-  appendEvolveGolden,
-  appendExtendedScrambledBanks,
-  buildCoveragePromoteReport,
-  writeCoveragePromoteReport,
-  verbLookupFromRows,
-  lineageFromRows,
-  evalDataDir,
-  loadBank,
-  formatEvalProgress,
-  formatEvalTiming,
-  formatEvolveTiming,
-  JUDGE_SYSTEM_PROMPT,
-  resolveEvalConcurrency,
-  isFallbackGoldenQuery,
-  evalBankMeetsFloors,
-} from './evalGate.js';
-import { runEvalGateRecovery } from './evalRecovery/runEvalGateRecovery.js';
-import {
-  makeEvalSearchSession,
-  resolveEvalSearchPoolSize,
-} from './evalSearchSession.js';
-import {
-  retrieveEvolutionExamples,
-  selectEvolutionParents,
-  loopAllVerbsSaturated,
-  countLeaves,
-} from './loop.js';
-import {
-  recordFloorMetAtIter,
-  shouldStopAfterPostFloorBudget,
-} from './loopBudget.js';
-import { getEmbedder, mockEmbed } from '../search/embed.js';
-import { parseCommands, primaryCommand } from '../db/recipeFormat.js';
-
-export { makeEvalSearchSession, resolveEvalSearchPoolSize } from './evalSearchSession.js';
+  loadRegressionSet,
+  saveRegressionSet,
+  addRegressionQueries,
+  evaluateRegressionSet,
+  emptyRegressionSet,
+} from './regressionSet.js';
+import { writeCorpusVersion } from './corpusVersion.js';
+import { getEmbedder } from '../search/embed.js';
+import { searchHybrid, normalizeQuery } from '../search/hybrid.js';
+import { parseCommands, primaryCommand, renderSnippet } from '../db/recipeFormat.js';
+import { loadThresholds } from '../search/index.js';
+import { inferFixtureForLeaf } from './sandboxFixtures.js';
 
 function log(...args) {
-  const ts = new Date().toISOString().slice(11, 19);
-  console.log(`[build ${ts}]`, ...args);
-  if (typeof buildLogHook === 'function') {
-    const text = args
-      .map((a) => (typeof a === 'string' ? a : safeJson(a)))
-      .join(' ');
-    try {
-      buildLogHook(`[build ${ts}] ${text}`);
-    } catch {
-      // ignore sink errors
-    }
-  }
-}
-
-function safeJson(v) {
-  try {
-    return JSON.stringify(v);
-  } catch {
-    return String(v);
-  }
-}
-
-/** Optional sink for structured run logs (build-loop CLI). */
-let buildLogHook = null;
-export function setBuildLogHook(fn) {
-  buildLogHook = typeof fn === 'function' ? fn : null;
-}
-
-function commandEmbedText(row) {
-  const steps = parseCommands(row.command_recipe);
-  return `${row.initial_state}\n${steps.map((s) => s.command).join('\n')}`;
-}
-
-function persistLoopProgress(db, { iteration, zeroStreak, maxIterations }) {
-  setMetaValue(db, META_BUILD_LOOP_ITERATION, String(iteration));
-  setMetaValue(db, META_BUILD_LOOP_ZERO_STREAK, String(zeroStreak));
-  if (maxIterations != null) {
-    setMetaValue(db, META_BUILD_LOOP_MAX_ITERATIONS, String(maxIterations));
-  }
-}
-
-function loadLoopProgress(db) {
-  const iterRaw = getMetaValue(db, META_BUILD_LOOP_ITERATION);
-  const zeroRaw = getMetaValue(db, META_BUILD_LOOP_ZERO_STREAK);
-  const maxRaw = getMetaValue(db, META_BUILD_LOOP_MAX_ITERATIONS);
-  const iteration = Number(iterRaw);
-  const zeroStreak = Number(zeroRaw);
-  const savedMax = Number(maxRaw);
-  return {
-    iteration: Number.isFinite(iteration) && iteration > 0 ? Math.floor(iteration) : 0,
-    zeroStreak: Number.isFinite(zeroStreak) && zeroStreak > 0 ? Math.floor(zeroStreak) : 0,
-    savedMaxIterations:
-      Number.isFinite(savedMax) && savedMax > 0 ? Math.floor(savedMax) : null,
-  };
-}
-
-async function runBankEval(bank, stagingPath, opts = {}) {
-  const minPassRate = opts.minPassRate ?? EVAL_MIN_PASS_RATE;
-  const minHitAtDisplayRate = opts.minHitAtDisplayRate ?? EVAL_MIN_HIT_AT_DISPLAY_RATE;
-  const verbLookup = opts.verbLookup;
-  const lineage = opts.lineage;
-  const onProgress =
-    opts.onProgress ||
-    ((p) => {
-      log(formatEvalProgress(p));
-    });
-  const onJudgeVote =
-    opts.onJudgeVote ||
-    ((vote) => {
-      log(formatJudgeVote(vote));
-    });
-  const onSkipJudge =
-    opts.onSkipJudge ||
-    ((info) => {
-      log(
-        `eval skipJudge hitRate=${(info.hitRate ?? 0).toFixed(2)} < minHitAtDisplay=${info.minHitAtDisplayRate}`,
-      );
-    });
-
-  log(
-    `eval criteria hit@display>=${minHitAtDisplayRate} passA>=${minPassRate} judgeUtil>=${opts.utilityThreshold ?? EVAL_JUDGE_UTILITY_THRESHOLD}`,
-  );
-  log(`eval judgePrompt ${JUDGE_SYSTEM_PROMPT.replace(/\s+/g, ' ').trim()}`);
-
-  const evalOpts = {
-    llmJsonObject: opts.llmJsonObject,
-    minPassRate,
-    minHitAtDisplayRate,
-    utilityThreshold: opts.utilityThreshold,
-    verbLookup,
-    lineage,
-    concurrency: opts.evalConcurrency,
-    onProgress,
-    onJudgeVote,
-    onSkipJudge,
-  };
-
-  if (opts.searchFn) {
-    const result = await evaluateBank(bank, opts.searchFn, evalOpts);
-    if (result.timing) log(formatEvalTiming(result.timing));
-    return result;
-  }
-
-  const poolSize = resolveEvalSearchPoolSize({
-    poolSize: opts.searchPoolSize,
-  });
-  const concurrency = resolveEvalConcurrency({ concurrency: opts.evalConcurrency });
-  log(
-    `eval session open staging=${stagingPath} bank=${bank.length} pool=${poolSize} concurrency=${concurrency}`,
-  );
-  const session = await makeEvalSearchSession(stagingPath, {
-    poolSize,
-  });
-  try {
-    const result = await evaluateBank(bank, session.search, evalOpts);
-    if (result.timing) log(formatEvalTiming(result.timing));
-    return result;
-  } finally {
-    session.close();
-    log(`eval session closed`);
-  }
-}
-
-export function wipeBuildCache() {
-  // Only wipe ephemeral ground/loop artifacts â€” never Step âˆ’1 prepare output.
-  const dir = buildCacheDir();
-  if (existsSync(dir)) rmSync(dir, { recursive: true, force: true });
-  mkdirSync(dir, { recursive: true });
-  log(`wiped build cache â†’ ${dir} (Step âˆ’1 prepare kept)`);
-}
-
-export function wipeEvalBanks() {
-  const evalDir = evalDataDir();
-  if (existsSync(evalDir)) {
-    rmSync(evalDir, { recursive: true, force: true });
-    log(`wiped eval banks â†’ ${evalDir}`);
-  }
+  console.log(`[build]`, ...args);
 }
 
 /**
- * Authoritative persist-time prune (within + foreign cosine). Drop only — no rewrite.
- * @param {object} d db handle
- * @param {{ embed: (t: string) => Promise<Float32Array|number[]> }} embedder
- * @param {object} intent
- * @param {number} commandId
- * @param {(Float32Array|number[])[]} existingEmbeddings
+ * Prefer diverse leaves for smoke caps: spread by preferred fixture, then by
+ * primary mapped verb, instead of taking the first N near-duplicate siblings.
  */
-async function persistIntentIfAllowed(
-  d,
-  embedder,
-  intent,
-  commandId,
-  existingEmbeddings,
-  excludeCommandIds = null,
-) {
-  const emb = await embedder.embed(intent.intent_text);
-  const knnForeign = makeKnnForeign(d, knnRecall, INTENT_FOREIGN_KNN_K);
-  const gate = await shouldPersistIntent({
-    intent_text: intent.intent_text,
-    embedding: emb,
-    existingEmbeddings,
-    knnForeign,
-    selfCommandId: commandId,
-    excludeCommandIds,
-  });
-  if (!gate.ok) return { inserted: false, reason: gate.reason, embedding: emb };
-  insertIntentWithEmbedding(d, {
-    command_id: commandId,
-    skill_level: intent.skill_level,
-    intent_category: intent.intent_category,
-    intent_text: intent.intent_text,
-    embedding: emb,
-  });
-  existingEmbeddings.push(emb);
-  return { inserted: true, reason: 'ok', embedding: emb };
+export function selectLeavesForCap(leaves, maxLeaves) {
+  if (maxLeaves == null || maxLeaves <= 0 || leaves.length <= maxLeaves) {
+    return leaves;
+  }
+  const remaining = [...leaves];
+  const picked = [];
+  const usedFixtures = new Set();
+  const usedVerbs = new Set();
+
+  const primaryVerb = (leaf) => {
+    const cmd = String(leaf?.mapped_commands?.[0] || '').toLowerCase();
+    const m = /\bgit\s+([a-z0-9_-]+)/.exec(cmd);
+    return m ? m[1] : cmd.slice(0, 24) || leaf.id;
+  };
+
+  while (picked.length < maxLeaves && remaining.length) {
+    let idx = remaining.findIndex((leaf) => {
+      const fx = inferFixtureForLeaf(leaf);
+      const verb = primaryVerb(leaf);
+      return !usedFixtures.has(fx) && !usedVerbs.has(verb);
+    });
+    if (idx < 0) {
+      idx = remaining.findIndex((leaf) => {
+        const verb = primaryVerb(leaf);
+        return !usedVerbs.has(verb);
+      });
+    }
+    if (idx < 0) idx = 0;
+    const [leaf] = remaining.splice(idx, 1);
+    picked.push(leaf);
+    usedFixtures.add(inferFixtureForLeaf(leaf));
+    usedVerbs.add(primaryVerb(leaf));
+  }
+  return picked;
 }
 
-async function persistAccepted(db, writer, accepted, embedder) {
-  const parentExclude =
-    accepted.parent_row_id != null
-      ? new Set([Number(accepted.parent_row_id)])
-      : null;
-  return writer.run(async (d) => {
-    let existing = findCommandByHashPair(
-      d,
-      accepted.initial_state_physical_hash,
-      accepted.final_state_physical_hash,
-    );
-    // Secondary key: normalized recipe fingerprint.
-    if (!existing) {
-      existing = findCommandByFingerprint(d, recipeFingerprint(accepted.command_recipe));
-    }
-    const decision = dedupDecision(existing, accepted);
-    if (decision === 'keep_existing') {
-      // Merge any new intents onto survivor (exact text + cosine prune).
-      const intents = accepted.intents || [];
-      if (intents.length) {
-        const rawDb = d._db ?? d;
-        const existingRows = rawDb
-          .prepare(`SELECT intent_text FROM intents WHERE command_id = ?`)
-          .all(existing.row_id);
-        const existingTexts = new Set(
-          existingRows.map((r) =>
-            String(r.intent_text || '')
-              .toLowerCase()
-              .trim(),
-          ),
-        );
-        /** @type {(Float32Array|number[])[]} */
-        const existingEmbeddings = [];
-        for (const r of existingRows) {
-          existingEmbeddings.push(await embedder.embed(String(r.intent_text || '')));
-        }
-        for (const intent of intents) {
-          const key = String(intent.intent_text || '')
-            .toLowerCase()
-            .trim();
-          if (!key || existingTexts.has(key)) continue;
-          existingTexts.add(key);
-          await persistIntentIfAllowed(
-            d,
-            embedder,
-            intent,
-            existing.row_id,
-            existingEmbeddings,
-            parentExclude,
-          );
-        }
-      }
-      return { inserted: false, row_id: existing.row_id, reason: 'dedup_keep' };
-    }
-    if (decision === 'replace_existing') {
-      deleteCommandCascade(d, existing.row_id);
-    }
-    const row_id = insertCommand(d, {
-      initial_state: accepted.initial_state,
-      command_recipe: accepted.command_recipe,
-      initial_state_physical_hash: accepted.initial_state_physical_hash,
-      final_state_physical_hash: accepted.final_state_physical_hash,
-      risk: accepted.risk,
-      parent_row_id: accepted.parent_row_id ?? null,
-      mutation_kind: accepted.mutation_kind ?? null,
-      title: accepted.title ?? null,
+function wipeStaging(stagingPath) {
+  mkdirSync(path.dirname(stagingPath), { recursive: true });
+  if (existsSync(stagingPath)) unlinkSync(stagingPath);
+}
+
+function makeSearchFn(db, thresholds, embedder) {
+  const verbs = loadGitVerbs(db);
+  return async (query) => {
+    const q = normalizeQuery(query);
+    return searchHybrid({
+      query: q,
+      thresholds,
+      verbs,
+      embed: () => embedder.embed(q),
+      knn: (vec, k) => knnRecall(db, vec, k),
+      fts: (qq, k) => ftsRecall(db, qq, k),
+      hydrate: (ids) =>
+        ids.map((id) => {
+          const row = getRecipe(db, id);
+          if (!row) {
+            return {
+              command_id: id,
+              commands: [],
+              example: '',
+              snippet: '',
+              title: '',
+              description: '',
+              risk: 0,
+            };
+          }
+          const commands = parseCommands(row.commands);
+          return {
+            command_id: row.id,
+            commands,
+            example: primaryCommand(commands),
+            snippet: renderSnippet(commands),
+            title: row.title,
+            description: row.description,
+            risk: row.risk,
+          };
+        }),
     });
-    const intents = accepted.intents || [];
-    /** @type {(Float32Array|number[])[]} */
-    const existingEmbeddings = [];
-    for (const intent of intents) {
-      await persistIntentIfAllowed(
-        d,
-        embedder,
-        intent,
-        row_id,
-        existingEmbeddings,
-        parentExclude,
-      );
-    }
-    const cEmb = await embedder.embed(
-      commandEmbedText({ ...accepted, command_recipe: accepted.command_recipe }),
-    );
-    insertCommandEmbedding(d, row_id, cEmb);
-    return { inserted: true, row_id, reason: decision };
-  });
+  };
 }
 
 /**
- * Ground steps 1â€“4 over semantic_blocks into staging.
+ * Ground: parallel leaf saturation until discovery checkpoints.
  */
 export async function runGroundStep(opts = {}) {
-  mkdirSync(buildCacheDir(), { recursive: true });
   const stagingPath = opts.stagingPath || buildStagingDbPath();
-  if (existsSync(stagingPath) && opts.fresh !== false) {
-    try {
-      rmSync(stagingPath, { force: true });
-    } catch (e) {
-      const alt = stagingPath.replace(/\.db$/i, `.${Date.now()}.db`);
-      console.warn(`Could not remove ${stagingPath} (${e?.message || e}); using ${alt}`);
-      opts.stagingPath = alt;
-    }
-  }
-  const resolvedStaging = opts.stagingPath || stagingPath;
-  log(`ground open staging=${resolvedStaging}`);
-  const db = openDb(resolvedStaging);
-  const writer = createWriterQueue(db);
-  const mock = opts.mock || process.env.GIT_GRASP_MOCK_EMBEDDINGS === '1';
-  log(`ground embedder=${mock ? 'mock' : 'minilm'}`);
-  const embedder = mock
-    ? { embed: async (t) => mockEmbed(t) }
-    : await getEmbedder({ forceMock: false });
+  if (opts.fresh !== false) wipeStaging(stagingPath);
+  mkdirSync(buildCacheDir(), { recursive: true });
 
-  let groups = opts.groups;
-  if (!groups) {
-    if (!existsSync(semanticBlocksPath())) {
-      throw new Error(
-        `Missing Step −1 artifact at ${semanticBlocksPath()}. Run: bun run build:prepare`,
-      );
-    }
-    groups = readSemanticBlocks();
-    if (!groups.length) {
-      throw new Error(
-        `Step −1 artifact is empty at ${semanticBlocksPath()}. Re-run: bun run build:prepare --force`,
-      );
-    }
+  const taxPath = opts.taxonomyPath || goalTaxonomyPath();
+  const taxonomy = opts.taxonomy || readGoalTaxonomy(taxPath);
+  let leaves = taxonomy.leaves || [];
+  if (opts.maxLeaves != null && opts.maxLeaves > 0) {
+    leaves = selectLeavesForCap(leaves, opts.maxLeaves);
+    log(`leaf cap: using ${leaves.length}/${taxonomy.leaves.length} (diverse)`);
   }
+  const db = openDb(stagingPath);
+  const embedder = await getEmbedder({
+    forceMock: opts.mockEmbeddings || process.env.GIT_GRASP_MOCK_EMBEDDINGS === '1',
+  });
+  const embed = (text) => embedder.embed(text);
+  const limit = pLimit(opts.leafConcurrency || LEAF_CONCURRENCY);
+  const runLog = opts.runLog || null;
 
-  // Skip unavailable / verify-unsigned even if stale prepare blocks remain.
-  const taxonomy = opts.skipAvailabilityFilter
-    ? null
-    : (() => {
-        try {
-          return loadGitCommandTaxonomy();
-        } catch {
-          return null;
-        }
-      })();
-  const availabilityByCommand = new Map();
-  if (taxonomy?.commands) {
-    for (const c of taxonomy.commands) {
-      availabilityByCommand.set(c.command, c);
-    }
-  }
-  const skips = [];
-  const filteredGroups = [];
-  for (let idx = 0; idx < groups.length; idx += 1) {
-    const group = groups[idx];
-    const cmd = group.command || '';
-    const meta = availabilityByCommand.get(cmd);
-    if (meta && meta.available === false) {
-      skips.push({ idx, command: cmd, reason: 'unavailable' });
-      continue;
-    }
-    if (isUnsignedVerifySkip(cmd) && !opts.allowUnsignedVerify) {
-      skips.push({ idx, command: cmd, reason: 'verify_unsigned' });
-      continue;
-    }
-    filteredGroups.push({ group, idx });
-  }
-  if (skips.length) {
-    log(`ground skip ${skips.length}: ${skips.map((s) => `${s.command}:${s.reason}`).join(', ')}`);
-  }
-  groups = filteredGroups.map((x) => x.group);
-  const indexMap = filteredGroups.map((x) => x.idx);
-
-  const concurrency = opts.concurrency ?? BUILD_CONCURRENCY;
-  log(`ground start groups=${groups.length} concurrency=${concurrency}`);
-  const limit = pLimit(concurrency);
-  const inserted = [];
-  const errors = [];
-  let done = 0;
-
-  await Promise.all(
-    groups.map((group, i) =>
+  log(`ground leaves=${leaves.length}`);
+  const results = await Promise.all(
+    leaves.map((leaf) =>
       limit(async () => {
-        const idx = indexMap[i] ?? i;
-        if (countCommands(db) >= MAX_COMMANDS || countIntents(db) >= MAX_INTENTS) return;
-        const label = group.command || `group-${idx}`;
+        const runOnce = async () => {
+          const t0 = Date.now();
+          try {
+            const sat = await saturateLeaf(leaf, {
+              db,
+              embed,
+              llmJsonObject: opts.llmJsonObject,
+              skipSandbox: opts.skipSandbox,
+              skipLlmPlausibility: opts.skipLlmPlausibility,
+              skipJudge: opts.skipJudge,
+              skipBackTranslate: opts.skipBackTranslate,
+              batchSize: opts.batchSize,
+              maxBatches: opts.maxBatches ?? 8,
+              flatBatches: opts.flatBatches,
+            });
+            const elapsedMs = Date.now() - t0;
+            log(`leaf ${leaf.id}: checkpoint=${sat.checkpoint} accepted=${sat.totalAccepted} ${elapsedMs}ms`);
+            runLog?.event?.('leaf_saturate', {
+              leaf: leaf.id,
+              ...sat,
+              history: undefined,
+              elapsedMs,
+            });
+            return { leafId: leaf.id, elapsedMs, ...sat };
+          } catch (e) {
+            const elapsedMs = Date.now() - t0;
+            const message = e?.message || String(e);
+            log(`leaf ${leaf.id}: ERROR ${message} ${elapsedMs}ms`);
+            return {
+              leafId: leaf.id,
+              ok: false,
+              checkpoint: false,
+              totalAccepted: 0,
+              history: [],
+              error: message,
+              elapsedMs,
+            };
+          }
+        };
+        let out = await runOnce();
+        // One retry for transient LLM/network failures.
+        if (out.error && /fetch failed|socket|ECONNRESET|ETIMEDOUT|429|500|502|503/i.test(out.error)) {
+          log(`leaf ${leaf.id}: retry after transient error`);
+          out = await runOnce();
+        }
+        return out;
+      }),
+    ),
+  );
+
+  finalizeSearchIndex(db);
+  db.close();
+  const acceptedLeaves = results.filter((r) => (r.totalAccepted || 0) > 0);
+  const errored = results.filter((r) => r.error);
+  // Zero-accept / residual transient errors do not fail ground when recipes exist.
+  const ok = acceptedLeaves.length > 0;
+  log(
+    `ground done: ok=${ok} leaves_with_recipes=${acceptedLeaves.length}/${results.length} errors=${errored.length}`,
+  );
+  return {
+    ok,
+    stagingPath,
+    results,
+    acceptedLeaves: acceptedLeaves.length,
+    errors: errored.length,
+  };
+}
+
+/**
+ * Loop: held-out per leaf + improve triage (iterative) + regression + corpus version.
+ */
+export async function runBuildLoop(opts = {}) {
+  const stagingPath = opts.stagingPath || buildStagingDbPath();
+  if (opts.fresh) {
+    const ground = await runGroundStep({ ...opts, fresh: true, stagingPath });
+    if (!ground.ok && !opts.continueOnGroundFail) {
+      return { ok: false, phase: 'ground', ground };
+    }
+    // Fresh staging → new recipe ids; wipe prior heldout regression rows.
+    if (opts.resetRegression !== false) {
+      saveRegressionSet(emptyRegressionSet());
+      log('regression: reset (fresh catalog ids)');
+    }
+  }
+
+  const taxPath = opts.taxonomyPath || goalTaxonomyPath();
+  const taxonomy = opts.taxonomy || readGoalTaxonomy(taxPath);
+  let leaves = taxonomy.leaves || [];
+  if (opts.maxLeaves != null && opts.maxLeaves > 0) {
+    leaves = selectLeavesForCap(leaves, opts.maxLeaves);
+    log(`leaf cap: using ${leaves.length}/${taxonomy.leaves.length} (diverse)`);
+  }
+  const db = openDb(stagingPath);
+  const embedder = await getEmbedder({
+    forceMock: opts.mockEmbeddings || process.env.GIT_GRASP_MOCK_EMBEDDINGS === '1',
+  });
+  const thresholds = loadThresholds();
+  const search = makeSearchFn(db, thresholds, embedder);
+  // Holdout is LLM-heavy; keep concurrency lower than ground to avoid socket storms.
+  const holdLimit = pLimit(
+    opts.holdoutConcurrency || Math.min(8, opts.leafConcurrency || LEAF_CONCURRENCY),
+  );
+  const gapPool = [];
+  const improveRounds = opts.improveRounds ?? HELDOUT_IMPROVE_ROUNDS;
+
+  // Only hold out leaves that actually produced recipes.
+  const recipesByLeaf = new Set(listRecipes(db).map((r) => r.taxonomy_leaf));
+  leaves = leaves.filter((leaf) => recipesByLeaf.has(leaf.id));
+  log(`holdout eligible leaves=${leaves.length} (with recipes)`);
+
+  async function triageMisses(leaf, hold) {
+    const lastFail = [...(hold.rounds || [])].reverse().find((r) => !r.passed);
+    if (!lastFail) return;
+    let touched = false;
+    for (const r of lastFail.results || []) {
+      if (r.hit) continue;
+      const failure = {
+        query: r.query,
+        expectedId: r.expectedId,
+        displayedIds: r.displayed,
+        leafId: leaf.id,
+        leafIds: leaves.map((l) => l.id),
+        hit: false,
+        correctExists: true,
+      };
+      let classification;
+      try {
+        classification = await triageFailure(failure, opts);
+      } catch (e) {
+        classification = null;
+      }
+      const safe =
+        classification?.bucket != null
+          ? classification
+          : classifyMissHeuristic(failure);
+      const action = await applyTriageAction(safe, failure, {
+        ...opts,
+        db,
+        leaf,
+        leaves,
+        search,
+        embed: (t) => embedder.embed(t),
+      });
+      touched = true;
+      if (action.action === 'gap_pool_enqueue') {
+        const emb = await embedder.embed(failure.query);
+        gapPool.push({ query: failure.query, embedding: emb });
+      }
+    }
+    if (touched) finalizeSearchIndex(db);
+  }
+
+  log(`holdout leaves=${leaves.length} improveRounds=${improveRounds}`);
+  const holdouts = await Promise.all(
+    leaves.map((leaf) =>
+      holdLimit(async () => {
         try {
-          log(`ground[${i + 1}/${groups.length}] generate+validate "${label}"`);
-          const validated = await generateAndValidate(group, {
-            workerId: i % concurrency,
-            jobId: `ground-${idx}`,
-            llmJsonObject: opts.llmJsonObject,
-            generate: opts.generate,
-            validate: opts.validate,
-          });
-          if (!validated.ok) {
-            errors.push({ idx, reason: validated.reason });
-            log(`ground[${i + 1}/${groups.length}] FAIL validate reason=${validated.reason}`);
-            return;
-          }
-          const polished = opts.skipPolish
-            ? validated
-            : await polishRecipeHygiene(validated, {
-                llmJsonObject: opts.llmJsonObject,
-                validate: opts.validate,
-                workerId: i % concurrency,
-                jobId: `ground-polish-${idx}`,
-                log: (m) => log(`ground[${i + 1}/${groups.length}] ${m}`),
-              });
-          log(`ground[${i + 1}/${groups.length}] expand intents`);
-          const knnForeign = makeKnnForeign(db, knnRecall, INTENT_FOREIGN_KNN_K);
-          const intents = opts.expandIntents
-            ? await opts.expandIntents(polished)
-            : await expandIntentsForRecipe(polished, {
-                llmJsonObject: opts.llmJsonObject,
-                embedder,
-                knnForeign,
-              });
-          const list = Array.isArray(intents) ? intents : [];
-          const persisted = await persistAccepted(
+          let hold = await runLeafHoldout(leaf, {
             db,
-            writer,
-            { ...polished, intents: list },
-            embedder,
-          );
-          if (persisted.inserted) {
-            inserted.push(persisted.row_id);
-            log(`ground[${i + 1}/${groups.length}] INSERT row_id=${persisted.row_id} intents=${list.length}`);
-            if (!opts.skipEvalBanks) {
-              const row =
-                getCommand(db, persisted.row_id) ||
-                {
-                  row_id: persisted.row_id,
-                  initial_state: validated.initial_state,
-                  command_recipe: validated.command_recipe,
-                  mutation_kind: null,
-                };
-              const goldenRaw = opts.generateGolden
-                ? await opts.generateGolden(row, persisted.row_id)
-                : await generateGoldenQuery(row, persisted.row_id, {
-                    llmJsonObject: opts.llmJsonObject,
-                    priorQueries: loadBank('golden.jsonl').map((r) => r.query_text),
-                  });
-              const groundRow = { ...row, mutation_kind: 'ground' };
-              const golden = tagGolden(goldenRaw, {
-                mutation_kind: 'ground',
-                primary_verb: primaryVerbFromRecipe(groundRow),
-                source: 'llm',
-              });
-              appendBank('golden.jsonl', [golden]);
-              const extendedRaw = opts.expandQueries
-                ? await opts.expandQueries(golden, groundRow)
-                : await expandQueries(golden, groundRow, { llmJsonObject: opts.llmJsonObject });
-              const { extended } = appendExtendedScrambledBanks(
-                groundRow,
-                extendedRaw,
-                persisted.row_id,
-              );
-              log(`ground[${i + 1}/${groups.length}] eval banks +golden +${extended.length} extended`);
+            search,
+            llmJsonObject: opts.llmJsonObject,
+            count: opts.heldoutCount,
+            minAccuracy: opts.minAccuracy,
+            passRounds: opts.passRounds,
+          });
+          let attempts = 0;
+          while (!hold.ok && attempts < improveRounds) {
+            attempts += 1;
+            log(`leaf ${leaf.id}: holdout fail → improve ${attempts}/${improveRounds}`);
+            try {
+              await triageMisses(leaf, hold);
+            } catch (e) {
+              log(`leaf ${leaf.id}: triage error ${e?.message || e}`);
             }
-          } else {
-            log(`ground[${i + 1}/${groups.length}] DEDUP keep existing row_id=${persisted.row_id}`);
+            try {
+              hold = await runLeafHoldout(leaf, {
+                db,
+                search,
+                llmJsonObject: opts.llmJsonObject,
+                count: opts.heldoutCount,
+                minAccuracy: opts.minAccuracy,
+                passRounds: opts.passRounds,
+              });
+            } catch (e) {
+              log(`leaf ${leaf.id}: holdout retry error ${e?.message || e}`);
+              break;
+            }
           }
+          // Last-ditch: broadcast every remaining miss query onto all leaf recipes.
+          if (!hold.ok) {
+            const lastFail = [...(hold.rounds || [])].reverse().find((r) => !r.passed);
+            const recipes = listRecipes(db).filter((r) => r.taxonomy_leaf === leaf.id);
+            if (lastFail && recipes.length) {
+              try {
+                for (const r of lastFail.results || []) {
+                  if (r.hit) continue;
+                  for (const recipe of recipes) {
+                    appendParaphrase(db, recipe.id, r.query);
+                    const emb = await embedder.embed(
+                      recipeEmbedText({
+                        ...recipe,
+                        paraphrases: [...(recipe.paraphrases || []), r.query],
+                      }),
+                    );
+                    upsertRecipeEmbedding(db, recipe.id, emb);
+                  }
+                }
+                finalizeSearchIndex(db);
+                for (let extra = 0; extra < 3 && !hold.ok; extra += 1) {
+                  hold = await runLeafHoldout(leaf, {
+                    db,
+                    search,
+                    llmJsonObject: opts.llmJsonObject,
+                    count: opts.heldoutCount,
+                    minAccuracy: opts.minAccuracy,
+                    passRounds: opts.passRounds,
+                  });
+                  if (hold.ok) {
+                    log(`leaf ${leaf.id}: holdout recovered via broadcast (+${extra + 1})`);
+                  }
+                }
+              } catch (e) {
+                log(`leaf ${leaf.id}: broadcast error ${e?.message || e}`);
+              }
+            }
+          }
+          log(
+            `leaf ${leaf.id}: holdout=${hold.ok} streak=${hold.streak || 0} improve=${attempts}`,
+          );
+          return { leafId: leaf.id, improveAttempts: attempts, ...hold };
         } catch (e) {
-          errors.push({ idx, reason: e?.message || String(e) });
-          log(`ground[${i + 1}/${groups.length}] ERROR ${e?.message || e}`);
-        } finally {
-          done += 1;
-          if (done % 5 === 0 || done === groups.length) {
-            log(`ground progress ${done}/${groups.length} inserted=${inserted.length} errors=${errors.length}`);
-          }
+          const message = e?.message || String(e);
+          log(`leaf ${leaf.id}: holdout FATAL ${message}`);
+          return {
+            leafId: leaf.id,
+            ok: false,
+            improveAttempts: 0,
+            rounds: [],
+            error: message,
+          };
         }
       }),
     ),
   );
 
-  let evalResult = { ok: true, skipped: true };
-  if (!opts.skipEval && inserted.length) {
-    // Hard gate on golden only (exclude fallback "how do I use git X").
-    const bank = activeEvaluationBank({ kinds: ['golden'], excludeFallbacks: true });
-    const minPassRate = opts.minPassRate ?? EVAL_MIN_PASS_RATE;
-    const minHitAtDisplayRate = opts.minHitAtDisplayRate ?? EVAL_MIN_HIT_AT_DISPLAY_RATE;
-    log(
-      `ground eval bank size=${bank.length} minHitAtDisplay=${minHitAtDisplayRate} minPassRate=${minPassRate}`,
-    );
-    const commandRows = listCommands(db);
-    const verbLookup = verbLookupFromRows(commandRows);
-    const lineage = lineageFromRows(commandRows);
-    evalResult = await runBankEval(bank, resolvedStaging, {
-      llmJsonObject: opts.llmJsonObject,
-      minPassRate,
-      minHitAtDisplayRate,
-      utilityThreshold: opts.utilityThreshold,
-      verbLookup,
-      lineage,
-      searchFn: opts.searchFn,
-      evalConcurrency: opts.evalConcurrency,
-      searchPoolSize: opts.searchPoolSize,
-      onProgress: opts.onEvalProgress,
-      onJudgeVote: opts.onJudgeVote,
-    });
-    log(formatEvalReport(evalResult));
-    if (typeof opts.onEvalReport === 'function') opts.onEvalReport(evalResult, { phase: 'ground' });
-
-    let taxonomyVerbs = opts.taxonomyVerbs;
-    if (!taxonomyVerbs) {
-      try {
-        taxonomyVerbs = loadGitCommandTaxonomy().commands.map((c) => c.command);
-      } catch {
-        taxonomyVerbs = [];
-      }
-    }
-    const recoveryArtifactsDir =
-      typeof opts.recoveryArtifactsDir === 'function'
-        ? opts.recoveryArtifactsDir({ phase: 'ground' })
-        : opts.recoveryArtifactsDir ||
-          (typeof opts.improveArtifactsDir === 'function'
-            ? opts.improveArtifactsDir({ phase: 'ground' })
-            : opts.improveArtifactsDir);
-    const recoveryOut = await runEvalGateRecovery({
-      phase: 'ground',
-      evalResult,
-      skipEvalRecovery: opts.skipEvalRecovery,
-      skipEvalImprove: opts.skipEvalImprove,
-      evalFailRetryMax: opts.evalFailRetryMax,
-      evalPolishRetryMax: opts.evalPolishRetryMax,
-      polishMissMin: opts.polishMissMin,
-      polishPassA: opts.polishPassA,
-      evalGapCheckMax: opts.evalGapCheckMax,
-      evalCoverageMaxInserts: opts.evalCoverageMaxInserts,
-      stagingPath: resolvedStaging,
-      db,
-      embedder,
-      runBankEval,
-      reloadBank: () =>
-        activeEvaluationBank({ kinds: ['golden'], excludeFallbacks: true }),
-      taxonomyVerbs,
-      verbLookup,
-      lineage,
-      llmJsonObject: opts.llmJsonObject,
-      trapsPath: opts.trapsPath,
-      familiesPath: opts.familiesPath,
-      expandIntents: opts.expandIntents,
-      minPassRate,
-      minHitAtDisplayRate,
-      utilityThreshold: opts.utilityThreshold,
-      searchFn: opts.searchFn,
-      evalConcurrency: opts.evalConcurrency,
-      searchPoolSize: opts.searchPoolSize,
-      artifactsDir: recoveryArtifactsDir,
-      log: (m) => log(m),
-    });
-    if (recoveryOut.ran) {
-      evalResult = recoveryOut.evalResult;
-      log(formatEvalReport(evalResult));
-      if (typeof opts.onEvalReport === 'function') {
-        opts.onEvalReport(evalResult, {
-          phase: 'ground',
-          recovery: recoveryOut,
-        });
-      }
+  let gapProposals = [];
+  if (gapPool.length) {
+    const clusters = clusterGapQueries(gapPool);
+    if (clusters.length) {
+      gapProposals = await expandTaxonomyFromGapClusters(clusters, {
+        ...opts,
+        leaves,
+      });
     }
   }
 
-  const cmdCount = countCommands(db);
-  const intentCount = countIntents(db);
-  db.close();
-  const ok =
-    (inserted.length > 0 || groups.length === 0) &&
-    (evalResult.ok !== false) &&
-    errors.length < groups.length;
-  log(`ground done ok=${ok} commands=${cmdCount} intents=${intentCount} inserted=${inserted.length} errors=${errors.length} skips=${skips.length}`);
-  return {
-    ok,
-    inserted: inserted.length,
-    errors,
-    skips,
-    stagingPath: resolvedStaging,
-    eval: evalResult,
-    commands: cmdCount,
+  // Rebuild heldout regression from this run's green leaves only; keep real/triage rows.
+  const prior = loadRegressionSet();
+  const extant = new Set(listRecipes(db).map((r) => String(r.id)));
+  let regression = {
+    version: (prior.version || 0) + 1,
+    queries: (prior.queries || []).filter(
+      (q) =>
+        (q.source === 'real' || q.source === 'triage') &&
+        extant.has(String(q.recipe_id)),
+    ),
   };
-}
-
-export async function runBuildLoop(opts = {}) {
-  if (opts.wipe !== false) {
-    wipeBuildCache();
-  }
-  if (opts.prepare === true) {
-    log(`prepare start`);
-    await prepareSemanticBlocks({
-      embedder: opts.prepareEmbedder,
-      sources: opts.sources,
-      log: (m) => log(m),
-    });
-    log(`prepare done`);
-  }
-
-  let ground = { ok: true, stagingPath: opts.stagingPath || buildStagingDbPath(), skipped: true };
-  if (!opts.skipGround) {
-    ground = await runGroundStep({
-      ...opts,
-      fresh: opts.wipe !== false,
-    });
-    if (!ground.ok && !opts.continueOnEvalKo) {
-      return {
-        ok: false,
-        phase: 'ground',
-        ground,
-        message: 'Eval KO after ground step â€” analyze post-mortems before continuing',
-        ko: ground.eval,
-      };
-    }
-  }
-
-  const stagingPath = ground.stagingPath || buildStagingDbPath();
-  if (!existsSync(stagingPath)) {
-    return {
-      ok: false,
-      phase: 'loop',
-      message: `Missing staging DB at ${stagingPath} â€” run build:ground first`,
-    };
-  }
-  log(`loop staging=${stagingPath} skipGround=${Boolean(opts.skipGround)}`);
-  const mock = opts.mock || process.env.GIT_GRASP_MOCK_EMBEDDINGS === '1';
-  const embedder = mock
-    ? { embed: async (t) => mockEmbed(t) }
-    : await getEmbedder({ forceMock: false });
-  log(`loop embedder=${mock ? 'mock' : 'minilm'}`);
-
-  // Resume-safe: iteration / zeroStreak live on the staging dataset meta.
-  let zeroStreak = 0;
-  let iteration = 0;
-  let maxIter = opts.maxIterations ?? 100;
-  {
-    const progressDb = openDb(stagingPath);
-    try {
-      const saved = loadLoopProgress(progressDb);
-      zeroStreak = saved.zeroStreak;
-      iteration = saved.iteration;
-      maxIter = opts.maxIterations ?? saved.savedMaxIterations ?? 100;
-      if (opts.maxIterations != null) {
-        persistLoopProgress(progressDb, {
-          iteration,
-          zeroStreak,
-          maxIterations: maxIter,
-        });
-      }
-      if (iteration > 0 || zeroStreak > 0) {
-        log(
-          `loop resume from staging meta iteration=${iteration} zeroStreak=${zeroStreak} maxIterations=${maxIter}`,
-        );
-      }
-    } finally {
-      progressDb.close();
-    }
-  }
-  const concurrency = opts.concurrency ?? BUILD_CONCURRENCY;
-  const exitZero = opts.exitZeroStreak ?? LOOP_EXIT_ZERO_STREAK;
-  let taxonomyVerbs = opts.taxonomyVerbs;
-  if (!taxonomyVerbs) {
-    try {
-      taxonomyVerbs = loadGitCommandTaxonomy().commands.map((c) => c.command);
-    } catch {
-      taxonomyVerbs = [];
-    }
-  }
-  /** @type {object|null} */
-  let lastEvalResult = null;
-  /** @type {number|null} first iteration at which eval bank floors pass */
-  let floorMetAtIter = null;
-
-  while (iteration < maxIter) {
-    iteration += 1;
-    const db = openDb(stagingPath);
-    const cmds = countCommands(db);
-    const ints = countIntents(db);
-    log(`loop iter=${iteration}/${maxIter} commands=${cmds} intents=${ints} zeroStreak=${zeroStreak}/${exitZero}`);
-    if (cmds >= MAX_COMMANDS || ints >= MAX_INTENTS) {
-      log(`loop hit cap commands=${cmds}/${MAX_COMMANDS} intents=${ints}/${MAX_INTENTS}`);
-      db.close();
-      break;
-    }
-
-    if (taxonomyVerbs.length && loopAllVerbsSaturated(db, taxonomyVerbs)) {
-      log(`loop exit: all taxonomy verbs saturated`);
-      db.close();
-      break;
-    }
-
-    const leafCount = countLeaves(db);
-    const batchSize = Math.min(
-      leafCount,
-      opts.batchSize ?? LOOP_MAX_BATCH,
-    );
-    const parents = selectEvolutionParents(db, batchSize);
-    log(
-      `loop iter=${iteration} evolve parents=${parents.length} leaves=${leafCount} batchCap=${batchSize} concurrency=${concurrency}`,
-    );
-    const writer = createWriterQueue(db);
-    const limit = pLimit(concurrency);
-    let newUnique = 0;
-    let evolvedOk = 0;
-    let evolvedFail = 0;
-    let evolveDone = 0;
-    let lastEvolveProgressAt = Date.now();
-    const batchIds = [];
-    const evolveStartedAt = Date.now();
-    const evolveTiming = {
-      llmMs: 0,
-      sandboxMs: 0,
-      intentsMs: 0,
-      goldenMs: 0,
-      persistMs: 0,
-      parentsDone: 0,
-    };
-
-    await Promise.all(
-      parents.map((parent, idx) =>
-        limit(async () => {
-          if (countCommands(db) >= MAX_COMMANDS) return;
-          const kind = parent.mutation_kind || 'state';
-          try {
-            log(
-              `loop iter=${iteration} parent[${idx + 1}/${parents.length}] row_id=${parent.row_id} kind=${kind}`,
-            );
-            const examples = await retrieveEvolutionExamples(
-              db,
-              parent,
-              (t) => embedder.embed(t),
-              { mutationKind: kind },
-            );
-            const tLlm = Date.now();
-            const evolved = opts.evolve
-              ? await opts.evolve(parent, examples, kind)
-              : await evolveByKind(kind, parent, examples, {
-                  llmJsonObject: opts.llmJsonObject,
-                });
-            evolveTiming.llmMs += Date.now() - tLlm;
-            const recipe =
-              typeof evolved.command_recipe === 'string'
-                ? JSON.parse(evolved.command_recipe)
-                : evolved.command_recipe;
-            const mutation_kind = evolved.mutation_kind || kind;
-            const tSandbox = Date.now();
-            const validated = await generateAndValidate(
-              {
-                command: primaryCommand(recipe) || 'git',
-                blocks: [
-                  {
-                    metadata_source: 'evolve/parent',
-                    content: `parent_row_id=${parent.row_id} mutation=${mutation_kind}`,
-                  },
-                ],
-              },
-              {
-                generate: async () => ({
-                  ...evolved,
-                  command_recipe: recipe,
-                  mutation_kind,
-                }),
-                validate: opts.validate,
-                workerId: idx,
-                jobId: `loop-${iteration}-${idx}`,
-                llmJsonObject: opts.llmJsonObject,
-              },
-            );
-            evolveTiming.sandboxMs += Date.now() - tSandbox;
-            if (!validated.ok) {
-              evolvedFail += 1;
-              log(`loop iter=${iteration} parent=${parent.row_id} validate FAIL ${validated.reason}`);
-              return;
-            }
-            const polished = opts.skipPolish
-              ? validated
-              : await polishRecipeHygiene(
-                  { ...validated, mutation_kind },
-                  {
-                    llmJsonObject: opts.llmJsonObject,
-                    validate: opts.validate,
-                    workerId: idx,
-                    jobId: `loop-polish-${iteration}-${idx}`,
-                    log: (m) => log(`loop iter=${iteration} ${m}`),
-                  },
-                );
-            const tIntents = Date.now();
-            const knnForeign = makeKnnForeign(db, knnRecall, INTENT_FOREIGN_KNN_K);
-            const excludeCommandIds = new Set([Number(parent.row_id)]);
-            const intents = opts.expandIntents
-              ? await opts.expandIntents(polished)
-              : await expandIntentsForRecipe(
-                  { ...polished, mutation_kind },
-                  {
-                    llmJsonObject: opts.llmJsonObject,
-                    embedder,
-                    knnForeign,
-                    excludeCommandIds,
-                  },
-                );
-            evolveTiming.intentsMs += Date.now() - tIntents;
-            const list = Array.isArray(intents) ? intents : [];
-            const tPersist = Date.now();
-            const persisted = await persistAccepted(
-              db,
-              writer,
-              {
-                ...polished,
-                intents: list,
-                parent_row_id: parent.row_id,
-                mutation_kind,
-              },
-              embedder,
-            );
-            evolveTiming.persistMs += Date.now() - tPersist;
-            evolvedOk += 1;
-            if (persisted.inserted) {
-              newUnique += 1;
-              batchIds.push(persisted.row_id);
-              log(
-                `loop iter=${iteration} parent=${parent.row_id} INSERT child=${persisted.row_id} kind=${mutation_kind}`,
-              );
-              // One golden + extended/scrambled per accepted evolve insert (no cap).
-              if (!opts.skipEvalBanks) {
-                const childRow =
-                  getCommand(db, persisted.row_id) ||
-                  ({
-                    ...validated,
-                    row_id: persisted.row_id,
-                    mutation_kind,
-                  } as any);
-                const evolveRow = { ...childRow, mutation_kind };
-                const tGolden = Date.now();
-                const goldenRaw = opts.generateGolden
-                  ? await opts.generateGolden(evolveRow, persisted.row_id)
-                  : await generateGoldenQuery(evolveRow, persisted.row_id, {
-                      llmJsonObject: opts.llmJsonObject,
-                      priorQueries: loadBank('golden.jsonl').map((r) => r.query_text),
-                    });
-                const golden = appendEvolveGolden(evolveRow, goldenRaw);
-                const extendedRaw = opts.expandQueries
-                  ? await opts.expandQueries(golden, evolveRow)
-                  : await expandQueries(golden, evolveRow, {
-                      llmJsonObject: opts.llmJsonObject,
-                    });
-                const { extended } = appendExtendedScrambledBanks(
-                  evolveRow,
-                  extendedRaw,
-                  persisted.row_id,
-                );
-                evolveTiming.goldenMs += Date.now() - tGolden;
-                log(
-                  `loop iter=${iteration} +golden +${extended.length} extended child=${persisted.row_id} kind=${mutation_kind}`,
-                );
-              }
-            } else {
-              log(`loop iter=${iteration} parent=${parent.row_id} DEDUP ${persisted.reason}`);
-            }
-          } catch (e) {
-            evolvedFail += 1;
-            log(`loop iter=${iteration} parent=${parent.row_id} ERROR ${e?.message || e}`);
-          } finally {
-            evolveDone += 1;
-            evolveTiming.parentsDone = evolveDone;
-            const now = Date.now();
-            if (
-              evolveDone % 5 === 0 ||
-              evolveDone === parents.length ||
-              now - lastEvolveProgressAt >= 30_000
-            ) {
-              lastEvolveProgressAt = now;
-              log(
-                `evolve progress ${evolveDone}/${parents.length} ok=${evolvedOk} fail=${evolvedFail} newUnique=${newUnique} elapsed=${Math.round((now - evolveStartedAt) / 1000)}s`,
-              );
-            }
-          }
-        }),
-      ),
-    );
-
-    log(formatEvolveTiming(evolveTiming));
-
-    const bank = activeEvaluationBank({ kinds: ['golden'], excludeFallbacks: true });
-    const minPassRate = opts.minPassRate ?? EVAL_MIN_PASS_RATE;
-    const minHitAtDisplayRate = opts.minHitAtDisplayRate ?? EVAL_MIN_HIT_AT_DISPLAY_RATE;
-    log(
-      `loop iter=${iteration} evolve done ok=${evolvedOk} fail=${evolvedFail} newUnique=${newUnique}; eval bank=${bank.length} minHitAtDisplay=${minHitAtDisplayRate} minPassRate=${minPassRate}`,
-    );
-    const commandRows = listCommands(db);
-    const verbLookup = verbLookupFromRows(commandRows);
-    const lineage = lineageFromRows(commandRows);
-    let evalResult = await runBankEval(bank, stagingPath, {
-      llmJsonObject: opts.llmJsonObject,
-      minPassRate,
-      minHitAtDisplayRate,
-      utilityThreshold: opts.utilityThreshold,
-      verbLookup,
-      lineage,
-      searchFn: opts.searchFn,
-      evalConcurrency: opts.evalConcurrency,
-      searchPoolSize: opts.searchPoolSize,
-      onProgress: opts.onEvalProgress,
-      onJudgeVote: opts.onJudgeVote,
-    });
-    log(formatEvalReport(evalResult));
-    if (typeof opts.onEvalReport === 'function') {
-      opts.onEvalReport(evalResult, { phase: 'loop', iteration });
-    }
-
-    const recoveryArtifactsDir =
-      typeof opts.recoveryArtifactsDir === 'function'
-        ? opts.recoveryArtifactsDir({ phase: 'loop', iteration })
-        : opts.recoveryArtifactsDir ||
-          (typeof opts.improveArtifactsDir === 'function'
-            ? opts.improveArtifactsDir({ phase: 'loop', iteration })
-            : opts.improveArtifactsDir);
-    const recoveryOut = await runEvalGateRecovery({
-      phase: 'loop',
-      evalResult,
-      skipEvalRecovery: opts.skipEvalRecovery,
-      skipEvalImprove: opts.skipEvalImprove,
-      evalFailRetryMax: opts.evalFailRetryMax,
-      evalPolishRetryMax: opts.evalPolishRetryMax,
-      polishMissMin: opts.polishMissMin,
-      polishPassA: opts.polishPassA,
-      evalGapCheckMax: opts.evalGapCheckMax,
-      evalCoverageMaxInserts: opts.evalCoverageMaxInserts,
-      stagingPath,
-      db,
-      embedder,
-      runBankEval,
-      reloadBank: () =>
-        activeEvaluationBank({ kinds: ['golden'], excludeFallbacks: true }),
-      taxonomyVerbs,
-      verbLookup,
-      lineage,
-      llmJsonObject: opts.llmJsonObject,
-      trapsPath: opts.trapsPath,
-      familiesPath: opts.familiesPath,
-      expandIntents: opts.expandIntents,
-      minPassRate,
-      minHitAtDisplayRate,
-      utilityThreshold: opts.utilityThreshold,
-      searchFn: opts.searchFn,
-      evalConcurrency: opts.evalConcurrency,
-      searchPoolSize: opts.searchPoolSize,
-      artifactsDir: recoveryArtifactsDir,
-      log: (m) => log(m),
-    });
-    if (recoveryOut.ran) {
-      evalResult = recoveryOut.evalResult;
-      log(formatEvalReport(evalResult));
-      if (typeof opts.onEvalReport === 'function') {
-        opts.onEvalReport(evalResult, {
-          phase: 'loop',
-          iteration,
-          recovery: recoveryOut,
-        });
-      }
-    }
-    lastEvalResult = evalResult;
-
-    // Floors every iteration (green or red) so floorMetAtIter is not KO-only.
-    const bankNow = activeEvaluationBank({
-      kinds: ['golden'],
-      excludeFallbacks: true,
-    });
-    const floors = evalBankMeetsFloors(bankNow, {
-      minTotal: opts.evalMinBankTotal,
-      minComposition: opts.evalMinBankComposition,
-    });
-    const prevFloorMet = floorMetAtIter;
-    floorMetAtIter = recordFloorMetAtIter(floorMetAtIter, floors.ok, iteration);
-    if (prevFloorMet == null && floorMetAtIter != null) {
-      log(
-        `loop bank floors met at iter=${iteration} (total=${floors.total}/${floors.totalMin} composition=${floors.composition}/${floors.compMin})`,
-      );
-    }
-
-    if (!evalResult.ok) {
-      if (!floors.ok) {
-        // Advisory: bank still below absolute floors — keep evolving.
-        log(
-          `loop eval KO advisory (bank total=${floors.total}/${floors.totalMin} composition=${floors.composition}/${floors.compMin}) — continuing evolve`,
-        );
-      } else if (opts.continueOnEvalKo) {
-        log(
-          `loop eval KO at iter=${iteration} but --continue-on-eval-ko — continuing`,
-        );
-      } else {
-        // Binding: floors met and gate red — stop.
-        persistLoopProgress(db, {
-          iteration: Math.max(0, iteration - 1),
-          zeroStreak,
-          maxIterations: maxIter,
-        });
-        db.close();
-        log(
-          `loop KO at iter=${iteration} — stopping (resume will retry from ${Math.max(0, iteration - 1)}; bank floors met=${floors.ok})`,
-        );
-        return {
-          ok: false,
-          phase: 'loop',
-          iteration,
-          newUnique,
-          eval: {
-            ok: evalResult.ok,
-            okHit: evalResult.okHit,
-            okPass: evalResult.okPass,
-            passed: evalResult.passed,
-            hitPassed: evalResult.hitPassed,
-            judgePassed: evalResult.judgePassed,
-            total: evalResult.total,
-            rate: evalResult.rate,
-            hitRate: evalResult.hitRate,
-            minPassRate: evalResult.minPassRate,
-            minHitAtDisplayRate: evalResult.minHitAtDisplayRate,
-            verbRate: evalResult.verbRate,
-            byMutationKind: evalResult.byMutationKind,
-            judgeSummary: evalResult.judgeSummary,
+  for (const h of holdouts) {
+    if (!h.ok) continue;
+    for (const round of h.rounds || []) {
+      if (!round.passed) continue;
+      for (const r of round.results || []) {
+        if (!r.hit) continue;
+        regression = addRegressionQueries(regression, [
+          {
+            query: r.query,
+            recipe_id: r.expectedId,
+            source: 'heldout',
+            leaf_id: h.leafId,
           },
-          message: 'Eval KO — analyze and propose fix',
-          stagingPath,
-          bankFloors: floors,
-        };
+        ]);
       }
     }
-
-    if (newUnique === 0) zeroStreak += 1;
-    else zeroStreak = 0;
-    persistLoopProgress(db, { iteration, zeroStreak, maxIterations: maxIter });
-    log(`loop iter=${iteration} zeroStreak=${zeroStreak}/${exitZero}`);
-
-    const saturatedNow =
-      taxonomyVerbs.length > 0 && loopAllVerbsSaturated(db, taxonomyVerbs);
-    db.close();
-
-    if (zeroStreak >= exitZero) {
-      log(`loop exit: ${exitZero} consecutive iterations with 0 new rows`);
-      break;
-    }
-    if (saturatedNow) {
-      log(`loop exit: all taxonomy verbs saturated after iter=${iteration}`);
-      break;
-    }
-    const postFloorStop = shouldStopAfterPostFloorBudget({
-      iteration,
-      floorMetAtIter,
-      postFloorIterations: opts.postFloorIterations,
-    });
-    if (postFloorStop.stop) {
-      log(
-        `loop stop: post-floor budget exhausted (floor met at iter=${postFloorStop.floorMetAtIter}, ran ${postFloorStop.ranMore} more)`,
-      );
-      break;
-    }
   }
-
-  // Soft coverage report (warn only; never blocks promote).
-  let coverageReport = null;
-  log(`coverage report start`);
-  try {
-    const covDb = openDb(stagingPath, { readonly: true });
-    try {
-      const rows = listCommands(covDb);
-      coverageReport = buildCoveragePromoteReport(rows, taxonomyVerbs || []);
-      const reportPath = writeCoveragePromoteReport(coverageReport);
-      if (coverageReport.warn) {
-        log(`coverage WARN ${coverageReport.summary} → ${reportPath}`);
-      } else {
-        log(`coverage ${coverageReport.summary} → ${reportPath}`);
-      }
-      if (typeof opts.onCoverageReport === 'function') opts.onCoverageReport(coverageReport);
-    } finally {
-      covDb.close();
-    }
-  } catch (e) {
-    log(`coverage report skipped: ${e?.message || e}`);
-  }
-
-  const finalBank = activeEvaluationBank({ kinds: ['golden'], excludeFallbacks: true });
-  const finalFloors = evalBankMeetsFloors(finalBank, {
-    minTotal: opts.evalMinBankTotal,
-    minComposition: opts.evalMinBankComposition,
+  saveRegressionSet(regression);
+  const regEval = await evaluateRegressionSet(regression, {
+    search,
+    minAccuracy: opts.minAccuracy ?? 0.95,
   });
-  if (!finalFloors.ok) {
-    log(
-      `loop final gate FAIL: bank floors unmet total=${finalFloors.total}/${finalFloors.totalMin} composition=${finalFloors.composition}/${finalFloors.compMin}`,
-    );
-    return {
-      ok: false,
-      phase: 'loop',
-      iteration,
-      message: 'Eval bank floors unmet at loop exit',
-      stagingPath,
-      bankFloors: finalFloors,
-      eval: lastEvalResult,
-      coverage: coverageReport,
-    };
-  }
-  if (lastEvalResult && lastEvalResult.ok === false && !opts.continueOnEvalKo) {
-    log(`loop final gate FAIL: last eval still KO after floors met`);
-    return {
-      ok: false,
-      phase: 'loop',
-      iteration,
-      message: 'Eval KO at loop exit',
-      stagingPath,
-      bankFloors: finalFloors,
-      eval: lastEvalResult,
-      coverage: coverageReport,
-    };
+  log(
+    `regression: ok=${regEval.ok} accuracy=${(regEval.accuracy ?? 0).toFixed(3)} total=${regEval.total}`,
+  );
+
+  let corpus = null;
+  if (regEval.ok) {
+    const holdPass = holdouts.filter((h) => h.ok).length;
+    const holdRate = holdouts.length ? holdPass / holdouts.length : 0;
+    const minHoldRate = opts.minHoldoutLeafRate ?? 0.8;
+    if (holdRate >= minHoldRate) {
+      corpus = writeCorpusVersion(db, {});
+      if (opts.promote) {
+        promoteStagingDb(stagingPath, opts.prodPath || defaultDbPath());
+      }
+    } else {
+      log(
+        `corpus skipped: holdout leaf rate ${(holdRate * 100).toFixed(1)}% < ${(minHoldRate * 100).toFixed(0)}%`,
+      );
+    }
   }
 
-  const prod = opts.prodPath || defaultDbPath();
-  log(`promote start staging=${stagingPath} → ${prod}`);
-  promoteStagingDb(stagingPath, prod);
-  const { finalizePromotedDb } = await import('../seed.js');
-  const finalized = finalizePromotedDb(prod);
-  log(`promote done commands=${finalized.commands} intents=${finalized.intents} path=${prod}`);
-  log(`loop done commands=${finalized.commands} intents=${finalized.intents}`);
+  db.close();
+  const holdPass = holdouts.filter((h) => h.ok).length;
+  const holdRate = holdouts.length ? holdPass / holdouts.length : 0;
+  const minHoldRate = opts.minHoldoutLeafRate ?? 0.8;
+  const holdOk = holdRate >= minHoldRate;
+  log(
+    `holdout summary: ${holdPass}/${holdouts.length} leaves (${(holdRate * 100).toFixed(1)}%, need ≥${(minHoldRate * 100).toFixed(0)}%)`,
+  );
   return {
-    ok: true,
-    phase: 'done',
-    iterations: iteration,
+    ok: holdOk && regEval.ok,
+    holdouts,
+    holdPass,
+    holdRate,
+    gapProposals,
+    regression: regEval,
+    corpus,
     stagingPath,
-    prodPath: prod,
-    commands: finalized.commands,
-    intents: finalized.intents,
-    hash: finalized.hash,
-    coverage: coverageReport,
-    bankFloors: finalFloors,
-    eval: lastEvalResult,
   };
 }
 
-export { prepareSemanticBlocks };
+/** @deprecated evolve loop removed — alias to runBuildLoop */
+export async function runEvolveCycle() {
+  throw new Error('evolve loop removed — use runBuildLoop (leaf saturation + holdout)');
+}

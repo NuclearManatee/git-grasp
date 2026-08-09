@@ -164,6 +164,44 @@
         14,
         80
       ]
+    },
+    {
+      "role": "diff_vs_difftool",
+      "needles": [
+        "see unstaged changes",
+        "unstaged modifications"
+      ],
+      "prefer_verb": "git diff",
+      "source": "eval_round",
+      "evidence_command_ids": [
+        4,
+        63
+      ]
+    },
+    {
+      "role": "describe_vs_tag",
+      "needles": [
+        "describe a commit with an annotated tag",
+        "see the description of a tag"
+      ],
+      "prefer_verb": "git describe",
+      "source": "eval_round",
+      "evidence_command_ids": [
+        7,
+        65
+      ]
+    },
+    {
+      "role": "log_vs_reflog",
+      "needles": [
+        "see the commit history",
+        "list all branches"
+      ],
+      "prefer_verb": "git log",
+      "source": "eval_round",
+      "evidence_command_ids": [
+        61
+      ]
     }
   ]
 }

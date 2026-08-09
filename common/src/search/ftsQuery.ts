@@ -39,3 +39,37 @@ export function commandFtsBody(
   }
   return parts.join('\n');
 }
+
+/**
+ * FTS body for a v9 recipe: commands + comments + title + tags + description + paraphrases.
+ * Paraphrases are not embedded (KNN stays description-only) but must be searchable via BM25
+ * so triage bucket-1 aliases affect retrieval.
+ */
+export function recipeFtsBody(
+  steps: Iterable<{ command?: string; comment?: string }>,
+  meta: {
+    title?: string;
+    description?: string;
+    tags?: Iterable<string>;
+    paraphrases?: Iterable<string>;
+  } = {},
+): string {
+  const parts: string[] = [];
+  if (meta.title) parts.push(String(meta.title));
+  if (meta.description) parts.push(String(meta.description));
+  if (meta.tags) {
+    for (const t of meta.tags) {
+      if (t) parts.push(String(t));
+    }
+  }
+  if (meta.paraphrases) {
+    for (const p of meta.paraphrases) {
+      if (p) parts.push(String(p));
+    }
+  }
+  for (const s of steps) {
+    if (s.command) parts.push(String(s.command));
+    if (s.comment) parts.push(String(s.comment));
+  }
+  return parts.join('\n');
+}

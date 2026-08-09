@@ -4,21 +4,24 @@ Project guidance for AI assistants working in this repo.
 
 ## Catalog philosophy (required)
 
-The shipped Git catalog is **LLM-built from authoritative sources**, not hand-curated at each pipeline stage.
+The shipped Git catalog is **LLM-built from `git help` + a goal taxonomy**, not hand-curated at each pipeline stage.
 
-- **Sources in, intuition through:** prepare → ground → evolve → intents → eval artifacts must be produced by models operating on scraped/docs/`git -h`/taxonomy inputs. Do **not** design steps that require a human to author goldens, allowlists-of-goals, or per-verb recipe lists as the normal path.
-- **Code may constrain; humans must not fill the catalog:** Zod schemas, caps, sandbox rules, and structural validators are fine. Checked-in **content** that is the catalog itself (canonical recipes, seed intents, adversarial queries) should be **LLM-generated** from sources (and regenerable), not maintained as a curated encyclopedia.
-- **Follow-up LLM passes are encouraged** when they replace curation: completeness (“what goals are still missing given the taxonomy/sources?”), prune/repair against validators, or self-critique. Prefer machine-checkable prompts over open-ended chat.
-- **Exceptions:** small frozen taxonomies that define the *language* of the system (skill/category enums, LLM-built `intent_matrix.json`, scrape-derived `git_commands.json` command list) are infrastructure, not catalog content. Prefer regenerating scrape/LLM artifacts over growing hand-written JSON.
+- **Lifecycle:** PREPARE → GENERATE → EXPAND → SHIP → SEARCH → OBSERVE → (planned) EVOLVE.
+- **Sources in, intuition through:** scrape → goal taxonomy → per-leaf generate/validate/saturate → held-out → improve triage. Do **not** design steps that require a human to author goldens or per-verb recipe lists as the normal path.
+- **Code may constrain; humans must not fill the catalog:** Zod schemas, caps, sandbox rules, and structural validators are fine. Checked-in **content** (canonical recipes, held-out queries) should be **LLM-generated** (and regenerable).
+- **Follow-up LLM passes are encouraged** when they replace curation: taxonomy reflection, back-translation, triage, gap-cluster expansion.
+- **Exceptions:** scrape-derived `git_commands.json` and LLM-built `goal_taxonomy.json` are infrastructure. Skill/category axes are **parked** (not used for retrieval in v9).
 
 ## Stack
 
 - **Runtime:** Bun (`bun:sqlite` + `sqlite-vec`).
-- **Monorepo:** `common` (`@git-grasp/common`: DB, embeddings, search, shipped `data/` + `config/`), `apps/cli`, `apps/pipeline` (catalog build + eval), `apps/web` (Astro site + playground).
-- **Search:** Hybrid `sqlite-vec` intent KNN + FTS5 command BM25 → weighted fusion + confidence-gated display in `@git-grasp/common`. Schema v6 (`commands` + `intents` + `vec_intents` + `commands_fts`).
-- **Catalog:** generation code on `feature/*`; production `common/data/catalog/commands.json`, `intents.jsonl`, and seeded DB land on `improve/*` after the eval gate. Upstream source fetches go to gitignored `local/cache/sources/`.
-- **LLM prompts:** Do not embed multi-line system/user prompts as TS template literals. Put each LLM call in `common/prompts/<area>/<name>.md` (frontmatter + `## system` / `## user`, Mustache `{{var}}` / `{{{raw}}}`, partials under `prompts/partials/`). Load at runtime with `renderPrompt` / `renderPromptRole` from `common/src/lib/prompts.ts`. Zod schemas stay in TS; taxonomy docs stay in `common/taxonomy/` and are injected as vars.
-- **Layout:** shipped artifacts under `common/data` + `common/config`; scratch under `local/`; tests under `test/{unit,integration,performance}`; docs under `docs/`.
+- **Monorepo:** `common`, `apps/cli`, `apps/pipeline`, `apps/web`.
+- **Pipeline layout:** `apps/pipeline/src/{prepare,generate,expand,ship,eval}/`; stage facades `common/src/{prepare,…,evolve}/`.
+- **Search:** Hybrid description KNN (`vec_recipes`) + FTS5 (`recipes_fts`) → fixed-blend fusion + confidence-gated display. **No LLM at query time.** Schema **v9**.
+- **Catalog:** code on `feature/*`; versioned `recipes.json` / seeded DB on `improve/*` after regression + held-out gates.
+- **LLM prompts:** `common/prompts/<area>/<name>.md` via `renderPrompt` / `renderPromptRole`.
+- **Docs:** one MD per stage under `docs/` (`prepare`…`evolve`); README holds mermaid summaries. Index: `docs/pipeline.md`.
+- **Layout:** shipped under `common/data` + `common/config`; scratch under `local/`; tests under `test/{unit,integration,performance}`.
 
 ## Git flow (required)
 
@@ -28,27 +31,18 @@ Use **git-flow**. Do not commit product/code changes straight to `main` or mix c
 
 | Branch | Purpose |
 |--------|---------|
-| `main` | Release line. Merge only after the relevant gate. Golden / eval gate applies for catalog quality merges. |
+| `main` | Release line. Merge only after the relevant gate. |
 | `develop` | Integration. Keep in sync with `main` after merges. |
-| `feature/*` | **Code** changes only: CLI, search, providers, rate limiters, pipeline scripts, tests, docs that describe code. |
-| `improve/*` | **Eval / improve-loop** outcomes only: thresholds, catalog rebuild artifacts, seeded DB, eval reports driven by the improve/eval cycle. |
-| `chore/catalog-*` | Catalog/seed maintenance when not part of an improve cycle (optional; prefer `improve/*` when eval-driven). |
+| `feature/*` | **Code** changes only. |
+| `improve/*` | **Eval / EXPAND** outcomes: catalog rebuild artifacts, seeded DB, reports. |
+| `chore/catalog-*` | Catalog/seed maintenance when not part of an improve cycle. |
 
 ### What goes where
 
-- **Code adjustments** → always a `feature/*` branch, then merge into `develop` and `main`.
-- **Eval adjustments** (generated cases impact, threshold tweaks from the loop, rebuilt `common/data/catalog/*` + `common/data/git-commands.db` after a successful eval gate) → always an `improve/*` branch, then consolidate onto `main`.
-- Do **not** put large catalog/DB rebuilds on a feature branch unless the change is purely scaffolding with no eval-driven data.
-- Do **not** put application refactors on an `improve/*` branch.
-
-### Merge discipline
-
-1. Finish work on the correct branch type.
-2. Merge `feature/*` → `develop` → `main` (or fast-forward equivalent).
-3. Merge `improve/*` → `develop` → `main` after the eval gate passes.
-4. Never force-push `main`.
-5. Only create commits when asked (or when the user explicitly requested the full git-flow consolidate step).
+- **Code** → `feature/*` → `develop` → `main`.
+- **Eval/catalog** → `improve/*` after held-out + regression green → `develop` → `main`.
+- Never force-push `main`. Only create commits when asked.
 
 ### Eval gate reminder
 
-Improve-loop / `eval:loop` success (including the 5 cycles + final gate when that workflow is used) is what unlocks merging eval/catalog outcomes to `main`. Code features still use normal feature merge; they should not bypass the eval gate when they change retrieval/catalog quality that `main` ships.
+Leaf held-out (≥0.95 ×2) + regression set unlock catalog merges. EXPAND triage buckets 1/2/3 are automated (including taxonomy-gap expansion).

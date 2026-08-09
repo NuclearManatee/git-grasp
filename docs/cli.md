@@ -2,10 +2,12 @@
 
 Local Bun CLI for semantic Git-recipe search. Never executes Git for the user.
 
+Lifecycle: **SEARCH** ([search.md](search.md)) + **OBSERVE** ([observe.md](observe.md)).
+
 ## Features
 
-- Natural-language search with skill-level filter (`set-level`).
-- Snippet + usage frame output; `--verbose`, `--copy`.
+- Natural-language search (hybrid description KNN + FTS).
+- Hits show **title + description** plus command snippet; `--verbose`, `--copy`.
 - `doctor` — DB / thresholds / sqlite-vec / model cache checks.
 - Telemetry off by default (`telemetry on|off|status`).
 

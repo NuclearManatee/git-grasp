@@ -2,14 +2,12 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { verifyFileChecksum } from '../lib/checksum.js';
 import { defaultDbPath, defaultThresholdsPath } from '../lib/paths.js';
-import { readConfig } from '../lib/config.js';
 import {
   openDb,
   knnRecall,
   ftsRecall,
   loadGitVerbs,
-  getCommand,
-  DEFAULT_RECALL_K,
+  getRecipe,
   SEARCH_ALGORITHM_VERSION,
   getMetaValue,
 } from '../db/schema.js';
@@ -24,40 +22,45 @@ import {
   benchEnabled,
 } from './benchTiming.js';
 import { parseJson, ThresholdsSchema } from '../schemas/index.js';
-import { normalizeSkillLevelText } from '../lib/skills.js';
 
 export function loadThresholds(path = defaultThresholdsPath()) {
   return parseJson(readFileSync(path, 'utf8'), ThresholdsSchema);
 }
 
-function hydrateCommands(db, commandIds) {
-  return commandIds.map((id) => {
-    const row = getCommand(db, id);
+function hydrateRecipes(db, recipeIds) {
+  return recipeIds.map((id) => {
+    const row = getRecipe(db, id);
     if (!row) {
       return {
         command_id: id,
         commands: [],
         example: '',
         snippet: '',
+        title: '',
+        description: '',
         risk: 0,
       };
     }
-    const commands = parseCommands(row.command_recipe);
+    const commands = parseCommands(row.commands);
     const example = primaryCommand(commands) || commands[0]?.command || '';
     return {
-      command_id: Number(row.row_id),
+      command_id: String(row.id),
+      recipe_id: String(row.id),
       commands,
       example,
       snippet: renderSnippet(commands),
+      title: row.title || example,
+      description: row.description || '',
       risk: Number(row.risk ?? 0),
       initial_state: row.initial_state ?? '',
-      command_recipe: row.command_recipe,
+      taxonomy_leaf: row.taxonomy_leaf,
+      tags: row.tags,
     };
   });
 }
 
 /**
- * Offline hybrid search (vec intents + FTS5 + confidence gate).
+ * Offline hybrid search (description vec + FTS5 + confidence gate).
  */
 export async function search(query, {
   dbPath = defaultDbPath(),
@@ -67,6 +70,7 @@ export async function search(query, {
   recallK = undefined,
   onEmbedStatus = undefined,
 } = {}) {
+  void skillLevelOverride;
   benchBegin();
   benchMark('start');
 
@@ -91,26 +95,6 @@ export async function search(query, {
 
   const thresholds = loadThresholds(thresholdsPath);
   if (recallK != null) thresholds.recallK = recallK;
-
-  let preferredSkill = null;
-  if (skillLevelOverride !== undefined) {
-    preferredSkill =
-      skillLevelOverride == null
-        ? null
-        : normalizeSkillLevelText(skillLevelOverride);
-  } else {
-    try {
-      const cfg = readConfig().skillLevel;
-      preferredSkill = cfg == null ? null : normalizeSkillLevelText(cfg);
-    } catch (e) {
-      if (e.code === 'CONFIG_INSECURE') {
-        const err = new Error(e.message);
-        err.code = 'CONFIG';
-        throw err;
-      }
-      throw e;
-    }
-  }
   benchMark('config');
 
   const embedder = await embedderPromise;
@@ -138,7 +122,6 @@ export async function search(query, {
     result = await searchHybrid({
       query: q,
       thresholds,
-      preferredSkillOverride: preferredSkill,
       verbs,
       embed: async () => {
         const embedding = await embedder.embed(q);
@@ -155,7 +138,7 @@ export async function search(query, {
         benchMark('fts');
         return hits;
       },
-      hydrate: (ids) => hydrateCommands(db, ids),
+      hydrate: (ids) => hydrateRecipes(db, ids),
     });
   } finally {
     db.close();
@@ -169,7 +152,7 @@ export async function search(query, {
 
   return {
     ...result,
-    skillFilter: preferredSkill,
+    skillFilter: null,
     embedderMock: embedder.mock,
     ...(breakdown && benchEnabled() ? { _bench: breakdown } : {}),
   };

@@ -1,13 +1,13 @@
 import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 import {
   openDb,
-  insertCommand,
-  rebuildCommandsFts,
+  insertRecipe,
+  rebuildRecipesFts,
   ftsRecall,
-  countCommandsFts,
+  countRecipesFts,
 } from '../../common/src/db/schema.js';
 
-describe('commands_fts', () => {
+describe('recipes_fts', () => {
   let db;
 
   beforeEach(() => {
@@ -18,46 +18,60 @@ describe('commands_fts', () => {
     db?.close();
   });
 
-  it('indexes command+comment and ranks by BM25', () => {
-    const a = insertCommand(db, {
-      initial_state: 'git init\n',
-      command_recipe: {
-        commands: [{ command: 'git reset --soft HEAD~1', comment: 'keep staged' }],
-      },
-      initial_state_physical_hash: 'a1',
-      final_state_physical_hash: 'a2',
+  it('indexes command+comment+description and ranks by BM25', () => {
+    insertRecipe(db, {
+      id: 'r-soft',
+      title: 'Soft reset',
+      description: 'undo commit keep staged files',
+      tags: ['undo'],
+      taxonomy_leaf: 'undo',
+      paraphrases: [],
+      provenance: 'synthetic',
+      validated: true,
+      commands: [{ command: 'git reset --soft HEAD~1', comment: 'keep staged' }],
+      initial_state: '',
       risk: 0.2,
     });
-    const b = insertCommand(db, {
-      initial_state: 'git init\n',
-      command_recipe: {
-        commands: [{ command: 'git status', comment: 'show working tree' }],
-      },
-      initial_state_physical_hash: 'b1',
-      final_state_physical_hash: 'b2',
+    insertRecipe(db, {
+      id: 'r-status',
+      title: 'Status',
+      description: 'show working tree',
+      tags: ['inspect'],
+      taxonomy_leaf: 'inspect',
+      paraphrases: [],
+      provenance: 'synthetic',
+      validated: true,
+      commands: [{ command: 'git status', comment: 'show working tree' }],
+      initial_state: '',
       risk: 0.1,
     });
-    rebuildCommandsFts(db);
-    expect(countCommandsFts(db)).toBe(2);
+    rebuildRecipesFts(db);
+    expect(countRecipesFts(db)).toBe(2);
 
     const soft = ftsRecall(db, 'reset soft keep staged', 10);
     expect(soft.length).toBeGreaterThan(0);
-    expect(Number(soft[0].command_id)).toBe(a);
+    expect(String(soft[0].recipe_id)).toBe('r-soft');
     expect(typeof soft[0].bm25).toBe('number');
 
     const status = ftsRecall(db, 'status working', 10);
-    expect(Number(status[0].command_id)).toBe(b);
+    expect(String(status[0].recipe_id)).toBe('r-status');
   });
 
   it('returns empty for empty/special-only query', () => {
-    insertCommand(db, {
-      initial_state: 'git init\n',
-      command_recipe: { commands: [{ command: 'git status' }] },
-      initial_state_physical_hash: 'x',
-      final_state_physical_hash: 'y',
+    insertRecipe(db, {
+      id: 'r-x',
+      title: 'Status',
+      description: 'status',
+      tags: [],
+      taxonomy_leaf: 'x',
+      paraphrases: [],
+      provenance: 'synthetic',
+      validated: true,
+      commands: [{ command: 'git status' }],
+      initial_state: '',
       risk: 0,
     });
-    rebuildCommandsFts(db);
+    rebuildRecipesFts(db);
     expect(ftsRecall(db, '   ', 10)).toEqual([]);
     expect(ftsRecall(db, '***', 10)).toEqual([]);
   });

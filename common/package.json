@@ -26,6 +26,7 @@
     "./lib/skills.js": "./src/lib/skills.ts",
     "./lib/validator.js": "./src/lib/validator.ts",
     "./build/orchestrator.js": "./src/build/orchestrator.ts",
+    "./build/goalTaxonomy.js": "./src/build/goalTaxonomy.ts",
     "./build/prepare.js": "./src/build/prepare.ts",
     "./build/intentMatrix.js": "./src/build/intentMatrix.ts",
     "./catalog/sources/ingest.js": "./src/catalog/sources/ingest.ts",

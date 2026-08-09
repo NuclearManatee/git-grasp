@@ -1,0 +1,831 @@
+{
+  "version": 2,
+  "created_at": "2026-08-08T21:31:37.779Z",
+  "recipe_count": 23,
+  "recipes": [
+    {
+      "id": "0e57b7657ecda03a5492b8b1",
+      "commands": [
+        {
+          "command": "git init",
+          "run": "git init",
+          "comment": "Initialize a new Git repository in the current directory."
+        }
+      ],
+      "title": "Initialize a new Git repository in the current directory",
+      "description": "Run git init to create a new Git repository in the current directory. This sets up the necessary .git directory and metadata for version control.",
+      "tags": [
+        "git",
+        "init",
+        "setup",
+        "repository"
+      ],
+      "taxonomy_leaf": "setup-and-configuration-initialize-a-repository-",
+      "paraphrases": [
+        "Create a new Git repository here",
+        "Initialize a repository in this folder",
+        "Set up a new Git repo in the current directory",
+        "how do i start tracking my code",
+        "i need to track changes in my project",
+        "how do i start tracking my project with git",
+        "i need to track changes in my project, what's the first step",
+        "how do i start tracking my project",
+        "new repo setup, no remote yet"
+      ],
+      "provenance": "synthetic",
+      "validated": true,
+      "initial_state": "fixture:bare_workdir",
+      "command_fingerprint": "0e3151390f8442d76064ce103fad4b85",
+      "initial_state_physical_hash": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "final_state_physical_hash": "18168b7f106420ec9308a889d15c02f2d7a874549792a0a5ae1f3e428c491a42",
+      "risk": 0.1
+    },
+    {
+      "id": "14331d1b0d7b745533c86142",
+      "commands": [
+        {
+          "command": "git branch -v",
+          "run": "git branch -v",
+          "comment": "List branches with last commit"
+        }
+      ],
+      "title": "List branches with verbose info",
+      "description": "List branches with the latest commit hash and message. Useful for seeing what each branch points to.",
+      "tags": [
+        "branch",
+        "list",
+        "verbose"
+      ],
+      "taxonomy_leaf": "setup-and-configuration-manage-branches",
+      "paraphrases": [
+        "Show branches with details",
+        "List branches with commit info",
+        "Verbose branch list",
+        "how do i make a new copy of my project to try stuff",
+        "switch to another version of my code",
+        "what are branches in git for dummies",
+        "create a new branch command",
+        "create a new branch from current",
+        "change branch name"
+      ],
+      "provenance": "synthetic",
+      "validated": true,
+      "initial_state": "fixture:with_commit",
+      "command_fingerprint": "8c0df9344cb29edf9bd31e949c5543a8",
+      "initial_state_physical_hash": "b1b70ffbae933ca833fdc81ba0aa3b2af43a2547f3d42bd92ce20effdf591fee",
+      "final_state_physical_hash": "b1b70ffbae933ca833fdc81ba0aa3b2af43a2547f3d42bd92ce20effdf591fee",
+      "risk": 0
+    },
+    {
+      "id": "188c02bdceef6656fb32c9a9",
+      "commands": [
+        {
+          "command": "git init --shared=group",
+          "run": "git init --shared=group",
+          "comment": "Initialize a new repository with group-shareable permissions."
+        }
+      ],
+      "title": "Initialize a repository with a shared permissions setting",
+      "description": "Run git init --shared=group to create a new repository with group-shareable permissions, allowing multiple users in the same group to read and write.",
+      "tags": [
+        "git",
+        "init",
+        "shared",
+        "permissions"
+      ],
+      "taxonomy_leaf": "setup-and-configuration-initialize-a-repository-",
+      "paraphrases": [
+        "Initialize a repo with group sharing",
+        "Create a new Git repository with shared permissions",
+        "Set up a repo for group collaboration",
+        "git init what does it do",
+        "set up git for my code",
+        "set up git for my folder",
+        "make this folder a git thing",
+        "begin git tracking here",
+        "set up version control for my codebase",
+        "git says 'not a git repository', fix?"
+      ],
+      "provenance": "synthetic",
+      "validated": true,
+      "initial_state": "fixture:bare_workdir",
+      "command_fingerprint": "15d559001444b79ba20c568a4cdb79dd",
+      "initial_state_physical_hash": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "final_state_physical_hash": "18168b7f106420ec9308a889d15c02f2d7a874549792a0a5ae1f3e428c491a42",
+      "risk": 0.2
+    },
+    {
+      "id": "1d22459ab757f6c8c8753311",
+      "commands": [
+        {
+          "command": "git config user.name \"Your Name\"",
+          "run": "git config user.name \"Your Name\"",
+          "comment": "Set the user name"
+        }
+      ],
+      "title": "Set Git user name only",
+      "description": "Set only the Git user name, leaving the email unchanged or unset.",
+      "tags": [
+        "config",
+        "user",
+        "name"
+      ],
+      "taxonomy_leaf": "setup-and-configuration-configure-user-identity",
+      "paraphrases": [
+        "Set Git user name",
+        "Configure Git user name only",
+        "Change the name used in Git commits",
+        "why is my commit author wrong",
+        "set local git config user",
+        "git config --global user.email"
+      ],
+      "provenance": "synthetic",
+      "validated": true,
+      "initial_state": "fixture:inited",
+      "command_fingerprint": "d7f5f068dc4ccea9c00fbe6c0d25391e",
+      "initial_state_physical_hash": "18168b7f106420ec9308a889d15c02f2d7a874549792a0a5ae1f3e428c491a42",
+      "final_state_physical_hash": "18168b7f106420ec9308a889d15c02f2d7a874549792a0a5ae1f3e428c491a42",
+      "risk": 0.1
+    },
+    {
+      "id": "29a987e61cb30cd19dbaafa4",
+      "commands": [
+        {
+          "command": "git init -b <branch> <directory>",
+          "run": "git init -b <branch> <directory>",
+          "comment": "Initialize a new repository in <directory> with initial branch <branch>."
+        }
+      ],
+      "title": "Initialize a Git repository with a specific initial branch and directory",
+      "description": "Run git init -b <branch> <directory> to create a new repository in a specified directory with a custom initial branch name.",
+      "tags": [
+        "git",
+        "init",
+        "branch",
+        "directory",
+        "setup"
+      ],
+      "taxonomy_leaf": "setup-and-configuration-initialize-a-repository-",
+      "paraphrases": [
+        "Initialize a repo in a folder with a custom branch",
+        "Create a Git repo in a specific path with a non-default branch",
+        "Set up a repository with a custom branch and location",
+        "make a new git repo",
+        "beginner git start",
+        "initialize git in current directory"
+      ],
+      "provenance": "synthetic",
+      "validated": true,
+      "initial_state": "fixture:bare_workdir",
+      "command_fingerprint": "430992f3e2facf561b4aea2d0d82bae8",
+      "initial_state_physical_hash": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "final_state_physical_hash": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "risk": 0.1
+    },
+    {
+      "id": "4649882bd433042f0607c233",
+      "commands": [
+        {
+          "command": "git init --bare",
+          "run": "git init --bare",
+          "comment": "Initialize a bare Git repository (no working tree)."
+        }
+      ],
+      "title": "Initialize a bare repository",
+      "description": "Run git init --bare to create a bare repository, which has no working tree and is typically used as a central remote repository for sharing and collaboration.",
+      "tags": [
+        "git",
+        "init",
+        "bare",
+        "remote"
+      ],
+      "taxonomy_leaf": "setup-and-configuration-initialize-a-repository-",
+      "paraphrases": [
+        "Create a bare Git repository",
+        "Initialize a repository without a working directory",
+        "Set up a central bare repo",
+        "i want to save my project versions",
+        "make a new git repo in this directory",
+        "i want to save versions of my code",
+        "make this directory a git repo"
+      ],
+      "provenance": "synthetic",
+      "validated": true,
+      "initial_state": "fixture:bare_workdir",
+      "command_fingerprint": "e8b4892e9df9f480ef968e72d93d5741",
+      "initial_state_physical_hash": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "final_state_physical_hash": "f604769a4da7bc7f418247c37651ead26c3d14cf1bb991c9a954d6f36b49f91a",
+      "risk": 0.2
+    },
+    {
+      "id": "518413504fa5ab8cbbf6e554",
+      "commands": [
+        {
+          "command": "git count-objects -v",
+          "run": "git count-objects -v",
+          "comment": "Verbose count of loose objects and disk usage."
+        }
+      ],
+      "title": "Count repository objects",
+      "description": "Count unpacked objects and estimate disk usage in the object database.",
+      "tags": [
+        "count-objects",
+        "objects",
+        "disk-usage"
+      ],
+      "taxonomy_leaf": "setup-and-configuration-view-repository-status-a",
+      "paraphrases": [
+        "Show object count",
+        "Display repository object statistics",
+        "Check disk usage of objects",
+        "what branch am i on",
+        "what's my current branch and stuff?",
+        "what's changed since last commit",
+        "what's going on with my project?",
+        "what's the current state of things?",
+        "what's the state of my working directory?"
+      ],
+      "provenance": "synthetic",
+      "validated": true,
+      "initial_state": "fixture:with_commit",
+      "command_fingerprint": "1cd4d2c56078d6dccdd37a11c0202c14",
+      "initial_state_physical_hash": "8af2614d2cb997a8997b48cfa0c22fa1571f973bd653e9b9c26191d16f74a2cc",
+      "final_state_physical_hash": "8af2614d2cb997a8997b48cfa0c22fa1571f973bd653e9b9c26191d16f74a2cc",
+      "risk": 0.1
+    },
+    {
+      "id": "5cd781efaa25c758cfe08221",
+      "commands": [
+        {
+          "command": "git bugreport",
+          "run": "git bugreport",
+          "comment": "Generate a bug report archive with system info and Git logs."
+        }
+      ],
+      "title": "Generate a bug report",
+      "description": "Create a zip archive with system information and Git logs to help debug issues.",
+      "tags": [
+        "bugreport",
+        "debug",
+        "diagnostics"
+      ],
+      "taxonomy_leaf": "setup-and-configuration-view-repository-status-a",
+      "paraphrases": [
+        "Create a bug report",
+        "Generate diagnostics for a bug",
+        "Collect system info for debugging",
+        "show me what's changed in my project",
+        "show git config",
+        "show me what's staged",
+        "am I up to date with remote?",
+        "show me what's changed",
+        "is my code saved?",
+        "do i have any staged changes?"
+      ],
+      "provenance": "synthetic",
+      "validated": true,
+      "initial_state": "fixture:with_commit",
+      "command_fingerprint": "00d0855f1a444d1f76f610ccd161c6fa",
+      "initial_state_physical_hash": "3141d3b7b40974c7907f88e6e1e6d606a1e139e9c9eb7bc6fcaa4d1255ccc8c7",
+      "final_state_physical_hash": "3141d3b7b40974c7907f88e6e1e6d606a1e139e9c9eb7bc6fcaa4d1255ccc8c7",
+      "risk": 0.2
+    },
+    {
+      "id": "618a2551f8e29c7a18368292",
+      "commands": [
+        {
+          "command": "git config user.name \"Your Name\"",
+          "run": "git config user.name \"Your Name\"",
+          "comment": "Set the local user name"
+        },
+        {
+          "command": "git config user.email \"you@example.com\"",
+          "run": "git config user.email \"you@example.com\"",
+          "comment": "Set the local user email"
+        }
+      ],
+      "title": "Set Git user name and email locally for a repository",
+      "description": "Configure the local Git user identity for the current repository, overriding global settings.",
+      "tags": [
+        "config",
+        "user",
+        "identity",
+        "local"
+      ],
+      "taxonomy_leaf": "setup-and-configuration-configure-user-identity",
+      "paraphrases": [
+        "Set repository-specific Git user name and email",
+        "Configure Git identity for this repo only",
+        "Override global Git user settings locally",
+        "i want my commits to have my name",
+        "git commit shows wrong email",
+        "change the name git uses for my commits",
+        "why does my commit show the wrong person",
+        "git config user name and email",
+        "set git email for commits",
+        "why are my commits showing wrong author"
+      ],
+      "provenance": "synthetic",
+      "validated": true,
+      "initial_state": "fixture:inited",
+      "command_fingerprint": "ffffd4635a52959c04e4211b920a0784",
+      "initial_state_physical_hash": "18168b7f106420ec9308a889d15c02f2d7a874549792a0a5ae1f3e428c491a42",
+      "final_state_physical_hash": "18168b7f106420ec9308a889d15c02f2d7a874549792a0a5ae1f3e428c491a42",
+      "risk": 0.1
+    },
+    {
+      "id": "63a7a573ffe64c9e83678285",
+      "commands": [
+        {
+          "command": "git pull --rebase",
+          "run": "git pull --rebase",
+          "comment": "Fetch and rebase local commits onto remote branch"
+        }
+      ],
+      "title": "Pull with rebase to keep linear history",
+      "description": "When working on a feature branch, use git pull --rebase to fetch remote changes and replay local commits on top, avoiding merge commits and keeping a clean linear history.",
+      "tags": [
+        "pull",
+        "rebase",
+        "workflow"
+      ],
+      "taxonomy_leaf": "branching-and-merging-rebase-branches-pull-with-",
+      "paraphrases": [
+        "rebase local commits on pull",
+        "pull with rebase instead of merge",
+        "fetch and rebase"
+      ],
+      "provenance": "synthetic",
+      "validated": true,
+      "initial_state": "fixture:with_remote",
+      "command_fingerprint": "7954ec516d3c8d516ca0e3e7b7099887",
+      "initial_state_physical_hash": "c2140913fee14f5591d1e2dc3c3bbb98da8896a97d03d2e9d32be04550b261c7",
+      "final_state_physical_hash": "f4caf65d1d00d64022bca5bf30653b1cd3cb4c19835246946f629408913a3585",
+      "risk": 0.2
+    },
+    {
+      "id": "6c93a525278fdd60bc64043a",
+      "commands": [
+        {
+          "command": "git branch <branch>",
+          "run": "git branch <branch>",
+          "comment": "Create a new branch named <branch>"
+        }
+      ],
+      "title": "Create a new branch",
+      "description": "Create a new branch in the repository. The branch is created from the current HEAD, but does not switch to it.",
+      "tags": [
+        "branch",
+        "create"
+      ],
+      "taxonomy_leaf": "setup-and-configuration-manage-branches",
+      "paraphrases": [
+        "Make a new branch",
+        "Add a branch",
+        "Create a branch called <branch>",
+        "show branches",
+        "show me all my versions",
+        "i want to work on a different idea without breaking my main code",
+        "list all branches in my repo",
+        "list all branches in repo"
+      ],
+      "provenance": "synthetic",
+      "validated": true,
+      "initial_state": "fixture:with_commit",
+      "command_fingerprint": "cd1e3e08dc989aae33c6d930d3932f3d",
+      "initial_state_physical_hash": "e8b4fc58acb8cc4632078bbad44f821074340db2d8ce5d4705e9d172e1a85eee",
+      "final_state_physical_hash": "6a47f7d19c75aec5e53251e24a6821efbc3027b9cb6ef4668e91ba84088c6ab7",
+      "risk": 0.1
+    },
+    {
+      "id": "6f0f0792623b39473648dcca",
+      "commands": [
+        {
+          "command": "git branch",
+          "run": "git branch",
+          "comment": "List local branches, with an asterisk marking the current branch."
+        }
+      ],
+      "title": "List local branches",
+      "description": "List all local branches in the repository, highlighting the current branch.",
+      "tags": [
+        "branch",
+        "list",
+        "local"
+      ],
+      "taxonomy_leaf": "setup-and-configuration-view-repository-status-a",
+      "paraphrases": [
+        "Show all local branches",
+        "Display the list of branches",
+        "List branches in the repository",
+        "did i stage anything?",
+        "what's going on with my files?",
+        "git status please",
+        "tell me about this repo",
+        "what's in the staging area?",
+        "what's the status of my repo"
+      ],
+      "provenance": "synthetic",
+      "validated": true,
+      "initial_state": "fixture:with_commit",
+      "command_fingerprint": "fccb7f52c95ac3eb1bebc98a5e6fa94c",
+      "initial_state_physical_hash": "1f3f506ce97fcb8cd584c625e850b490f0b0e1c9825d646fd5cc4cabc2be3e70",
+      "final_state_physical_hash": "1f3f506ce97fcb8cd584c625e850b490f0b0e1c9825d646fd5cc4cabc2be3e70",
+      "risk": 0.1
+    },
+    {
+      "id": "78059e5b237c84273e15de7e",
+      "commands": [
+        {
+          "command": "git gc",
+          "run": "git gc",
+          "comment": "Run garbage collection to clean up and optimize the repository."
+        }
+      ],
+      "title": "Run garbage collection",
+      "description": "Optimize the repository by compressing objects and removing unreachable ones.",
+      "tags": [
+        "gc",
+        "maintenance",
+        "optimize"
+      ],
+      "taxonomy_leaf": "setup-and-configuration-view-repository-status-a",
+      "paraphrases": [
+        "Clean up the repository",
+        "Optimize repository storage",
+        "Run Git garbage collection",
+        "what's the status of my repo?",
+        "i need to see what's staged",
+        "what's the current state of my repo",
+        "what's the branch status",
+        "did i save everything?",
+        "show me my git info",
+        "is anything staged?",
+        "show me the repo info"
+      ],
+      "provenance": "synthetic",
+      "validated": true,
+      "initial_state": "fixture:with_commit",
+      "command_fingerprint": "025e1af1aec7bf8de51a853fb8b55738",
+      "initial_state_physical_hash": "dc5ec099d5a063b0d974b9e124fb378f1e2a0e1609747f236a1d2afa7c9090a7",
+      "final_state_physical_hash": "dc5ec099d5a063b0d974b9e124fb378f1e2a0e1609747f236a1d2afa7c9090a7",
+      "risk": 0.3
+    },
+    {
+      "id": "7aac861cd57c94099580b1c2",
+      "commands": [
+        {
+          "command": "git version",
+          "run": "git version",
+          "comment": "Print the Git version."
+        }
+      ],
+      "title": "Show Git version",
+      "description": "Display the installed Git version.",
+      "tags": [
+        "version",
+        "info"
+      ],
+      "taxonomy_leaf": "setup-and-configuration-view-repository-status-a",
+      "paraphrases": [
+        "Check Git version",
+        "Display Git version information",
+        "What version of Git is installed?",
+        "is my working directory clean?",
+        "did I stage that file?",
+        "what's staged?",
+        "what's my current branch?"
+      ],
+      "provenance": "synthetic",
+      "validated": true,
+      "initial_state": "fixture:bare_workdir",
+      "command_fingerprint": "7839169f39cce2dee8eb66f48c9eedef",
+      "initial_state_physical_hash": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "final_state_physical_hash": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "risk": 0
+    },
+    {
+      "id": "85c8affd9de6899c0c4af63b",
+      "commands": [
+        {
+          "command": "git branch",
+          "run": "git branch",
+          "comment": "List local branches"
+        }
+      ],
+      "title": "List all branches",
+      "description": "List all local branches in the repository. The current branch is highlighted with an asterisk.",
+      "tags": [
+        "branch",
+        "list"
+      ],
+      "taxonomy_leaf": "setup-and-configuration-manage-branches",
+      "paraphrases": [
+        "Show branches",
+        "Display branches",
+        "List all branches",
+        "delete a branch i don't need anymore",
+        "what's a branch and how do i use it",
+        "list branches with dates",
+        "what's the command to make a branch",
+        "new branch from current",
+        "rename one of my saved versions",
+        "how to switch between my saved copies",
+        "delete remote branch"
+      ],
+      "provenance": "synthetic",
+      "validated": true,
+      "initial_state": "fixture:with_commit",
+      "command_fingerprint": "fccb7f52c95ac3eb1bebc98a5e6fa94c",
+      "initial_state_physical_hash": "1f3f506ce97fcb8cd584c625e850b490f0b0e1c9825d646fd5cc4cabc2be3e70",
+      "final_state_physical_hash": "1f3f506ce97fcb8cd584c625e850b490f0b0e1c9825d646fd5cc4cabc2be3e70",
+      "risk": 0
+    },
+    {
+      "id": "8ce5fbf25b7708ae8872fed0",
+      "commands": [
+        {
+          "command": "git config user.name \"<name>\"",
+          "run": "git config user.name \"<name>\"",
+          "comment": "Set the user name for this repository"
+        },
+        {
+          "command": "git config user.email \"<email>\"",
+          "run": "git config user.email \"<email>\"",
+          "comment": "Set the user email for this repository"
+        }
+      ],
+      "title": "Set local Git user name and email",
+      "description": "Configure the Git user name and email for the current repository, overriding any global settings. This ensures commits in this repo use the specified identity.",
+      "tags": [
+        "git",
+        "config",
+        "user",
+        "identity",
+        "local"
+      ],
+      "taxonomy_leaf": "setup-and-configuration-configure-user-identity",
+      "paraphrases": [
+        "Set the local Git user name and email",
+        "Configure repository-specific Git identity",
+        "Override global Git user settings for this repo"
+      ],
+      "provenance": "synthetic",
+      "validated": true,
+      "initial_state": "fixture:inited",
+      "command_fingerprint": "eb1ab4b57e77a21d6bc3410824c4b626",
+      "initial_state_physical_hash": "18168b7f106420ec9308a889d15c02f2d7a874549792a0a5ae1f3e428c491a42",
+      "final_state_physical_hash": "18168b7f106420ec9308a889d15c02f2d7a874549792a0a5ae1f3e428c491a42",
+      "risk": 0.1
+    },
+    {
+      "id": "9e33b2bf5cf7d2f182786d43",
+      "commands": [
+        {
+          "command": "git init -b <branch> --shared=group",
+          "run": "git init -b <branch> --shared=group",
+          "comment": "Initialize a new repository with initial branch <branch> and group-shareable permissions."
+        }
+      ],
+      "title": "Initialize a Git repository with a custom initial branch and group permissions",
+      "description": "Run git init -b <branch> --shared=group to create a new repository with a custom initial branch name and group-shareable permissions.",
+      "tags": [
+        "git",
+        "init",
+        "branch",
+        "shared",
+        "permissions",
+        "setup"
+      ],
+      "taxonomy_leaf": "setup-and-configuration-initialize-a-repository-",
+      "paraphrases": [
+        "Initialize a repo with a custom branch and group permissions",
+        "Create a shared Git repository with a specific branch",
+        "Set up a group-shared repo with a non-default branch",
+        "start using git for my folder",
+        "i want to version control my code but i don't know where to start",
+        "setup git for my project",
+        "starting fresh with git, what's the first step"
+      ],
+      "provenance": "synthetic",
+      "validated": true,
+      "initial_state": "fixture:bare_workdir",
+      "command_fingerprint": "7b8be78e95c293ac0740aea420fcdbca",
+      "initial_state_physical_hash": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "final_state_physical_hash": "64e8a090c986113ed85b01cf90aae320b0cbe0b8563749290b784339280122b0",
+      "risk": 0.1
+    },
+    {
+      "id": "a2adf0151a9b76d3697e0311",
+      "commands": [
+        {
+          "command": "git checkout -b <branch>",
+          "run": "git checkout -b <branch>",
+          "comment": "Create and switch to branch <branch>"
+        }
+      ],
+      "title": "Create and switch to a new branch",
+      "description": "Create a new branch and immediately switch to it. This is a common workflow for starting new features.",
+      "tags": [
+        "branch",
+        "create",
+        "checkout"
+      ],
+      "taxonomy_leaf": "setup-and-configuration-manage-branches",
+      "paraphrases": [
+        "Create and checkout branch",
+        "Switch to new branch",
+        "Start a new branch",
+        "see all the branches i have",
+        "can i rename a branch without checking it out",
+        "branch name change",
+        "delete local branch",
+        "delete a version i messed up",
+        "delete branch locally",
+        "remove a branch locally",
+        "show all branches including remote"
+      ],
+      "provenance": "synthetic",
+      "validated": true,
+      "initial_state": "fixture:with_commit",
+      "command_fingerprint": "2595c7f6419dbb764473b5024539bd84",
+      "initial_state_physical_hash": "2e33e67ab2e05258e9fbc024907801ea29ef912801df0e369b705939a09183a7",
+      "final_state_physical_hash": "982ba565b0f96b03deb8bb8dd5662b56ab1dae39bd8edcb021d2a35c0cbbcc7c",
+      "risk": 0.1
+    },
+    {
+      "id": "a57537b26544aba0798c656d",
+      "commands": [
+        {
+          "command": "git init -b main",
+          "run": "git init -b main",
+          "comment": "Initialize a new repository with the initial branch named 'main'."
+        }
+      ],
+      "title": "Initialize a repository and set the initial branch to main",
+      "description": "Run git init -b main to create a new repository with the initial branch named 'main', which is the common default for many projects.",
+      "tags": [
+        "git",
+        "init",
+        "main",
+        "branch"
+      ],
+      "taxonomy_leaf": "setup-and-configuration-initialize-a-repository-",
+      "paraphrases": [
+        "Initialize a repo with main as the default branch",
+        "Create a new Git repository with branch main",
+        "Set up a repo with the main branch",
+        "initialize git repository command",
+        "i want to save my code history, how to begin"
+      ],
+      "provenance": "synthetic",
+      "validated": true,
+      "initial_state": "fixture:bare_workdir",
+      "command_fingerprint": "0439f20c88817f108c4b5fa12853deb9",
+      "initial_state_physical_hash": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "final_state_physical_hash": "18168b7f106420ec9308a889d15c02f2d7a874549792a0a5ae1f3e428c491a42",
+      "risk": 0.1
+    },
+    {
+      "id": "d5d181d92bbd139833945423",
+      "commands": [
+        {
+          "command": "git status",
+          "run": "git status",
+          "comment": "Show the current state of the working directory and staging area."
+        }
+      ],
+      "title": "Show repository status",
+      "description": "Display the working tree status, including staged, unstaged, and untracked files.",
+      "tags": [
+        "status",
+        "working-tree",
+        "state"
+      ],
+      "taxonomy_leaf": "setup-and-configuration-view-repository-status-a",
+      "paraphrases": [
+        "Check the current status of the repository",
+        "Show what has changed in the working tree",
+        "Display the state of the working directory",
+        "tell me about this git repo",
+        "show me the branch and changes",
+        "show my git config",
+        "what's going on with git?",
+        "what's the deal with my files?",
+        "show git config",
+        "what's the current state of the repo?"
+      ],
+      "provenance": "synthetic",
+      "validated": true,
+      "initial_state": "fixture:dirty_worktree",
+      "command_fingerprint": "e62b04aadf39df1a47b771265e4ae5c4",
+      "initial_state_physical_hash": "e6a7a03904183d6f71b9eb0100b0f57a680ee5b994e8a2173ce7b177a5f8a37d",
+      "final_state_physical_hash": "e6a7a03904183d6f71b9eb0100b0f57a680ee5b994e8a2173ce7b177a5f8a37d",
+      "risk": 0.1
+    },
+    {
+      "id": "d646b27fb3e04a2e9d1645cc",
+      "commands": [
+        {
+          "command": "git init --object-format=sha256",
+          "run": "git init --object-format=sha256",
+          "comment": "Initialize a new repository with SHA-256 object format."
+        }
+      ],
+      "title": "Initialize a repository with a custom object format",
+      "description": "Run git init --object-format=sha256 to create a new repository using the SHA-256 object format instead of the default SHA-1, for enhanced security.",
+      "tags": [
+        "git",
+        "init",
+        "sha256",
+        "security"
+      ],
+      "taxonomy_leaf": "setup-and-configuration-initialize-a-repository-",
+      "paraphrases": [
+        "Initialize a repo with SHA-256 hashing",
+        "Create a new Git repository using SHA-256",
+        "Set up a repo with a secure object format",
+        "how to create a git repository in an existing folder"
+      ],
+      "provenance": "synthetic",
+      "validated": true,
+      "initial_state": "fixture:bare_workdir",
+      "command_fingerprint": "c3b5e918e44450673d43b0dbeead3816",
+      "initial_state_physical_hash": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "final_state_physical_hash": "18168b7f106420ec9308a889d15c02f2d7a874549792a0a5ae1f3e428c491a42",
+      "risk": 0.3
+    },
+    {
+      "id": "e21cb692b9596b9d71fd6f61",
+      "commands": [
+        {
+          "command": "git init -b <branch>",
+          "run": "git init -b <branch>",
+          "comment": "Initialize a new repository with the initial branch named <branch>."
+        }
+      ],
+      "title": "Initialize a repository with a specific branch name",
+      "description": "Run git init with the -b option to create a new repository and set the initial branch name to a custom value, useful for projects that prefer a branch name other than 'master' or 'main'.",
+      "tags": [
+        "git",
+        "init",
+        "branch",
+        "setup"
+      ],
+      "taxonomy_leaf": "setup-and-configuration-initialize-a-repository-",
+      "paraphrases": [
+        "Initialize a repo with a custom initial branch",
+        "Create a new Git repository with branch <branch>",
+        "Set up a repo with a non-default branch name",
+        "initialize git in current folder",
+        "git init vs git clone",
+        "how to create a new git repo",
+        "turn existing folder into a repository"
+      ],
+      "provenance": "synthetic",
+      "validated": true,
+      "initial_state": "fixture:bare_workdir",
+      "command_fingerprint": "b99c4d9df58c787d2ef998d5ab7db850",
+      "initial_state_physical_hash": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "final_state_physical_hash": "64e8a090c986113ed85b01cf90aae320b0cbe0b8563749290b784339280122b0",
+      "risk": 0.1
+    },
+    {
+      "id": "f53b65ea106ef629e3118795",
+      "commands": [
+        {
+          "command": "git init <directory>",
+          "run": "git init <directory>",
+          "comment": "Initialize a new Git repository in the directory <directory>."
+        }
+      ],
+      "title": "Initialize a repository with a specific directory",
+      "description": "Run git init <directory> to create a new Git repository in a specified directory, which will be created if it does not exist.",
+      "tags": [
+        "git",
+        "init",
+        "directory",
+        "setup"
+      ],
+      "taxonomy_leaf": "setup-and-configuration-initialize-a-repository-",
+      "paraphrases": [
+        "Initialize a repo in a specific folder",
+        "Create a new Git repository in <directory>",
+        "Set up a repository in a given path",
+        "git init command",
+        "start using git on my local project",
+        "begin tracking changes with git"
+      ],
+      "provenance": "synthetic",
+      "validated": true,
+      "initial_state": "fixture:bare_workdir",
+      "command_fingerprint": "28a551f12d17f4d7a5e140d39ee986f3",
+      "initial_state_physical_hash": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "final_state_physical_hash": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "risk": 0.1
+    }
+  ],
+  "provenance_counts": {
+    "synthetic": 23
+  }
+}

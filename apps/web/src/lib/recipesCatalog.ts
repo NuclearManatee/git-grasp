@@ -22,17 +22,19 @@ const CatalogFileSchema = z.array(CatalogCommandSchema);
 
 function catalogPath() {
   const candidates = [
+    path.join(process.cwd(), 'common', 'data', 'catalog', 'recipes.json'),
+    path.join(process.cwd(), '..', '..', 'common', 'data', 'catalog', 'recipes.json'),
+    path.join(process.cwd(), '..', 'common', 'data', 'catalog', 'recipes.json'),
+    // Legacy compat (prefer recipes.json above)
     path.join(process.cwd(), 'common', 'data', 'catalog', 'commands.json'),
     path.join(process.cwd(), '..', '..', 'common', 'data', 'catalog', 'commands.json'),
     path.join(process.cwd(), '..', 'common', 'data', 'catalog', 'commands.json'),
-    path.join(process.cwd(), 'common', 'data', 'catalog', 'recipes.json'),
-    path.join(process.cwd(), '..', '..', 'common', 'data', 'catalog', 'recipes.json'),
   ];
   for (const p of candidates) {
     if (existsSync(p)) return p;
   }
   throw new Error(
-    `commands.json not found (cwd=${process.cwd()}). Tried:\n${candidates.join('\n')}`,
+    `recipes.json not found (cwd=${process.cwd()}). Tried:\n${candidates.join('\n')}`,
   );
 }
 

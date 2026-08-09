@@ -7,16 +7,22 @@
     "@git-grasp/common": "workspace:*"
   },
   "scripts": {
-    "seed": "bun ./src/seed.ts",
-    "eval": "bun ./src/eval.ts",
-    "loop": "bun ./src/eval-loop.ts",
-    "taxonomy:scrape": "bun ./src/taxonomy-scrape.ts",
-    "taxonomy:matrix": "bun ./src/taxonomy-matrix.ts",
-    "prepare": "bun ./src/build-prepare.ts",
-    "ground": "bun ./src/build-ground.ts",
-    "build:loop": "bun ./src/build-loop.ts",
-    "build:loop:mock": "bun ./src/build-loop-mock-proof.ts",
-    "ingest-sources": "bun ./src/ingest-sources.ts",
-    "download-docs": "bun ./src/download-docs.ts"
+    "prepare:scrape": "bun ./src/prepare/scrape.ts",
+    "prepare:goals": "bun ./src/prepare/goals.ts",
+    "generate": "bun ./src/generate/ground.ts",
+    "expand": "bun ./src/expand/loop.ts",
+    "expand:retry": "bun ./src/expand/holdout-retry.ts",
+    "expand:mock": "bun ./src/expand/loop-mock-proof.ts",
+    "ship": "bun ./src/ship/seed.ts",
+    "ship:dedupe": "bun ./src/ship/corpus-dedupe.ts",
+    "seed": "bun ./src/ship/seed.ts",
+    "corpus:dedupe": "bun ./src/ship/corpus-dedupe.ts",
+    "taxonomy:scrape": "bun ./src/prepare/scrape.ts",
+    "taxonomy:goals": "bun ./src/prepare/goals.ts",
+    "ground": "bun ./src/generate/ground.ts",
+    "build:loop": "bun ./src/expand/loop.ts",
+    "build:loop:mock": "bun ./src/expand/loop-mock-proof.ts",
+    "eval": "bun ./src/eval/run.ts",
+    "loop": "bun ./src/eval/loop.ts"
   }
 }

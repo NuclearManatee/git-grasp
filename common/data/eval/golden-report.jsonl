@@ -1,17 +1,15 @@
-{"query_text":"How do I use git backfill to fill in missing commits?","command_id":4,"kind":"golden","mutation_kind":"ground","primary_verb":"git backfill"}
-{"query_text":"how do I use git count-objects","command_id":3,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"ground","primary_verb":"git count-objects"}
-{"query_text":"how do I use git bugreport","command_id":1,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"ground","primary_verb":"git bugreport"}
-{"query_text":"how do I use git branch","command_id":24,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"ground","primary_verb":"git branch"}
-{"query_text":"how do I use git init","command_id":28,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"ground","primary_verb":"git init"}
-{"query_text":"How do I use git prune to clean up unreachable objects?","command_id":37,"kind":"golden","mutation_kind":"ground","primary_verb":"git prune"}
-{"query_text":"how do I use git remote","command_id":39,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"ground","primary_verb":"git remote"}
-{"query_text":"how do I use git switch","command_id":54,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"ground","primary_verb":"git switch"}
-{"query_text":"how do I use git worktree","command_id":57,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"ground","primary_verb":"git worktree"}
-{"query_text":"how do I use git pack-refs","command_id":58,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"composition","primary_verb":"git pack-refs"}
-{"query_text":"how do I use git count-objects","command_id":61,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"composition","primary_verb":"git count-objects"}
-{"query_text":"how do I use git branch","command_id":83,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"composition","primary_verb":"git branch"}
-{"query_text":"how do I use git remote","command_id":87,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"composition","primary_verb":"git remote"}
-{"query_text":"how do I use git branch","command_id":88,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"composition","primary_verb":"git branch"}
-{"query_text":"how do I use git remote","command_id":98,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"composition","primary_verb":"git remote"}
-{"query_text":"how do I use git tag","command_id":104,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"composition","primary_verb":"git tag"}
-{"query_text":"how do I use git notes","command_id":106,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"composition","primary_verb":"git notes"}
+{"query_text":"How do I use git clean to remove untracked files from my working tree?","command_id":6,"kind":"golden","mutation_kind":"ground","primary_verb":"git clean","source":"llm"}
+{"query_text":"how do I use git bugreport","command_id":8,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"ground","primary_verb":"git bugreport","source":"llm"}
+{"query_text":"How do I use git blame to see which revision and author last changed each line of a file?","command_id":10,"kind":"golden","mutation_kind":"ground","primary_verb":"git blame","source":"llm"}
+{"query_text":"How do I use git format-patch to create a patch file for the latest commit?","command_id":19,"kind":"golden","mutation_kind":"ground","primary_verb":"git format-patch","source":"llm"}
+{"query_text":"how do I use git branch","command_id":23,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"ground","primary_verb":"git branch","source":"llm"}
+{"query_text":"How do I use git difftool to show changes?","command_id":26,"kind":"golden","mutation_kind":"ground","primary_verb":"git difftool","source":"llm"}
+{"query_text":"how do I use git history","command_id":36,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"ground","primary_verb":"git history","source":"llm"}
+{"query_text":"How do I use git restore to discard changes to a file and get back the last committed version?","command_id":42,"kind":"golden","mutation_kind":"ground","primary_verb":"git restore","source":"llm"}
+{"query_text":"How do I use git rm to remove a tracked file from both the working tree and index?","command_id":47,"kind":"golden","mutation_kind":"ground","primary_verb":"git rm","source":"llm"}
+{"query_text":"how do I use git remote","command_id":43,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"ground","primary_verb":"git remote","source":"llm"}
+{"query_text":"How do I use git revert to undo a previous commit?","command_id":51,"kind":"golden","mutation_kind":"ground","primary_verb":"git revert","source":"llm"}
+{"query_text":"how do I use git commit","command_id":94,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"flag","primary_verb":"git commit","source":"llm"}
+{"query_text":"how do I use git fsck","command_id":132,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"composition","primary_verb":"git fsck","source":"llm"}
+{"query_text":"how do I use git mv","command_id":159,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"flag","primary_verb":"git mv","source":"llm"}
+{"query_text":"how do I use git fsck","command_id":160,"kind":"golden","fallback":true,"report_only":true,"mutation_kind":"composition","primary_verb":"git fsck","source":"llm"}

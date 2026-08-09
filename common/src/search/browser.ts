@@ -1,6 +1,6 @@
 /**
  * Browser / WASM web catalog handle + hybrid searchBrowser.
- * Uses sql.js (WASM SQLite+FTS5) + JS KNN over intent_embeddings.
+ * Uses sql.js (WASM SQLite+FTS5) + JS KNN over recipe_embeddings.
  */
 // @ts-nocheck
 import {
@@ -10,7 +10,6 @@ import {
   EMBEDDING_DIM,
 } from '../db/constants.js';
 import { ThresholdsSchema } from '../schemas/thresholds.js';
-import { normalizeSkillLevelText } from '../lib/skills.js';
 import { parseGitVerbsMeta } from './gitVerbs.js';
 import { buildFtsMatchQuery } from './ftsQuery.js';
 import { jsKnn } from './jsKnn.js';
@@ -40,17 +39,36 @@ function metaGet(db, key) {
   return null;
 }
 
-/**
- * @typedef {object} WebCatalogHandle
- * @property {'web-catalog'} kind
- * @property {object} thresholds
- * @property {number} schemaVersion
- * @property {number} searchAlgorithmVersion
- * @property {string[]} verbs
- * @property {import('./jsKnn.js').VecRow[]} embeddings
- * @property {any} db sql.js Database
- * @property {string} [sha256]
- */
+function loadEmbeddings(db) {
+  const embeddings = [];
+  for (const table of ['recipe_embeddings', 'intent_embeddings']) {
+    try {
+      const embStmt = db.prepare(`SELECT id, embedding FROM ${table}`);
+      while (embStmt.step()) {
+        const row = embStmt.getAsObject();
+        const buf = row.embedding instanceof Uint8Array
+          ? row.embedding
+          : new Uint8Array(row.embedding);
+        const floats = new Float32Array(
+          buf.buffer,
+          buf.byteOffset,
+          Math.floor(buf.byteLength / 4),
+        );
+        if (floats.length >= EMBEDDING_DIM) {
+          embeddings.push({
+            id: String(row.id),
+            embedding: floats.subarray(0, EMBEDDING_DIM),
+          });
+        }
+      }
+      embStmt.free();
+      if (embeddings.length) return embeddings;
+    } catch {
+      /* try next table */
+    }
+  }
+  return embeddings;
+}
 
 /**
  * Open web catalog DB bytes (sql.js WASM). Requires expectedSha256.
@@ -81,7 +99,6 @@ export async function openWebCatalog(data, { expectedSha256, initSqlJs } = {}) {
         const factory = mod.default || mod;
         return factory({
           locateFile: (file) => {
-            // Vite / browser: resolve from package
             try {
               return new URL(`sql.js/dist/${file}`, import.meta.url).href;
             } catch {
@@ -125,26 +142,7 @@ export async function openWebCatalog(data, { expectedSha256, initSqlJs } = {}) {
       });
 
   const verbs = parseGitVerbsMeta(metaGet(db, 'git_verbs'));
-  const embeddings = [];
-  const embStmt = db.prepare('SELECT id, embedding FROM intent_embeddings');
-  while (embStmt.step()) {
-    const row = embStmt.getAsObject();
-    const buf = row.embedding instanceof Uint8Array
-      ? row.embedding
-      : new Uint8Array(row.embedding);
-    const floats = new Float32Array(
-      buf.buffer,
-      buf.byteOffset,
-      Math.floor(buf.byteLength / 4),
-    );
-    if (floats.length >= EMBEDDING_DIM) {
-      embeddings.push({
-        id: String(row.id),
-        embedding: floats.subarray(0, EMBEDDING_DIM),
-      });
-    }
-  }
-  embStmt.free();
+  const embeddings = loadEmbeddings(db);
 
   /** @type {WebCatalogHandle} */
   const handle = {
@@ -191,9 +189,9 @@ function ftsRecallSqlJs(db, query, k) {
   try {
     const stmt = db.prepare(
       `
-      SELECT command_id AS command_id, bm25(commands_fts) AS bm25
-      FROM commands_fts
-      WHERE commands_fts MATCH ?
+      SELECT recipe_id AS recipe_id, bm25(recipes_fts) AS bm25
+      FROM recipes_fts
+      WHERE recipes_fts MATCH ?
       ORDER BY bm25
       LIMIT ?
       `,
@@ -202,7 +200,11 @@ function ftsRecallSqlJs(db, query, k) {
     const out = [];
     while (stmt.step()) {
       const row = stmt.getAsObject();
-      out.push({ command_id: Number(row.command_id), bm25: Number(row.bm25) });
+      out.push({
+        recipe_id: String(row.recipe_id),
+        command_id: String(row.recipe_id),
+        bm25: Number(row.bm25),
+      });
     }
     stmt.free();
     return out;
@@ -215,30 +217,17 @@ function knnFromCatalog(catalog, embedding, k) {
   const hits = jsKnn(embedding, catalog.embeddings, k);
   const out = [];
   for (const h of hits) {
-    const stmt = catalog.db.prepare(
-      `
-      SELECT
-        i.row_id AS intent_id,
-        i.command_id AS command_id,
-        i.intent_text AS intent_text,
-        i.skill_level AS skill_level,
-        i.intent_category AS intent_category,
-        c.command_recipe AS command_recipe,
-        c.risk AS risk
-      FROM intents i
-      JOIN commands c ON c.row_id = i.command_id
-      WHERE CAST(i.row_id AS TEXT) = ?
-      `,
-    );
+    const stmt = catalog.db.prepare('SELECT * FROM recipes WHERE id = ?');
     stmt.bind([String(h.id)]);
     if (stmt.step()) {
       const row = stmt.getAsObject();
-      const commands = parseCommands(row.command_recipe);
+      const commands = parseCommands(row.commands);
       out.push({
-        command_id: Number(row.command_id),
-        skill_level_text: row.skill_level,
-        intent_text: row.intent_text,
-        intent_category: row.intent_category,
+        command_id: String(row.id),
+        recipe_id: String(row.id),
+        title: row.title,
+        description: row.description,
+        intent_text: row.description,
         _forcedScore: distanceToSimilarity(h.distance),
         commands,
         risk: Number(row.risk ?? 0),
@@ -251,24 +240,34 @@ function knnFromCatalog(catalog, embedding, k) {
   return out;
 }
 
-function hydrateFromCatalog(catalog, commandIds) {
-  return commandIds.map((id) => {
+function hydrateFromCatalog(catalog, recipeIds) {
+  return recipeIds.map((id) => {
     const stmt = catalog.db.prepare(
-      'SELECT row_id, command_recipe, risk FROM commands WHERE row_id = ?',
+      'SELECT id, commands, title, description, risk FROM recipes WHERE id = ?',
     );
-    stmt.bind([id]);
+    stmt.bind([String(id)]);
     if (!stmt.step()) {
       stmt.free();
-      return { command_id: id, commands: [], example: '', snippet: '', risk: 0 };
+      return {
+        command_id: id,
+        commands: [],
+        example: '',
+        snippet: '',
+        title: '',
+        description: '',
+        risk: 0,
+      };
     }
     const row = stmt.getAsObject();
     stmt.free();
-    const commands = parseCommands(row.command_recipe);
+    const commands = parseCommands(row.commands);
     return {
-      command_id: Number(row.row_id),
+      command_id: String(row.id),
       commands,
       example: primaryCommand(commands) || '',
       snippet: renderSnippet(commands),
+      title: row.title || '',
+      description: row.description || '',
       risk: Number(row.risk ?? 0),
     };
   });
@@ -285,6 +284,7 @@ export async function searchBrowser(query, {
   recallK = undefined,
   onEmbedStatus = undefined,
 } = {}) {
+  void skillLevelOverride;
   const handle = catalog || pack;
   if (!handle || handle.kind !== 'web-catalog') {
     const err = new Error('Web catalog not loaded. Call openWebCatalog first.');
@@ -300,11 +300,6 @@ export async function searchBrowser(query, {
   const thresholds = { ...handle.thresholds };
   if (recallK != null) thresholds.recallK = recallK;
 
-  let preferredSkill = null;
-  if (skillLevelOverride != null && skillLevelOverride !== '') {
-    preferredSkill = normalizeSkillLevelText(skillLevelOverride);
-  }
-
   const q = normalizeQuery(query, thresholds.normalizeQuery !== false);
   if (!q) {
     const err = new Error('Empty query');
@@ -315,7 +310,6 @@ export async function searchBrowser(query, {
   const result = await searchHybrid({
     query: q,
     thresholds,
-    preferredSkillOverride: preferredSkill,
     verbs: handle.verbs,
     embed: async () => embedder.embed(q),
     knn: (vec, k) => knnFromCatalog(handle, vec, k),
@@ -325,9 +319,7 @@ export async function searchBrowser(query, {
 
   return {
     ...result,
-    skillFilter: preferredSkill,
+    skillFilter: null,
     embedderMock: embedder.mock,
   };
 }
-
-export { SEARCH_ALGORITHM_VERSION, SCHEMA_VERSION };

@@ -102,6 +102,10 @@ export function intentMatrixPath() {
   return path.join(taxonomyDir(), 'intent_matrix.json');
 }
 
+export function goalTaxonomyPath() {
+  return path.join(taxonomyDir(), 'goal_taxonomy.json');
+}
+
 export function lexiconTrapsPath() {
   return path.join(taxonomyDir(), 'lexicon_traps.json');
 }

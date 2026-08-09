@@ -22,7 +22,7 @@
 // ---------------------------------------------------------------------------
 
 /** Catalog / staging SQLite schema version. Bump only with a deliberate migration. */
-export const SCHEMA_VERSION = 8;
+export const SCHEMA_VERSION = 9;
 
 /**
  * Embedding width (bge-small-en-v1.5 / prior MiniLM). Must match the loaded
@@ -34,7 +34,7 @@ export const EMBEDDING_DIM = 384;
  * Hybrid search algorithm version stamped into CLI/web packs.
  * Bump when fusion / display semantics change so clients can detect mismatch.
  */
-export const SEARCH_ALGORITHM_VERSION = 2;
+export const SEARCH_ALGORITHM_VERSION = 3;
 
 /**
  * Additive hybrid score bump when query names the hit's primary verb.
@@ -404,3 +404,64 @@ export const EVAL_PROGRESS_EVERY = 25;
  * completion is slow.
  */
 export const EVAL_PROGRESS_HEARTBEAT_MS = 30_000;
+
+// ---------------------------------------------------------------------------
+// Goal taxonomy + leaf saturation (recipe taxonomy rewrite)
+// ---------------------------------------------------------------------------
+
+/** Max depth of the goal taxonomy tree (root = 0). */
+export const TAXONOMY_MAX_DEPTH = 4;
+
+/** Max children per taxonomy node during recursive decompose. */
+export const TAXONOMY_MAX_FANOUT = 8;
+
+/** Max LLM reflection rounds for taxonomy quality (clarity / dup / granularity). */
+export const TAXONOMY_REFLECTION_ROUNDS = 3;
+
+/** Parallel leaf jobs during ground / saturate / holdout. */
+export const LEAF_CONCURRENCY = 24;
+
+/** Parallel candidate validate jobs within a leaf. */
+export const CANDIDATE_CONCURRENCY = 8;
+
+/** Recipes requested per leaf generation batch. */
+export const LEAF_GENERATE_BATCH = 8;
+
+/**
+ * Description cosine at/above which a candidate is a within-leaf near-dup
+ * (conservative — fewer false duplicates).
+ */
+export const RECIPE_DESC_NEAR_DUP_COSINE = 0.92;
+
+/** Discovery curve: consecutive flat batches before leaf checkpoint. */
+export const DISCOVERY_FLAT_BATCHES = 2;
+
+/**
+ * Min fraction of a generation batch that must be distinct-new to count as
+ * non-flat on the discovery curve.
+ */
+export const DISCOVERY_MIN_NEW_RATE = 0.15;
+
+/** Held-out hybrid Hit@10 (fused recall) bar per leaf (conservative). */
+export const HELDOUT_MIN_ACCURACY = 0.95;
+
+/** Consecutive fresh held-out rounds that must clear the bar. */
+export const HELDOUT_PASS_ROUNDS = 2;
+
+/** Held-out queries generated per leaf round. */
+export const HELDOUT_QUERIES_PER_ROUND = 12;
+
+/**
+ * After a failed held-out streak, triage + reindex + retry this many times
+ * before giving up on the leaf for this build loop.
+ */
+export const HELDOUT_IMPROVE_ROUNDS = 5;
+
+/** Gap-pool min cluster size before bucket-3 taxonomy expand. */
+export const GAP_POOL_MIN_CLUSTER = 3;
+
+/** Gap-pool near-dup cosine for clustering unanswered queries. */
+export const GAP_POOL_CLUSTER_COSINE = 0.88;
+
+/** Absolute max recipes (alias MAX_COMMANDS for leaf pipeline). */
+export const MAX_RECIPES = MAX_COMMANDS;

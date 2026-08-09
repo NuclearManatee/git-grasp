@@ -1,169 +1,147 @@
 // @ts-nocheck
+/**
+ * Seed product DB from versioned recipes.json (description embeddings).
+ */
 import { existsSync, rmSync, writeFileSync, mkdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { defaultDbPath, catalogDir } from './lib/paths.js';
 import {
   openDb,
-  insertCommand,
-  insertIntentWithEmbedding,
-  insertCommandEmbedding,
-  listCommands,
-  loadAllRows,
-  countCommands,
-  countIntents,
+  insertRecipe,
+  listRecipes,
+  countRecipes,
   finalizeSearchIndex,
-  stripVecCommandsForShip,
+  recipeEmbedText,
 } from './db/schema.js';
 import { getEmbedder } from './search/embed.js';
 import { writeChecksumFile } from './lib/checksum.js';
-import { parseCommands } from './db/recipeFormat.js';
-import { CommandRowSchema, IntentRowSchema } from './schemas/command.js';
+import { ProductRecipeSchema } from './schemas/recipe.js';
 
 /**
- * Write catalog JSON exports from an open/v6 DB (for bundling / inspect).
+ * Write catalog JSON export from an open v9 DB.
  */
 export function exportCatalogFromDb(db, {
-  commandsPath = path.join(catalogDir(), 'commands.json'),
-  intentsPath = path.join(catalogDir(), 'intents.jsonl'),
+  recipesPath = path.join(catalogDir(), 'recipes.json'),
 } = {}) {
-  mkdirSync(path.dirname(commandsPath), { recursive: true });
-  const commands = listCommands(db).map((r) => ({
-    row_id: r.row_id,
-    initial_state: r.initial_state,
-    command_recipe: JSON.parse(r.command_recipe),
-    initial_state_physical_hash: r.initial_state_physical_hash,
-    final_state_physical_hash: r.final_state_physical_hash,
-    risk: r.risk,
-    parent_row_id: r.parent_row_id,
-    mutation_kind: r.mutation_kind ?? null,
-    title: r.title ?? null,
-  }));
-  writeFileSync(commandsPath, `${JSON.stringify(commands, null, 2)}\n`);
-  const intents = loadAllRows(db).map((r) => ({
-    row_id: Number(r.id),
-    command_id: r.command_id,
-    skill_level: r.skill_level_text,
-    intent_category: r.intent_category,
-    intent_text: r.intent_text,
-  }));
+  mkdirSync(path.dirname(recipesPath), { recursive: true });
+  const recipes = listRecipes(db);
+  writeFileSync(recipesPath, `${JSON.stringify(recipes, null, 2)}\n`);
+  // Compat stubs for older tooling
   writeFileSync(
-    intentsPath,
-    intents.map((i) => JSON.stringify(i)).join('\n') + (intents.length ? '\n' : ''),
+    path.join(catalogDir(), 'commands.json'),
+    `${JSON.stringify(recipes, null, 2)}\n`,
   );
-  return { commands: commands.length, intents: intents.length, commandsPath, intentsPath };
+  writeFileSync(path.join(catalogDir(), 'intents.jsonl'), '');
+  return { recipes: recipes.length, recipesPath };
 }
 
 /**
- * Embed commands.json + intents.jsonl into a fresh schema-v6 DB + checksum.
+ * Embed recipes.json into a fresh schema-v9 DB + checksum.
  */
 export async function seedCatalog({
+  recipesPath = path.join(catalogDir(), 'recipes.json'),
   commandsPath = path.join(catalogDir(), 'commands.json'),
-  intentsPath = path.join(catalogDir(), 'intents.jsonl'),
   dbPath = defaultDbPath(),
   forceMock = process.env.GIT_GRASP_MOCK_EMBEDDINGS === '1',
 } = {}) {
-  if (!existsSync(commandsPath)) {
-    const err = new Error(`Missing commands.json at ${commandsPath} — run build:loop first`);
-    err.code = 'SEED';
-    throw err;
+  let sourcePath = recipesPath;
+  if (!existsSync(sourcePath) && existsSync(commandsPath)) {
+    sourcePath = commandsPath;
   }
-  if (!existsSync(intentsPath)) {
-    const err = new Error(`Missing intents.jsonl at ${intentsPath} — run build:loop first`);
-    err.code = 'SEED';
-    throw err;
-  }
-
-  const commands = JSON.parse(readFileSync(commandsPath, 'utf8'));
-  if (!Array.isArray(commands) || commands.length === 0) {
-    const err = new Error('commands.json is empty');
+  if (!existsSync(sourcePath)) {
+    const err = new Error(
+      `Missing recipes.json at ${recipesPath} — run build:loop first`,
+    );
     err.code = 'SEED';
     throw err;
   }
 
+  const raw = JSON.parse(readFileSync(sourcePath, 'utf8'));
+  const recipes = Array.isArray(raw)
+    ? raw
+    : Array.isArray(raw?.recipes)
+      ? raw.recipes
+      : [];
+  if (!recipes.length) {
+    const err = new Error('recipes.json is empty');
+    err.code = 'SEED';
+    throw err;
+  }
+
+  if (existsSync(dbPath)) {
+    rmSync(dbPath);
+  }
+  mkdirSync(path.dirname(dbPath), { recursive: true });
+  const db = openDb(dbPath);
   const embedder = await getEmbedder({ forceMock });
 
   try {
-    rmSync(dbPath, { force: true });
-    rmSync(`${dbPath}.sha256`, { force: true });
-  } catch {
-    /* */
+    for (const row of recipes) {
+      // Accept v9 product shape or lightly adapt legacy command rows
+      let recipe = row;
+      if (!row.description && row.command_recipe) {
+        recipe = {
+          id: String(row.id || row.row_id || `r-${row.row_id}`),
+          commands: row.command_recipe?.commands || row.commands,
+          title: row.title || 'untitled',
+          description: row.title || 'untitled',
+          tags: row.tags || [],
+          taxonomy_leaf: row.taxonomy_leaf || 'legacy',
+          paraphrases: [],
+          provenance: row.provenance || 'synthetic',
+          validated: true,
+          initial_state: row.initial_state || '',
+          initial_state_physical_hash: row.initial_state_physical_hash || '',
+          final_state_physical_hash: row.final_state_physical_hash || '',
+          risk: row.risk ?? 0,
+        };
+      }
+      const parsed = ProductRecipeSchema.safeParse({
+        ...recipe,
+        validated: recipe.validated ?? true,
+        paraphrases: recipe.paraphrases || [],
+        tags: recipe.tags || [],
+        provenance: recipe.provenance || 'synthetic',
+      });
+      if (!parsed.success) {
+        throw new Error(
+          `Invalid recipe ${recipe.id}: ${parsed.error.issues[0]?.message}`,
+        );
+      }
+      const emb = await embedder.embed(recipeEmbedText(parsed.data));
+      insertRecipe(db, parsed.data, emb);
+    }
+    finalizeSearchIndex(db);
+  } finally {
+    db.close();
   }
 
-  const db = openDb(dbPath);
-  let commandCount = 0;
-  let skipped = 0;
-  const idMap = new Map();
-
-  for (const raw of commands) {
-    const parsed = CommandRowSchema.safeParse({
-      ...raw,
-      command_recipe:
-        typeof raw.command_recipe === 'string'
-          ? JSON.parse(raw.command_recipe)
-          : raw.command_recipe,
-    });
-    if (!parsed.success) {
-      skipped += 1;
-      continue;
-    }
-    const row_id = insertCommand(db, parsed.data);
-    if (raw.row_id != null) idMap.set(raw.row_id, row_id);
-    idMap.set(row_id, row_id);
-    const text = `${parsed.data.initial_state}\n${parseCommands(parsed.data.command_recipe)
-      .map((s) => s.command)
-      .join('\n')}`;
-    insertCommandEmbedding(db, row_id, await embedder.embed(text));
-    commandCount += 1;
-  }
-
-  const intentLines = readFileSync(intentsPath, 'utf8').split('\n').filter(Boolean);
-  let n = 0;
-  for (const line of intentLines) {
-    let raw;
-    try {
-      raw = JSON.parse(line);
-    } catch {
-      skipped += 1;
-      continue;
-    }
-    const command_id = idMap.get(raw.command_id) ?? raw.command_id;
-    const parsed = IntentRowSchema.safeParse({ ...raw, command_id });
-    if (!parsed.success) {
-      skipped += 1;
-      continue;
-    }
-    insertIntentWithEmbedding(db, {
-      ...parsed.data,
-      embedding: await embedder.embed(parsed.data.intent_text),
-    });
-    n += 1;
-  }
-
-  finalizeSearchIndex(db);
-  stripVecCommandsForShip(db);
-
-  db.close();
   const hash = writeChecksumFile(dbPath);
+  const verify = openDb(dbPath, { readonly: true });
+  let n = 0;
+  try {
+    n = countRecipes(verify);
+  } finally {
+    verify.close();
+  }
   return {
-    n,
-    recipes: commandCount,
-    commands: commandCount,
-    skipped,
     dbPath,
+    recipes: n,
+    n: 0,
+    skipped: 0,
     hash,
-    mock: embedder.mock === true || forceMock,
+    mock: Boolean(forceMock),
   };
 }
 
-/** Finalize a promoted DB with checksum + catalog export. */
-export function finalizePromotedDb(dbPath = defaultDbPath()) {
-  const db = openDb(dbPath);
-  finalizeSearchIndex(db);
-  stripVecCommandsForShip(db);
-  const exported = exportCatalogFromDb(db);
-  const commands = countCommands(db);
-  const intents = countIntents(db);
-  db.close();
-  const hash = writeChecksumFile(dbPath);
-  return { hash, commands, intents, ...exported };
+export async function main() {
+  const result = await seedCatalog();
+  console.log(JSON.stringify(result, null, 2));
+}
+
+if (import.meta.main) {
+  main().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
 }

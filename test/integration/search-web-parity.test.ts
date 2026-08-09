@@ -5,9 +5,7 @@ import { fileURLToPath } from 'node:url';
 import initSqlJs from 'sql.js';
 import {
   openDb,
-  insertCommand,
-  insertIntentWithEmbedding,
-  insertCommandEmbedding,
+  insertRecipe,
   finalizeSearchIndex,
   EMBEDDING_DIM,
 } from '../../common/src/db/schema.js';
@@ -51,28 +49,29 @@ beforeAll(() => {
     rmSync(sourceDb, { force: true });
     rmSync(`${sourceDb}.sha256`, { force: true });
     rmSync(webDb, { force: true });
+    rmSync(`${webDb}.sha256`, { force: true });
   } catch {
     /* */
   }
 
   const db = openDb(sourceDb);
-  const undoId = insertCommand(db, {
-    initial_state: 'git init\n',
-    command_recipe: {
+  insertRecipe(
+    db,
+    {
+      id: 'r-undo',
+      title: 'Soft reset',
+      description: 'undo last commit keep files',
+      tags: ['undo'],
+      taxonomy_leaf: 'undo',
+      paraphrases: [],
+      provenance: 'synthetic',
+      validated: true,
       commands: [{ command: 'git reset --soft HEAD~1', comment: 'keep' }],
+      initial_state: '',
+      risk: 0.3,
     },
-    initial_state_physical_hash: 'a',
-    final_state_physical_hash: 'b',
-    risk: 0.3,
-  });
-  insertCommandEmbedding(db, undoId, embFromText('reset soft'));
-  insertIntentWithEmbedding(db, {
-    command_id: undoId,
-    skill_level: 'beginner',
-    intent_category: 'goal',
-    intent_text: 'undo last commit keep files',
-    embedding: embFromText('undo last commit keep files'),
-  });
+    embFromText('undo last commit keep files'),
+  );
   finalizeSearchIndex(db);
   db.close();
   writeChecksumFile(sourceDb);
@@ -85,12 +84,11 @@ afterAll(() => {
 });
 
 describe('CLI ↔ web hybrid parity', () => {
-  it('same top command_id for mock-embed query', async () => {
+  it('same top recipe id for mock-embed query', async () => {
     const cli = await search('undo last commit keep files', {
       dbPath: sourceDb,
       thresholdsPath,
       forceMockEmbeddings: true,
-      skillLevelOverride: 'beginner',
     });
 
     const bytes = readFileSync(webDb);
@@ -109,10 +107,9 @@ describe('CLI ↔ web hybrid parity', () => {
 
     const web = await searchBrowser('undo last commit keep files', {
       forceMockEmbeddings: true,
-      skillLevelOverride: 'beginner',
     });
 
-    expect(cli.results[0]?.command_id).toBe(web.results[0]?.command_id);
+    expect(String(cli.results[0]?.command_id)).toBe(String(web.results[0]?.command_id));
     expect(Math.abs(cli.results[0].score - web.results[0].score)).toBeLessThan(0.15);
   });
 });

@@ -18,7 +18,34 @@ export {
   validateRecipeWithZod,
   type Recipe,
   type RecipeValidateOpts,
+  ProductRecipeSchema,
+  ProductRecipeStepSchema,
+  ProductRecipesFileSchema,
+  RecipeProvenanceSchema,
+  LeafRecipeLlmSchema,
+  SandboxFixtureSchema,
+  SANDBOX_FIXTURES,
+  PlausibilityLlmSchema,
+  MeaningfulnessJudgeLlmSchema,
+  BackTranslateLlmSchema,
+  type ProductRecipe,
+  type RecipeProvenance,
 } from './recipe.js';
+
+export {
+  GoalTaxonomyNodeSchema,
+  GoalTaxonomyLeafSchema,
+  GoalTaxonomyFileSchema,
+  GoalTaxonomyCoverageSchema,
+  BrainstormGoalsLlmSchema,
+  DecomposeNodeLlmSchema,
+  MapLeafCommandsLlmSchema,
+  ReflectTaxonomyLlmSchema,
+  type GoalTaxonomyNode,
+  type GoalTaxonomyLeaf,
+  type GoalTaxonomyFile,
+  type GoalTaxonomyCoverage,
+} from './goalTaxonomy.js';
 
 export {
   SearchIntentSchema,

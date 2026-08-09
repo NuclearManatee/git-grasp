@@ -21,6 +21,12 @@ import { computePhysicalHash, gitInRepo } from './physicalHash.js';
 import { parseCommands } from '../db/recipeFormat.js';
 import { SANDBOX_COMMAND_TIMEOUT_MS } from '../db/constants.js';
 import { spawnGit, isGitHelpViewerArgv, gitHeadlessEnv } from './gitExec.js';
+import {
+  materializeFixture,
+  concretizeCommands,
+  resolveFixture,
+  PLACEHOLDER_DEFAULTS,
+} from './sandboxFixtures.js';
 
 /** Verbs that open a GUI / browser (classified for shim routing). */
 export const SANDBOX_GUI_VERBS = new Set([
@@ -537,7 +543,8 @@ function configureSandboxTools(sandbox) {
 
 /**
  * @param {{
- *   initial_state: string,
+ *   fixture?: string,
+ *   initial_state?: string,
  *   command_recipe: object|string,
  *   workerId?: any,
  *   jobId?: any,
@@ -559,41 +566,64 @@ export function validateInSandbox(input) {
     installSandboxShims(sandbox, { exitCode: input.shimExitCode });
   }
   const timeoutMs = input.commandTimeoutMs ?? SANDBOX_COMMAND_TIMEOUT_MS;
+  const fixture = resolveFixture(input);
   try {
-    const init = gitInRepo(sandbox.work, ['init']);
-    if (!init.ok) {
-      return {
-        ok: false,
-        reason: 'git_init',
-        stdout: init.stdout,
-        stderr: init.stderr,
-        sandbox,
-      };
-    }
-    gitInRepo(sandbox.work, ['config', 'user.name', 'git-grasp-sandbox']);
-    gitInRepo(sandbox.work, ['config', 'user.email', 'sandbox@git-grasp.local']);
-    gitInRepo(sandbox.work, ['config', 'commit.gpgsign', 'false']);
-    if (!blockGui) configureSandboxTools(sandbox);
+    if (fixture) {
+      const mat = materializeFixture(sandbox, fixture, {
+        addLocalRemote,
+        configureTools: blockGui ? undefined : configureSandboxTools,
+      });
+      if (!mat.ok) {
+        return {
+          ok: false,
+          reason: mat.reason || 'fixture',
+          stdout: '',
+          stderr: mat.stderr || '',
+          sandbox,
+          fixture,
+        };
+      }
+    } else {
+      // Legacy path: always init + optional freeform initial_state script.
+      const init = gitInRepo(sandbox.work, ['init']);
+      if (!init.ok) {
+        return {
+          ok: false,
+          reason: 'git_init',
+          stdout: init.stdout,
+          stderr: init.stderr,
+          sandbox,
+        };
+      }
+      gitInRepo(sandbox.work, ['config', 'user.name', 'git-grasp-sandbox']);
+      gitInRepo(sandbox.work, ['config', 'user.email', 'sandbox@git-grasp.local']);
+      gitInRepo(sandbox.work, ['config', 'commit.gpgsign', 'false']);
+      if (!blockGui) configureSandboxTools(sandbox);
 
-    const env = {
-      ...sandboxSpawnEnv(sandbox),
-      __sandbox: sandbox,
-      __blockGui: blockGui,
-      __commandTimeoutMs: timeoutMs,
-    };
-    const stateRun = runShellScript(sandbox.work, input.initial_state, env);
-    if (!stateRun.ok) {
-      return {
-        ok: false,
-        reason: 'initial_state',
-        stdout: stateRun.stdout,
-        stderr: stateRun.stderr,
-        sandbox,
+      const env = {
+        ...sandboxSpawnEnv(sandbox),
+        __sandbox: sandbox,
+        __blockGui: blockGui,
+        __commandTimeoutMs: timeoutMs,
       };
+      const stateRun = runShellScript(sandbox.work, input.initial_state || '', env);
+      if (!stateRun.ok) {
+        return {
+          ok: false,
+          reason: 'initial_state',
+          stdout: stateRun.stdout,
+          stderr: stateRun.stderr,
+          sandbox,
+        };
+      }
     }
 
     const initialHash = computePhysicalHash(sandbox.work);
-    const steps = parseCommands(input.command_recipe);
+    const defaults = {
+      ...PLACEHOLDER_DEFAULTS,
+      ...(sandbox.cloneUrl ? { url: sandbox.cloneUrl } : {}),
+    };
+    const steps = concretizeCommands(parseCommands(input.command_recipe), defaults);
     for (const step of steps) {
       let line =
         process.platform === 'win32'
