@@ -41,4 +41,4 @@ bun run evolve -- --no-chain   # or full chain
 bun run evolve:render-latest
 ```
 
-See [evolve.md](./evolve.md).
+See [evolve.md](../evolve.md).

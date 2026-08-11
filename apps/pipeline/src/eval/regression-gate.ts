@@ -34,7 +34,7 @@ if (!existsSync(setPath)) {
   process.exit(1);
 }
 if (!existsSync(dbPath)) {
-  console.error(`Catalog DB missing: ${dbPath}. Run bun run seed first.`);
+  console.error(`Catalog DB missing: ${dbPath}. Run bun run ship first.`);
   process.exit(1);
 }
 

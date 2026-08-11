@@ -2,6 +2,8 @@
 
 Catalog and product scripts for contributors. End users only need [Install](../README.md#install) + [Usage](../README.md#usage).
 
+## Pipeline
+
 | Script | Stage |
 |--------|--------|
 | `bun run prepare:scrape` | PREPARE — `git help` → `git_commands.json` |
@@ -12,14 +14,34 @@ Catalog and product scripts for contributors. End users only need [Install](../R
 | `bun run evolve` | EVOLVE — PULL→FILTER→THREAD→feeder (+ EXPAND chain; `--no-chain` to stop) |
 | `bun run evolve:seed-umami` | Seed local Docker Umami website for evolve e2e |
 | `bun run evolve:render-latest` | Write `docs/evolve/latest.md` from `local/evolve/stats-latest.json` |
-| `bun run ship` | SHIP — seed product DB |
+| `bun run ship` | SHIP — seed product DB + checksum |
 | `bun run rebuild` | `expand -- --fresh` then `ship` |
 | `bun run ship:dedupe` | Offline structural corpus merge |
-| `bun test` | Unit (Vitest) + integration (Bun) |
-| `bun run web:dev` / `web:build` / `web:pack` / `web:e2e` | Site + playground |
-| `bun run bench` / `bench:install` | Perf harnesses |
+
+## Eval & quality
+
+| Script | Role |
+|--------|------|
+| `bun run eval:regression` | Catalog regression gate vs seeded DB (release / improve) |
+| `bun run eval:loop` | Improve / advisory loop (`apps/pipeline` `loop`) |
+| `bun run eval` | Optional LLM golden judge — expects `common/data/eval/golden/cases.json`; exits 2 if missing (not used in release CI) |
+
+## Product / CI helpers
+
+| Script | Role |
+|--------|------|
+| `bun run cli` | CLI entry |
+| `bun run doctor` | Install / DB / schema / telemetry health |
+| `bun run typecheck` | `tsc --noEmit` |
+| `bun run ci` | Local CI script (unit + integration; mock embeddings) |
+| `bun test` / `test:unit` / `test:integration` | Vitest unit + Bun integration |
+| `bun run test:telemetry-e2e` / `test:evolve-e2e` | Optional Umami e2e |
+| `bun run web:dev` / `web:build` / `web:pack` / `web:e2e` / `web:e2e:dev` | Site + playground |
+| `bun run bench` / `bench:install` / `bench:render-latest` | Perf harnesses + commit snapshot |
 | `bun run build:cli` / `build:release` | Compile CLI / release zip |
 
-Use `prepare:*`, `generate`, `expand`, `ship` / `ship:dedupe` (not legacy `taxonomy:*` / `build:*` aliases).
+Use `prepare:*`, `generate`, `expand`, `ship` / `ship:dedupe` (not legacy `taxonomy:*` / `build:*` / `seed` aliases).
 
-Stage docs: [pipeline.md](pipeline.md). Pipeline needs `DEEPSEEK_API_KEY` in `.env` (or CI secrets).
+Pipeline LLM stages need `DEEPSEEK_API_KEY` in `.env` (or CI secrets). See [ci.md](ci.md).
+
+Stage docs: [pipeline.md](pipeline.md).

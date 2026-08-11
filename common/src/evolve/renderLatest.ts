@@ -67,7 +67,7 @@ bun run evolve -- --no-chain   # or full chain
 bun run evolve:render-latest
 \`\`\`
 
-See [evolve.md](./evolve.md).
+See [evolve.md](../evolve.md).
 `;
   const out = evolveDocsLatestPath(root);
   mkdirSync(path.dirname(out), { recursive: true });

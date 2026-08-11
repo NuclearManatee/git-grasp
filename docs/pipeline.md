@@ -53,7 +53,7 @@ flowchart TB
 | OBSERVE | [observe.md](observe.md) | `telemetry` |
 | EVOLVE | [evolve.md](evolve.md) | `evolve` |
 
-Apps layout: `apps/pipeline/src/{prepare,generate,expand,ship,eval}/`. Shared libs still live under `common/src/build/` with stage facades in `common/src/{prepare,…}/`.
+Apps layout: `apps/pipeline/src/{prepare,generate,expand,ship,evolve,eval}/`. Shared libs still live under `common/src/build/` with stage facades in `common/src/{prepare,…,evolve}/`.
 
 ## Recipe model (shared)
 

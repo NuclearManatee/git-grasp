@@ -17,7 +17,7 @@ const sqlJsVendorDir = path.join(PACKAGE_ROOT, 'apps', 'web', 'public', 'vendor'
 const sqlJsDist = path.join(PACKAGE_ROOT, 'node_modules', 'sql.js', 'dist');
 
 if (!existsSync(dbPath)) {
-  console.error(`Database missing: ${dbPath}. Run bun run seed first.`);
+  console.error(`Database missing: ${dbPath}. Run bun run ship first.`);
   process.exit(1);
 }
 

@@ -46,7 +46,7 @@ const packageJsonPath = path.join(PACKAGE_ROOT, 'package.json');
 const recipesLatestPath = path.join(catalogDir(), 'recipes.latest.json');
 
 if (!existsSync(dbPath)) {
-  console.error(`Missing ${dbPath}. Run bun run seed first.`);
+  console.error(`Missing ${dbPath}. Run bun run ship first.`);
   process.exit(1);
 }
 if (!existsSync(dbSha)) {

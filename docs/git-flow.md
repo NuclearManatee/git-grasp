@@ -2,6 +2,18 @@
 
 Use **git-flow**. Do not commit product/code changes straight to `main` or mix concerns on the wrong branch type.
 
+```mermaid
+flowchart LR
+  feature[feature/*]
+  improve[improve/*]
+  develop[develop]
+  main[main]
+  feature -->|code| develop
+  improve -->|catalog after gates| develop
+  develop -->|release gate| main
+  main -->|tag v*| release[binaries + npm]
+```
+
 | Branch | Purpose |
 |--------|---------|
 | `main` | Release line. Merge only after the relevant gate. |
@@ -19,6 +31,8 @@ Use **git-flow**. Do not commit product/code changes straight to `main` or mix c
 
 ### Eval gate
 
-Leaf held-out (Hit@10 ≥0.95 ×2) + regression set unlock catalog merges. EXPAND triage buckets 1/2/3 are automated.
+Leaf held-out (**Hit@10** ≥0.95 ×2 — display hits ∪ top-10) + regression set unlock catalog merges. That is broader than SEARCH **Hit@display** (gated 1–3). EXPAND triage buckets 1/2/3 are automated.
 
-See also [CLAUDE.md](../CLAUDE.md).
+CI `improve.yml` is a **dry-run** (`contents: read`); it does not commit catalog changes — create/merge `improve/*` locally after gates are green.
+
+See also [CLAUDE.md](../CLAUDE.md), [expand.md](expand.md), [ci.md](ci.md).

@@ -19,7 +19,7 @@ flowchart TB
 
 ## Gates
 
-- **Per-leaf held-out:** accuracy ≥ **0.95** for **2** consecutive rounds (`HELDOUT_*`), with a full query count (default 12). Thin LLM drafts do not count. After triage, the same frozen query set is re-scored.
+- **Per-leaf held-out:** accuracy ≥ **0.95** for **2** consecutive rounds (`HELDOUT_*`), with a full query count (default 12). Thin LLM drafts do not count. After triage, the same frozen query set is re-scored. Gate metric is **Hit@10** (display ∪ top-10), not SEARCH Hit@display alone.
 - **Corpus leaf-rate:** at least **80%** of eligible leaves must pass held-out (`minHoldoutLeafRate`, default 0.8) **and** the regression set must be green before corpus version / promote.
 - **Broadcast:** last-ditch “append miss to every leaf recipe” is **off** unless `--force-broadcast`.
 - **Gap pool:** WIDTH proposals are **advisory** this release (applied=0); review and expand taxonomy manually.

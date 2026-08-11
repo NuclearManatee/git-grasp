@@ -80,7 +80,7 @@ export function doctor() {
     lines.push(`DB: FAIL (${dbCheck.reason}) at ${dbPath}`);
     lines.push(
       maintainer
-        ? '  Fix: bun run rebuild && bun run seed'
+        ? '  Fix: bun run rebuild'
         : '  Fix: reinstall git-grasp (npm) or re-download the release zip — catalog DB failed integrity checks',
     );
   } else {

@@ -5,7 +5,7 @@ Official **GitHub Release** zips are produced only from **version tags on `main`
 ## Prerequisites
 
 - Bun ≥ 1.1 (`packageManager` in root `package.json`)
-- Seeded catalog DB: `common/data/git-commands.db` **and** `git-commands.db.sha256` (`bun run seed` if missing — build fails without the checksum)
+- Seeded catalog DB: `common/data/git-commands.db` **and** `git-commands.db.sha256` (`bun run ship` if missing — build fails without the checksum)
 - `common/config/thresholds.json` present
 - `common/data/catalog/recipes.latest.json` present (catalog identity)
 - Root `package.json` (copied into the zip for version identity)
@@ -16,7 +16,7 @@ Official **GitHub Release** zips are produced only from **version tags on `main`
 From the repo root:
 
 ```bash
-bun run seed          # if DB / .sha256 missing
+bun run ship          # if DB / .sha256 missing
 bun run build:release
 ```
 

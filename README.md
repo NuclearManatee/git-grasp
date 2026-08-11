@@ -64,9 +64,9 @@ Stage details: [docs/pipeline.md](docs/pipeline.md).
 
 ## Performance
 
-> **Under construction** — numbers and methodology are being refreshed.
+> **Historical only** — published latency figures are from a pre–schema-v9 catalog (intents-era). Re-bench on the current description-KNN catalog before citing product numbers.
 
-Sub-second retrieval on a low-end laptop (Docker 2 vCPU / 4GB). Latest numbers: [docs/benchmarks/latest.md](docs/benchmarks/latest.md). Protocol: [docs/perf.md](docs/perf.md).
+Protocol and targets: [docs/perf.md](docs/perf.md). Snapshot archive: [docs/benchmarks/latest.md](docs/benchmarks/latest.md).
 
 ## Project structure
 
@@ -79,12 +79,12 @@ git-grasp/
 │   │       ├── prepare/   # scrape git help, build goal taxonomy
 │   │       ├── generate/  # ground leaves (generate → validate → saturate)
 │   │       ├── expand/    # held-out, triage, regression loop
-│   │       ├── evolve/    # OBSERVE pull → feeder → EXPAND chain
 │   │       ├── ship/      # version corpus, seed product DB
+│   │       ├── evolve/    # OBSERVE pull → feeder → EXPAND chain
 │   │       └── eval/      # eval harnesses
 │   └── web/           # Landing with in-browser playground
 ├── common/            # Shared code
-├── docs/              # Philosophy, Architecture, Specs, Performance benchmarks, Security Assessments
+├── docs/              # Stage docs, architecture, CLI/web, CI, security
 ├── test/              # Unit, Integration, Performance tests
 └── .github/           # CI and release workflows
 ```
@@ -104,7 +104,7 @@ From a clone:
 
 ```bash
 bun install
-bun run ship    # or: bun run seed
+bun run ship
 bun link
 ```
 
@@ -157,6 +157,9 @@ Details: [docs/observe.md](docs/observe.md), [Privacy](https://git-grasp.cremasc
 
 | Topic | Doc |
 |-------|-----|
+| Pipeline index | [docs/pipeline.md](docs/pipeline.md) |
+| Product goals | [docs/goals.md](docs/goals.md) |
+| Repo layout | [docs/layout.md](docs/layout.md) |
 | CLI (full reference) | [docs/cli.md](docs/cli.md) |
 | CLI UX copy & chalk (V1 chalk-only) | [docs/cli-ux.md](docs/cli-ux.md) |
 | Web playground | [docs/web.md](docs/web.md) |
@@ -164,5 +167,6 @@ Details: [docs/observe.md](docs/observe.md), [Privacy](https://git-grasp.cremasc
 | Maintainer scripts | [docs/maintainer.md](docs/maintainer.md) |
 | Architecture | [docs/architecture.md](docs/architecture.md) |
 | Git flow | [docs/git-flow.md](docs/git-flow.md) |
-| CI secrets | [docs/ci.md](docs/ci.md) |
+| CI workflows & secrets | [docs/ci.md](docs/ci.md) |
 | Security | [docs/security.md](docs/security.md) |
+| Latest EVOLVE stats | [docs/evolve/latest.md](docs/evolve/latest.md) |
