@@ -42,6 +42,6 @@ Catalog and product scripts for contributors. End users only need [Install](../R
 
 Use `prepare:*`, `generate`, `expand`, `ship` / `ship:dedupe` (not legacy `taxonomy:*` / `build:*` / `seed` aliases).
 
-Pipeline LLM stages need `DEEPSEEK_API_KEY` in `.env` (or CI secrets). See [ci.md](ci.md).
+Pipeline LLM stages need `DEEPSEEK_API_KEY` in `.env` (local only; not used by GitHub workflows). See [ci.md](ci.md).
 
 Stage docs: [pipeline.md](pipeline.md).

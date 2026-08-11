@@ -33,6 +33,6 @@ flowchart LR
 
 Leaf held-out (**Hit@10** ≥0.95 ×2 — display hits ∪ top-10) + regression set unlock catalog merges. That is broader than SEARCH **Hit@display** (gated 1–3). EXPAND triage buckets 1/2/3 are automated.
 
-CI `improve.yml` is a **dry-run** (`contents: read`); it does not commit catalog changes — create/merge `improve/*` locally after gates are green.
+Create/merge `improve/*` locally after held-out + regression are green — GitHub Actions does not commit catalog changes. See [ci.md](ci.md).
 
-See also [CLAUDE.md](../CLAUDE.md), [expand.md](expand.md), [ci.md](ci.md).
+See also [CLAUDE.md](../CLAUDE.md), [expand.md](expand.md).

@@ -29,6 +29,11 @@ jobs:
         env:
           GIT_GRASP_SKIP_POSTINSTALL: '1'
 
+      - name: Typecheck
+        run: bun run typecheck
+        env:
+          GIT_GRASP_SKIP_POSTINSTALL: '1'
+
       - name: Unit + integration tests
         run: bun run test
         env:
@@ -212,7 +217,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write
     steps:
       - uses: actions/checkout@v4
 

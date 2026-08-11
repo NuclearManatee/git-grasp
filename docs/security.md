@@ -11,7 +11,7 @@
 
 ## Build / catalog (maintainers)
 
-- Pipeline / catalog build uses `DEEPSEEK_API_KEY` only for maintainers and CI — never at query time.
+- Pipeline / catalog build uses `DEEPSEEK_API_KEY` only for local maintainer runs — never at query time and not required by GitHub workflows.
 - Recipe validation sandbox is **argv-only Git** (no freeform shell); shell metas are refused.
 - Git verb parsing treats `git -C` / `git -c` like the sandbox so allowlists are not skipped.
 - `GIT_GRASP_TLS_INSECURE=1` is refused in CI.
