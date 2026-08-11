@@ -1,15 +1,15 @@
 // @ts-nocheck
 import { Command } from 'commander';
-import chalk from 'chalk';
 import ora from 'ora';
 import {
   search,
   formatSearchResult,
+  formatSearchResultJson,
   primaryCommand,
   writeConfig,
   readConfig,
+  configFilePath,
   parseSkillLevel,
-  skillName,
   SKILL_NAMES,
   SKILL_MIN,
   SKILL_MAX,
@@ -18,78 +18,95 @@ import {
   telemetryStatusDetail,
   buildCliOptInEvent,
   sendUmamiEvent,
-  PRIVACY_URL,
+  formatVersionReport,
+  maybeNotifyUpdate,
+  setUpdateCheckEnabled,
+  updateCheckStatusDetail,
+  checkForUpdate,
+  completionScript,
+  getEmbedder,
+  style,
+  statusLine,
+  okLine,
+  infoLine,
+  warnLine,
+  errorLine,
+  msgTelemetryOn,
+  msgTelemetryOff,
+  msgTelemetryStatusBlock,
+  msgSkillCleared,
+  msgSkillSet,
+  msgInitWarm,
+  msgInitWarmMock,
+  msgInitReady,
+  msgUpdateOn,
+  msgUpdateOff,
+  msgSearchCopyOk,
+  msgSearchCopyFail,
 } from '@git-grasp/common/cli';
+import { runCliSearch, readStdinQuery } from './runSearch.js';
 
-async function maybeCopy(text) {
-  const clipboardy = await import('clipboardy');
-  await clipboardy.default.write(text);
+const HELP_INTRO = `Semantic search for Git commands (never runs Git for you).
+
+Common commands:
+  git-grasp "undo last commit keep files"
+  git-grasp doctor
+  git-grasp init
+  git-grasp config show
+  git-grasp telemetry status
+  git-grasp update-check status
+  git-grasp completion bash
+
+Full reference: docs/cli.md`;
+
+const SEARCH_DEPS = {
+  search,
+  formatSearchResult,
+  formatSearchResultJson,
+  primaryCommand,
+  maybeInviteAndTrackSearch,
+  maybeNotifyUpdate,
+  style,
+  errorLine,
+  infoLine,
+  warnLine,
+  okLine,
+  msgSearchCopyOk,
+  msgSearchCopyFail,
+  ora,
+};
+
+const ROOT_COMMANDS = new Set([
+  'search',
+  'set-level',
+  'doctor',
+  'help',
+  'telemetry',
+  'config',
+  'update-check',
+  'init',
+  'completion',
+]);
+
+function searchOptions(cmd) {
+  return cmd
+    .option('-v, --verbose', 'show skill label, confidence, and channel scores')
+    .option('-c, --copy', 'copy winning example to clipboard')
+    .option('--json', 'print machine-readable JSON on stdout')
+    .option('-q, --quiet', 'suppress spinner and non-essential stderr');
 }
 
 function runSearchCommand(program) {
   return async (queryParts, opts) => {
-    const query = (queryParts || []).join(' ').trim();
+    let query = (queryParts || []).join(' ').trim();
+    if (!query) {
+      query = await readStdinQuery();
+    }
     if (!query) {
       program.help();
       return;
     }
-    const useSpinner = Boolean(process.stderr.isTTY) && process.env.GIT_GRASP_BENCH !== '1';
-    const spinner = useSpinner ? ora('Searching…').start() : null;
-    const t0 = performance.now();
-    const mock = process.env.GIT_GRASP_MOCK_EMBEDDINGS === '1';
-    const verbose = Boolean(opts.verbose);
-    try {
-      const result = await search(query, {
-        forceMockEmbeddings: mock,
-        onEmbedStatus: (msg) => {
-          if (spinner) spinner.text = msg;
-          else if (process.stderr.isTTY) console.error(msg);
-        },
-      });
-      spinner?.stop();
-      console.log(formatSearchResult(result, { verbose }));
-      if (process.env.GIT_GRASP_BENCH === '1' && result._bench) {
-        const { total, phases } = result._bench;
-        const parts = Object.entries(phases)
-          .filter(([k]) => !k.startsWith('_'))
-          .map(([k, v]) => `${k}=${v.toFixed(1)}ms`)
-          .join(' ');
-        console.error(chalk.dim(`[bench] total=${total.toFixed(1)}ms ${parts}`));
-      }
-      if (opts.copy) {
-        const cmd = primaryCommand(result);
-        if (cmd) {
-          try {
-            await maybeCopy(cmd);
-            console.error(chalk.dim('Copied example to clipboard'));
-          } catch {
-            console.error(chalk.yellow('Clipboard unavailable; example printed above'));
-          }
-        }
-      }
-      await maybeInviteAndTrackSearch({
-        query: result.query || query,
-        result,
-        latencyMs: Math.round(performance.now() - t0),
-        mock,
-        verbose,
-      });
-    } catch (err) {
-      spinner?.stop();
-      const code = err.code;
-      console.error(chalk.red(err.message));
-      if (code === 'INTEGRITY') process.exitCode = 2;
-      else if (code === 'CONFIG') process.exitCode = 3;
-      else if (code === 'FILTER_EMPTY') process.exitCode = 4;
-      else process.exitCode = 1;
-      await maybeInviteAndTrackSearch({
-        query,
-        error: err,
-        latencyMs: Math.round(performance.now() - t0),
-        mock,
-        verbose,
-      });
-    }
+    await runCliSearch(query, opts, SEARCH_DEPS);
   };
 }
 
@@ -97,21 +114,21 @@ export function buildProgram() {
   const program = new Command();
   program
     .name('git-grasp')
-    .description('Semantic search for Git commands')
-    .version('0.1.0');
+    .description(HELP_INTRO)
+    .helpOption('-h, --help', 'display help')
+    .option('-V, --version', 'show app + catalog identity');
 
-  program
-    .command('search')
-    .description('Search for a Git command')
-    .argument('[query...]', 'natural language query')
-    .option('-v, --verbose', 'show skill label, confidence, and channel scores')
-    .option('-c, --copy', 'copy winning example to clipboard')
-    .action(runSearchCommand(program));
+  searchOptions(
+    program
+      .command('search')
+      .description('Search for a Git command')
+      .argument('[query...]', 'natural language query'),
+  ).action(runSearchCommand(program));
 
   program
     .command('set-level')
     .description(
-      `Set preferred skill for search blend weights and intent preference (${SKILL_NAMES.join('|')}), or clear/off. Does not filter out recipes.`,
+      `[deprecated/parked] Store preferred skill (${SKILL_NAMES.join('|')}|clear|off). No retrieval effect in schema v9.`,
     )
     .argument('<level>', `${SKILL_NAMES.join('|')}|${SKILL_MIN}-${SKILL_MAX}|clear|off`)
     .action((level) => {
@@ -119,12 +136,36 @@ export function buildProgram() {
         const n = parseSkillLevel(level);
         writeConfig({ skillLevel: n });
         if (n == null) {
-          console.log('Preferred skill cleared (heuristic per query)');
+          console.log(msgSkillCleared());
           return;
         }
-        console.log(`Preferred skill set to ${skillName(n)} (${n}) for blend + intent preference`);
+        console.log(msgSkillSet(n));
       } catch (e) {
-        console.error(chalk.red(e.message));
+        console.error(errorLine(e.message));
+        process.exitCode = 1;
+      }
+    });
+
+  program
+    .command('config')
+    .description('Show or locate user config')
+    .argument('<action>', 'show|path')
+    .action((action) => {
+      const a = String(action || '').toLowerCase();
+      try {
+        if (a === 'path') {
+          console.log(configFilePath());
+          return;
+        }
+        if (a === 'show') {
+          const cfg = readConfig();
+          console.log(JSON.stringify({ path: configFilePath(), ...cfg }, null, 2));
+          return;
+        }
+        console.error(errorLine('Usage: git-grasp config show|path'));
+        process.exitCode = 1;
+      } catch (e) {
+        console.error(errorLine(e.message));
         process.exitCode = 1;
       }
     });
@@ -140,26 +181,67 @@ export function buildProgram() {
           setTelemetryEnabled(true);
           const ev = buildCliOptInEvent();
           await sendUmamiEvent({ ...ev, verbose: false });
-          console.log('Telemetry enabled (cookieless analytics). See', PRIVACY_URL);
+          console.log(msgTelemetryOn());
           return;
         }
         if (a === 'off') {
           setTelemetryEnabled(false);
-          console.log('Telemetry disabled');
+          console.log(msgTelemetryOff());
           return;
         }
         if (a === 'status') {
-          const d = telemetryStatusDetail();
-          console.log(`telemetry: ${d.label}`);
-          console.log(`  config.telemetry=${JSON.stringify(d.telemetry)}`);
-          console.log(`  invite=${d.invite}`);
-          console.log(`  privacy=${PRIVACY_URL}`);
+          console.log(msgTelemetryStatusBlock(telemetryStatusDetail()));
           return;
         }
-        console.error(chalk.red('Usage: git-grasp telemetry on|off|status'));
+        console.error(errorLine('Usage: git-grasp telemetry on|off|status'));
         process.exitCode = 1;
       } catch (e) {
-        console.error(chalk.red(e.message));
+        console.error(errorLine(e.message));
+        process.exitCode = 1;
+      }
+    });
+
+  program
+    .command('update-check')
+    .description('Opt in/out of npm registry update notices (off by default)')
+    .argument('<action>', 'on|off|status')
+    .action(async (action) => {
+      const a = String(action || '').toLowerCase();
+      try {
+        if (a === 'on') {
+          setUpdateCheckEnabled(true);
+          console.log(msgUpdateOn());
+          return;
+        }
+        if (a === 'off') {
+          setUpdateCheckEnabled(false);
+          console.log(msgUpdateOff());
+          return;
+        }
+        if (a === 'status') {
+          const d = updateCheckStatusDetail();
+          console.log(statusLine('Update check', d.label === 'on'));
+          console.log(style.muted(`  config.updateCheck=${JSON.stringify(d.updateCheck)}`));
+          console.log(style.muted(`  local=${d.local}`));
+          console.log(style.muted(`  latest=${d.latest ?? '(not checked yet)'}`));
+          console.log(style.muted(`  checkedAt=${d.checkedAt ?? 'never'}`));
+          if (d.hardOff) console.log(style.muted('  hardOff=GIT_GRASP_UPDATE_CHECK=0'));
+          const live = await checkForUpdate({ force: true });
+          if (live.latest) {
+            console.log(
+              live.newer
+                ? warnLine(`npm latest=${live.latest} (newer available)`)
+                : okLine(`npm latest=${live.latest} (up to date)`),
+            );
+          } else {
+            console.log(infoLine('npm latest=(unreachable)'));
+          }
+          return;
+        }
+        console.error(errorLine('Usage: git-grasp update-check on|off|status'));
+        process.exitCode = 1;
+      } catch (e) {
+        console.error(errorLine(e.message));
         process.exitCode = 1;
       }
     });
@@ -172,6 +254,45 @@ export function buildProgram() {
       const d = doctor();
       for (const line of d.lines) console.log(line);
       process.exitCode = d.ok ? 0 : 2;
+      if (d.ok) await maybeNotifyUpdate({ quiet: false });
+    });
+
+  program
+    .command('init')
+    .description('Verify install and warm the embedding model cache')
+    .action(async () => {
+      const { doctor } = await import('./doctor.js');
+      const d = doctor();
+      for (const line of d.lines) console.log(line);
+      if (!d.ok) {
+        process.exitCode = 2;
+        return;
+      }
+      try {
+        const mock = process.env.GIT_GRASP_MOCK_EMBEDDINGS === '1';
+        console.log(mock ? msgInitWarmMock() : msgInitWarm());
+        const embedder = await getEmbedder({ forceMock: mock });
+        await embedder.embed('git-grasp init warm');
+        console.log(msgInitReady());
+        console.log(formatVersionReport());
+        process.exitCode = 0;
+      } catch (e) {
+        console.error(errorLine(e.message || e));
+        process.exitCode = 1;
+      }
+    });
+
+  program
+    .command('completion')
+    .description('Print shell completion script')
+    .argument('<shell>', 'bash|zsh|fish|powershell')
+    .action((shell) => {
+      try {
+        process.stdout.write(completionScript(shell));
+      } catch (e) {
+        console.error(errorLine(e.message));
+        process.exitCode = 1;
+      }
     });
 
   program
@@ -179,24 +300,44 @@ export function buildProgram() {
     .description('Show help')
     .action(() => program.help());
 
-  program
-    .argument('[query...]', 'natural language query')
-    .option('-v, --verbose', 'show explanation, skill label, score, advanced alternate')
-    .option('-c, --copy', 'copy winning example to clipboard')
-    .action(async (queryParts, opts) => {
-      const raw = queryParts || [];
-      if (raw.length === 0) {
-        program.outputHelp();
+  searchOptions(
+    program.argument('[query...]', 'natural language query'),
+  ).action(async (queryParts, opts) => {
+    if (opts.version) {
+      console.log(formatVersionReport());
+      return;
+    }
+    const raw = queryParts || [];
+    if (raw.length === 0) {
+      const piped = await readStdinQuery();
+      if (piped) {
+        await runCliSearch(piped, opts, SEARCH_DEPS);
         return;
       }
-      const first = raw[0];
-      if (['search', 'set-level', 'doctor', 'help', 'telemetry'].includes(first)) {
-        return;
-      }
-      await runSearchCommand(program)(raw, opts);
-    });
+      program.outputHelp();
+      return;
+    }
+    const first = raw[0];
+    if (ROOT_COMMANDS.has(first)) {
+      return;
+    }
+    await runSearchCommand(program)(raw, opts);
+  });
 
   return program;
+}
+
+/**
+ * Parse argv; handle -V/--version before Commander so we always print identity.
+ */
+export async function runProgram(argv = process.argv) {
+  const args = argv.slice(2);
+  if (args.includes('-V') || args.includes('--version')) {
+    console.log(formatVersionReport());
+    return;
+  }
+  const program = buildProgram();
+  await program.parseAsync(argv);
 }
 
 export { readConfig };

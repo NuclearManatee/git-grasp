@@ -31,7 +31,7 @@ describe('formatSearchResult hybrid', () => {
       results: [baseRow],
     });
     expect(text).toMatch(/git commit/);
-    expect(text).not.toMatch(/Multiple plausible/);
+    expect(text).not.toMatch(/Several plausible/);
     expect(text).not.toMatch(/Uncertain match/);
   });
 
@@ -48,7 +48,7 @@ describe('formatSearchResult hybrid', () => {
     });
     expect(text).toMatch(/^1\. /m);
     expect(text).toMatch(/^2\. /m);
-    expect(text).toMatch(/Multiple plausible/);
+    expect(text).toMatch(/Several plausible/);
   });
 
   it('orange alert with 3 results', () => {
@@ -75,6 +75,19 @@ describe('formatSearchResult hybrid', () => {
       results: [baseRow],
     });
     expect(text).toContain(SEARCH_FALLBACK_MESSAGE);
+    expect(text).not.toMatch(/✅|⚠️|❌|ℹ️/);
+  });
+
+  it('high-risk uses caution copy without emoji by default', () => {
+    const text = formatSearchResult({
+      status: 'ok',
+      confidence: 0.9,
+      alert: 'none',
+      displayResults: [{ ...baseRow, risk: 0.9 }],
+      results: [],
+    });
+    expect(text).toMatch(/High-risk recipe/);
+    expect(text).not.toMatch(/✅|⚠️|❌|ℹ️/);
   });
 });
 

@@ -13,6 +13,8 @@
     "expand": "bun ./src/expand/loop.ts",
     "expand:retry": "bun ./src/expand/holdout-retry.ts",
     "expand:mock": "bun ./src/expand/loop-mock-proof.ts",
+    "evolve": "bun ./src/evolve/run.ts",
+    "evolve:seed-umami": "bun ./src/evolve/seed-umami-e2e.ts",
     "ship": "bun ./src/ship/seed.ts",
     "ship:dedupe": "bun ./src/ship/corpus-dedupe.ts",
     "seed": "bun ./src/ship/seed.ts",

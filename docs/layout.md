@@ -3,15 +3,15 @@
 | Path | Purpose |
 |------|---------|
 | `apps/cli` | CLI — **SEARCH** + **OBSERVE** |
-| `apps/pipeline` | Batch stages — `src/{prepare,generate,expand,ship,eval}/` |
+| `apps/pipeline` | Batch stages — `src/{prepare,generate,expand,evolve,ship,eval}/` |
 | `apps/web` | Astro site + playground — **SEARCH** + **OBSERVE** |
 | `common/` | Shared library + **shipped** `data/` and `config/` |
-| `common/src/{prepare,generate,expand,ship,observe,evolve}/` | Stage facades (re-export build/search/telemetry) |
+| `common/src/{prepare,generate,expand,ship,observe,evolve}/` | Stage facades / stage impl |
 | `common/src/build/` | Implementation: scrape, taxonomy, leaf pipeline, triage, corpus |
 | `common/src/search/` | Hybrid retrieval (**SEARCH**) |
-| `common/prompts/` | LLM prompts: `taxonomy/`, `build/`, `improve/` |
+| `common/prompts/` | LLM prompts: `taxonomy/`, `build/`, `improve/`, `evolve/` |
 | `common/taxonomy/` | `git_commands.json`, `goal_taxonomy.json`, `flag_denylist.json` |
-| `docs/` | One MD per lifecycle stage + indexes |
+| `docs/` | One MD per lifecycle stage + indexes (`docs/evolve/latest.md` stats) |
 | `test/{unit,integration,performance}` | Tests |
 | `local/` | Gitignored scratch |
 | `common/scripts/` | Hooks (`postinstall`, `ci-audit`, `warm-model`) |

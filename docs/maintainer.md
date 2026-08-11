@@ -9,6 +9,9 @@ Catalog and product scripts for contributors. End users only need [Install](../R
 | `bun run generate` | GENERATE — ground leaves |
 | `bun run expand` | EXPAND — held-out + triage (`--fresh` also GENERATE) |
 | `bun run expand:retry` | EXPAND — retry failed held-out leaves |
+| `bun run evolve` | EVOLVE — PULL→FILTER→THREAD→feeder (+ EXPAND chain; `--no-chain` to stop) |
+| `bun run evolve:seed-umami` | Seed local Docker Umami website for evolve e2e |
+| `bun run evolve:render-latest` | Write `docs/evolve/latest.md` from `local/evolve/stats-latest.json` |
 | `bun run ship` | SHIP — seed product DB |
 | `bun run rebuild` | `expand -- --fresh` then `ship` |
 | `bun run ship:dedupe` | Offline structural corpus merge |

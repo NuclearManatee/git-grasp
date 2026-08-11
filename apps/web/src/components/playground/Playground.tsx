@@ -8,10 +8,24 @@ import {
   openWebCatalog,
   searchBrowser,
   formatSearchResult,
+  primaryCommand,
   parseSkillLevel,
-  skillName,
   sanitizeField,
   getOpenWebCatalog,
+  SCHEMA_VERSION,
+  msgTelemetryOn,
+  msgTelemetryOffPlayground,
+  msgTelemetryStatusPlayground,
+  msgSkillCleared,
+  msgSkillSet,
+  msgInitWarm,
+  msgInitWarmMock,
+  msgInitReady,
+  msgSearchCopyOk,
+  msgSearchCopyFail,
+  infoLine,
+  warnLine,
+  errorLine,
 } from '@git-grasp/common/browser';
 import {
   WEB_PACK_BYTES,
@@ -31,18 +45,56 @@ function forceAnsi() {
   chalk.level = 3;
 }
 
+/** Static preview aligned with formatSearchResult / search-exact layout. */
 function previewLines() {
   return [
     'git-grasp web playground',
     '',
     '  $ git-grasp "undo last commit but keep my files"',
-    '  git reset',
-    '    ────────────────────────────',
-    '    git reset --soft HEAD~1',
-    '    ────────────────────────────',
     '',
-    'Start the playground to download the embedding model and try live search.',
+    'git reset --soft HEAD~1',
+    '  git reset --soft HEAD~1  # keep changes',
+    '  ────────────────────────────────────',
+    '  git reset --soft HEAD~1',
+    '  Undo commit, keep index & worktree',
+    '  ────────────────────────────────────',
+    'Undo the last commit but keep your files',
+    '',
+    'Start the playground to download assets and try live search.',
   ].join('\n');
+}
+
+function playgroundHelp() {
+  return [
+    'Common commands:',
+    '  <query>                 search (same ranking as CLI)',
+    '  -v / --verbose <query>  verbose scores',
+    '  -c / --copy <query>     copy winning command',
+    '  set-level <level>       store preferred skill (parked; no retrieval effect)',
+    '  telemetry status        show telemetry (on after Start)',
+    '  help                    this message',
+    '',
+    'CLI-only: doctor, update-check, completion, config, init',
+  ].join('\n');
+}
+
+function catalogTrackMeta() {
+  const cat = getOpenWebCatalog();
+  return {
+    schema_version: cat?.schemaVersion ?? SCHEMA_VERSION,
+    catalog_version: cat?.catalogVersion ?? null,
+  };
+}
+
+function dumpTerminalBuffer(term) {
+  if (!term?.buffer?.active) return '';
+  const buf = term.buffer.active;
+  const lines = [];
+  for (let i = 0; i < buf.length; i += 1) {
+    const line = buf.getLine(i);
+    if (line) lines.push(line.translateToString(true));
+  }
+  return lines.join('\n').replace(/\s+$/gm, '').trim();
 }
 
 /**
@@ -90,6 +142,20 @@ export default function Playground({ forceMock = false, forceOptIn = false }) {
       setInView(true);
       return undefined;
     }
+
+    // Hash / deep-link / already-visible: don't wait for IO (can miss after late island mount).
+    const hashTargets =
+      typeof window !== 'undefined'
+      && (window.location.hash === '#playground' || forceOptIn
+        || new URLSearchParams(window.location.search).get('optin') === '1');
+    const rect = el.getBoundingClientRect();
+    const alreadyVisible =
+      rect.top < window.innerHeight + 120 && rect.bottom > -120;
+    if (hashTargets || alreadyVisible) {
+      setInView(true);
+      return undefined;
+    }
+
     const io = new IntersectionObserver(
       (entries) => {
         if (entries.some((e) => e.isIntersecting)) {
@@ -97,11 +163,11 @@ export default function Playground({ forceMock = false, forceOptIn = false }) {
           io.disconnect();
         }
       },
-      { rootMargin: '120px', threshold: 0.15 },
+      { rootMargin: '120px', threshold: 0.05 },
     );
     io.observe(el);
     return () => io.disconnect();
-  }, []);
+  }, [forceOptIn]);
 
   const writePrompt = useCallback(() => {
     const term = termRef.current;
@@ -131,6 +197,10 @@ export default function Playground({ forceMock = false, forceOptIn = false }) {
     termRef.current = term;
     fitRef.current = fit;
 
+    if (typeof window !== 'undefined') {
+      window.__ghPlaygroundDump = () => dumpTerminalBuffer(termRef.current);
+    }
+
     const onResize = () => fit.fit();
     window.addEventListener('resize', onResize);
 
@@ -157,19 +227,32 @@ export default function Playground({ forceMock = false, forceOptIn = false }) {
     return term;
 
     async function handleCommand(line) {
-      const term = termRef.current;
-      if (!term) return;
+      const t = termRef.current;
+      if (!t) return;
       if (!line) {
         writePrompt();
         return;
       }
 
+      forceAnsi();
+
       if (line === 'help' || line === '?') {
-        term.writeln('Commands:');
-        term.writeln('  <query>              search (same as CLI)');
-        term.writeln('  -v <query>           verbose search');
-        term.writeln('  set-level <level>    non-technical|beginner|…|clear');
-        term.writeln('  help                 this message');
+        t.writeln(playgroundHelp());
+        writePrompt();
+        return;
+      }
+
+      if (line.startsWith('telemetry')) {
+        const arg = line.slice('telemetry'.length).trim().toLowerCase() || 'status';
+        if (arg === 'on') {
+          t.writeln(msgTelemetryOn());
+        } else if (arg === 'off') {
+          t.writeln(msgTelemetryOffPlayground());
+        } else if (arg === 'status') {
+          t.writeln(msgTelemetryStatusPlayground());
+        } else {
+          t.writeln(errorLine('Usage: telemetry on|off|status'));
+        }
         writePrompt();
         return;
       }
@@ -185,37 +268,56 @@ export default function Playground({ forceMock = false, forceOptIn = false }) {
           } catch {
             /* ignore */
           }
-          term.writeln(
-            level == null
-              ? 'skill filter cleared'
-              : `skill filter ≤ ${skillName(level)}`,
-          );
+          t.writeln(level == null ? msgSkillCleared() : msgSkillSet(level));
         } catch (e) {
-          term.writeln(`\x1b[31m${sanitizeField(e.message || e)}\x1b[0m`);
+          t.writeln(errorLine(sanitizeField(e.message || e)));
         }
         writePrompt();
         return;
       }
 
       let verbose = false;
+      let copy = false;
       let query = line;
-      if (query.startsWith('-v ') || query.startsWith('--verbose ')) {
-        verbose = true;
-        query = query.replace(/^--?v(erbose)?\s+/, '');
+      const flagRe = /^(?:(-v|--verbose)|(-c|--copy))\s+/;
+      while (flagRe.test(query)) {
+        const m = query.match(flagRe);
+        if (m[1]) verbose = true;
+        if (m[2]) copy = true;
+        query = query.replace(flagRe, '');
+      }
+      query = query.trim();
+      if (!query) {
+        t.writeln(errorLine('Usage: [-v|--verbose] [-c|--copy] <query>'));
+        writePrompt();
+        return;
       }
 
       busyRef.current = true;
-      term.writeln('\x1b[2mSearching…\x1b[0m');
+      t.writeln(infoLine('Searching…'));
       const t0 = performance.now();
       try {
         const result = await searchBrowser(query, {
           forceMockEmbeddings: mockMode,
           skillLevelOverride: skillRef.current,
-          onEmbedStatus: (msg) => term.writeln(`\x1b[2m${msg}\x1b[0m`),
+          onEmbedStatus: (msg) => t.writeln(infoLine(msg)),
         });
         const latency = Math.round(performance.now() - t0);
         forceAnsi();
-        term.writeln(formatSearchResult(result, { verbose }));
+        t.writeln(formatSearchResult(result, { verbose }));
+
+        if (copy) {
+          const cmd = primaryCommand(result);
+          if (cmd) {
+            try {
+              await navigator.clipboard.writeText(cmd);
+              t.writeln(msgSearchCopyOk());
+            } catch {
+              t.writeln(msgSearchCopyFail());
+            }
+          }
+        }
+
         trackWebCliSearch({
           query: result.query,
           response: {
@@ -236,9 +338,10 @@ export default function Playground({ forceMock = false, forceOptIn = false }) {
           mock: mockMode,
           connection: readConnection(),
           ...deviceInfo(),
+          ...catalogTrackMeta(),
         });
       } catch (e) {
-        term.writeln(`\x1b[31m${sanitizeField(e.message || e)}\x1b[0m`);
+        t.writeln(errorLine(sanitizeField(e.message || e)));
         trackWebCliSearch({
           query,
           response: { status: 'error', error: sanitizeField(String(e.message || e)), code: e.code },
@@ -246,6 +349,7 @@ export default function Playground({ forceMock = false, forceOptIn = false }) {
           mock: mockMode,
           connection: readConnection(),
           ...deviceInfo(),
+          ...catalogTrackMeta(),
         });
       } finally {
         busyRef.current = false;
@@ -288,19 +392,21 @@ export default function Playground({ forceMock = false, forceOptIn = false }) {
     try {
       ensureTerminal();
       const term = termRef.current;
+      forceAnsi();
       term?.clear();
-      term?.writeln('Loading playground assets…');
+      term?.writeln(infoLine('Loading playground assets…'));
 
       setStatus('Verifying catalog…');
       await ensureCatalog();
 
       setStatus(mockMode ? 'Using mock embeddings…' : 'Loading embedding model…');
+      term?.writeln(mockMode ? msgInitWarmMock() : msgInitWarm());
       await searchBrowser('warmup', {
         forceMockEmbeddings: mockMode,
         skillLevelOverride: null,
         onEmbedStatus: (msg) => {
           setStatus(msg);
-          term?.writeln(`\x1b[2m${msg}\x1b[0m`);
+          term?.writeln(infoLine(msg));
         },
       }).catch(() => {
         /* warmup may return low confidence — fine */
@@ -316,14 +422,18 @@ export default function Playground({ forceMock = false, forceOptIn = false }) {
         mock: mockMode,
         connection: conn,
         ...device,
+        ...catalogTrackMeta(),
       });
 
       readyRef.current = true;
       setPhase('ready');
       setStatus('Ready');
+      forceAnsi();
       term?.clear();
-      term?.writeln('git-grasp web — type a query, or \x1b[1mhelp\x1b[0m');
-      if (mockMode) term?.writeln('\x1b[33m(mock embeddings)\x1b[0m');
+      term?.writeln(msgInitReady());
+      term?.writeln(msgTelemetryOn());
+      term?.writeln(infoLine('Type a query, or help'));
+      if (mockMode) term?.writeln(warnLine('(mock embeddings)'));
       writePrompt();
       term?.focus();
     } catch (e) {
@@ -336,6 +446,7 @@ export default function Playground({ forceMock = false, forceOptIn = false }) {
         mock: mockMode,
         connection: conn,
         ...device,
+        ...catalogTrackMeta(),
       });
       setError(sanitizeField(e.message || String(e)));
       setPhase('error');
@@ -417,7 +528,7 @@ export default function Playground({ forceMock = false, forceOptIn = false }) {
                   Will download{' '}
                   <strong className="text-gh-fg">{downloadLabel}</strong>
                   {' '}
-                  for enabling search.
+                  for enabling search. Starting enables cookieless analytics (see Privacy).
                 </p>
               </>
             )}
@@ -450,12 +561,14 @@ export default function Playground({ forceMock = false, forceOptIn = false }) {
         )}
 
         <p className="border-t border-gh-border px-4 py-2.5 text-xs leading-relaxed text-gh-muted">
-          Playground queries and results may be sent to cookieless analytics to improve search.
-          Details on{' '}
+          Playground telemetry is on after Start — queries and results will be sent to cookieless
+          analytics to improve search. Details on{' '}
           <a href="/privacy" className="text-gh-accent underline-offset-2 hover:underline">
             Privacy &amp; legal
           </a>
-          . Prefer offline use with no remote telemetry?{' '}
+          .
+          <br />
+          Prefer offline use with no remote telemetry?{' '}
           <a href="#install" className="text-gh-accent underline-offset-2 hover:underline">
             Install the CLI
           </a>{' '}

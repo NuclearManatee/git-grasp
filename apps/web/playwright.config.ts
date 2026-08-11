@@ -2,6 +2,15 @@
 import { defineConfig, devices } from '@playwright/test';
 
 const PORT = Number(process.env.WEB_PORT || 4321);
+/**
+ * preview (default) = production bundle — historically green while `astro dev` was broken.
+ * `WEB_E2E_SERVER=dev` (via `bun run web:e2e:dev`) exercises the Vite client optimizer path.
+ */
+const serverMode = (process.env.WEB_E2E_SERVER || 'preview').toLowerCase();
+const webServerCommand =
+  serverMode === 'dev'
+    ? `bun run dev -- --host 127.0.0.1 --port ${PORT}`
+    : `bun run preview -- --host 127.0.0.1 --port ${PORT}`;
 
 export default defineConfig({
   testDir: './e2e',
@@ -23,9 +32,11 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `bun run preview -- --host 127.0.0.1 --port ${PORT}`,
+    command: webServerCommand,
     url: `http://127.0.0.1:${PORT}`,
-    reuseExistingServer: !process.env.CI,
+    // Never reuse a random local server in CI. Locally, prefer an explicit server
+    // matching WEB_E2E_SERVER so a broken `astro dev` cannot masquerade as preview.
+    reuseExistingServer: false,
     timeout: 120_000,
   },
 });

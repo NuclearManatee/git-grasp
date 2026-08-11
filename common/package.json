@@ -25,6 +25,7 @@
     "./lib/paths.js": "./src/lib/paths.ts",
     "./lib/skills.js": "./src/lib/skills.ts",
     "./lib/validator.js": "./src/lib/validator.ts",
+    "./lib/telemetry/defaults.js": "./src/lib/telemetry/defaults.ts",
     "./build/orchestrator.js": "./src/build/orchestrator.ts",
     "./build/goalTaxonomy.js": "./src/build/goalTaxonomy.ts",
     "./build/prepare.js": "./src/build/prepare.ts",
@@ -37,6 +38,7 @@
     "./catalog/step0Glossary.js": "./src/catalog/step0Glossary.ts",
     "./eval/judge.js": "./src/eval/judge.ts",
     "./eval/loop.js": "./src/eval/loop.ts",
+    "./evolve": "./src/evolve/index.ts",
     "./ux/format.js": "./src/ux/format.ts"
   },
   "dependencies": {

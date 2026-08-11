@@ -12,22 +12,9 @@ import {
   type SearchIntentValidateOpts,
   type ValidateResult,
 } from '../schemas/index.js';
+import { normalizeExample, commandSlug } from './normalizeText.js';
 
-export function normalizeExample(example: unknown): string {
-  return String(example || '')
-    .trim()
-    .replace(/[\u201c\u201d]/g, '"')
-    .replace(/[\u2018\u2019]/g, "'")
-    .replace(/\s+/g, ' ');
-}
-
-export function commandSlug(command: unknown): string {
-  return String(command)
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 80);
-}
+export { normalizeExample, commandSlug };
 
 export function makeRowId(example: unknown, skillLevel: number, intentIndex = 0): string {
   return `${commandSlug(example)}:${skillLevel}:${intentIndex}`;

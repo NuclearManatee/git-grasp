@@ -6,7 +6,7 @@ import { userPaths } from './paths.js';
 import { isValidSkillLevel, parseSkillLevel, SKILL_MAX, SKILL_MIN } from './skills.js';
 import { parseJson, UserConfigSchema } from '../schemas/index.js';
 
-export const CONFIG_SCHEMA_VERSION = 3;
+export const CONFIG_SCHEMA_VERSION = 4;
 
 export function configFilePath() {
   return path.join(userPaths().config, 'config.json');
@@ -18,6 +18,8 @@ export function defaultConfig() {
     skillLevel: null,
     telemetry: null,
     telemetryInvite: 'pending',
+    telemetrySessionId: null,
+    updateCheck: null,
   };
 }
 
@@ -102,12 +104,17 @@ export function readConfig() {
     skillLevel: raw.skillLevel ?? null,
     telemetry: raw.telemetry === true ? true : raw.telemetry === false ? false : null,
     telemetryInvite: raw.telemetryInvite === 'dismissed' ? 'dismissed' : 'pending',
+    telemetrySessionId:
+      typeof raw.telemetrySessionId === 'string' && raw.telemetrySessionId.trim()
+        ? raw.telemetrySessionId.trim()
+        : null,
+    updateCheck: raw.updateCheck === true ? true : raw.updateCheck === false ? false : null,
   };
 }
 
 /**
  * Merge patch onto existing config and persist. Always preserves skill + telemetry fields.
- * @param {Partial<{ skillLevel: number|null, telemetry: boolean|null, telemetryInvite: string }>} patch
+ * @param {Partial<{ skillLevel: number|null, telemetry: boolean|null, telemetryInvite: string, telemetrySessionId: string|null, updateCheck: boolean|null }>} patch
  */
 export function writeConfig(patch = {}) {
   const dir = userPaths().config;
@@ -135,12 +142,20 @@ export function writeConfig(patch = {}) {
     merged.telemetry === true ? true : merged.telemetry === false ? false : null;
   const telemetryInvite =
     merged.telemetryInvite === 'dismissed' ? 'dismissed' : 'pending';
+  const telemetrySessionId =
+    typeof merged.telemetrySessionId === 'string' && merged.telemetrySessionId.trim()
+      ? merged.telemetrySessionId.trim()
+      : null;
+  const updateCheck =
+    merged.updateCheck === true ? true : merged.updateCheck === false ? false : null;
 
   const data = {
     schemaVersion: CONFIG_SCHEMA_VERSION,
     skillLevel,
     telemetry,
     telemetryInvite,
+    telemetrySessionId,
+    updateCheck,
   };
 
   writeFileSync(file, `${JSON.stringify(data, null, 2)}\n`, { mode: 0o600 });

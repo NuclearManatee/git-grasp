@@ -6,6 +6,7 @@ export {
   shouldPromptInvite,
   telemetryStatus,
   setTelemetryEnabled,
+  mintTelemetrySessionId,
   maybeInviteAndTrackSearch,
   sendUmamiEvent,
   buildCliSearchEvent,

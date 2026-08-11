@@ -1,18 +1,51 @@
 // @ts-nocheck
-import chalk from 'chalk';
 import { sanitizeField } from '../lib/ansi.js';
 import { skillName } from '../lib/skills.js';
-import { normalizeExample } from '../lib/validator.js';
+import { normalizeExample } from '../lib/normalizeText.js';
 import { clipboardTextFromRecipe } from '../catalog/recipeIdentity.js';
+import { style, cautionLine, errorLine, warnLine } from './cliStyle.js';
 
 export const SEARCH_FALLBACK_MESSAGE =
-  'No command found with sufficient confidence. Try rephrasing or use git help.';
+  'No confident match. Try rephrasing, or run git help.';
 
 const ALERT_COPY = {
-  yellow: 'Multiple plausible matches — verify before running.',
+  yellow: 'Several plausible matches — verify before running.',
   orange: 'Uncertain match — review alternatives carefully before running.',
   red: SEARCH_FALLBACK_MESSAGE,
 };
+
+/**
+ * Stable JSON payload for `git-grasp --json`.
+ * @param {object} result
+ */
+export function formatSearchResultJson(result) {
+  const shown = result.displayResults ?? result.results ?? [];
+  const alert = result.alert || (result.status === 'empty' ? 'red' : 'none');
+  return {
+    status: result.status ?? (shown.length ? 'ok' : 'empty'),
+    query: result.query ?? null,
+    confidence: typeof result.confidence === 'number' ? result.confidence : null,
+    alert,
+    blend: result.blend ?? null,
+    results: shown.map((r) => ({
+      id: r.id ?? r.command_id ?? null,
+      title: r.example || r.title || r.command || '',
+      description: r.intent_description || r.intent_text || '',
+      commands: Array.isArray(r.commands)
+        ? r.commands.map((c) => ({
+          command: c.command || c.run || '',
+          comment: c.comment || null,
+        }))
+        : [],
+      example: r.example ?? r.command ?? null,
+      score: typeof r.score === 'number' ? r.score : null,
+      score_cosine: r.score_cosine ?? null,
+      score_bm25: r.score_bm25 ?? null,
+      skill_level: r.skill_level ?? null,
+      risk: r.risk ?? null,
+    })),
+  };
+}
 
 /**
  * Format search result for CLI (hybrid displayResults 0..3).
@@ -25,7 +58,7 @@ export function formatSearchResult(result, { verbose = false } = {}) {
   const alert = result.alert || (result.status === 'empty' ? 'red' : 'none');
 
   if (!shown.length || result.status === 'empty' || alert === 'red') {
-    lines.push(chalk.red(ALERT_COPY.red));
+    lines.push(errorLine(ALERT_COPY.red));
     const confLine = formatConfidenceLine(result, { verbose });
     if (confLine) lines.push(confLine);
     return lines.join('\n');
@@ -38,14 +71,14 @@ export function formatSearchResult(result, { verbose = false } = {}) {
   });
 
   if (alert === 'yellow') {
-    lines.push(chalk.yellow(ALERT_COPY.yellow));
+    lines.push(warnLine(ALERT_COPY.yellow));
   } else if (alert === 'orange') {
-    lines.push(chalk.hex('#FF8C00')(ALERT_COPY.orange));
+    lines.push(cautionLine(ALERT_COPY.orange));
   }
 
   const topRisk = Number(shown[0]?.risk ?? 0);
   if (topRisk > 0.7) {
-    lines.push(chalk.red(`warning: high risk recipe (${topRisk.toFixed(2)})`));
+    lines.push(cautionLine(`High-risk recipe (${topRisk.toFixed(2)}) — review before running.`));
   }
 
   const confLine = formatConfidenceLine(result, { verbose });
@@ -74,7 +107,7 @@ export function formatConfidenceLine(result, { verbose = false } = {}) {
   if (result.blend) {
     parts.push(`α=${result.blend.alpha}/β=${result.blend.beta}`);
   }
-  return parts.length ? chalk.dim(parts.join('  ')) : '';
+  return parts.length ? style.muted(parts.join('  ')) : '';
 }
 
 function formatPrimaryBlock(r, prefix = '', { verbose = false } = {}) {
@@ -83,7 +116,7 @@ function formatPrimaryBlock(r, prefix = '', { verbose = false } = {}) {
   const skill = skillName(r.skill_level);
   const lines = [];
 
-  lines.push(prefix + chalk.bold(title));
+  lines.push(prefix + style.title(title));
   lines.push(...formatSnippetBlock(r));
   lines.push(...formatUsageFrame(r));
 
@@ -100,8 +133,8 @@ export function colorizeSnippetLine(line) {
   const m = raw.match(/^(.*?)(\s+#\s.*)?$/);
   const run = (m?.[1] ?? raw).trimEnd();
   const comment = m?.[2] ?? '';
-  if (!comment) return `  ${chalk.cyan(run)}`;
-  return `  ${chalk.cyan(run)}${chalk.dim(comment)}`;
+  if (!comment) return `  ${style.command(run)}`;
+  return `  ${style.command(run)}${style.muted(comment)}`;
 }
 
 export function formatSnippetBlock(r) {
@@ -119,9 +152,9 @@ export function formatSnippetBlock(r) {
 export function formatUsageFrame(r) {
   const { commandLine, blurb } = parseUsage(r);
   const width = Math.max(28, Math.min(56, Math.max(commandLine.length, blurb.length) + 2));
-  const rule = chalk.dim(`  ${'─'.repeat(width)}`);
+  const rule = style.muted(`  ${'─'.repeat(width)}`);
   const out = [rule];
-  out.push(`  ${chalk.cyan(sanitizeField(commandLine))}`);
+  out.push(`  ${style.command(sanitizeField(commandLine))}`);
   if (blurb) out.push(`  ${sanitizeField(blurb, 200)}`);
   out.push(rule);
   return out;

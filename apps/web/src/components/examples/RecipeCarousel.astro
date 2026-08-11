@@ -75,6 +75,11 @@ const dataJson = JSON.stringify(recipes).replace(/</g, '\\u003c');
 </section>
 
 <style>
+  .carousel-title {
+    color: #e7ecf1;
+    font-weight: 600;
+    margin-bottom: 0.35rem;
+  }
   .carousel-run {
     color: #6ec6ff;
   }
@@ -83,8 +88,8 @@ const dataJson = JSON.stringify(recipes).replace(/</g, '\\u003c');
     color: #8b9aab;
   }
   .carousel-intent {
-    color: #3d9a6a;
-    margin-top: 0.75rem;
+    color: #c5d0db;
+    margin-top: 0.35rem;
   }
 </style>
 
@@ -143,11 +148,7 @@ const dataJson = JSON.stringify(recipes).replace(/</g, '\\u003c');
         : '<span class="gh-badge">1 step</span>',
       r.command && '<span class="gh-badge">' + esc(r.command) + '</span>',
       r.topic && '<span class="gh-badge">' + esc(r.topic) + '</span>',
-      r.family && '<span class="gh-badge">' + esc(r.family) + '</span>',
-      r.checklist && '<span class="gh-badge">' + esc(r.checklist) + '</span>',
       r.source && '<span class="gh-badge">' + esc(r.source) + '</span>',
-      '<span class="gh-badge">simplicity ' + esc(r.simplicity) + '</span>',
-      r.id && '<span class="gh-badge">' + esc(r.id) + '</span>',
     ]
       .filter(Boolean)
       .join('');
@@ -160,13 +161,16 @@ const dataJson = JSON.stringify(recipes).replace(/</g, '\\u003c');
     );
     const rule = '  ' + '─'.repeat(width);
     let cli = '';
+    // Mirror CLI formatSearchResult: title → snippet → usage frame → intent
+    cli +=
+      '<div class="carousel-title">' + esc(r.primary || r.title) + '</div>\n';
     cli += '<div>' + snippetHtml(r.steps) + '</div>\n';
     cli += '<div class="carousel-rule">' + esc(rule) + '</div>\n';
     cli +=
       '<div class="carousel-run">  ' + esc(r.usage.commandLine || r.primary) + '</div>\n';
     if (r.usage.blurb) cli += '<div>  ' + esc(r.usage.blurb) + '</div>\n';
     cli += '<div class="carousel-rule">' + esc(rule) + '</div>\n';
-    cli += '<div class="carousel-intent">' + esc(r.primary) + '</div>';
+    if (r.intent) cli += '<div class="carousel-intent">' + esc(r.intent) + '</div>';
     root.querySelector('[data-cli]').innerHTML = cli;
     root.querySelector('[data-explanation]').textContent = r.explanation || '';
   }

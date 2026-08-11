@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { SKILL_MAX, SKILL_MIN } from '../lib/skills.js';
 
 export const UserConfigSchema = z.object({
-  schemaVersion: z.number().int().positive().default(3),
+  schemaVersion: z.number().int().positive().default(4),
   skillLevel: z
     .union([z.number(), z.string(), z.null()])
     .optional()
@@ -22,6 +22,15 @@ export const UserConfigSchema = z.object({
     .enum(['pending', 'dismissed'])
     .optional()
     .default('pending'),
+  /** Opaque rotating session key for CLI search journeys (EVOLVE THREAD). */
+  telemetrySessionId: z
+    .union([z.string(), z.null()])
+    .optional()
+    .transform((v) => (typeof v === 'string' && v.trim() ? v.trim() : null)),
+  updateCheck: z
+    .union([z.boolean(), z.null()])
+    .optional()
+    .transform((v) => (v === true ? true : v === false ? false : null)),
 });
 
 export type UserConfig = z.infer<typeof UserConfigSchema>;

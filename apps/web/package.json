@@ -26,6 +26,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "e2e": "playwright test",
+    "e2e:dev": "WEB_E2E_SERVER=dev playwright test e2e/hydrate.spec.ts",
     "e2e:ui": "playwright test --ui"
   }
 }

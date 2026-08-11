@@ -12,10 +12,12 @@ import {
   countRecipes,
   finalizeSearchIndex,
   recipeEmbedText,
+  setMetaValue,
 } from './db/schema.js';
 import { getEmbedder } from './search/embed.js';
 import { writeChecksumFile } from './lib/checksum.js';
 import { ProductRecipeSchema } from './schemas/recipe.js';
+import { readLatestCorpusMeta } from './build/corpusVersion.js';
 
 /**
  * Write catalog JSON export from an open v9 DB.
@@ -112,6 +114,16 @@ export async function seedCatalog({
       insertRecipe(db, parsed.data, emb);
     }
     finalizeSearchIndex(db);
+    const latest = readLatestCorpusMeta();
+    if (latest?.version != null) {
+      setMetaValue(db, 'corpus_version', latest.version);
+      if (latest.recipe_count != null) {
+        setMetaValue(db, 'corpus_recipe_count', latest.recipe_count);
+      }
+      if (latest.created_at) {
+        setMetaValue(db, 'corpus_created_at', latest.created_at);
+      }
+    }
   } finally {
     db.close();
   }

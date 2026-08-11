@@ -98,13 +98,9 @@ export async function openWebCatalog(data, { expectedSha256, initSqlJs } = {}) {
         const mod = await import('sql.js');
         const factory = mod.default || mod;
         return factory({
-          locateFile: (file) => {
-            try {
-              return new URL(`sql.js/dist/${file}`, import.meta.url).href;
-            } catch {
-              return `https://sql.js.org/dist/${file}`;
-            }
-          },
+          // Prefer same-origin WASM (CSP-friendly). Avoid `new URL(..., import.meta.url)`
+          // — Vite treats dynamic paths as import.glob.
+          locateFile: (file) => `/vendor/sql.js/${file}`,
         });
       })();
 
@@ -143,6 +139,11 @@ export async function openWebCatalog(data, { expectedSha256, initSqlJs } = {}) {
 
   const verbs = parseGitVerbsMeta(metaGet(db, 'git_verbs'));
   const embeddings = loadEmbeddings(db);
+  const corpusRaw = metaGet(db, 'corpus_version');
+  const catalogVersion =
+    corpusRaw != null && corpusRaw !== '' && Number.isFinite(Number(corpusRaw))
+      ? Number(corpusRaw)
+      : null;
 
   /** @type {WebCatalogHandle} */
   const handle = {
@@ -150,6 +151,7 @@ export async function openWebCatalog(data, { expectedSha256, initSqlJs } = {}) {
     thresholds,
     schemaVersion,
     searchAlgorithmVersion,
+    catalogVersion,
     verbs,
     embeddings,
     db,

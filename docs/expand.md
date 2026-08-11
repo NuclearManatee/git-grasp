@@ -1,29 +1,29 @@
 # EXPAND
 
-**Summary:** Evolving loop over an existing catalog. Held-out (or any) queries that miss are triaged into buckets; actions improve retrieval or fill gaps. Growing regression must stay green. Accepts **synthetic or real** miss streams.
+**Summary:** Circular loop — **TEST → CLASSIFY → (density | width | depth) → FILL THE GAP → TEST**. Classification fans out 1∶3∶1 into a single fill step.
 
 ```mermaid
 flowchart TB
-  Q[Held-out / miss queries] --> H{Hit@10 leaf?}
-  H -->|pass ×2| OK[Leaf green]
-  H -->|miss| T{Triage bucket}
-  T -->|1 Retrieval| A[Alias paraphrase + re-embed]
-  T -->|2 Leaf gap| B[Nearby paraphrases + re-saturate]
-  T -->|3 Taxonomy gap| C[Gap pool → cluster → new leaves]
-  A --> H
-  B --> H
-  C --> G[GENERATE new leaves]
-  OK --> R[Regression set]
-  R -->|≥0.95| ShipReady[Ready for SHIP]
+  XT[TEST]
+  XC[CLASSIFY]
+  XFd[RETRIEVAL DENSITY]
+  XFw[TAXONOMY WIDTH]
+  XFh[TAXONOMY DEPTH]
+  XF[FILL THE GAP]
+  XT --> XC
+  XC --> XFd --> XF
+  XC --> XFw --> XF
+  XC --> XFh --> XF
+  XF --> XT
 ```
 
-## Buckets
+## Fill-the-gap axes
 
-| Bucket | Meaning | Action |
-|--------|---------|--------|
-| 1 Retrieval | Recipe exists; search missed | Alias query onto recipe(s); FTS + re-embed |
-| 2 Leaf gap | Leaf too thin | Neighborhood paraphrases + re-GENERATE leaf + re-held-out |
-| 3 Taxonomy gap | No leaf covers intent | Gap pool → cluster (≥3) → scoped new leaves → GENERATE |
+| Bucket / axis | Meaning | Action |
+|---------------|---------|--------|
+| RETRIEVAL DENSITY | Recipe exists; search missed | Alias query onto recipe(s); FTS + re-embed |
+| TAXONOMY DEPTH | Leaf too thin | Neighborhood paraphrases + re-GENERATE leaf + re-held-out |
+| TAXONOMY WIDTH | No leaf covers intent | Gap pool → cluster (≥3) → scoped new leaves → GENERATE |
 
 ## Code
 
@@ -47,4 +47,4 @@ bun run expand:retry -- local/holdout-failed-leaves.txt
 
 ## Relation to EVOLVE
 
-EXPAND is implemented today. **EVOLVE** (future) will judge **OBSERVE** queries and feed the same triage/actions.
+**EVOLVE** builds an observe feeder (PULL → FILTER → THREAD) and, by default, chains into the same triage/actions. See [evolve.md](evolve.md).

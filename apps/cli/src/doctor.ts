@@ -12,18 +12,25 @@ import {
   smokeTestSqliteVec,
   SCHEMA_VERSION,
   PACKAGE_ROOT,
+  formatVersionReport,
+  collectVersionIdentity,
+  getMetaValue,
+  openDb,
+  doctorPaint,
 } from '@git-grasp/common/cli';
 
 export function doctor() {
   const lines = [];
   let ok = true;
 
+  lines.push(...formatVersionReport().split('\n'));
+
   const bunVersion = typeof Bun !== 'undefined' ? Bun.version : null;
   if (bunVersion) {
     lines.push(`Runtime: Bun ${bunVersion}`);
   } else {
     ok = false;
-    lines.push('Runtime: FAIL ÔÇö Bun is required (bun:sqlite + sqlite-vec)');
+    lines.push('Runtime: FAIL — Bun is required (bun:sqlite + sqlite-vec)');
   }
 
   const vec = smokeTestSqliteVec();
@@ -42,7 +49,22 @@ export function doctor() {
     lines.push(`DB: FAIL (${dbCheck.reason}) at ${dbPath}`);
     lines.push('  Fix: bun run rebuild && bun run seed');
   } else {
-    lines.push(`DB: OK (${dbCheck.hash.slice(0, 12)}ÔÇª) schema v${SCHEMA_VERSION}`);
+    let corpusMeta = '';
+    try {
+      const db = openDb(dbPath, { readonly: true });
+      try {
+        const cv = getMetaValue(db, 'corpus_version');
+        if (cv) corpusMeta = ` corpus_meta=v${cv}`;
+      } finally {
+        db.close();
+      }
+    } catch {
+      /* ignore */
+    }
+    const id = collectVersionIdentity({ dbPath });
+    lines.push(
+      `DB: OK (${dbCheck.hash.slice(0, 12)}…) schema v${SCHEMA_VERSION}${corpusMeta || (id.corpusVersion != null ? ` catalog=v${id.corpusVersion}` : '')}`,
+    );
     lines.push(`  Path: ${dbPath}`);
   }
 
@@ -63,7 +85,7 @@ export function doctor() {
     || process.env.GIT_GRASP_MOCK_EMBEDDINGS === '1';
   if (!hasModel) {
     ok = false;
-    lines.push(`Model: MISSING — first real search downloads Xenova/bge-small-en-v1.5, or set GIT_GRASP_MOCK_EMBEDDINGS=1`);
+    lines.push('Model: MISSING — run git-grasp init (or search once) to download Xenova/bge-small-en-v1.5');
   } else if (process.env.GIT_GRASP_MOCK_EMBEDDINGS === '1') {
     lines.push('Model: OK (mock embeddings)');
   } else {
@@ -75,8 +97,9 @@ export function doctor() {
     const skill = cfg.skillLevel == null ? 'off' : cfg.skillLevel;
     const tel = cfg.telemetry === true ? 'on' : 'off';
     const invite = cfg.telemetryInvite || 'pending';
+    const upd = cfg.updateCheck === true ? 'on' : 'off';
     lines.push(
-      `Config: OK (skillLevel=${skill}, telemetry=${tel}, invite=${invite}) at ${configFilePath()}`,
+      `Config: OK (skillLevel=${skill}, telemetry=${tel}, invite=${invite}, updateCheck=${upd}) at ${configFilePath()}`,
     );
   } catch (e) {
     ok = false;
@@ -91,5 +114,5 @@ export function doctor() {
     lines.push('Thresholds: FAIL');
   }
 
-  return { ok, lines };
+  return { ok, lines: lines.map(doctorPaint) };
 }

@@ -1,13 +1,17 @@
 // @ts-nocheck
 import { DEFAULT_UMAMI_HOST, DEFAULT_UMAMI_WEBSITE_ID } from './defaults.js';
+import { appVersion, catalogIdentity } from '../version.js';
+import { SCHEMA_VERSION } from '../../db/constants.js';
+import { readConfig } from '../config.js';
 
-export function appVersion() {
-  try {
-    // Avoid hard dependency on package.json resolution failures
-    return process.env.npm_package_version || '0.1.0';
-  } catch {
-    return '0.1.0';
-  }
+export { appVersion };
+
+function catalogFields() {
+  const cat = catalogIdentity();
+  return {
+    catalog_version: cat.corpusVersion,
+    schema_version: SCHEMA_VERSION,
+  };
 }
 
 export function coarseOs() {
@@ -18,16 +22,28 @@ export function coarseOs() {
   return p || 'unknown';
 }
 
+function sessionFields(sessionId) {
+  let id = sessionId;
+  if (id === undefined) {
+    const cfg = readConfig();
+    id = typeof cfg.telemetrySessionId === 'string' ? cfg.telemetrySessionId : null;
+  }
+  return id ? { session_id: id } : {};
+}
+
 /**
+ * @param {{ sessionId?: string|null }} [opts]
  * @returns {{ name: string, data: Record<string, unknown> }}
  */
-export function buildCliOptInEvent() {
+export function buildCliOptInEvent(opts = {}) {
   return {
     name: 'cli_opt_in',
     data: {
       source: 'cli',
       app_version: appVersion(),
       os: coarseOs(),
+      ...catalogFields(),
+      ...sessionFields(opts.sessionId),
     },
   };
 }
@@ -39,14 +55,23 @@ export function buildCliOptInEvent() {
  * @param {object} opts.response
  * @param {number} opts.latency_ms
  * @param {boolean} [opts.mock]
+ * @param {string|null} [opts.sessionId]
  */
-export function buildCliSearchEvent({ query, response, latency_ms, mock = false }) {
+export function buildCliSearchEvent({
+  query,
+  response,
+  latency_ms,
+  mock = false,
+  sessionId,
+}) {
   return {
     name: 'cli_search',
     data: {
       source: 'cli',
       app_version: appVersion(),
       os: coarseOs(),
+      ...catalogFields(),
+      ...sessionFields(sessionId),
       query,
       response,
       latency_ms,
@@ -89,6 +114,10 @@ export function searchResponseFromError(err) {
 
 export function resolveUmamiEndpoint(env = process.env) {
   const host = (env.GIT_GRASP_UMAMI_HOST || DEFAULT_UMAMI_HOST || '').replace(/\/$/, '');
-  const websiteId = env.GIT_GRASP_UMAMI_WEBSITE_ID || DEFAULT_UMAMI_WEBSITE_ID || '';
+  // Explicit empty string disables send (tests / hard off). Unset → baked default.
+  const websiteId =
+    'GIT_GRASP_UMAMI_WEBSITE_ID' in env
+      ? String(env.GIT_GRASP_UMAMI_WEBSITE_ID || '')
+      : DEFAULT_UMAMI_WEBSITE_ID || '';
   return { host, websiteId };
 }

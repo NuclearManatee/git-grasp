@@ -1,43 +1,70 @@
 ---
+/** Use section — aligned with docs/cli.md Common commands / flags. */
 const tabs = [
   {
     id: 'search',
-    label: 'Search',
+    label: 'search',
     body: `git-grasp "<query>"
-git-grasp search "<query>" -v -c
+git-grasp search [query…]
 
 Flags
-  -v, --verbose   skill label, explanation, score
+  -v, --verbose   confidence / channel scores
   -c, --copy      copy winning example to clipboard
+  --json          machine-readable JSON on stdout
+  -q, --quiet     no spinner; skip telemetry invite
 
-The CLI never runs Git for you — it only suggests pasteable commands.`,
-  },
-  {
-    id: 'set-level',
-    label: 'set-level',
-    body: `git-grasp set-level <level>
+Never runs Git for you — pasteable suggestions only.
 
-Levels (at-most filter)
-  non-technical | beginner | intermediate | expert
-  1 | 2 | 3 | 4
-  clear | off
-
-Restricts results to commands at or below that skill.`,
+echo "undo last commit keep files" | git-grasp`,
   },
   {
     id: 'doctor',
-    label: 'doctor',
+    label: 'doctor / init',
     body: `git-grasp doctor
+git-grasp init
 
-Checks
-  Runtime    Bun version
-  sqlite-vec extension load
-  DB         checksum / presence
-  Model      embedding cache
-  Config     skillLevel
-  Thresholds config file
+doctor   DB, model, sqlite-vec, config (exit 2 on fail)
+init     doctor checks + warm embedding model cache
 
-Exit 2 on failure.`,
+git-grasp -V
+catalog · schema · db identity`,
+  },
+  {
+    id: 'telemetry',
+    label: 'telemetry',
+    body: `git-grasp telemetry on|off|status
+
+CLI analytics: off by default (soft invite).
+Hard off: DO_NOT_TRACK=1 or GIT_GRASP_TELEMETRY=0.
+
+Playground: on after Start (consent). See /privacy.`,
+  },
+  {
+    id: 'update',
+    label: 'update-check',
+    body: `git-grasp update-check on|off|status
+
+Opt-in npm registry notices (off by default).
+Hard off: GIT_GRASP_UPDATE_CHECK=0.
+
+When newer: yellow stderr notice with install command.`,
+  },
+  {
+    id: 'config',
+    label: 'config',
+    body: `git-grasp config show
+git-grasp config path
+
+User config (telemetry, update-check, parked skillLevel).
+Platform path: %APPDATA%/git-grasp or ~/.config/git-grasp.`,
+  },
+  {
+    id: 'completion',
+    label: 'completion',
+    body: `eval "$(git-grasp completion bash)"
+eval "$(git-grasp completion zsh)"
+git-grasp completion fish > ~/.config/fish/completions/git-grasp.fish
+git-grasp completion powershell | Out-String | Invoke-Expression`,
   },
 ];
 ---
@@ -46,6 +73,10 @@ Exit 2 on failure.`,
     <h2 id="use-heading" class="font-mono text-2xl font-semibold sm:text-3xl">
       Use
     </h2>
+    <p class="mt-3 text-gh-muted">
+      Common commands from the CLI reference. Full docs in the repo under{' '}
+      <span class="font-mono text-gh-fg">docs/cli.md</span>.
+    </p>
   </div>
 
   <div class="gh-panel" data-tabs="use">

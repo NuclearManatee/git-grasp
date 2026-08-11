@@ -1,6 +1,6 @@
 // @ts-nocheck
 /**
- * Slim surface for the CLI search path ÔÇö avoid loading seed/catalog/eval via the barrel.
+ * Slim surface for the CLI search path — avoid loading seed/catalog/eval via the barrel.
  */
 export { search, loadThresholds } from './search/index.js';
 export {
@@ -11,8 +11,27 @@ export {
 } from './search/embed.js';
 export {
   formatSearchResult,
+  formatSearchResultJson,
   primaryCommand,
 } from './ux/format.js';
+export { style, statusLine, withLink, doctorPaint, okLine, infoLine, warnLine, cautionLine, errorLine, withEmoji, emojiEnabled, resolveEnv } from './ux/cliStyle.js';
+export {
+  msgTelemetryOn,
+  msgTelemetryOff,
+  msgTelemetryStatusHead,
+  msgTelemetryStatusBlock,
+  msgTelemetryOffPlayground,
+  msgTelemetryStatusPlayground,
+  msgSkillCleared,
+  msgSkillSet,
+  msgInitWarm,
+  msgInitWarmMock,
+  msgInitReady,
+  msgSearchCopyOk,
+  msgSearchCopyFail,
+  msgUpdateOn,
+  msgUpdateOff,
+} from './ux/messages.js';
 export { readConfig, writeConfig, configFilePath } from './lib/config.js';
 export {
   maybeInviteAndTrackSearch,
@@ -53,4 +72,24 @@ export {
 export {
   smokeTestSqliteVec,
   SCHEMA_VERSION,
+  getMetaValue,
+  openDb,
 } from './db/schema.js';
+export {
+  appVersion,
+  catalogIdentity,
+  collectVersionIdentity,
+  formatVersionReport,
+} from './lib/version.js';
+export {
+  maybeNotifyUpdate,
+  checkForUpdate,
+  setUpdateCheckEnabled,
+  updateCheckStatusDetail,
+  isUpdateCheckEnabled,
+  compareSemver,
+  fetchNpmLatestVersion,
+  readUpdateCache,
+  writeUpdateCache,
+} from './lib/updateCheck.js';
+export { completionScript } from './lib/completion.js';

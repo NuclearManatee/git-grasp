@@ -1,0 +1,108 @@
+---
+/**
+ * FAQ — first two items are deep-linked from hero trust claims.
+ * Content mirrors local/FAQ.md.
+ */
+const faqs = [
+  {
+    id: 'why-git-grasp',
+    q: 'Why git-grasp?',
+    a: `I keep forgetting Git syntax, and “just Google it” usually means a context switch I find quite taxing. Ironically, after working on this project, the need to look commands up plummeted. You might say the whole thing is a learning experience.`,
+  },
+  {
+    id: 'why-not-llm',
+    q: 'Why don’t we use an LLM?',
+    a: `An LLM is great at approximating unstructured answers; when I’m searching for commands I want the most precise answer possible. The git-grasp catalog is still built entirely with a language model (some might even call it distillation), but results are validated against execution and tied to their descriptions via a local embedding model — making retrieval faster, energy-cheaper, and, hopefully, better.`,
+  },
+  {
+    id: 'local-first',
+    q: 'What does “local-first” mean here?',
+    a: `You can install the CLI and run it fully offline on your machine — including in an enterprise context — since it’s MIT-licensed end to end. You can optionally turn telemetry on; on the web playground it is on by default after Start. When telemetry is on, I collect your queries and use them to improve the catalog further.`,
+  },
+  {
+    id: 'wrong-recipe',
+    q: 'What if something is wrong?',
+    a: `Tracking queries enables cyclical improvement, so while you should still report specific issues, many will hopefully be resolved automatically in the next cycle. I don’t have a fixed timeline yet — cycles will depend on volume. You can also open an issue on the GitHub project.`,
+    href: 'https://github.com/cremaschi/git-grasp/issues',
+    hrefLabel: 'Open an issue',
+  },
+  {
+    id: 'contribute',
+    q: 'How can I contribute?',
+    a: `Honestly, the fastest way is to use the tool with telemetry on. I’d also love feedback on the project and approach — especially whether it can scale to broader topics.`,
+  },
+] as const;
+---
+<section id="faq" class="gh-container py-16 sm:py-20" aria-labelledby="faq-heading">
+  <div class="mb-8 max-w-xl">
+    <h2 id="faq-heading" class="font-mono text-2xl font-semibold sm:text-3xl">
+      FAQ
+    </h2>
+    <p class="mt-3 text-gh-muted">
+      Straight answers for a local-first Git search tool — and for the people evaluating the work behind it.
+    </p>
+  </div>
+
+  <div class="mx-auto max-w-2xl divide-y divide-gh-border border-y border-gh-border" data-faq>
+    {faqs.map((item, i) => (
+      <details
+        id={`faq-${item.id}`}
+        class="group py-4"
+        data-faq-item={item.id}
+        open={i === 0 ? true : undefined}
+      >
+        <summary
+          class="cursor-pointer list-none font-mono text-base font-semibold text-gh-fg marker:content-none [&::-webkit-details-marker]:hidden"
+        >
+          <span class="flex items-start justify-between gap-4">
+            <span>{item.q}</span>
+            <span
+              class="mt-0.5 shrink-0 font-mono text-gh-muted transition group-open:rotate-45"
+              aria-hidden="true"
+            >+</span>
+          </span>
+        </summary>
+        <p class="mt-3 max-w-prose text-sm leading-relaxed text-gh-muted">
+          {item.a}
+          {'href' in item && item.href ? (
+            <>
+              {' '}
+              <a
+                href={item.href}
+                class="text-gh-accent underline-offset-2 hover:underline"
+                rel="noopener noreferrer"
+                target="_blank"
+              >
+                {item.hrefLabel}
+                <span class="sr-only"> (opens in a new tab)</span>
+              </a>
+              .
+            </>
+          ) : null}
+        </p>
+      </details>
+    ))}
+  </div>
+</section>
+
+<script is:inline>
+  (function () {
+    var root = document.querySelector('[data-faq]');
+    if (!root) return;
+
+    function openFromHash() {
+      var hash = (location.hash || '').replace(/^#/, '');
+      if (!hash.startsWith('faq-')) return;
+      var el = document.getElementById(hash);
+      if (!el || el.tagName !== 'DETAILS') return;
+      root.querySelectorAll('details[data-faq-item]').forEach(function (d) {
+        d.open = d === el;
+      });
+      el.open = true;
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    openFromHash();
+    window.addEventListener('hashchange', openFromHash);
+  })();
+</script>

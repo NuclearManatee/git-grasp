@@ -25,13 +25,13 @@
     <button
       type="button"
       role="tab"
-      id="claim-tab-skill"
+      id="claim-tab-confidence"
       aria-controls="claim-panels"
       aria-selected="false"
       data-claim="1"
       class="claim-tab gh-panel px-4 py-5 text-left font-mono text-base font-semibold tracking-tight text-gh-muted hover:text-gh-fg sm:text-lg"
     >
-      Beginner → Expert
+      Confidence, not guesses
     </button>
     <button
       type="button"
@@ -110,11 +110,12 @@
             ],
             ease: [
               { t: '$ git-grasp "undo last commit keep changes staged"', c: '' },
-              { t: 'git reset', c: 'text-gh-accent' },
-              { t: '  ────────────────────────────', c: 'text-gh-muted' },
+              { t: 'git reset --soft HEAD~1', c: 'text-gh-fg font-semibold' },
+              { t: '  git reset --soft HEAD~1  # keep staged', c: 'text-gh-accent' },
+              { t: '  ────────────────────────────────────', c: 'text-gh-muted' },
               { t: '  git reset --soft HEAD~1', c: 'text-gh-accent' },
-              { t: '  Rewinds HEAD; keeps your files.', c: 'text-gh-muted' },
-              { t: '  ────────────────────────────', c: 'text-gh-muted' },
+              { t: '  Undo commit, keep index & worktree', c: 'text-gh-muted' },
+              { t: '  ────────────────────────────────────', c: 'text-gh-muted' },
             ],
           },
           {
@@ -127,11 +128,12 @@
             ],
             ease: [
               { t: '$ git-grasp "force push without clobbering others"', c: '' },
-              { t: 'git push', c: 'text-gh-accent' },
-              { t: '  ────────────────────────────', c: 'text-gh-muted' },
+              { t: 'git push --force-with-lease', c: 'text-gh-fg font-semibold' },
+              { t: '  git push --force-with-lease', c: 'text-gh-accent' },
+              { t: '  ────────────────────────────────────', c: 'text-gh-muted' },
               { t: '  git push --force-with-lease', c: 'text-gh-accent' },
               { t: '  Refuses if remote moved under you.', c: 'text-gh-muted' },
-              { t: '  ────────────────────────────', c: 'text-gh-muted' },
+              { t: '  ────────────────────────────────────', c: 'text-gh-muted' },
             ],
           },
           {
@@ -144,72 +146,65 @@
             ],
             ease: [
               { t: '$ git-grasp "create and switch to a new branch"', c: '' },
-              { t: 'git switch', c: 'text-gh-accent' },
-              { t: '  ────────────────────────────', c: 'text-gh-muted' },
+              { t: 'git switch -c feature', c: 'text-gh-fg font-semibold' },
+              { t: '  git switch -c feature', c: 'text-gh-accent' },
+              { t: '  ────────────────────────────────────', c: 'text-gh-muted' },
               { t: '  git switch -c feature', c: 'text-gh-accent' },
               { t: '  Create branch and check it out.', c: 'text-gh-muted' },
-              { t: '  ────────────────────────────', c: 'text-gh-muted' },
+              { t: '  ────────────────────────────────────', c: 'text-gh-muted' },
             ],
           },
         ],
       },
       {
-        title: 'Beginner → Expert',
+        title: 'Confidence, not guesses',
         blurb:
-          'Skill-aware results: plain language for newcomers, precise porcelain when you are ready.',
-        painLabel: 'one-size-fits-all docs',
-        easeLabel: 'git-grasp · skill filter',
+          'One exact hit, a few alternatives, or an honest empty — alerts tell you how sure search is.',
+        painLabel: 'ranked noise',
+        easeLabel: 'git-grasp · confidence gate',
         scenes: [
           {
-            srPain: 'Man pages assume you already know Git vocabulary.',
-            srEase: 'Non-technical phrasing still finds a simple status command.',
+            srPain: 'Search UIs dump ten similar commands with no confidence signal.',
+            srEase: 'A confident match shows a single recipe; several matches get a yellow verify line.',
             pain: [
-              { t: '$ man git-status', c: 'text-gh-danger' },
-              { t: 'NAME', c: 'text-gh-muted' },
-              { t: '  git-status - Show the working tree status', c: 'text-gh-muted' },
-              { t: '# pages of options…', c: 'text-gh-warn' },
+              { t: 'Results (1–10)', c: 'text-gh-muted' },
+              { t: '1. git reset --hard …', c: 'text-gh-danger' },
+              { t: '2. git reset --soft …', c: 'text-gh-muted' },
+              { t: '3. git revert …', c: 'text-gh-muted' },
+              { t: '# which one is safe?', c: 'text-gh-warn' },
             ],
             ease: [
-              { t: '$ git-grasp "what files did I change"', c: '' },
-              { t: 'git status', c: 'text-gh-accent' },
-              { t: '  ────────────────────────────', c: 'text-gh-muted' },
-              { t: '  git status', c: 'text-gh-accent' },
-              { t: '  Show changed and untracked files.', c: 'text-gh-muted' },
-              { t: '  ────────────────────────────', c: 'text-gh-muted' },
+              { t: '$ git-grasp "undo last commit keep changes staged"', c: '' },
+              { t: 'git reset --soft HEAD~1', c: 'text-gh-fg font-semibold' },
+              { t: '  ────────────────────────────────────', c: 'text-gh-muted' },
+              { t: '  git reset --soft HEAD~1', c: 'text-gh-accent' },
+              { t: '  Undo commit, keep index & worktree', c: 'text-gh-muted' },
+              { t: '  ────────────────────────────────────', c: 'text-gh-muted' },
             ],
           },
           {
-            srPain: 'Beginners reach for checkout for everything.',
-            srEase: 'Ask to shelve work temporarily; get stash.',
+            srPain: 'Ambiguous queries still look certain when every hit is listed equally.',
+            srEase: 'Several plausible matches print a yellow verify-before-running alert.',
             pain: [
-              { t: '$ git checkout .', c: 'text-gh-danger' },
-              { t: '# just need a clean tree for a moment…', c: 'text-gh-muted' },
-              { t: 'local edits discarded', c: 'text-gh-warn' },
+              { t: 'Best match: ???', c: 'text-gh-danger' },
+              { t: '# UI always looks decisive', c: 'text-gh-muted' },
+              { t: 'no “I am unsure” signal', c: 'text-gh-warn' },
             ],
             ease: [
-              { t: '$ git-grasp "temporarily shelve my uncommitted work"', c: '' },
-              { t: 'git stash', c: 'text-gh-accent' },
-              { t: '  ────────────────────────────', c: 'text-gh-muted' },
-              { t: '  git stash push -m "wip"', c: 'text-gh-accent' },
-              { t: '  Save and clean the working tree.', c: 'text-gh-muted' },
-              { t: '  ────────────────────────────', c: 'text-gh-muted' },
+              { t: '1. git reset --soft HEAD~1', c: 'text-gh-fg font-semibold' },
+              { t: '2. git revert HEAD', c: 'text-gh-fg font-semibold' },
+              { t: 'Several plausible matches — verify before running.', c: 'text-gh-warn' },
             ],
           },
           {
-            srPain: 'Expert recovery is buried in reflog jargon.',
-            srEase: 'Ask to recover a deleted branch tip; get reflog.',
+            srPain: 'No-match pages invent commands or bury you in unrelated hits.',
+            srEase: 'Below the confidence floor: a red empty state with a next step.',
             pain: [
-              { t: '$ git reflog ???', c: 'text-gh-danger' },
-              { t: '# HEAD@{n}? branch tip?', c: 'text-gh-muted' },
-              { t: 'easy to recover the wrong commit', c: 'text-gh-warn' },
+              { t: 'Did you mean: git foo --bar', c: 'text-gh-danger' },
+              { t: '# hallucinated flags', c: 'text-gh-muted' },
             ],
             ease: [
-              { t: '$ git-grasp "recover a branch I deleted by mistake"', c: '' },
-              { t: 'git reflog', c: 'text-gh-accent' },
-              { t: '  ────────────────────────────', c: 'text-gh-muted' },
-              { t: '  git reflog', c: 'text-gh-accent' },
-              { t: '  Find the tip, then branch from it.', c: 'text-gh-muted' },
-              { t: '  ────────────────────────────', c: 'text-gh-muted' },
+              { t: 'No confident match. Try rephrasing, or run git help.', c: 'text-gh-danger' },
             ],
           },
         ],
@@ -232,11 +227,12 @@
             ],
             ease: [
               { t: '$ git-grasp "amend last commit keep same message"', c: '' },
-              { t: 'git commit', c: 'text-gh-accent' },
-              { t: '  ────────────────────────────', c: 'text-gh-muted' },
+              { t: 'git commit --amend --no-edit', c: 'text-gh-fg font-semibold' },
+              { t: '  git commit --amend --no-edit', c: 'text-gh-accent' },
+              { t: '  ────────────────────────────────────', c: 'text-gh-muted' },
               { t: '  git commit --amend --no-edit', c: 'text-gh-accent' },
               { t: '  Rewrite HEAD; keep the message.', c: 'text-gh-muted' },
-              { t: '  ────────────────────────────', c: 'text-gh-muted' },
+              { t: '  ────────────────────────────────────', c: 'text-gh-muted' },
             ],
           },
           {
@@ -250,11 +246,12 @@
             ],
             ease: [
               { t: '$ git-grasp "replay my branch commits onto main"', c: '' },
-              { t: 'git rebase', c: 'text-gh-accent' },
-              { t: '  ────────────────────────────', c: 'text-gh-muted' },
+              { t: 'git rebase main', c: 'text-gh-fg font-semibold' },
+              { t: '  git rebase main', c: 'text-gh-accent' },
+              { t: '  ────────────────────────────────────', c: 'text-gh-muted' },
               { t: '  git rebase main', c: 'text-gh-accent' },
               { t: '  Replay current branch onto main.', c: 'text-gh-muted' },
-              { t: '  ────────────────────────────', c: 'text-gh-muted' },
+              { t: '  ────────────────────────────────────', c: 'text-gh-muted' },
             ],
           },
           {
@@ -268,11 +265,12 @@
             ],
             ease: [
               { t: '$ git-grasp "save my WIP and clean the tree"', c: '' },
-              { t: 'git stash', c: 'text-gh-accent' },
-              { t: '  ────────────────────────────', c: 'text-gh-muted' },
+              { t: 'git stash push -m "wip"', c: 'text-gh-fg font-semibold' },
+              { t: '  git stash push -m "wip"', c: 'text-gh-accent' },
+              { t: '  ────────────────────────────────────', c: 'text-gh-muted' },
               { t: '  git stash push -m "wip"', c: 'text-gh-accent' },
               { t: '  Snapshot work; restore later with pop.', c: 'text-gh-muted' },
-              { t: '  ────────────────────────────', c: 'text-gh-muted' },
+              { t: '  ────────────────────────────────────', c: 'text-gh-muted' },
             ],
           },
         ],

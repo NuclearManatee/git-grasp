@@ -53,8 +53,8 @@ describe('telemetry send + invite', () => {
     rmSync(tmpRoot, { recursive: true, force: true });
   });
 
-  it('skips send when website id unset', async () => {
-    delete process.env.GIT_GRASP_UMAMI_WEBSITE_ID;
+  it('skips send when website id explicitly empty', async () => {
+    process.env.GIT_GRASP_UMAMI_WEBSITE_ID = '';
     const fetchImpl = vi.fn();
     const r = await sendUmamiEvent({
       name: 'cli_search',
@@ -64,6 +64,20 @@ describe('telemetry send + invite', () => {
     });
     expect(r.skipped).toBe(true);
     expect(fetchImpl).not.toHaveBeenCalled();
+  });
+
+  it('uses baked website id when env unset', async () => {
+    delete process.env.GIT_GRASP_UMAMI_WEBSITE_ID;
+    process.env.GIT_GRASP_UMAMI_HOST = 'http://127.0.0.1:3999';
+    const fetchImpl = vi.fn(async () => ({ ok: true }));
+    const r = await sendUmamiEvent({
+      name: 'cli_opt_in',
+      data: { source: 'cli' },
+      fetchImpl,
+    });
+    expect(r.ok).toBe(true);
+    const body = JSON.parse(fetchImpl.mock.calls[0][1].body);
+    expect(body.payload.website).toBe('de9735ab-4e95-479d-abf8-c52f7979e2aa');
   });
 
   it('posts to /api/send when enabled path calls send', async () => {

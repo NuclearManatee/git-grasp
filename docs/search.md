@@ -23,7 +23,7 @@ flowchart TB
 
 | Surface | How |
 |---------|-----|
-| CLI | `bun add -g git-grasp` or a [release binary](../README.md#binaries-latest-github-release) — see [cli.md](cli.md) |
+| CLI | `bun add -g git-grasp` or a [release binary](../README.md#binaries-latest-github-release) — full reference [cli.md](cli.md) |
 | Web | [git-grasp.cremaschi.dev](https://git-grasp.cremaschi.dev) playground — see [web.md](web.md) |
 
 ## What it does
@@ -47,4 +47,5 @@ flowchart TB
 ```bash
 bun run cli -- "undo last commit keep files"
 bun run doctor
+git-grasp --json "undo last commit keep files"
 ```

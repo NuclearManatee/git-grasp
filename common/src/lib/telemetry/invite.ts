@@ -1,6 +1,7 @@
 // @ts-nocheck
 import * as readline from 'node:readline';
 import { PRIVACY_URL } from './defaults.js';
+import { style, withEmoji } from '../../ux/cliStyle.js';
 
 /**
  * Interactive soft invite. Returns enable | disable | dismiss | skip.
@@ -9,10 +10,13 @@ import { PRIVACY_URL } from './defaults.js';
 export async function promptTelemetryInvite(opts = {}) {
   const output = opts.output || process.stderr;
   const lines = [
-    'git-grasp: optional cookieless analytics (queries/results) help improve search.',
-    `  Privacy: ${PRIVACY_URL}`,
-    '  Later: git-grasp telemetry on|off|status',
-    'Enable telemetry? [y/N/d=don\'t ask again] ',
+    withEmoji(
+      'info',
+      'Optional analytics help improve search for everyone (cookieless; off by default).',
+    ),
+    `  ${style.muted('Privacy:')} ${style.link(PRIVACY_URL)}`,
+    style.muted('  Later: git-grasp telemetry on|off|status'),
+    style.label('Enable telemetry? [y/N/d=don\'t ask again] '),
   ];
 
   let answer = '';

@@ -3,7 +3,7 @@
  * Export seeded git-commands.db → apps/web/public/catalog/web-catalog.db (+ .sha256).
  * Model weights are separate (not in this blob).
  */
-import { mkdirSync, writeFileSync, readFileSync, existsSync, statSync } from 'node:fs';
+import { mkdirSync, writeFileSync, readFileSync, existsSync, statSync, copyFileSync } from 'node:fs';
 import path from 'node:path';
 import { exportWebCatalog, defaultWebCatalogPath } from '../../../common/src/search/webCatalog.js';
 import { defaultDbPath, defaultThresholdsPath, PACKAGE_ROOT } from '../../../common/src/lib/paths.js';
@@ -13,6 +13,8 @@ const dbPath = process.env.GIT_GRASP_DB || defaultDbPath();
 const thresholdsPath = process.env.GIT_GRASP_THRESHOLDS || defaultThresholdsPath();
 const outPath = defaultWebCatalogPath();
 const constantsOut = path.join(PACKAGE_ROOT, 'apps', 'web', 'src', 'lib', 'assetSizes.ts');
+const sqlJsVendorDir = path.join(PACKAGE_ROOT, 'apps', 'web', 'public', 'vendor', 'sql.js');
+const sqlJsDist = path.join(PACKAGE_ROOT, 'node_modules', 'sql.js', 'dist');
 
 if (!existsSync(dbPath)) {
   console.error(`Database missing: ${dbPath}. Run bun run seed first.`);
@@ -50,3 +52,12 @@ console.log(`Catalog: ${(size / (1024 * 1024)).toFixed(2)} MB`);
 console.log(`SHA256: ${hash}`);
 console.log(`search_algorithm_version: ${result.searchAlgorithmVersion}`);
 console.log(`Constants → ${constantsOut}`);
+
+mkdirSync(sqlJsVendorDir, { recursive: true });
+for (const name of ['sql-wasm.wasm', 'sql-wasm-browser.wasm']) {
+  const src = path.join(sqlJsDist, name);
+  if (!existsSync(src)) continue;
+  const dest = path.join(sqlJsVendorDir, name);
+  copyFileSync(src, dest);
+  console.log(`Vendor WASM → ${dest}`);
+}

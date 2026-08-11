@@ -33,15 +33,32 @@ flowchart TB
   E -.-> X
 ```
 
+**EXPAND** loops until hard questions stay green:
+
+```mermaid
+flowchart TB
+  XT[TEST]
+  XC[CLASSIFY]
+  XFd[RETRIEVAL DENSITY]
+  XFw[TAXONOMY WIDTH]
+  XFh[TAXONOMY DEPTH]
+  XF[FILL THE GAP]
+  XT --> XC
+  XC --> XFd --> XF
+  XC --> XFw --> XF
+  XC --> XFh --> XF
+  XF --> XT
+```
+
 | Stage | Meaning |
 |-------|---------|
 | [PREPARE](docs/prepare.md) | Decide what Git can do and how user goals should be organized around it. |
 | [GENERATE](docs/generate.md) | Invent recipes for each goal and keep only those that hold up under checks. |
-| [EXPAND](docs/expand.md) | Probe the catalog with hard questions; grow it where it fails until it stays strong. |
+| [EXPAND](docs/expand.md) | Test hard questions, classify misses, fill gaps (density / width / depth), retest until strong. |
 | [SHIP](docs/ship.md) | Freeze a trusted catalog so every user gets the same offline answers. |
 | [SEARCH](docs/search.md) | Ask in plain language — install the CLI or use the web playground. |
 | [OBSERVE](docs/observe.md) | Optionally notice how people actually ask (privacy-first, off by default). |
-| [EVOLVE](docs/evolve.md) | Turn real usage into the next better catalog *(planned)*. |
+| [EVOLVE](docs/evolve.md) | Turn real usage into the next better catalog (Umami pull → feeder → EXPAND). |
 
 Stage details: [docs/pipeline.md](docs/pipeline.md).
 
@@ -62,6 +79,7 @@ git-grasp/
 │   │       ├── prepare/   # scrape git help, build goal taxonomy
 │   │       ├── generate/  # ground leaves (generate → validate → saturate)
 │   │       ├── expand/    # held-out, triage, regression loop
+│   │       ├── evolve/    # OBSERVE pull → feeder → EXPAND chain
 │   │       ├── ship/      # version corpus, seed product DB
 │   │       └── eval/      # eval harnesses
 │   └── web/           # Landing with in-browser playground
@@ -105,18 +123,20 @@ Prefer not to install? Use the [web playground](https://git-grasp.cremaschi.dev)
 
 ## Usage
 
-> **Under construction** — this section will grow into a short user guide.
-
 ```bash
 git-grasp "undo last commit but keep my files"
 git-grasp search "create a branch" --verbose
-git-grasp set-level beginner
+git-grasp --json "stash my changes"
 git-grasp doctor
+git-grasp init
+git-grasp --version
 ```
 
-- **`--verbose`** — more detail on hits; **`--copy`** — copy a command.
-- Offline after install + seed (embedding model downloads on first real search).
-- Skill ceiling: `set-level` caps results at that skill.
+- **`--verbose`** / **`--copy`** / **`--json`** / **`--quiet`** — search output controls.
+- Offline after install + seed (embedding model downloads on first real search, or run `init`).
+- Optional: `git-grasp telemetry on|off|status` · `git-grasp update-check on|off|status` (both **off** by default).
+
+Full command reference, exit codes, env vars, and completions: [docs/cli.md](docs/cli.md).
 
 ### Telemetry (optional)
 
@@ -132,7 +152,8 @@ Details: [docs/observe.md](docs/observe.md), [Privacy](https://git-grasp.cremasc
 
 | Topic | Doc |
 |-------|-----|
-| CLI | [docs/cli.md](docs/cli.md) |
+| CLI (full reference) | [docs/cli.md](docs/cli.md) |
+| CLI UX copy & chalk (V1 chalk-only) | [docs/cli-ux.md](docs/cli-ux.md) |
 | Web playground | [docs/web.md](docs/web.md) |
 | Search algorithm | [docs/search.md](docs/search.md) |
 | Maintainer scripts | [docs/maintainer.md](docs/maintainer.md) |

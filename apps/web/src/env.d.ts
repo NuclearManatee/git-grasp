@@ -17,5 +17,6 @@ interface GhTrackEvent {
 
 interface Window {
   __ghTrackQueue?: GhTrackEvent[];
+  __ghPlaygroundDump?: () => string;
   umami?: { track: (name: string, data?: Record<string, unknown>) => void };
 }

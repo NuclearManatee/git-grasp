@@ -55,9 +55,18 @@ test.describe('web CLI tracking', () => {
       mock: true,
     });
     expect(typeof load?.data?.duration_ms).toBe('number');
+    expect(load?.data?.schema_version).toBeTruthy();
     expect(search?.data?.query).toBeTruthy();
     expect(search?.data?.response).toBeTruthy();
     expect(typeof search?.data?.latency_ms).toBe('number');
+    expect(search?.data?.schema_version).toBeTruthy();
+
+    // Spawn notice: telemetry enabled (Xterm buffer dump)
+    const dump = await page.evaluate(() =>
+      (typeof window.__ghPlaygroundDump === 'function' ? window.__ghPlaygroundDump() : ''),
+    );
+    expect(dump).toMatch(/Telemetry is enabled/);
+    expect(dump).toMatch(/git-grasp\.cremaschi\.dev\/\s*privacy/);
 
     // Optional: hit local Umami if configured
     const umamiUrl = process.env.PUBLIC_UMAMI_SCRIPT_URL;

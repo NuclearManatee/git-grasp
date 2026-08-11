@@ -36,6 +36,35 @@ export {
   primaryCommand,
 } from './ux/format.js';
 export {
+  style,
+  statusLine,
+  withLink,
+  okLine,
+  infoLine,
+  warnLine,
+  cautionLine,
+  errorLine,
+  withEmoji,
+  emojiEnabled,
+  resolveEnv,
+} from './ux/cliStyle.js';
+export {
+  msgTelemetryOn,
+  msgTelemetryOff,
+  msgTelemetryStatusHead,
+  msgTelemetryStatusBlock,
+  msgTelemetryOffPlayground,
+  msgTelemetryStatusPlayground,
+  msgSkillCleared,
+  msgSkillSet,
+  msgInitWarm,
+  msgInitWarmMock,
+  msgInitReady,
+  msgSearchCopyOk,
+  msgSearchCopyFail,
+} from './ux/messages.js';
+export { PRIVACY_URL } from './lib/telemetry/defaults.js';
+export {
   parseSkillLevel,
   skillName,
   SKILL_NAMES,

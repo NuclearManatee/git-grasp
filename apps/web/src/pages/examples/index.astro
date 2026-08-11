@@ -26,10 +26,9 @@ const stats = catalogStats(recipes);
       Examples
     </h1>
     <p class="mt-3 max-w-2xl text-gh-muted">
-      Catalog snapshot for review: {stats.total} recipes —
-      {stats.single} single-step, {stats.multi} multi-step ({stats.multiPct}%).
-      Use <span class="font-mono text-gh-fg">multi</span> /
-      <span class="font-mono text-gh-fg">workflow</span> to audit composite coverage.
+      Browse the shipped catalog ({stats.total} recipes) — {stats.single} single-step,{' '}
+      {stats.multi} multi-step. Same recipes the CLI and playground search. Pick a category to
+      page through pasteable examples.
     </p>
 
     <ul class="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -66,7 +65,7 @@ const stats = catalogStats(recipes);
           class="flex items-baseline justify-between gap-3 rounded-lg border border-gh-border bg-gh-panel/80 px-4 py-3 transition hover:border-gh-accent"
         >
           <span class="font-mono text-sm font-medium text-gh-fg">workflow</span>
-          <span class="font-mono text-xs text-gh-muted">source=workflow</span>
+          <span class="font-mono text-xs text-gh-muted">{stats.multi} · 2+ steps</span>
         </a>
       </li>
       {tags.map(({ tag, count, multi }) => (

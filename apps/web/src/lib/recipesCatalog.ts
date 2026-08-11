@@ -131,7 +131,7 @@ export function toCarouselPayload(recipes) {
     checklist: r.checklist || '',
     simplicity: r.simplicity_rank ?? 1,
     stepCount: stepCount(r),
-    explanation: r.explanation || '',
+    explanation: r.explanation || r.description || r.intent_description || '',
     steps: Array.isArray(r.commands)
       ? r.commands.map((c) => ({
           run: c.command || c.run,
@@ -140,5 +140,6 @@ export function toCarouselPayload(recipes) {
       : [{ run: r.primary_example || r.command || '', comment: '' }],
     usage: parseUsage(r.usage, r.primary_example),
     primary: r.primary_example || '',
+    intent: r.description || r.intent_description || r.explanation || '',
   }));
 }

@@ -8,33 +8,37 @@ Schema **v9**: `recipes` + `vec_recipes` (description embeddings) + `recipes_fts
 
 ```mermaid
 flowchart TB
-  subgraph prepare [PREPARE]
-    scrape[git help scrape]
-    tax[goal taxonomy]
-    scrape --> tax
+  P[PREPARE]
+  G[GENERATE]
+  X[EXPAND]
+  S[SHIP]
+  subgraph R [SEARCH]
+    Rcli[CLI]
+    Rweb[WEB]
   end
-  subgraph generate [GENERATE]
-    gen[generate]
-    val[validate]
-    sat[saturate]
-    gen --> val --> sat
-  end
-  subgraph expand [EXPAND]
-    hold[held-out Hit@10]
-    triage[triage 1/2/3]
-    reg[regression]
-    hold --> triage --> hold
-    hold --> reg
-  end
-  prepare --> generate --> expand --> ship[SHIP]
-  subgraph search [SEARCH]
-    cli[CLI]
-    web[WEB]
-  end
-  ship --> search
-  search --> observe[OBSERVE]
-  observe -.-> evolve[EVOLVE]
-  evolve -.-> expand
+  O[OBSERVE]
+  E[EVOLVE]
+  P --> G --> X --> S --> R
+  R --> O
+  O -.-> E
+  E -.-> X
+```
+
+**EXPAND** detail ([expand.md](expand.md)):
+
+```mermaid
+flowchart TB
+  XT[TEST]
+  XC[CLASSIFY]
+  XFd[RETRIEVAL DENSITY]
+  XFw[TAXONOMY WIDTH]
+  XFh[TAXONOMY DEPTH]
+  XF[FILL THE GAP]
+  XT --> XC
+  XC --> XFd --> XF
+  XC --> XFw --> XF
+  XC --> XFh --> XF
+  XF --> XT
 ```
 
 ## Stage docs
@@ -47,7 +51,7 @@ flowchart TB
 | SHIP | [ship.md](ship.md) | `ship` |
 | SEARCH | [search.md](search.md) | `cli` / web |
 | OBSERVE | [observe.md](observe.md) | `telemetry` |
-| EVOLVE | [evolve.md](evolve.md) | *(planned)* |
+| EVOLVE | [evolve.md](evolve.md) | `evolve` |
 
 Apps layout: `apps/pipeline/src/{prepare,generate,expand,ship,eval}/`. Shared libs still live under `common/src/build/` with stage facades in `common/src/{prepare,…}/`.
 

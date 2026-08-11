@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { randomUUID } from 'node:crypto';
 import { readConfig, writeConfig } from '../config.js';
 import { isHardOff, isTelemetryEnabled, shouldPromptInvite } from './gate.js';
 import { promptTelemetryInvite } from './invite.js';
@@ -9,6 +10,28 @@ import {
   searchResponseFromResult,
 } from './events.js';
 import { sendUmamiEvent } from './send.js';
+
+/** Mint a new opaque CLI telemetry session id. */
+export function mintTelemetrySessionId() {
+  return randomUUID();
+}
+
+/**
+ * Ensure config has a session id when enabling telemetry; clear when disabling.
+ * @param {boolean} on
+ */
+export function setTelemetryEnabled(on) {
+  if (on) {
+    const prev = readConfig();
+    const sessionId = prev.telemetrySessionId || mintTelemetrySessionId();
+    return writeConfig({
+      telemetry: true,
+      telemetryInvite: 'dismissed',
+      telemetrySessionId: sessionId,
+    });
+  }
+  return writeConfig({ telemetry: false, telemetrySessionId: null });
+}
 
 export {
   isHardOff,
@@ -25,7 +48,7 @@ export {
   resolveUmamiEndpoint,
 } from './events.js';
 export { promptTelemetryInvite } from './invite.js';
-export { PRIVACY_URL, DEFAULT_UMAMI_HOST, DEFAULT_UMAMI_WEBSITE_ID } from './defaults.js';
+export { PRIVACY_URL, DEFAULT_UMAMI_HOST, DEFAULT_UMAMI_WEBSITE_ID, DEFAULT_UMAMI_SCRIPT_URL } from './defaults.js';
 
 /**
  * @returns {'on'|'off'} human status for doctor / telemetry status
@@ -46,13 +69,6 @@ export function telemetryStatusDetail(cfg = readConfig(), env = process.env) {
   };
 }
 
-export function setTelemetryEnabled(on) {
-  if (on) {
-    return writeConfig({ telemetry: true, telemetryInvite: 'dismissed' });
-  }
-  return writeConfig({ telemetry: false });
-}
-
 /**
  * Run soft invite if needed. Returns whether telemetry is enabled for this run.
  * @param {{ verbose?: boolean, questionFn?: Function, skipInvite?: boolean }} [opts]
@@ -71,8 +87,13 @@ export async function maybeRunTelemetryInvite(opts = {}) {
   });
 
   if (choice === 'enable') {
-    writeConfig({ telemetry: true, telemetryInvite: 'dismissed' });
-    const ev = buildCliOptInEvent();
+    const sessionId = mintTelemetrySessionId();
+    writeConfig({
+      telemetry: true,
+      telemetryInvite: 'dismissed',
+      telemetrySessionId: sessionId,
+    });
+    const ev = buildCliOptInEvent({ sessionId });
     await sendUmamiEvent({
       ...ev,
       verbose: Boolean(opts.verbose),
@@ -81,11 +102,11 @@ export async function maybeRunTelemetryInvite(opts = {}) {
     return true;
   }
   if (choice === 'dismiss') {
-    writeConfig({ telemetry: false, telemetryInvite: 'dismissed' });
+    writeConfig({ telemetry: false, telemetryInvite: 'dismissed', telemetrySessionId: null });
     return false;
   }
   if (choice === 'disable') {
-    writeConfig({ telemetry: false });
+    writeConfig({ telemetry: false, telemetrySessionId: null });
     return false;
   }
   return false;
@@ -110,11 +131,12 @@ export async function maybeInviteAndTrackSearch({
   latencyMs,
   mock = false,
   verbose = false,
+  skipInvite = false,
   questionFn,
   fetchImpl,
 } = {}) {
   let enabled = isTelemetryEnabled(readConfig());
-  if (!enabled) {
+  if (!enabled && !skipInvite) {
     enabled = await maybeRunTelemetryInvite({ verbose, questionFn, fetchImpl });
   }
   if (!enabled) return { tracked: false };
@@ -122,11 +144,18 @@ export async function maybeInviteAndTrackSearch({
   const response = error
     ? searchResponseFromError(error)
     : searchResponseFromResult(result);
+  const cfg = readConfig();
+  let sessionId = cfg.telemetrySessionId;
+  if (!sessionId) {
+    sessionId = mintTelemetrySessionId();
+    writeConfig({ telemetrySessionId: sessionId });
+  }
   const ev = buildCliSearchEvent({
     query,
     response,
     latency_ms: latencyMs,
     mock,
+    sessionId,
   });
   const sendResult = await sendUmamiEvent({
     ...ev,

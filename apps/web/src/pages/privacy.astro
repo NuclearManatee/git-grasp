@@ -157,7 +157,8 @@ import Footer from '../components/Footer.astro';
           <li>
             <span class="font-mono text-gh-fg">cli_search</span> — the
             <strong class="font-medium text-gh-fg">query text</strong>, returned result metadata, latency, mock mode, app
-            version, and coarse OS.
+            version, coarse OS, and an opaque rotating <span class="font-mono text-gh-fg">session_id</span> (local config;
+            cleared when telemetry is turned off).
           </li>
         </ul>
         <p class="mt-4">
@@ -246,7 +247,7 @@ import Footer from '../components/Footer.astro';
             <tbody>
               <tr class="border-b border-gh-border/60">
                 <td class="py-2 pr-4 align-top font-mono text-gh-fg">git-grasp.skillLevel</td>
-                <td class="py-2">Remembers your chosen skill filter in the playground</td>
+                <td class="py-2">Remembers preferred skill in the playground (parked; no retrieval effect today)</td>
               </tr>
             </tbody>
           </table>

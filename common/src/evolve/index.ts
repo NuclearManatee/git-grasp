@@ -1,17 +1,36 @@
 // @ts-nocheck
 /**
- * EVOLVE — planned: judge OBSERVE queries → feed EXPAND for a new corpus version.
- *
- * Not implemented yet. This module is a stable import surface for the future loop.
- * Design intent:
- *   1. Collect opted-in search queries (and outcomes) from OBSERVE
- *   2. Judge / cluster misses (reuse EXPAND triage buckets 1/2/3)
- *   3. Apply EXPAND actions → regression → SHIP new recipes.vN
+ * EVOLVE — PULL OBSERVE events → FILTER → THREAD → feeder → optional EXPAND chain.
  */
-export const EVOLVE_STATUS = 'planned';
-
-export function evolveFromObservedQueries() {
-  throw new Error(
-    'EVOLVE is not implemented yet — use EXPAND (held-out/triage) until observe→judge ships',
-  );
-}
+export { EVOLVE_STATUS, runEvolve, evolveFromObservedQueries } from './runEvolve.js';
+export { filterSearchEvents, piiOrJunkReason } from './filter.js';
+export {
+  buildThreads,
+  journeysToFeeder,
+  journeyToFeederItem,
+  isNearEditQuery,
+  DEFAULT_GAP_MS,
+  SOFT_MERGE_GAP_MS,
+  MAX_THREAD_EVENTS,
+} from './thread.js';
+export { labelFromResponse, isAmbiguousLabel } from './label.js';
+export { splitFeederHoldout, queryHashUnit } from './split.js';
+export {
+  resolveUmamiPullConfig,
+  resolveUmamiAuthToken,
+  pullUmamiEvents,
+  umamiLogin,
+  mapUmamiEventRow,
+  listUmamiWebsites,
+  createUmamiWebsite,
+} from './umamiPull.js';
+export { readEvolveCursor, writeEvolveCursor } from './cursor.js';
+export { chainExpandFromFeeder, feederToFailure, scoreObserveHoldout } from './chain.js';
+export { renderEvolveLatestMd, mainRenderEvolveLatest } from './renderLatest.js';
+export {
+  FeederItemSchema,
+  FilteredSearchEventSchema,
+  JourneySchema,
+  EvolveStatsSchema,
+  EvolveCursorSchema,
+} from './schemas.js';

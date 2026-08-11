@@ -5,8 +5,8 @@
  * Goal: `git config user.email "<email>"` and
  * `git config user.email "you@example.com"` share one structural fingerprint.
  */
-import { createHash } from 'node:crypto';
 import { parseCommands } from '../db/recipeFormat.js';
+import { sha256Hex } from '../lib/sha256Sync.js';
 
 /** Demo / glossary literals that should collapse to typed slots. */
 const LITERAL_TO_SLOT = new Map([
@@ -378,7 +378,7 @@ export function structuralCommandFingerprint(commands) {
     .map((s) => normalizeArgvLine(s.command))
     .filter(Boolean)
     .join('\n');
-  return createHash('sha256').update(norm).digest('hex').slice(0, 32);
+  return sha256Hex(norm).slice(0, 32);
 }
 
 /** Display / diversify key (normalized argv text, not hashed). */

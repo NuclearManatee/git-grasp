@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { normalizeExample } from '../lib/validator.js';
+import { normalizeExample } from '../lib/normalizeText.js';
 
 /**
  * Canonical multi-step identity: ordered normalized runs joined by newlines.
