@@ -1,10 +1,11 @@
 name: Improve Loop
 
+# Non-commit dry run: evaluates the improve loop with mocks; does not push catalog.
 on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   improve:
@@ -18,12 +19,6 @@ jobs:
       - run: bun install --frozen-lockfile
         env:
           GIT_GRASP_SKIP_POSTINSTALL: '1'
-      - name: Ensure improve branch
-        run: |
-          git config user.name "git-grasp-improve"
-          git config user.email "improve@users.noreply.github.com"
-          BR="improve/ci-$(date +%Y%m%d)"
-          git checkout -B "$BR"
       - run: bun run eval:loop
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}

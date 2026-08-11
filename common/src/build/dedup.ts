@@ -1,6 +1,8 @@
 // @ts-nocheck
 /**
  * Dedup by physical hash pair + normalized recipe fingerprint; keep simpler.
+ * @deprecated Prefer leaf structural fingerprints (`mergeRecipes` / `argvNormalize`)
+ * on the product GENERATE/SHIP path. Remains for polishRecipe / evolveGuards only.
  */
 import { parseCommands, serializeCommandRecipe } from '../db/recipeFormat.js';
 import { verbFromCommandLine } from './coverage.js';

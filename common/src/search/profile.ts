@@ -1,4 +1,8 @@
 // @ts-nocheck
+/**
+ * @deprecated Parked skill-blend query profile — v9 SEARCH ignores skill for ranking.
+ * Kept for unit tests / set-level UX compatibility only.
+ */
 import type { SkillLevelText } from '../lib/skills.js';
 import { normalizeSkillLevelText, SKILL_RANK } from '../lib/skills.js';
 

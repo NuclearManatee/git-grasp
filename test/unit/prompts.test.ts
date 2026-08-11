@@ -136,13 +136,13 @@ describe('prompt loader', () => {
   });
 
   it('loadPromptSource returns raw markdown', () => {
-    const src = loadPromptSource('build/vanilla');
-    expect(src).toMatch(/id:\s*build\/vanilla/);
+    const src = loadPromptSource('build/judge');
+    expect(src).toMatch(/id:\s*build\/judge/);
     expect(src).toMatch(/## system/);
   });
 
   it('renderPromptRole returns system text', () => {
-    const sys = renderPromptRole('build/vanilla', 'system');
-    expect(sys).toMatch(/MINIMUM args\/flags/i);
+    const sys = renderPromptRole('build/judge', 'system');
+    expect(sys).toMatch(/honest usefulness/i);
   });
 });

@@ -4,10 +4,11 @@
  * Keeps only the first three sections; stops at "Interacting with Others".
  * Capability probe: help-listed names may not be runnable as `git <name>`.
  */
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { spawnGit } from './gitExec.js';
+import { gitCommandsTaxonomyPath } from '../lib/paths.js';
 
 export const TAXONOMY_SECTION_NAMES = [
   'Main Porcelain Commands',
@@ -316,4 +317,22 @@ export function groundableTaxonomyCommands(taxonomy) {
     if (isUnsignedVerifySkip(c.command || `git ${c.name}`)) return false;
     return true;
   });
+}
+
+/**
+ * Load checked-in git command taxonomy.
+ * @param {string} [filePath]
+ */
+export function loadGitCommandTaxonomy(filePath = gitCommandsTaxonomyPath()) {
+  if (!existsSync(filePath)) {
+    throw new Error(
+      `Missing git command taxonomy at ${filePath}. Run: bun run prepare:scrape`,
+    );
+  }
+  const data = JSON.parse(readFileSync(filePath, 'utf8'));
+  const commands = data.commands || [];
+  if (!Array.isArray(commands) || commands.length === 0) {
+    throw new Error(`git command taxonomy is empty at ${filePath}`);
+  }
+  return data;
 }

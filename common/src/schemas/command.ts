@@ -133,24 +133,6 @@ export const StrictJudgeSchema = z.object({
   reason: z.string().min(1),
 });
 
-export const SemanticBlockChildSchema = z.object({
-  metadata_source: z.string().min(1),
-  content: z.string().min(1),
-});
-
-export const SemanticBlockSchema = z.object({
-  command: z.string().min(1),
-  blocks: z.array(SemanticBlockChildSchema).min(1),
-});
-
-export const SemanticBlocksFileSchema = z.array(SemanticBlockSchema);
-
-/** @deprecated Use SemanticBlockChildSchema â€” kept alias for chunk origins during prepare. */
-export const ClusterChunkSchema = z.object({
-  origin: z.string().min(1),
-  content: z.string().min(1),
-});
-
 export const EvalBankQuerySchema = z.object({
   query_text: z.string().min(1),
   command_id: z.number().int().positive(),
@@ -168,6 +150,4 @@ export type IntentExpandSkip = z.infer<typeof IntentExpandSkipSchema>;
 export type IntentExpandBatchLlmResponse = z.infer<typeof IntentExpandBatchLlmResponseSchema>;
 export type IntentRewriteLlmResponse = z.infer<typeof IntentRewriteLlmResponseSchema>;
 export type StrictJudge = z.infer<typeof StrictJudgeSchema>;
-export type SemanticBlockChild = z.infer<typeof SemanticBlockChildSchema>;
-export type SemanticBlock = z.infer<typeof SemanticBlockSchema>;
 export type EvalBankQuery = z.infer<typeof EvalBankQuerySchema>;

@@ -67,11 +67,6 @@ export function buildCacheDir() {
   return path.join(localDir(), 'cache', 'build');
 }
 
-/** Durable Step −1 output (do not wipe with build cache). */
-export function prepareCacheDir() {
-  return path.join(localDir(), 'cache', 'prepare');
-}
-
 /** Upstream source fetch cache. */
 export function sourcesCacheRoot() {
   return path.join(localDir(), 'cache', 'sources');
@@ -84,14 +79,6 @@ export function modelsCacheDir() {
 
 export function buildStagingDbPath() {
   return path.join(buildCacheDir(), 'staging.db');
-}
-
-export function semanticBlocksPath() {
-  return path.join(prepareCacheDir(), 'semantic_blocks.json');
-}
-
-export function unroutedChunksPath() {
-  return path.join(prepareCacheDir(), 'unrouted_chunks.jsonl');
 }
 
 export function gitCommandsTaxonomyPath() {

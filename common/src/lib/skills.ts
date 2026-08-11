@@ -1,6 +1,6 @@
 // @ts-nocheck
 /**
- * Skill levels as TEXT enums (schema v6).
+ * Skill levels as TEXT enums (parked preference; not used for v9 retrieval).
  * Order: nontechnical < beginner < intermediate < expert
  */
 

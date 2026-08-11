@@ -1,8 +1,7 @@
 # Latest search latency snapshot
 
 **Date:** 2026-07-26  
-**Catalog:** schema v5 — **9925** intents / **342** recipes (~**7.3** intents per skill/example)  
-**Protocol:** 45 queries, MiniLM on disk, `--synthetic --sticky`; cold / warm = process-per-call; sticky-warm = in-process `search()` with model resident. See [docs/perf.md](../perf.md).
+**Catalog (historical snapshot):** corpus-era dump with **9925** intents / **342** recipes (~**7.3** intents per skill/example). Current product DB is **schema v9** (description KNN + FTS; no intent table). Re-bench before citing live numbers — see [docs/perf.md](../perf.md) tombstone.
 
 ## How to read
 

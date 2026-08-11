@@ -20,6 +20,6 @@ Catalog and product scripts for contributors. End users only need [Install](../R
 | `bun run bench` / `bench:install` | Perf harnesses |
 | `bun run build:cli` / `build:release` | Compile CLI / release zip |
 
-Aliases kept for muscle memory: `taxonomy:*`, `build:ground`, `build:loop`, `seed`.
+Use `prepare:*`, `generate`, `expand`, `ship` / `ship:dedupe` (not legacy `taxonomy:*` / `build:*` aliases).
 
 Stage docs: [pipeline.md](pipeline.md). Pipeline needs `DEEPSEEK_API_KEY` in `.env` (or CI secrets).

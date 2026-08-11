@@ -1,6 +1,8 @@
 // @ts-nocheck
 /**
  * Intent matrix builder: Flash draft/rewrite + Pro blind judge.
+ * @deprecated Parked skill×category axis — not used for v9 retrieval or prepare:goals.
+ * Kept for archival / eval tooling only; not exported from @git-grasp/common package.json.
  * Success = all 16 cells pass in a round. Stop after 10 consecutive failed rounds.
  */
 import { mkdirSync, writeFileSync } from 'node:fs';

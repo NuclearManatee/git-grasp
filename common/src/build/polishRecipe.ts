@@ -1,6 +1,7 @@
 // @ts-nocheck
 /**
  * Snippet hygiene: rewrite sandbox-isms into idiomatic user-facing recipes.
+ * Eval-recovery / polish path only — not used on the product leaf GENERATE accept path.
  * Never blocks the build — on any failure, returns the original recipe.
  */
 import { renderPrompt } from '../lib/prompts.js';

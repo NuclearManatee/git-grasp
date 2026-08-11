@@ -13,7 +13,7 @@ export const EVAL_LOOP_DEFAULTS = Object.freeze({
 });
 
 /**
- * Map schema-v5 intents (+ recipes) into the shape generateNewCasesFromIntents expects.
+ * Map legacy intent rows (+ recipes) into the shape generateNewCasesFromIntents expects.
  * @param {object[]} intents
  * @param {object[]} recipes
  */

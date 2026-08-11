@@ -1,23 +1,23 @@
 // @ts-nocheck
 import { validateInSandboxAndDestroy } from './sandbox.js';
-import { generateRecipeFromSemanticBlock } from './generate.js';
 import { VALIDATION_MAX_REGEN } from '../db/constants.js';
 import { assertRecipeFlagsAllowed } from './recipeFlags.js';
 
 /**
  * Generate + validate with reflective regen.
+ * Requires `opts.generate` — no vanilla semantic-block fallback.
  */
 export async function generateAndValidate(group, opts = {}) {
+  if (typeof opts.generate !== 'function') {
+    throw new Error(
+      'generateAndValidate requires opts.generate (vanilla semantic-block generation was removed)',
+    );
+  }
   const maxRegen = opts.maxRegen ?? VALIDATION_MAX_REGEN;
   let feedback = '';
   let last = null;
   for (let attempt = 0; attempt <= maxRegen; attempt += 1) {
-    const generated = opts.generate
-      ? await opts.generate(group, { feedback })
-      : await generateRecipeFromSemanticBlock(group, {
-          feedback,
-          llmJsonObject: opts.llmJsonObject,
-        });
+    const generated = await opts.generate(group, { feedback });
     last = generated;
 
     const flagGate = assertRecipeFlagsAllowed(generated, {

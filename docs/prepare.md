@@ -35,7 +35,7 @@ flowchart TB
 
 ## Notes
 
-- No Pro Git / tldr in the normal path (`common/src/build/prepare.ts` is **deprecated** archival Step −1).
+- No Pro Git / tldr in the normal path (legacy Step −1 `prepare.ts` / catalog sources were removed; use `prepare:scrape` + `prepare:goals`).
 - User-facing scripts/errors use `prepare:*` (not `taxonomy:*`).
 - `fresh:false` refuses overwrite when `goal_taxonomy.json` exists; `fresh:true` overwrites.
 - Leaf `mapped_commands` hard-capped at 6 after normalize; hygiene fails if over.

@@ -165,10 +165,6 @@ export {
   IntentExpandBatchLlmResponseSchema,
   IntentRewriteLlmResponseSchema,
   StrictJudgeSchema,
-  ClusterChunkSchema,
-  SemanticBlockChildSchema,
-  SemanticBlockSchema,
-  SemanticBlocksFileSchema,
   EvalBankQuerySchema,
   type SkillLevelText,
   type IntentCategory,
@@ -179,7 +175,5 @@ export {
   type IntentExpansionItem,
   type IntentExpandSkip,
   type StrictJudge,
-  type SemanticBlockChild,
-  type SemanticBlock,
   type EvalBankQuery,
 } from './command.js';

@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { renderPrompt, renderPromptRole } from '../lib/prompts.js';
+import { renderPrompt } from '../lib/prompts.js';
 import { llmJsonObject } from '../lib/llm.js';
 import { GenerationLlmResponseSchema } from '../schemas/command.js';
 import { parseCommands } from '../db/recipeFormat.js';
@@ -8,38 +8,6 @@ import { parseFlagsFromHelp } from './coverage.js';
 import { fetchGitShortHelp } from './gitShortHelp.js';
 
 export { expandIntentsForRecipe, loadTaxonomy } from './intentExpand.js';
-
-/**
- * @param {{ command: string, blocks: { metadata_source: string, content: string }[] }} block
- */
-export function semanticBlockToPrompt(block) {
-  const chunkText = (block.blocks || [])
-    .map((c) => `### ${c.metadata_source}\n${c.content}`)
-    .join('\n\n');
-  return `Command anchor: ${block.command}\n\n${chunkText}`;
-}
-
-/** Vanilla ground-pass system prompt (from markdown template). */
-export const VANILLA_GENERATION_SYSTEM = renderPromptRole('build/vanilla', 'system');
-
-/**
- * @param {object} block semantic block
- * @param {{ llmJsonObject?: typeof llmJsonObject, feedback?: string }} [opts]
- */
-export async function generateRecipeFromSemanticBlock(block, opts = {}) {
-  const call = opts.llmJsonObject || llmJsonObject;
-  const feedback = opts.feedback
-    ? `\nPrevious attempt failed:\n${opts.feedback}\nRegenerate a corrected initial_state and command_recipe.\n`
-    : '';
-  const { messages } = renderPrompt('build/vanilla', {
-    block_text: semanticBlockToPrompt(block),
-    feedback,
-  });
-  return call({
-    schema: GenerationLlmResponseSchema,
-    messages,
-  });
-}
 
 /**
  * Evolution expansion — multi-axis mutations.

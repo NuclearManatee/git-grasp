@@ -10,7 +10,7 @@ import {
   readdirSync,
 } from 'node:fs';
 import path from 'node:path';
-import { catalogDir, localDir } from '../lib/paths.js';
+import { catalogDir, localDir, PACKAGE_ROOT } from '../lib/paths.js';
 import { listRecipes, finalizeSearchIndex } from '../db/schema.js';
 
 export function corpusVersionsDir() {
@@ -19,6 +19,12 @@ export function corpusVersionsDir() {
 
 export function latestCorpusMetaPath() {
   return path.join(catalogDir(), 'recipes.latest.json');
+}
+
+/** Repo-relative posix path for release metadata (never absolute machine paths). */
+export function corpusRelativePath(absolutePath) {
+  const rel = path.relative(PACKAGE_ROOT, absolutePath);
+  return rel.split(path.sep).join('/');
 }
 
 export function nextCorpusVersion() {
@@ -61,7 +67,7 @@ export function writeCorpusVersion(db, opts = {}) {
 
   const latest = {
     version,
-    path: versionPath,
+    path: corpusRelativePath(versionPath),
     recipe_count: recipes.length,
     created_at: doc.created_at,
   };

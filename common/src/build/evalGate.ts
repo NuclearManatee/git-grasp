@@ -1,6 +1,6 @@
 // @ts-nocheck
 /**
- * Eval banks + Hit@display / judge-utility gate (schema v8).
+ * Eval banks + Hit@display / judge-utility gate (product SEARCH schema v9; bank format independent).
  */
 import { mkdirSync, appendFileSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
