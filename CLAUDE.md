@@ -6,7 +6,7 @@ Project guidance for AI assistants working in this repo.
 
 The shipped Git catalog is **LLM-built from `git help` + a goal taxonomy**, not hand-curated at each pipeline stage.
 
-- **Lifecycle:** PREPARE → GENERATE → EXPAND → SHIP → SEARCH → OBSERVE → (planned) EVOLVE.
+- **Lifecycle:** PREPARE → GENERATE → EXPAND → SHIP → SEARCH → OBSERVE → EVOLVE.
 - **Sources in, intuition through:** scrape → goal taxonomy → per-leaf generate/validate/saturate → held-out → improve triage. Do **not** design steps that require a human to author goldens or per-verb recipe lists as the normal path.
 - **Code may constrain; humans must not fill the catalog:** Zod schemas, caps, sandbox rules, and structural validators are fine. Checked-in **content** (canonical recipes, held-out queries) should be **LLM-generated** (and regenerable).
 - **Follow-up LLM passes are encouraged** when they replace curation: taxonomy reflection, back-translation, triage, gap-cluster expansion.

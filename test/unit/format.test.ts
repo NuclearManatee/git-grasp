@@ -89,6 +89,17 @@ describe('formatSearchResult hybrid', () => {
     expect(text).toMatch(/High-risk recipe/);
     expect(text).not.toMatch(/✅|⚠️|❌|ℹ️/);
   });
+
+  it('high-risk banner includes risk exactly 0.7', () => {
+    const text = formatSearchResult({
+      status: 'ok',
+      confidence: 0.9,
+      alert: 'none',
+      displayResults: [{ ...baseRow, risk: 0.7 }],
+      results: [],
+    });
+    expect(text).toMatch(/High-risk recipe \(0\.70\)/);
+  });
 });
 
 describe('primaryCommand', () => {

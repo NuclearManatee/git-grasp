@@ -528,7 +528,11 @@ export default function Playground({ forceMock = false, forceOptIn = false }) {
                   Will download{' '}
                   <strong className="text-gh-fg">{downloadLabel}</strong>
                   {' '}
-                  for enabling search. Starting enables cookieless analytics (see Privacy).
+                  to enable search. Starting enables cookieless analytics (see{' '}
+                  <a href="/privacy" className="text-gh-accent underline-offset-2 hover:underline">
+                    Privacy
+                  </a>
+                  ).
                 </p>
               </>
             )}

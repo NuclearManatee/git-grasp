@@ -26,8 +26,11 @@ export function splitTrainHoldoutByCommandId(misses, opts = {}) {
   const trainRatio = opts.trainRatio ?? 0.7;
   const byId = new Map();
   for (const m of misses || []) {
-    const id = Number(m?.query?.command_id);
-    if (!Number.isFinite(id) || id <= 0) continue;
+    const raw = m?.query?.command_id ?? m?.query?.recipe_id;
+    if (raw == null || raw === '') continue;
+    const id = String(raw);
+    // Drop legacy NaN-from-Number coercion path; keep numeric and string recipe ids.
+    if (id === 'NaN') continue;
     if (!byId.has(id)) byId.set(id, []);
     byId.get(id).push(m);
   }
@@ -35,7 +38,7 @@ export function splitTrainHoldoutByCommandId(misses, opts = {}) {
   const holdout = [];
   const trainIds = new Set();
   const holdoutIds = new Set();
-  const ids = [...byId.keys()].sort((a, b) => a - b);
+  const ids = [...byId.keys()].sort((a, b) => String(a).localeCompare(String(b)));
   for (const id of ids) {
     const intoTrain = (stableCommandIdHash(id) % 1000) / 1000 < trainRatio;
     const rows = byId.get(id);

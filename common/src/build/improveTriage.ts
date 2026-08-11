@@ -201,19 +201,24 @@ export async function expandTaxonomyFromGapClusters(clusters, opts = {}) {
 /** Pure classifier fallback without LLM (tests). */
 export function classifyMissHeuristic(failure) {
   const displayed = failure.displayedIds || [];
-  if (!displayed.length) {
-    return {
-      bucket: 2,
-      leaf_id: failure.leafId,
-      reason: 'heuristic_abstain',
-    };
-  }
-  if (failure.correctExists && failure.expectedId) {
+  // Verified recipe exists + known id + something displayed → retrieval (bucket 1).
+  if (failure.correctExists === true && failure.expectedId && displayed.length) {
     return {
       bucket: 1,
       correct_recipe_id: failure.expectedId,
       reason: 'heuristic_retrieval',
     };
+  }
+  // Abstain / empty display → depth fill on known leaf, else taxonomy gap.
+  if (!displayed.length) {
+    if (failure.leafId) {
+      return {
+        bucket: 2,
+        leaf_id: failure.leafId,
+        reason: 'heuristic_abstain',
+      };
+    }
+    return { bucket: 3, reason: 'heuristic_taxonomy_gap' };
   }
   if (failure.leafId) {
     return { bucket: 2, leaf_id: failure.leafId, reason: 'heuristic_leaf_gap' };

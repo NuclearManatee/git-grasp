@@ -120,7 +120,7 @@ describe('telemetry send + invite', () => {
     const fetchImpl = vi.fn(async () => ({ ok: false, status: 500 }));
     await sendUmamiEvent({
       name: 'cli_search',
-      data: { query: 'q' },
+      data: { query: 'undo last commit keep files' },
       fetchImpl,
       verbose: true,
     });
@@ -181,5 +181,32 @@ describe('telemetry send + invite', () => {
     expect(readConfig().telemetry).toBe(true);
     setTelemetryEnabled(false);
     expect(readConfig().telemetry).toBe(false);
+    expect(readConfig().telemetryInvite).toBe('dismissed');
+  });
+
+  it('hard-off no-ops send and refuses enable', async () => {
+    process.env.DO_NOT_TRACK = '1';
+    const fetchImpl = vi.fn();
+    const r = await sendUmamiEvent({
+      name: 'cli_search',
+      data: { query: 'status' },
+      fetchImpl,
+    });
+    expect(r.skipped).toBe(true);
+    expect(r.reason).toBe('hard-off');
+    expect(fetchImpl).not.toHaveBeenCalled();
+    expect(() => setTelemetryEnabled(true)).toThrow(/hard-off/i);
+  });
+
+  it('scrubs PII queries before send', async () => {
+    const fetchImpl = vi.fn(async () => ({ ok: true }));
+    const r = await sendUmamiEvent({
+      name: 'cli_search',
+      data: { query: 'mail me at a@b.com please' },
+      fetchImpl,
+    });
+    expect(r.skipped).toBe(true);
+    expect(r.reason).toMatch(/^scrub:/);
+    expect(fetchImpl).not.toHaveBeenCalled();
   });
 });

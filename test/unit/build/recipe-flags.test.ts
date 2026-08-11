@@ -24,6 +24,14 @@ describe('recipeFlags', () => {
     expect(FLAG_DENYLIST.has('--i-still-use-this')).toBe(true);
   });
 
+  it('rejects expanded force/hard denylist entries', () => {
+    const allow = new Set(['--force', '--hard', '-fd', '--force-with-lease']);
+    expect(assertFlagsOnCommandLine('git push --force', allow).reason).toMatch(/flag_denied/);
+    expect(assertFlagsOnCommandLine('git reset --hard', allow).reason).toMatch(/flag_denied/);
+    expect(assertFlagsOnCommandLine('git clean -fd', allow).reason).toMatch(/flag_denied/);
+    expect(assertFlagsOnCommandLine('git push --force-with-lease', allow).reason).toMatch(/flag_denied/);
+  });
+
   it('accepts allowlisted flags', () => {
     const allow = new Set(['--short', '-s']);
     expect(assertFlagsOnCommandLine('git status --short', allow)).toEqual({ ok: true });

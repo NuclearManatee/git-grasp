@@ -118,12 +118,12 @@ const results = await Promise.all(
             if (r.hit) continue;
             const failure = {
               query: r.query,
-              expectedId: r.expectedId,
+              ...(r.expectedId ? { expectedId: String(r.expectedId) } : {}),
               displayedIds: r.displayed,
               leafId: leaf.id,
               leafIds: targetLeaves.map((l) => l.id),
               hit: false,
-              correctExists: true,
+              correctExists: Boolean(r.expectedId),
             };
             let classification;
             try {
@@ -142,7 +142,7 @@ const results = await Promise.all(
           finalizeSearchIndex(db);
           hold = await runLeafHoldout(leaf, { db, search });
         }
-        if (!hold.ok) {
+        if (!hold.ok && process.argv.includes('--force-broadcast')) {
           const lastFail = [...(hold.rounds || [])].reverse().find((r) => !r.passed);
           const recipes = listRecipes(db).filter((r) => r.taxonomy_leaf === leaf.id);
           for (const r of lastFail?.results || []) {

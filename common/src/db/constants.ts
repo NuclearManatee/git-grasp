@@ -465,3 +465,6 @@ export const GAP_POOL_CLUSTER_COSINE = 0.88;
 
 /** Absolute max recipes (alias MAX_COMMANDS for leaf pipeline). */
 export const MAX_RECIPES = MAX_COMMANDS;
+
+/** Hard max git commands mapped onto one goal-taxonomy leaf after normalize. */
+export const LEAF_MAPPED_COMMANDS_MAX = 6;

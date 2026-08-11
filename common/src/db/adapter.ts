@@ -5,11 +5,11 @@
 import {
   openDb,
   knnRecall,
-  insertIntentWithEmbedding,
   insertCommand,
   insertRecipe,
   SCHEMA_VERSION,
 } from './schema.js';
+import { assertV9IntentQuarantine } from '../build/evalQuarantine.js';
 
 export const BunSqliteAdapter = {
   name: 'bun-sqlite',
@@ -22,8 +22,7 @@ export const BunSqliteAdapter = {
   },
   insert(handle, row) {
     if (row?.command_id && (row.intent_text || row.intent_description) && row.embedding) {
-      insertIntentWithEmbedding(handle, row);
-      return;
+      assertV9IntentQuarantine();
     }
     if (row?.command_recipe || row?.initial_state) {
       insertCommand(handle, row);

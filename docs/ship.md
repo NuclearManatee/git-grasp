@@ -13,6 +13,16 @@ flowchart TB
   S --> V --> R --> E --> C --> CLI
 ```
 
+## Checklist
+
+1. EXPAND green (0.95×2 leaf held-out + ≥80% leaf-rate + regression).
+2. Optional: `bun run ship:dedupe`.
+3. Corpus version dump (`recipes.vN.json` / `recipes.latest.json`).
+4. `bun run ship` — **atomic** seed to temp DB → rename → write `.sha256`.
+5. `bun run web:pack` for playground.
+
+**Promote vs seed:** `promoteStagingDb` copies staging → prod and **must** write checksum. Prefer re-seed for release artifacts. Writable opens refuse schema wipe unless `GIT_GRASP_FORCE_MIGRATE=1`.
+
 ## What it does
 
 1. **Corpus version** — after EXPAND regression green, write `common/data/catalog/versions/recipes.vN.json` + latest pointer.

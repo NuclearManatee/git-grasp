@@ -110,9 +110,11 @@ eval "$(git-grasp completion bash)"
 |------|---------|
 | `0` | Success |
 | `1` | Generic error |
-| `2` | DB integrity / doctor failure (`INTEGRITY`) |
-| `3` | Config error (`CONFIG`) |
-| `4` | Empty filter / no displayable hit (`FILTER_EMPTY`) |
+| `2` | DB integrity / schema version mismatch (`INTEGRITY` / `VERSION`) |
+| `3` | Config error (`CONFIG` / `CONFIG_INSECURE`) |
+| `5` | Catalog/search version mismatch when distinguished from integrity (`VERSION`) |
+
+`--json` search mode skips telemetry invite/track (see [observe.md](observe.md)).
 
 ## Environment
 
@@ -120,8 +122,9 @@ eval "$(git-grasp completion bash)"
 |----------|------|
 | `GIT_GRASP_ROOT` | Force package root |
 | `GIT_GRASP_MOCK_EMBEDDINGS=1` | Deterministic mock embeddings |
-| `GIT_GRASP_TELEMETRY=0` / `DO_NOT_TRACK=1` | Hard-off telemetry |
+| `GIT_GRASP_TELEMETRY=0` / `DO_NOT_TRACK=1` | Hard-off telemetry (refuse enable + no-op send) |
 | `GIT_GRASP_UPDATE_CHECK=0` | Hard-off npm update check |
+| `GIT_GRASP_INSTALL=binary\|bun` | Hint for update-notice install copy |
 | `GIT_GRASP_BENCH=1` | Print search phase timings on stderr |
 | `NO_COLOR` | Disable chalk colors when set |
 | `GIT_GRASP_EMOJI=1` | Opt-in closed-set emoji glyphs (off by default in V1) |

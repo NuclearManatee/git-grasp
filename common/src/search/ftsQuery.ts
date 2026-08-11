@@ -42,7 +42,8 @@ export function commandFtsBody(
 
 /**
  * FTS body for a v9 recipe: commands + comments + title + tags + description + paraphrases.
- * Paraphrases are not embedded (KNN stays description-only) but must be searchable via BM25
+ * KNN embeddings use description + paraphrases via recipeEmbedText (not description-only).
+ * FTS still indexes the same text fields for BM25.
  * so triage bucket-1 aliases affect retrieval.
  */
 export function recipeFtsBody(

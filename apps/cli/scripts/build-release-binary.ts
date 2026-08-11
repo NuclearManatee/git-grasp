@@ -14,7 +14,7 @@
 import { mkdirSync, cpSync, existsSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { PACKAGE_ROOT, defaultDbPath, defaultThresholdsPath } from '../../../common/src/lib/paths.js';
+import { PACKAGE_ROOT, defaultDbPath, defaultThresholdsPath, catalogDir } from '../../../common/src/lib/paths.js';
 
 function argValue(name, fallback = null) {
   const hit = process.argv.find((a) => a.startsWith(`${name}=`));
@@ -42,19 +42,33 @@ const zipPath = path.join(outDir, zipName);
 const dbPath = defaultDbPath();
 const thresholdsPath = defaultThresholdsPath();
 const dbSha = `${dbPath}.sha256`;
+const packageJsonPath = path.join(PACKAGE_ROOT, 'package.json');
+const recipesLatestPath = path.join(catalogDir(), 'recipes.latest.json');
 
 if (!existsSync(dbPath)) {
   console.error(`Missing ${dbPath}. Run bun run seed first.`);
+  process.exit(1);
+}
+if (!existsSync(dbSha)) {
+  console.error(`Missing ${dbSha}. Seed must write a checksum — refuse to ship without integrity.`);
   process.exit(1);
 }
 if (!existsSync(thresholdsPath)) {
   console.error(`Missing ${thresholdsPath}`);
   process.exit(1);
 }
+if (!existsSync(packageJsonPath)) {
+  console.error(`Missing ${packageJsonPath}`);
+  process.exit(1);
+}
+if (!existsSync(recipesLatestPath)) {
+  console.error(`Missing ${recipesLatestPath}`);
+  process.exit(1);
+}
 
 rmSync(stageDir, { recursive: true, force: true });
 mkdirSync(stageDir, { recursive: true });
-mkdirSync(path.join(stageDir, 'common', 'data'), { recursive: true });
+mkdirSync(path.join(stageDir, 'common', 'data', 'catalog'), { recursive: true });
 mkdirSync(path.join(stageDir, 'common', 'config'), { recursive: true });
 
 const entry = path.join(PACKAGE_ROOT, 'apps', 'cli', 'bin', 'index.ts');
@@ -71,10 +85,10 @@ if (compile.status !== 0) {
   process.exit(compile.status ?? 1);
 }
 
+cpSync(packageJsonPath, path.join(stageDir, 'package.json'));
 cpSync(dbPath, path.join(stageDir, 'common', 'data', 'git-commands.db'));
-if (existsSync(dbSha)) {
-  cpSync(dbSha, path.join(stageDir, 'common', 'data', 'git-commands.db.sha256'));
-}
+cpSync(dbSha, path.join(stageDir, 'common', 'data', 'git-commands.db.sha256'));
+cpSync(recipesLatestPath, path.join(stageDir, 'common', 'data', 'catalog', 'recipes.latest.json'));
 cpSync(thresholdsPath, path.join(stageDir, 'common', 'config', 'thresholds.json'));
 
 mkdirSync(outDir, { recursive: true });

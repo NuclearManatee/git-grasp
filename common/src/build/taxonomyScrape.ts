@@ -187,15 +187,61 @@ export function enrichSectionsWithAvailability(sections, opts = {}) {
     ...sec,
     commands: sec.commands.map((c) => {
       const p = probe(c.name);
+      const detail = portableProbeDetail(p.detail);
       return {
         ...c,
         command: p.command,
         available: p.available,
         runner: p.runner,
-        ...(p.detail ? { probe_detail: p.detail } : {}),
+        ...(detail ? { probe_detail: detail } : {}),
+        // Keep raw absolute detail only when caller asks (local probe report).
+        ...(opts.keepRawDetail && p.detail && detail !== p.detail
+          ? { probe_detail_raw: p.detail }
+          : {}),
       };
     }),
   }));
+}
+
+/**
+ * Strip absolute machine paths from probe_detail for committed artifacts.
+ * @param {string|null|undefined} detail
+ */
+export function portableProbeDetail(detail) {
+  if (detail == null || detail === '') return undefined;
+  const s = String(detail);
+  if (/^(not_a_git_command|gui_or_timeout|exit_\d+|local_binary|standalone_path)$/.test(s)) {
+    return s;
+  }
+  if (/[\\/]/.test(s) && (/[A-Za-z]:\\|^\//.test(s) || s.includes('Program Files'))) {
+    return 'standalone_path';
+  }
+  return s;
+}
+
+/**
+ * Drop host-local probe fields from a taxonomy doc (committed write).
+ * @param {object} taxonomy
+ */
+export function stripProbePathsForCommit(taxonomy) {
+  const scrubCmd = (c) => {
+    const next = { ...c };
+    delete next.probe_detail_raw;
+    if (next.probe_detail) {
+      const d = portableProbeDetail(next.probe_detail);
+      if (d) next.probe_detail = d;
+      else delete next.probe_detail;
+    }
+    return next;
+  };
+  return {
+    ...taxonomy,
+    sections: (taxonomy.sections || []).map((sec) => ({
+      ...sec,
+      commands: (sec.commands || []).map(scrubCmd),
+    })),
+    commands: (taxonomy.commands || []).map(scrubCmd),
+  };
 }
 
 /**
@@ -210,7 +256,10 @@ export function buildGitCommandsTaxonomy(opts) {
   const doProbe = opts.probe !== false;
   if (doProbe) {
     const probeFn = typeof opts.probe === 'function' ? opts.probe : probeGitCommandAvailability;
-    sections = enrichSectionsWithAvailability(sections, { probe: probeFn });
+    sections = enrichSectionsWithAvailability(sections, {
+      probe: probeFn,
+      keepRawDetail: Boolean(opts.keepRawDetail),
+    });
   } else {
     // Default available=true for fixtures that skip probing
     sections = sections.map((sec) => ({

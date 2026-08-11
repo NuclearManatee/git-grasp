@@ -25,6 +25,7 @@
     "build:loop": "bun ./src/expand/loop.ts",
     "build:loop:mock": "bun ./src/expand/loop-mock-proof.ts",
     "eval": "bun ./src/eval/run.ts",
+    "eval:regression": "bun ./src/eval/regression-gate.ts",
     "loop": "bun ./src/eval/loop.ts"
   }
 }

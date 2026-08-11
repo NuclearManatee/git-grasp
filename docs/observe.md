@@ -25,11 +25,14 @@ flowchart TB
 ## CLI
 
 - Default **off**. Soft invite on first interactive search.
-- Enable: `git-grasp telemetry on`. Hard off: `DO_NOT_TRACK=1` or `GIT_GRASP_TELEMETRY=0`.
+- Enable: `git-grasp telemetry on`. Hard off: `DO_NOT_TRACK=1` or `GIT_GRASP_TELEMETRY=0` — refuses enable/persist and no-ops sends.
+- Explicit `telemetry off` dismisses the soft invite (won’t re-prompt).
 - Events: `cli_opt_in`, `cli_search`.
 - Event fields include `app_version`, `catalog_version`, `schema_version`, `os`, opaque **`session_id`**, plus search payload (query text when opted in — do not put secrets in queries).
+- **Send-time scrub:** queries matching PII/junk patterns (`piiOrJunkReason`) are dropped before Umami send (CLI + playground).
+- **`--json`:** search JSON mode never invites or tracks (silent for automation; document for operators who expect opt-in analytics).
 - **`session_id`:** minted when telemetry is enabled (invite or `telemetry on`), stored in user config, sent on CLI events, cleared on `telemetry off`, new id on next enable. Used by EVOLVE THREAD.
-- **Endpoint:** baked Umami Cloud host + website id (`common/src/lib/telemetry/defaults.ts`). Override with `GIT_GRASP_UMAMI_HOST` / `GIT_GRASP_UMAMI_WEBSITE_ID` (empty website id disables send).
+- **Endpoint (send):** baked Umami Cloud host + website id (`common/src/lib/telemetry/defaults.ts`). Override with `GIT_GRASP_UMAMI_HOST` / `GIT_GRASP_UMAMI_WEBSITE_ID` (empty website id disables send).
 
 ## Web playground
 
@@ -38,12 +41,16 @@ flowchart TB
 - Events: `web_cli_load`, `web_cli_search` (include `schema_version` / `catalog_version` when the catalog is open). THREAD uses Umami session/visit/visitor ids.
 - Details: [web.md](web.md), site `/privacy` §5.
 
+## Cloud send vs local pull
+
+OBSERVE **send** defaults to Umami Cloud. EVOLVE **pull** defaults to `http://127.0.0.1:3001`. Same env var names (`GIT_GRASP_UMAMI_*`) — set them explicitly when pulling from Cloud. See [evolve.md](evolve.md).
+
 ## Code
 
 | Path | Role |
 |------|------|
 | `common/src/observe/` | Stage facade |
-| `common/src/lib/telemetry/` | Gate, invite, Umami send, session id |
+| `common/src/lib/telemetry/` | Gate, invite, scrub, Umami send, session id |
 | `common/src/ux/messages.ts` | Shared telemetry / skill / init copy |
 | `apps/cli` | `telemetry on\|off\|status` — full CLI reference: [cli.md](cli.md) |
 | `apps/web` | Script + playground events |

@@ -20,7 +20,7 @@ export const GoalTaxonomyLeafSchema = z.object({
   description: z.string().min(1),
   depth: z.number().int().nonnegative(),
   parent_id: z.string().nullable().optional(),
-  mapped_commands: z.array(z.string()).min(1),
+  mapped_commands: z.array(z.string()).min(1).max(6),
   path: z.array(z.string()).optional().default([]),
 });
 
@@ -30,6 +30,7 @@ export const GoalTaxonomyCoverageSchema = z.object({
   commands_unmapped: z.array(z.string()),
   empty_leaves: z.array(z.string()),
   duplicate_leaf_ids: z.array(z.string()),
+  overmapped_leaves: z.array(z.string()).optional().default([]),
 });
 
 export const GoalTaxonomyFileSchema = z.object({

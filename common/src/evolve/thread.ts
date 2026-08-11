@@ -196,7 +196,7 @@ export function journeyToFeederItem(journey) {
     threadKey: journey.threadKey,
     finalLabel: journey.finalLabel,
     hit: false,
-    correctExists: true,
+    correctExists: false,
   };
 }
 

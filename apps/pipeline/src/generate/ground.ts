@@ -25,7 +25,7 @@ const skipSandbox = args.includes('--skip-sandbox');
 
 if (!existsSync(goalTaxonomyPath())) {
   console.error(`Missing goal taxonomy: ${goalTaxonomyPath()}`);
-  console.error('Run first: bun run taxonomy:scrape && bun run taxonomy:goals');
+  console.error('Run first: bun run prepare:scrape && bun run prepare:goals');
   process.exit(1);
 }
 

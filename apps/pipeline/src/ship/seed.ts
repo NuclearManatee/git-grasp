@@ -6,7 +6,7 @@ const forceMock = process.env.GIT_GRASP_MOCK_EMBEDDINGS === '1' || process.argv.
 
 try {
   const result = await seedCatalog({ forceMock });
-  console.log(`Seeded ${result.recipes} recipes / ${result.n} intents (skipped ${result.skipped}) → ${result.dbPath}`);
+  console.log(`Seeded ${result.recipes} recipes (inserted ${result.n}, skipped ${result.skipped}) → ${result.dbPath}`);
   console.log(`sha256 ${result.hash}`);
   console.log(`embeddings: ${result.mock ? 'mock' : 'Xenova/bge-small-en-v1.5'}`);
 } catch (e) {

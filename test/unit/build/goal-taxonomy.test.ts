@@ -57,15 +57,23 @@ describe('goal taxonomy helpers', () => {
     expect(leaves[0].path).toEqual(['Root', 'Leaf']);
   });
 
-  it('applies reflection merge/rename', () => {
+  it('applies reflection merge/rename and transfers mapped_commands', () => {
     const roots = [
       {
         id: 'keep',
         name: 'Keep',
         description: 'a',
+        mapped_commands: ['git status'],
         depth: 0,
         children: [
-          { id: 'drop', name: 'Drop', description: 'b', depth: 1, children: [] },
+          {
+            id: 'drop',
+            name: 'Drop',
+            description: 'b',
+            mapped_commands: ['git commit'],
+            depth: 1,
+            children: [],
+          },
         ],
       },
     ];
@@ -76,6 +84,14 @@ describe('goal taxonomy helpers', () => {
     expect(next[0].name).toBe('Kept');
     expect(next[0].description).toBe('aa');
     expect(next[0].children).toEqual([]);
+    expect(next[0].mapped_commands).toEqual(['git status', 'git commit']);
+  });
+
+  it('flags overmapped leaves in coverage hygiene', () => {
+    const scraped = ['git a', 'git b', 'git c', 'git d', 'git e', 'git f', 'git g'];
+    const leaves = [{ id: 'fat', mapped_commands: scraped }];
+    const cov = computeTaxonomyCoverage(leaves, scraped);
+    expect(cov.overmapped_leaves).toEqual(['fat']);
   });
 });
 

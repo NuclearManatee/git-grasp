@@ -21,6 +21,7 @@ describe('prompt loader', () => {
     expect(existsSync(dir)).toBe(true);
     expect(existsSync(path.join(dir, 'build', 'judge.md'))).toBe(true);
     expect(existsSync(path.join(dir, 'partials', 'evolve-json-rules.md'))).toBe(true);
+    expect(existsSync(path.join(dir, 'partials', 'nl-query-rules.md'))).toBe(true);
   });
 
   it('parseFrontmatter extracts id and body', () => {
@@ -54,6 +55,33 @@ describe('prompt loader', () => {
     });
     expect(out.messages[0].content).toMatch(/command_recipe MUST be an object/);
     expect(out.messages[0].content).toMatch(/STATE mutation/);
+  });
+
+  it('expand-intents includes nl-query-rules partial', () => {
+    const out = renderPrompt('build/expand-intents', {
+      batch_size: '4',
+      composition_guidance: '',
+      matrix: '{}',
+      empty_cells: 'none',
+      primary: 'git status',
+      listing: 'git status',
+      initial_state: '',
+    });
+    expect(out.messages[0].content).toMatch(/natural-language search queries only/i);
+    expect(out.messages[0].content).toMatch(/never start with `git`/i);
+  });
+
+  it('confirm-label uses triple-brace freeform fields', () => {
+    const src = loadPromptSource('evolve/confirm-label');
+    expect(src).toMatch(/\{\{\{\s*query\s*\}\}\}/);
+    expect(src).toMatch(/\{\{\{\s*journey\s*\}\}\}/);
+    expect(src).not.toMatch(/Final query: \{\{query\}\}/);
+  });
+
+  it('rewrite-eval-golden notes composition asymmetry vs golden-query', () => {
+    const sys = renderPromptRole('build/rewrite-eval-golden', 'system');
+    expect(sys).toMatch(/asymmetric/i);
+    expect(sys).toMatch(/composition/i);
   });
 
   it('evolve-composition prompt includes filler verbs and flag rules', () => {

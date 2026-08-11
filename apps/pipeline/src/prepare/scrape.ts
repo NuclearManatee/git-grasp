@@ -2,6 +2,8 @@
 /**
  * One-shot: scrape `git help -a` → common/taxonomy/git_commands.json
  * Probes each verb for local availability (git subcommand vs standalone vs missing).
+ * Host-local probe paths are stripped from the committed artifact; full probe
+ * report is written under local/prepare/.
  * Not re-run by build:prepare.
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -9,9 +11,10 @@ import path from 'node:path';
 import {
   parseGitHelpAll,
   buildGitCommandsTaxonomy,
+  stripProbePathsForCommit,
 } from '../../../../common/src/build/taxonomyScrape.ts';
 import { spawnGit } from '../../../../common/src/build/gitExec.ts';
-import { gitCommandsTaxonomyPath } from '../../../../common/src/lib/paths.ts';
+import { gitCommandsTaxonomyPath, localDir } from '../../../../common/src/lib/paths.ts';
 
 const outPath = gitCommandsTaxonomyPath();
 
@@ -36,11 +39,21 @@ if (parsed.commands.length < 20) {
 }
 
 console.log(`Probing ${parsed.commands.length} commands for local availability…`);
-const taxonomy = buildGitCommandsTaxonomy({
+const taxonomyFull = buildGitCommandsTaxonomy({
   sections: parsed.sections,
   scraped_at: new Date().toISOString(),
   probe: true,
+  keepRawDetail: true,
 });
+
+const probeDir = path.join(localDir(), 'prepare');
+mkdirSync(probeDir, { recursive: true });
+writeFileSync(
+  path.join(probeDir, 'scrape-probe.json'),
+  `${JSON.stringify(taxonomyFull, null, 2)}\n`,
+);
+
+const taxonomy = stripProbePathsForCommit(taxonomyFull);
 
 mkdirSync(path.dirname(outPath), { recursive: true });
 writeFileSync(outPath, `${JSON.stringify(taxonomy, null, 2)}\n`);
@@ -52,6 +65,7 @@ console.log(
 console.log(
   `Availability: available=${a.available} unavailable=${a.unavailable} standalone=${a.standalone} total=${a.total}`,
 );
+console.log(`Full probe report → ${path.join(probeDir, 'scrape-probe.json')}`);
 const missing = taxonomy.commands.filter((c) => !c.available).map((c) => c.name);
 if (missing.length) {
   console.log(`Unavailable here: ${missing.join(', ')}`);

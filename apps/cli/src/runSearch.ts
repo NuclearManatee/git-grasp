@@ -121,13 +121,13 @@ export async function runCliSearch(query, opts, deps) {
       }, null, 2));
     } else {
       console.error(toErr(err.message));
-      if (code === 'INTEGRITY' || code === 'CONFIG') {
+      if (code === 'INTEGRITY' || code === 'CONFIG' || code === 'CONFIG_INSECURE' || code === 'VERSION') {
         console.error(toInfo('Run git-grasp doctor if this keeps happening.'));
       }
     }
     if (code === 'INTEGRITY') process.exitCode = 2;
-    else if (code === 'CONFIG') process.exitCode = 3;
-    else if (code === 'FILTER_EMPTY') process.exitCode = 4;
+    else if (code === 'CONFIG' || code === 'CONFIG_INSECURE') process.exitCode = 3;
+    else if (code === 'VERSION') process.exitCode = 5;
     else process.exitCode = 1;
 
     if (!asJson) {

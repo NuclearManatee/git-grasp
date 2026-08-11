@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
 // @ts-nocheck
 /**
- * EVOLVE pipeline entry: bun run evolve [--no-chain] [--llm-label] [--ship] [--catalog-version=N]
+ * EVOLVE pipeline entry: bun run evolve [--no-chain] [--llm-label] [--ship] [--ship-unsafe] [--catalog-version=N]
  */
 import { runEvolve } from '@git-grasp/common/evolve';
 
@@ -10,7 +10,8 @@ function parseArgs(argv) {
   const opts = {
     noChain: args.includes('--no-chain'),
     llmLabel: args.includes('--llm-label'),
-    ship: args.includes('--ship'),
+    ship: args.includes('--ship') || args.includes('--ship-unsafe'),
+    shipUnsafe: args.includes('--ship-unsafe'),
     help: args.includes('--help') || args.includes('-h'),
     catalogVersion: null,
   };
@@ -28,14 +29,17 @@ async function main() {
     console.log(`Usage: bun run evolve [options]
 
   --no-chain              Stop after feeder (no EXPAND triage)
-  --llm-label             Confirm ambiguous weak/abandon labels via LLM
-  --ship                  After green version bump, promote staging → product DB
+  --llm-label             Confirm ambiguous weak/abandon labels via LLM (opt-in; OPENAI_API_KEY alone does not enable)
+  --ship                  After green version bump, promote staging → product DB (requires held-out + regression gates)
+  --ship-unsafe           Same as --ship but skip held-out/regression gates (escape hatch)
   --catalog-version=N     Require this catalog_version (refuse mixed)
   --help                  Show help
 
-Env: GIT_GRASP_UMAMI_HOST (default http://127.0.0.1:3001),
-     GIT_GRASP_UMAMI_WEBSITE_ID, GIT_GRASP_UMAMI_TOKEN or login
-     GIT_GRASP_UMAMI_USERNAME / GIT_GRASP_UMAMI_PASSWORD (default admin/umami)
+Env (pull ≠ send):
+  OBSERVE send defaults to Umami Cloud (see docs/observe.md).
+  EVOLVE pull defaults to http://127.0.0.1:3001 — set GIT_GRASP_UMAMI_* for prod.
+     GIT_GRASP_UMAMI_HOST, GIT_GRASP_UMAMI_WEBSITE_ID,
+     GIT_GRASP_UMAMI_TOKEN or login GIT_GRASP_UMAMI_USERNAME / GIT_GRASP_UMAMI_PASSWORD
 `);
     process.exit(0);
   }
@@ -44,6 +48,7 @@ Env: GIT_GRASP_UMAMI_HOST (default http://127.0.0.1:3001),
     noChain: opts.noChain,
     llmLabel: opts.llmLabel,
     ship: opts.ship,
+    shipUnsafe: opts.shipUnsafe,
     catalogVersion: opts.catalogVersion,
     allowVersionBump: opts.ship,
   });

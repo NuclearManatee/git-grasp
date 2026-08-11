@@ -1,6 +1,8 @@
 // @ts-nocheck
 import { TELEMETRY_TIMEOUT_MS } from './defaults.js';
 import { resolveUmamiEndpoint } from './events.js';
+import { isHardOff } from './gate.js';
+import { piiOrJunkReason } from './scrub.js';
 
 /**
  * @param {{ name: string, data?: Record<string, unknown>, verbose?: boolean, fetchImpl?: typeof fetch, env?: NodeJS.ProcessEnv }} opts
@@ -13,6 +15,18 @@ export async function sendUmamiEvent({
   fetchImpl = globalThis.fetch,
   env = process.env,
 } = {}) {
+  if (isHardOff(env)) {
+    return { ok: false, skipped: true, reason: 'hard-off' };
+  }
+
+  if (data && Object.prototype.hasOwnProperty.call(data, 'query')) {
+    const scrub = piiOrJunkReason(data.query);
+    if (scrub) {
+      if (verbose) console.error(`telemetry: send skipped: scrub:${scrub}`);
+      return { ok: false, skipped: true, reason: `scrub:${scrub}` };
+    }
+  }
+
   const { host, websiteId } = resolveUmamiEndpoint(env);
   if (!host || !websiteId) {
     const reason = 'umami endpoint or website id unset';

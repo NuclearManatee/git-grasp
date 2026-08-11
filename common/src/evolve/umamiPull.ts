@@ -2,6 +2,9 @@
 /**
  * Umami HTTP pull client. Local Docker (127.0.0.1:3001) is the default fallback;
  * prod overrides via GIT_GRASP_UMAMI_* / GIT_GRASP_UMAMI_TOKEN / login env.
+ *
+ * Note: OBSERVE send defaults to Umami Cloud; EVOLVE pull defaults to loopback.
+ * See docs/evolve.md + docs/observe.md env callout.
  */
 import { DEFAULT_UMAMI_HOST } from '../lib/telemetry/defaults.js';
 
@@ -94,14 +97,29 @@ export function mapUmamiEventRow(row) {
 }
 
 /**
- * Pull custom events since cursor. Tries /event-data then /events endpoints.
+ * Drop the cursor boundary event (and anything before it in sort order).
+ * @param {object[]} events
+ * @param {string|null|undefined} lastEventId
+ */
+export function dedupeAfterLastEventId(events, lastEventId) {
+  if (!lastEventId || !events?.length) return events || [];
+  const id = String(lastEventId);
+  const idx = events.findIndex((e) => String(e.id) === id);
+  if (idx < 0) return events;
+  return events.slice(idx + 1);
+}
+
+/**
+ * Pull custom events since cursor. Paginates /events; falls back to /event-data.
  * @param {object} opts
  * @param {string} opts.host
  * @param {string} opts.websiteId
  * @param {string} opts.token
  * @param {string|null} [opts.sinceIso]
+ * @param {string|null} [opts.afterEventId] — skip this id (inclusive) for boundary dedupe
  * @param {typeof fetch} [opts.fetchImpl]
  * @param {number} [opts.pageSize]
+ * @param {number} [opts.maxPages]
  */
 export async function pullUmamiEvents(opts) {
   const fetchImpl = opts.fetchImpl || globalThis.fetch;
@@ -112,33 +130,74 @@ export async function pullUmamiEvents(opts) {
   const startAt = opts.sinceIso ? new Date(opts.sinceIso).getTime() : Date.now() - 7 * 86400000;
   const endAt = opts.endAtMs || Date.now() + 60_000;
   const pageSize = opts.pageSize || 200;
+  const maxPages = opts.maxPages || 50;
 
   const headers = {
     Authorization: `Bearer ${opts.token}`,
     Accept: 'application/json',
   };
 
-  const urls = [
-    `${opts.host}/api/websites/${websiteId}/events?startAt=${startAt}&endAt=${endAt}&pageSize=${pageSize}`,
-    `${opts.host}/api/websites/${websiteId}/event-data?startAt=${startAt}&endAt=${endAt}`,
-  ];
-
+  /** @type {object[]} */
+  let all = [];
+  let endpoint = null;
   let lastErr = null;
-  for (const url of urls) {
+
+  for (let page = 1; page <= maxPages; page += 1) {
+    const url =
+      `${opts.host}/api/websites/${websiteId}/events` +
+      `?startAt=${startAt}&endAt=${endAt}&pageSize=${pageSize}&page=${page}`;
     try {
       const res = await fetchImpl(url, { headers });
       if (!res.ok) {
         lastErr = new Error(`umami pull http ${res.status} for ${url}`);
-        continue;
+        break;
       }
       const json = await res.json();
       const rows = normalizeUmamiEventList(json).map(mapUmamiEventRow);
-      return { events: rows, endpoint: url };
+      endpoint = url;
+      if (!rows.length) break;
+      all = all.concat(rows);
+      if (rows.length < pageSize) break;
     } catch (err) {
       lastErr = err;
+      break;
     }
   }
-  throw lastErr || new Error('umami pull failed');
+
+  if (!endpoint) {
+    const fallbackUrl = `${opts.host}/api/websites/${websiteId}/event-data?startAt=${startAt}&endAt=${endAt}`;
+    try {
+      const res = await fetchImpl(fallbackUrl, { headers });
+      if (!res.ok) {
+        throw lastErr || new Error(`umami pull http ${res.status} for ${fallbackUrl}`);
+      }
+      const json = await res.json();
+      all = normalizeUmamiEventList(json).map(mapUmamiEventRow);
+      endpoint = fallbackUrl;
+    } catch (err) {
+      throw lastErr || err || new Error('umami pull failed');
+    }
+  }
+
+  const seen = new Set();
+  const deduped = [];
+  for (const e of all) {
+    const key = String(e.id);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    deduped.push(e);
+  }
+  deduped.sort(
+    (a, b) =>
+      (typeof a.createdAt === 'number' ? a.createdAt : Date.parse(String(a.createdAt))) -
+        (typeof b.createdAt === 'number' ? b.createdAt : Date.parse(String(b.createdAt))) ||
+      String(a.id).localeCompare(String(b.id)),
+  );
+
+  return {
+    events: dedupeAfterLastEventId(deduped, opts.afterEventId),
+    endpoint,
+  };
 }
 
 /**

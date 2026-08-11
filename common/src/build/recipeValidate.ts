@@ -152,7 +152,9 @@ export async function validateRecipeCandidate(candidate, opts = {}) {
 
     if (opts.skipJudge !== true) {
       const judge = await llmMeaningfulness(current, opts);
-      if (!judge.pass && (judge.score ?? 0) < (opts.minJudgeScore ?? 0.6)) {
+      const minScore = opts.minJudgeScore ?? 0.6;
+      // Reject unless pass AND score meets floor (OR-inverted was accepting fail+high-score).
+      if (!judge.pass || (judge.score ?? 0) < minScore) {
         lastReason = judge.reason || 'meaningfulness';
         if (attempt === maxRegen || !opts.regen) {
           return { ok: false, reason: lastReason, stage: 'judge' };

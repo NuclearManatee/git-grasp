@@ -8,6 +8,7 @@ import {
   ftsRecall,
   loadGitVerbs,
   getRecipe,
+  SCHEMA_VERSION,
   SEARCH_ALGORITHM_VERSION,
   getMetaValue,
 } from '../db/schema.js';
@@ -110,6 +111,14 @@ export async function search(query, {
   const db = openDb(dbPath, { readonly: true });
   let result;
   try {
+    const schemaVer = getMetaValue(db, 'schema_version');
+    if (schemaVer == null || Number(schemaVer) !== SCHEMA_VERSION) {
+      const err = new Error(
+        `schema_version mismatch: db=${schemaVer ?? 'missing'} code=${SCHEMA_VERSION}`,
+      );
+      err.code = 'VERSION';
+      throw err;
+    }
     const algo = getMetaValue(db, 'search_algorithm_version');
     if (algo != null && Number(algo) !== SEARCH_ALGORITHM_VERSION) {
       const err = new Error(

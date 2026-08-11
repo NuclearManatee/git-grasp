@@ -21,11 +21,17 @@ export {
   pullUmamiEvents,
   umamiLogin,
   mapUmamiEventRow,
+  dedupeAfterLastEventId,
   listUmamiWebsites,
   createUmamiWebsite,
 } from './umamiPull.js';
 export { readEvolveCursor, writeEvolveCursor } from './cursor.js';
-export { chainExpandFromFeeder, feederToFailure, scoreObserveHoldout } from './chain.js';
+export {
+  chainExpandFromFeeder,
+  feederToFailure,
+  scoreObserveHoldout,
+  assertShipCatalogGates,
+} from './chain.js';
 export { renderEvolveLatestMd, mainRenderEvolveLatest } from './renderLatest.js';
 export {
   FeederItemSchema,

@@ -11,6 +11,7 @@ import {
   setUpdateCheckEnabled,
   writeUpdateCache,
   readUpdateCache,
+  updateInstallHint,
   UPDATE_CHECK_TTL_MS,
 } from '../../common/src/lib/updateCheck.js';
 import { writeConfig, readConfig } from '../../common/src/lib/config.js';
@@ -139,6 +140,11 @@ describe('update-check', () => {
     } finally {
       errSpy.mockRestore();
     }
+  });
+
+  it('updateInstallHint branches binary vs bun', () => {
+    expect(updateInstallHint({ GIT_GRASP_INSTALL: 'bun' })).toMatch(/bun add -g/);
+    expect(updateInstallHint({ GIT_GRASP_INSTALL: 'binary' })).toMatch(/release zip/i);
   });
 });
 

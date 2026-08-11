@@ -1,4 +1,4 @@
-name: Golden Eval
+name: Regression Eval
 
 on:
   pull_request:
@@ -24,17 +24,9 @@ jobs:
         env:
           GIT_GRASP_MOCK_EMBEDDINGS: '1'
           GIT_GRASP_SKIP_POSTINSTALL: '1'
-      - name: Require DeepSeek secret
+      - name: Regression eval
         env:
-          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-        run: |
-          if [ -z "$DEEPSEEK_API_KEY" ]; then
-            echo "DEEPSEEK_API_KEY secret is required for the main gate" >&2
-            exit 1
-          fi
-      - name: Golden eval
-        env:
-          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           GIT_GRASP_SKIP_POSTINSTALL: '1'
-          GIT_GRASP_MOCK_EMBEDDINGS: '1'
-        run: bun run eval -- --min-pass-rate=0.9
+          # Real embeddings required — mock KNN cannot meet the 0.95 regression gate.
+          GIT_GRASP_MOCK_EMBEDDINGS: '0'
+        run: bun run eval:regression

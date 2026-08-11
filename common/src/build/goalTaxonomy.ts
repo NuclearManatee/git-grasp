@@ -18,6 +18,7 @@ import {
   TAXONOMY_MAX_FANOUT,
   TAXONOMY_REFLECTION_ROUNDS,
   LEAF_CONCURRENCY,
+  LEAF_MAPPED_COMMANDS_MAX,
 } from '../db/constants.js';
 import {
   BrainstormGoalsLlmSchema,
@@ -30,7 +31,7 @@ import {
 
 function log(...args) {
   const ts = new Date().toISOString().slice(11, 19);
-  console.log(`[taxonomy:goals ${ts}]`, ...args);
+  console.log(`[prepare:goals ${ts}]`, ...args);
 }
 
 function slugify(name, used) {
@@ -72,11 +73,13 @@ export function computeTaxonomyCoverage(leaves, scrapedCommands) {
   const scraped = new Set(scrapedCommands.map(String));
   const mapped = new Set();
   const empty_leaves = [];
+  const overmapped_leaves = [];
   const idCounts = new Map();
   for (const leaf of leaves) {
     idCounts.set(leaf.id, (idCounts.get(leaf.id) || 0) + 1);
     const cmds = Array.isArray(leaf.mapped_commands) ? leaf.mapped_commands : [];
     if (cmds.length === 0) empty_leaves.push(leaf.id);
+    if (cmds.length > LEAF_MAPPED_COMMANDS_MAX) overmapped_leaves.push(leaf.id);
     for (const c of cmds) {
       if (scraped.has(c)) mapped.add(c);
     }
@@ -91,6 +94,7 @@ export function computeTaxonomyCoverage(leaves, scrapedCommands) {
     commands_unmapped,
     empty_leaves,
     duplicate_leaf_ids,
+    overmapped_leaves,
   };
 }
 
@@ -153,7 +157,22 @@ export function applyReflectionPatches(roots, patches) {
 
   const drop = new Set();
   for (const m of patches?.merge || []) {
-    for (const id of m.drop_ids || []) drop.add(id);
+    const keep = m.keep_id ? byId.get(m.keep_id) : null;
+    for (const id of m.drop_ids || []) {
+      drop.add(id);
+      const dropped = byId.get(id);
+      if (keep && dropped) {
+        const keepCmds = Array.isArray(keep.mapped_commands)
+          ? keep.mapped_commands
+          : (keep.mapped_commands = []);
+        for (const cmd of dropped.mapped_commands || []) {
+          if (!keepCmds.includes(cmd)) keepCmds.push(cmd);
+        }
+      }
+    }
+    if (keep && Array.isArray(keep.mapped_commands)) {
+      keep.mapped_commands = keep.mapped_commands.slice(0, LEAF_MAPPED_COMMANDS_MAX);
+    }
   }
 
   function prune(nodes) {
@@ -331,6 +350,21 @@ export async function buildGoalTaxonomy(opts = {}) {
   const scrapedCommands = opts.scrapedCommands || loadScrapedCommandList();
   const scrapedSet = new Set(scrapedCommands);
   const outPath = opts.outPath || goalTaxonomyPath();
+  const fresh = opts.fresh !== false;
+  if (!fresh && existsSync(outPath)) {
+    const err = new Error(
+      `prepare:goals refused: taxonomy exists at ${outPath}; pass fresh:true to overwrite`,
+    );
+    err.code = 'TAXONOMY_EXISTS';
+    throw err;
+  }
+  if (!scrapedCommands.length) {
+    const err = new Error(
+      'prepare:goals — no scraped commands available; run bun run prepare:scrape first',
+    );
+    err.code = 'EMPTY_SCRAPE';
+    throw err;
+  }
   const usedIds = new Set();
   const limit = pLimit(opts.concurrency || LEAF_CONCURRENCY);
 
@@ -427,7 +461,11 @@ export async function buildGoalTaxonomy(opts = {}) {
           const n = normalizeCommandToken(raw, scrapedSet);
           if (n && !cmds.includes(n)) cmds.push(n);
         }
-        leaf.mapped_commands = cmds;
+        // Hard cap leaf maps (prefer 1–4; allow up to LEAF_MAPPED_COMMANDS_MAX).
+        leaf.mapped_commands = cmds.slice(
+          0,
+          opts.maxMappedCommands ?? LEAF_MAPPED_COMMANDS_MAX,
+        );
       }),
     ),
   );
@@ -531,16 +569,21 @@ export async function buildGoalTaxonomy(opts = {}) {
     `wrote ${outPath} leaves=${leaves.length} mapped=${coverage.commands_mapped}/${coverage.commands_total}`,
   );
 
+  const maxMapped = opts.maxMappedCommands ?? LEAF_MAPPED_COMMANDS_MAX;
+  const overMapped = leaves.filter((l) => (l.mapped_commands || []).length > maxMapped);
   const ok =
     coverage.empty_leaves.length === 0 &&
     coverage.duplicate_leaf_ids.length === 0 &&
-    coverage.commands_unmapped.length === 0;
+    coverage.commands_unmapped.length === 0 &&
+    (coverage.overmapped_leaves || []).length === 0 &&
+    overMapped.length === 0;
 
   return {
     ok,
     outPath,
     leaves,
     coverage,
+    overMapped: overMapped.map((l) => l.id),
     reflection_rounds: rounds,
     cover_rounds: covered.rounds,
   };

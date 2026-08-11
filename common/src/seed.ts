@@ -2,7 +2,15 @@
 /**
  * Seed product DB from versioned recipes.json (description embeddings).
  */
-import { existsSync, rmSync, writeFileSync, mkdirSync, readFileSync } from 'node:fs';
+import {
+  existsSync,
+  rmSync,
+  writeFileSync,
+  mkdirSync,
+  readFileSync,
+  renameSync,
+  copyFileSync,
+} from 'node:fs';
 import path from 'node:path';
 import { defaultDbPath, catalogDir } from './lib/paths.js';
 import {
@@ -38,7 +46,7 @@ export function exportCatalogFromDb(db, {
 }
 
 /**
- * Embed recipes.json into a fresh schema-v9 DB + checksum.
+ * Embed recipes.json into a fresh schema-v9 DB + checksum (atomic temp → rename).
  */
 export async function seedCatalog({
   recipesPath = path.join(catalogDir(), 'recipes.json'),
@@ -52,7 +60,7 @@ export async function seedCatalog({
   }
   if (!existsSync(sourcePath)) {
     const err = new Error(
-      `Missing recipes.json at ${recipesPath} — run build:loop first`,
+      `Missing recipes.json at ${recipesPath} — run bun run expand (or generate) first`,
     );
     err.code = 'SEED';
     throw err;
@@ -70,16 +78,17 @@ export async function seedCatalog({
     throw err;
   }
 
-  if (existsSync(dbPath)) {
-    rmSync(dbPath);
-  }
   mkdirSync(path.dirname(dbPath), { recursive: true });
-  const db = openDb(dbPath);
+  const tmpPath = `${dbPath}.tmp-${process.pid}-${Date.now()}`;
+  if (existsSync(tmpPath)) rmSync(tmpPath);
+
+  const db = openDb(tmpPath, { forceMigrate: true });
   const embedder = await getEmbedder({ forceMock });
+  let inserted = 0;
+  let skipped = 0;
 
   try {
     for (const row of recipes) {
-      // Accept v9 product shape or lightly adapt legacy command rows
       let recipe = row;
       if (!row.description && row.command_recipe) {
         recipe = {
@@ -106,12 +115,14 @@ export async function seedCatalog({
         provenance: recipe.provenance || 'synthetic',
       });
       if (!parsed.success) {
+        skipped += 1;
         throw new Error(
           `Invalid recipe ${recipe.id}: ${parsed.error.issues[0]?.message}`,
         );
       }
       const emb = await embedder.embed(recipeEmbedText(parsed.data));
       insertRecipe(db, parsed.data, emb);
+      inserted += 1;
     }
     finalizeSearchIndex(db);
     const latest = readLatestCorpusMeta();
@@ -124,9 +135,28 @@ export async function seedCatalog({
         setMetaValue(db, 'corpus_created_at', latest.created_at);
       }
     }
-  } finally {
-    db.close();
+  } catch (e) {
+    try {
+      db.close();
+    } catch {
+      /* ignore */
+    }
+    if (existsSync(tmpPath)) rmSync(tmpPath);
+    throw e;
   }
+  db.close();
+
+  // Atomic replace: Windows-safe remove then rename.
+  if (existsSync(dbPath)) rmSync(dbPath);
+  try {
+    renameSync(tmpPath, dbPath);
+  } catch {
+    copyFileSync(tmpPath, dbPath);
+    rmSync(tmpPath);
+  }
+  // Drop stale checksum until rewrite succeeds.
+  const shaPath = `${dbPath}.sha256`;
+  if (existsSync(shaPath)) rmSync(shaPath);
 
   const hash = writeChecksumFile(dbPath);
   const verify = openDb(dbPath, { readonly: true });
@@ -139,8 +169,8 @@ export async function seedCatalog({
   return {
     dbPath,
     recipes: n,
-    n: 0,
-    skipped: 0,
+    n: inserted,
+    skipped,
     hash,
     mock: Boolean(forceMock),
   };

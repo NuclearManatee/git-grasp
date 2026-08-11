@@ -28,10 +28,11 @@ flowchart TB
 
 ## What it does
 
-1. Embed the query (local BGE-small).
-2. Parallel description KNN + BM25 FTS.
-3. Fuse scores; soft verb boost; confidence-gated display count.
-4. Diversify by **structural** command fingerprint (literal vs `<placeholder>` collapse).
+1. Verify DB `.sha256` integrity, then `schema_version` + `search_algorithm_version` (CLI and web).
+2. Embed the query (local BGE-small). Embed text for recipes is description + paraphrases.
+3. Parallel description KNN (`vec_recipes`) + BM25 FTS (`recipes_fts`).
+4. Fuse scores; soft verb boost; confidence-gated display 1–3 (or abstain).
+5. Diversify by **structural** command fingerprint (literal vs `<placeholder>` collapse).
 
 ## Code
 

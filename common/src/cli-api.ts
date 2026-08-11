@@ -39,6 +39,7 @@ export {
   setTelemetryEnabled,
   telemetryStatus,
   telemetryStatusDetail,
+  isHardOff,
   isTelemetryEnabled,
   shouldPromptInvite,
   buildCliOptInEvent,

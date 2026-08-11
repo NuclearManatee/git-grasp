@@ -28,8 +28,9 @@ import { renderEvolveLatestMd } from './renderLatest.js';
  * @param {object} [opts]
  * @param {object[]} [opts.events] — skip pull when provided (tests)
  * @param {boolean} [opts.noChain]
- * @param {boolean} [opts.llmLabel]
+ * @param {boolean} [opts.llmLabel] — opt-in only; bare OPENAI_API_KEY does not auto-enable
  * @param {boolean} [opts.ship]
+ * @param {boolean} [opts.shipUnsafe] — skip held-out/regression gates when shipping
  * @param {string|number} [opts.catalogVersion]
  * @param {boolean} [opts.allowVersionBump] — set true after gates in full expand; default false for triage-only
  * @param {string} [opts.root]
@@ -49,6 +50,8 @@ export async function runEvolve(opts = {}) {
   const drop_reasons = {};
   let pulled = [];
   let pullMeta = {};
+  /** @type {{ last_pulled_at: string|null, last_event_id: string|null }|null} */
+  let pendingCursor = null;
 
   if (opts.events) {
     pulled = opts.events;
@@ -68,6 +71,7 @@ export async function runEvolve(opts = {}) {
       websiteId: cfg.websiteId || env.GIT_GRASP_UMAMI_WEBSITE_ID,
       token,
       sinceIso: cursor.last_pulled_at,
+      afterEventId: cursor.last_event_id,
       fetchImpl: opts.fetchImpl,
     });
     pulled = result.events;
@@ -78,13 +82,12 @@ export async function runEvolve(opts = {}) {
       return Number.isFinite(ms) && ms > acc ? ms : acc;
     }, cursor.last_pulled_at ? Date.parse(cursor.last_pulled_at) : 0);
     const lastId = pulled.length ? pulled[pulled.length - 1].id : cursor.last_event_id;
-    writeEvolveCursor(
-      {
-        last_pulled_at: newest ? new Date(newest).toISOString() : new Date().toISOString(),
-        last_event_id: lastId || null,
-      },
-      root,
-    );
+    pendingCursor = {
+      last_pulled_at: newest
+        ? new Date(newest).toISOString()
+        : cursor.last_pulled_at || new Date().toISOString(),
+      last_event_id: lastId || null,
+    };
   }
 
   writeFileSync(
@@ -111,15 +114,16 @@ export async function runEvolve(opts = {}) {
       chain: { ran: false },
     });
     writeStats(stats, root, opts.writeDocs !== false);
+    // Durable stats written — advance cursor so a refuse does not re-pull forever
+    if (pendingCursor) writeEvolveCursor(pendingCursor, root);
     return { ok: false, refused: true, stats, feederTrain: [], feederHoldout: [] };
   }
 
   let { journeys, droppedOversized } = buildThreads(filtered.events);
   if (droppedOversized) drop_reasons.thread_oversized = droppedOversized;
 
-  const useLlm =
-    opts.llmLabel === true ||
-    (opts.llmLabel !== false && Boolean(env.OPENAI_API_KEY) && !opts.events);
+  // LLM label is strictly opt-in via --llm-label / opts.llmLabel === true
+  const useLlm = opts.llmLabel === true;
   if (useLlm) {
     journeys = await maybeLlmConfirmLabels(journeys, {
       enabled: true,
@@ -141,13 +145,18 @@ export async function runEvolve(opts = {}) {
       db: opts.db,
       stagingPath: opts.stagingPath,
       ship: Boolean(opts.ship),
+      shipUnsafe: Boolean(opts.shipUnsafe),
       allowVersionBump: opts.allowVersionBump === true || Boolean(opts.ship),
       triageFailure: opts.triageFailure,
       applyTriageAction: opts.applyTriageAction,
       embed: opts.embed,
       search: opts.search,
       leaves: opts.leaves,
+      heldoutOk: opts.heldoutOk,
+      heldoutGate: opts.heldoutGate,
+      regressionPath: opts.regressionPath,
       llmJsonObject: opts.llmJsonObject,
+      runLeafHoldout: opts.runLeafHoldout,
     });
     let holdoutScore = { hit_rate: null };
     if (chainResult.ok) {
@@ -164,6 +173,7 @@ export async function runEvolve(opts = {}) {
       corpus_version: chainResult.corpus_version ?? null,
       shipped: Boolean(chainResult.shipped),
       error: chainResult.error,
+      ship_gates: chainResult.ship_gates,
     };
   }
 
@@ -181,6 +191,9 @@ export async function runEvolve(opts = {}) {
     chain,
   });
   writeStats(stats, root, opts.writeDocs !== false);
+
+  // Advance cursor only after durable feeder + stats write
+  if (pendingCursor) writeEvolveCursor(pendingCursor, root);
 
   return {
     ok: !chain.ran || Boolean(chain.ok),

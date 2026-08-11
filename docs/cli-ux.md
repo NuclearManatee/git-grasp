@@ -256,7 +256,7 @@ IDs are stable for comments (`re: MSG.telemetry.on`).
 | `MSG.search.spinner`      | err    | —     | ora                           | Searching…                                                                                            |
 | `MSG.search.copy.ok`      | err    | ✅     | `muted`                       | Copied command to clipboard.                                                                          |
 | `MSG.search.copy.fail`    | err    | ⚠️    | `warn`                        | Clipboard unavailable — command is printed above.                                                     |
-| `MSG.search.update`       | err    | ⚠️    | `warn` + `command` on install | A newer git-grasp is available: {latest} (you have {local}). Update with: bun add -g git-grasp@latest |
+| `MSG.search.update`       | err    | ⚠️    | `warn` + `command` on install | A newer git-grasp is available: {latest} (you have {local}). {bun install hint \| binary release-zip hint} |
 | `MSG.search.fail.tip`     | err    | ℹ️    | `muted`                       | Run git-grasp doctor if this keeps happening. *(new — for INTEGRITY/CONFIG)*                          |
 
 
@@ -378,7 +378,8 @@ Telemetry is enabled. Your searches will be used to improve the product for ever
 ### Update notice (stderr)
 
 ```text
-A newer git-grasp is available: 0.2.0 (you have 0.1.0). Update with: bun add -g git-grasp@latest   ← whole line yellow
+A newer git-grasp is available: 0.2.0 (you have 0.1.0). Update with: bun add -g git-grasp@latest   ← whole line yellow (Bun/npm)
+A newer git-grasp is available: 0.2.0 (you have 0.1.0). Download the latest release zip…          ← binary install hint
 ```
 
 ### Doctor excerpt

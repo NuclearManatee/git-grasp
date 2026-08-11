@@ -15,7 +15,9 @@ Each skip item is { "skill_level", "intent_category", "reason" }.
 You may return only skips, only intents, or both — but at least one intent or one skip.
 Do not invent intents for cells that cannot realistically apply; skip them with a short reason.
 {{{composition_guidance}}}
+{{> nl-query-rules}}
 Do not copy the command flags verbatim; write how humans type when stuck.
+{{> nl-query-rules}}
 skill_level must be one of: nontechnical, beginner, intermediate, expert.
 intent_category must be one of: goal, error_message, symptom, conversational.
 Follow the dos/don'ts for the cell that matches each intent's skill_level and intent_category.

@@ -11,7 +11,7 @@ export const ThresholdsSchema = z
     confidenceVeryHigh: z.number(),
     /** C > this (and â‰¤ veryHigh) â†’ 2 results + yellow. */
     confidenceHigh: z.number(),
-    /** C > this (and ≤ high) → candidate for 3 results + orange (red only via absolute evidence). */
+    /** Retained for config compatibility; display gating uses high/veryHigh + abstain floors only (medium band unused). */
     confidenceMedium: z.number(),
     normalizeQuery: z.boolean(),
     /** Min S1−S2 gap for the 1-result "exact" band (default DISPLAY_GAP_EXACT). */

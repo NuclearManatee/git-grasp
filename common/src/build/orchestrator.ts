@@ -218,18 +218,32 @@ export async function runGroundStep(opts = {}) {
   finalizeSearchIndex(db);
   db.close();
   const acceptedLeaves = results.filter((r) => (r.totalAccepted || 0) > 0);
+  const checkpointed = results.filter((r) => r.checkpoint);
   const errored = results.filter((r) => r.error);
-  // Zero-accept / residual transient errors do not fail ground when recipes exist.
-  const ok = acceptedLeaves.length > 0;
+  const zeroAccepts = results.filter((r) => !r.error && !(r.totalAccepted > 0));
+  const leafCount = results.length || 1;
+  const minLeafCheckpointRate = opts.minLeafCheckpointRate ?? 0.9;
+  const maxErrorRate = opts.maxLeafErrorRate ?? 0.1;
+  const checkpointRate = checkpointed.length / leafCount;
+  const errorRate = errored.length / leafCount;
+  const ok =
+    checkpointRate >= minLeafCheckpointRate && errorRate <= maxErrorRate;
   log(
-    `ground done: ok=${ok} leaves_with_recipes=${acceptedLeaves.length}/${results.length} errors=${errored.length}`,
+    `ground done: ok=${ok} checkpointed=${checkpointed.length}/${results.length} ` +
+      `leaves_with_recipes=${acceptedLeaves.length} errors=${errored.length} ` +
+      `zero_accepts=${zeroAccepts.length} checkpointRate=${checkpointRate.toFixed(3)}`,
   );
   return {
     ok,
     stagingPath,
     results,
     acceptedLeaves: acceptedLeaves.length,
+    checkpointed: checkpointed.length,
+    checkpointRate,
     errors: errored.length,
+    errorRate,
+    zeroAccepts: zeroAccepts.length,
+    minLeafCheckpointRate,
   };
 }
 
@@ -281,14 +295,16 @@ export async function runBuildLoop(opts = {}) {
     let touched = false;
     for (const r of lastFail.results || []) {
       if (r.hit) continue;
+      const verifiedId = r.expectedId ? String(r.expectedId) : null;
       const failure = {
         query: r.query,
-        expectedId: r.expectedId,
+        ...(verifiedId ? { expectedId: verifiedId } : {}),
         displayedIds: r.displayed,
         leafId: leaf.id,
         leafIds: leaves.map((l) => l.id),
         hit: false,
-        correctExists: true,
+        // Only claim the recipe exists when holdout verified a leaf match id.
+        correctExists: Boolean(verifiedId),
       };
       let classification;
       try {
@@ -330,7 +346,9 @@ export async function runBuildLoop(opts = {}) {
             minAccuracy: opts.minAccuracy,
             passRounds: opts.passRounds,
           });
+          let frozenQueries = hold.frozenQueries || null;
           let attempts = 0;
+          let usedBroadcast = false;
           while (!hold.ok && attempts < improveRounds) {
             attempts += 1;
             log(`leaf ${leaf.id}: holdout fail → improve ${attempts}/${improveRounds}`);
@@ -347,18 +365,23 @@ export async function runBuildLoop(opts = {}) {
                 count: opts.heldoutCount,
                 minAccuracy: opts.minAccuracy,
                 passRounds: opts.passRounds,
+                frozenQueries: frozenQueries || undefined,
               });
+              if (!frozenQueries && hold.frozenQueries) {
+                frozenQueries = hold.frozenQueries;
+              }
             } catch (e) {
               log(`leaf ${leaf.id}: holdout retry error ${e?.message || e}`);
               break;
             }
           }
-          // Last-ditch: broadcast every remaining miss query onto all leaf recipes.
-          if (!hold.ok) {
+          // Last-ditch broadcast is opt-in only (poisons paraphrases otherwise).
+          if (!hold.ok && opts.forceBroadcast) {
             const lastFail = [...(hold.rounds || [])].reverse().find((r) => !r.passed);
             const recipes = listRecipes(db).filter((r) => r.taxonomy_leaf === leaf.id);
             if (lastFail && recipes.length) {
               try {
+                usedBroadcast = true;
                 for (const r of lastFail.results || []) {
                   if (r.hit) continue;
                   for (const recipe of recipes) {
@@ -381,6 +404,7 @@ export async function runBuildLoop(opts = {}) {
                     count: opts.heldoutCount,
                     minAccuracy: opts.minAccuracy,
                     passRounds: opts.passRounds,
+                    frozenQueries: frozenQueries || undefined,
                   });
                   if (hold.ok) {
                     log(`leaf ${leaf.id}: holdout recovered via broadcast (+${extra + 1})`);
@@ -392,9 +416,15 @@ export async function runBuildLoop(opts = {}) {
             }
           }
           log(
-            `leaf ${leaf.id}: holdout=${hold.ok} streak=${hold.streak || 0} improve=${attempts}`,
+            `leaf ${leaf.id}: holdout=${hold.ok} streak=${hold.streak || 0} improve=${attempts}` +
+              (usedBroadcast ? ' broadcast=1' : ''),
           );
-          return { leafId: leaf.id, improveAttempts: attempts, ...hold };
+          return {
+            leafId: leaf.id,
+            improveAttempts: attempts,
+            usedBroadcast,
+            ...hold,
+          };
         } catch (e) {
           const message = e?.message || String(e);
           log(`leaf ${leaf.id}: holdout FATAL ${message}`);
@@ -419,6 +449,14 @@ export async function runBuildLoop(opts = {}) {
         leaves,
       });
     }
+  }
+  // Gap pool is advisory this release — proposals are not auto-applied to GENERATE.
+  if (gapProposals.length > 0) {
+    log(
+      `gap pool advisory: ${gapProposals.length} proposal(s) (applied=0); review / expand taxonomy manually`,
+    );
+  } else if (gapPool.length > 0) {
+    log(`gap pool: ${gapPool.length} queries clustered to 0 proposals (below min cluster size)`);
   }
 
   // Rebuild heldout regression from this run's green leaves only; keep real/triage rows.
@@ -481,14 +519,20 @@ export async function runBuildLoop(opts = {}) {
   const minHoldRate = opts.minHoldoutLeafRate ?? 0.8;
   const holdOk = holdRate >= minHoldRate;
   log(
-    `holdout summary: ${holdPass}/${holdouts.length} leaves (${(holdRate * 100).toFixed(1)}%, need ≥${(minHoldRate * 100).toFixed(0)}%)`,
+    `holdout summary: ${holdPass}/${holdouts.length} leaves ` +
+      `(${(holdRate * 100).toFixed(1)}%, need ≥${(minHoldRate * 100).toFixed(0)}% leaf-rate; ` +
+      `per-leaf bar 0.95×2)`,
   );
+  const broadcastUsed = holdouts.some((h) => h.usedBroadcast);
   return {
     ok: holdOk && regEval.ok,
     holdouts,
     holdPass,
     holdRate,
+    minHoldoutLeafRate: minHoldRate,
     gapProposals,
+    gapProposalsApplied: 0,
+    broadcastUsed,
     regression: regEval,
     corpus,
     stagingPath,

@@ -1,6 +1,7 @@
 // @ts-nocheck
 /**
- * Step âˆ’1: paragraph chunking + OpenAI embed + multi-anchor taxonomy routing.
+ * @deprecated Legacy Step −1 semantic-block prepare (ProGit/tldr). Prefer
+ * `prepare:scrape` + `prepare:goals` (see docs/prepare.md). Kept for archival tooling only.
  */
 import { mkdirSync, writeFileSync, readFileSync, existsSync, readdirSync, statSync } from 'node:fs';
 import path from 'node:path';
@@ -262,7 +263,7 @@ function loadSourceTexts() {
 export function loadGitCommandTaxonomy(filePath = gitCommandsTaxonomyPath()) {
   if (!existsSync(filePath)) {
     throw new Error(
-      `Missing git command taxonomy at ${filePath}. Run: bun run taxonomy:scrape`,
+      `Missing git command taxonomy at ${filePath}. Run: bun run prepare:scrape`,
     );
   }
   const data = JSON.parse(readFileSync(filePath, 'utf8'));

@@ -71,6 +71,7 @@
     "build:loop:mock": "bun --filter @git-grasp/pipeline build:loop:mock",
     "rebuild": "bun run expand -- --fresh && bun run ship",
     "eval": "bun --filter @git-grasp/pipeline eval",
+    "eval:regression": "bun --filter @git-grasp/pipeline eval:regression",
     "eval:loop": "bun --filter @git-grasp/pipeline loop",
     "web:dev": "bun --filter @git-grasp/web dev",
     "web:build": "bun --filter @git-grasp/web build",

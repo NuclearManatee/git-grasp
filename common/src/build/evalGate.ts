@@ -549,11 +549,19 @@ export function top3FromSearchOutput(hitsOrResult) {
   return displayedFromSearchOutput(hitsOrResult);
 }
 
+/** String recipe id from a search hit (v9 TEXT PKs; never Number()). */
+export function recipeIdOf(hit) {
+  if (hit == null) return '';
+  if (typeof hit === 'string' || typeof hit === 'number') return String(hit);
+  const id = hit.command_id ?? hit.recipe_id ?? hit.id;
+  return id == null ? '' : String(id);
+}
+
 export function hitAtDisplay(hitsOrResult, commandId) {
+  if (commandId == null) return false;
+  const want = String(commandId);
   const displayed = displayedFromSearchOutput(hitsOrResult);
-  return displayed.some(
-    (h) => Number(h.command_id ?? h.recipe_id) === Number(commandId),
-  );
+  return displayed.some((h) => recipeIdOf(h) === want);
 }
 
 /**
@@ -565,17 +573,17 @@ export function hitAtDisplay(hitsOrResult, commandId) {
  */
 export function hitAtFamilyDisplay(hitsOrResult, expectedId, lineage) {
   if (!lineage || expectedId == null) return false;
-  const expected = Number(expectedId);
-  if (!Number.isFinite(expected)) return false;
+  const expected = String(expectedId);
   const parentOf = (id) => {
-    if (lineage instanceof Map) return lineage.get(id);
-    return lineage[id] ?? lineage[String(id)];
+    const key = String(id);
+    if (lineage instanceof Map) return lineage.get(id) ?? lineage.get(key);
+    return lineage[id] ?? lineage[key];
   };
   const displayed = displayedFromSearchOutput(hitsOrResult);
   return displayed.some((h) => {
-    const cid = Number(h.command_id ?? h.recipe_id);
-    if (!Number.isFinite(cid)) return false;
-    return Number(parentOf(cid)) === expected;
+    const cid = recipeIdOf(h);
+    if (!cid) return false;
+    return String(parentOf(cid) ?? '') === expected;
   });
 }
 

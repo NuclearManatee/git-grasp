@@ -26,6 +26,7 @@
     "./lib/skills.js": "./src/lib/skills.ts",
     "./lib/validator.js": "./src/lib/validator.ts",
     "./lib/telemetry/defaults.js": "./src/lib/telemetry/defaults.ts",
+    "./lib/telemetry/scrub.js": "./src/lib/telemetry/scrub.ts",
     "./build/orchestrator.js": "./src/build/orchestrator.ts",
     "./build/goalTaxonomy.js": "./src/build/goalTaxonomy.ts",
     "./build/prepare.js": "./src/build/prepare.ts",

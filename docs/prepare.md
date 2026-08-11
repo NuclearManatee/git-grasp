@@ -35,5 +35,10 @@ flowchart TB
 
 ## Notes
 
-- No Pro Git / tldr in the normal path.
+- No Pro Git / tldr in the normal path (`common/src/build/prepare.ts` is **deprecated** archival Step −1).
+- User-facing scripts/errors use `prepare:*` (not `taxonomy:*`).
+- `fresh:false` refuses overwrite when `goal_taxonomy.json` exists; `fresh:true` overwrites.
+- Leaf `mapped_commands` hard-capped at 6 after normalize; hygiene fails if over.
+- Reflection merges union dropped leaf commands onto `keep_id`.
+- Scrape strips absolute `probe_detail` paths from the committed `git_commands.json`; full probe under `local/prepare/`.
 - Leaves that cannot map to available commands are discarded or backfilled via cover-unmapped.

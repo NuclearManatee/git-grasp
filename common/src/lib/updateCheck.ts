@@ -14,6 +14,29 @@ export function updateCachePath() {
   return path.join(userPaths().cache, 'update-check.json');
 }
 
+export function isCompiledBinaryInstall(env = process.env) {
+  if (env.GIT_GRASP_INSTALL === 'binary') return true;
+  if (env.GIT_GRASP_INSTALL === 'bun' || env.GIT_GRASP_INSTALL === 'npm') return false;
+  try {
+    if (typeof Bun !== 'undefined' && typeof Bun.main === 'string') {
+      const exec = path.resolve(process.execPath);
+      const main = path.resolve(Bun.main);
+      if (exec === main) return true;
+    }
+  } catch {
+    /* ignore */
+  }
+  const base = path.basename(process.execPath || '').toLowerCase();
+  return base.includes('git-grasp') && !base.includes('bun') && !base.includes('node');
+}
+
+export function updateInstallHint(env = process.env) {
+  if (isCompiledBinaryInstall(env)) {
+    return 'Download the latest release zip from GitHub and replace your install.';
+  }
+  return 'Update with: bun add -g git-grasp@latest';
+}
+
 export function isUpdateCheckHardOff(env = process.env) {
   return env.GIT_GRASP_UPDATE_CHECK === '0' || env.GIT_GRASP_UPDATE_CHECK === 'false';
 }
@@ -180,7 +203,7 @@ export async function maybeNotifyUpdate(opts = {}) {
       if (!quiet) {
         console.error(
           warnLine(
-            `A newer git-grasp is available: ${result.latest} (you have ${result.local}). Update with: bun add -g git-grasp@latest`,
+            `A newer git-grasp is available: ${result.latest} (you have ${result.local}). ${updateInstallHint(env)}`,
             env,
           ),
         );

@@ -20,7 +20,7 @@ export const HeldoutQueriesLlmSchema = z.object({
 });
 
 /**
- * @param {{ query: string, expectedId: string, hit: boolean }[]} results
+ * @param {{ query: string, expectedId?: string, hit: boolean }[]} results
  */
 export function heldoutAccuracy(results) {
   if (!results.length) return 0;
@@ -28,10 +28,25 @@ export function heldoutAccuracy(results) {
   return hits / results.length;
 }
 
+async function draftQueries(leaf, count, persona, call) {
+  const { messages } = renderPrompt('build/heldout-queries', {
+    leaf_name: leaf.name,
+    leaf_description: leaf.description,
+    count: String(count),
+    persona,
+  });
+  const drafted = await call({
+    schema: HeldoutQueriesLlmSchema,
+    messages,
+  });
+  return (drafted.queries || []).map((q) => String(q).trim()).filter(Boolean);
+}
+
 /**
  * Generate held-out queries (not indexed) and score against hybrid search.
  * @param leaf
  * @param opts.search async (query) => { displayResults: { command_id }[] }
+ * @param opts.frozenQueries string[] — re-score the same queries (no LLM draft)
  */
 export async function runLeafHoldout(leaf, opts = {}) {
   const call = opts.llmJsonObject || llmJsonObject;
@@ -49,27 +64,54 @@ export async function runLeafHoldout(leaf, opts = {}) {
   const leafRecipeIds = new Set(recipes.map((r) => String(r.id)));
   const rounds = [];
   let streak = 0;
+  let frozenQueries = Array.isArray(opts.frozenQueries)
+    ? opts.frozenQueries.slice()
+    : null;
 
   for (let r = 0; r < passRounds + 2 && streak < passRounds; r += 1) {
-    const persona =
-      r % 2 === 0
-        ? 'frustrated beginner who avoids git jargon'
-        : 'busy intermediate describing symptoms, not commands';
-    const { messages } = renderPrompt('build/heldout-queries', {
-      leaf_name: leaf.name,
-      leaf_description: leaf.description,
-      count: String(count),
-      persona,
-    });
-    const drafted = await call({
-      schema: HeldoutQueriesLlmSchema,
-      messages,
-    });
-    const queries = (drafted.queries || []).slice(0, count);
+    let queries;
+    if (frozenQueries?.length) {
+      queries = frozenQueries.slice(0, count);
+      if (queries.length !== count) {
+        return {
+          ok: false,
+          reason: 'thin_frozen_queries',
+          streak,
+          rounds,
+          frozenQueries,
+          minAccuracy: minAcc,
+          passRounds,
+        };
+      }
+    } else {
+      const persona =
+        r % 2 === 0
+          ? 'frustrated beginner who avoids git jargon'
+          : 'busy intermediate describing symptoms, not commands';
+      queries = await draftQueries(leaf, count, persona, call);
+      // One re-draft if short; then fail the round (do not count thin toward streak).
+      if (queries.length < count) {
+        queries = await draftQueries(leaf, count, persona, call);
+      }
+      queries = queries.slice(0, count);
+      if (queries.length !== count) {
+        rounds.push({
+          round: r + 1,
+          accuracy: 0,
+          passed: false,
+          results: [],
+          reason: 'thin_queries',
+          drafted: queries.length,
+          required: count,
+        });
+        streak = 0;
+        continue;
+      }
+      if (!frozenQueries) frozenQueries = queries.slice();
+    }
 
     const results = [];
     for (let i = 0; i < queries.length; i += 1) {
-      const expected = recipes[i % recipes.length];
       const searchResult = await opts.search(queries[i]);
       const recallK = opts.recallK ?? 10;
       const pool = [
@@ -88,7 +130,9 @@ export async function runLeafHoldout(leaf, opts = {}) {
       const hit = Boolean(matchedId);
       results.push({
         query: queries[i],
-        expectedId: matchedId || String(expected.id),
+        // Only set expectedId when a leaf recipe actually matched (verified).
+        // Misses omit expectedId so triage does not alias a random recipe.
+        ...(hit ? { expectedId: matchedId } : {}),
         leafId: leaf.id,
         hit,
         displayed: ranked.slice(0, 3),
@@ -106,6 +150,7 @@ export async function runLeafHoldout(leaf, opts = {}) {
     ok: streak >= passRounds,
     streak,
     rounds,
+    frozenQueries,
     minAccuracy: minAcc,
     passRounds,
   };

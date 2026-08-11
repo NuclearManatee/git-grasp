@@ -27,6 +27,7 @@ import {
 } from '../search/gitVerbs.js';
 import { createHash } from 'node:crypto';
 import { structuralCommandFingerprint } from '../build/argvNormalize.js';
+import { writeChecksumFile } from '../lib/checksum.js';
 
 export {
   SCHEMA_VERSION,
@@ -112,7 +113,7 @@ export function loadSqliteVec(db) {
   return String(row.v);
 }
 
-export function openDb(dbPath, { readonly = false } = {}) {
+export function openDb(dbPath, { readonly = false, forceMigrate = false } = {}) {
   if (dbPath !== ':memory:' && !readonly) {
     mkdirSync(path.dirname(dbPath), { recursive: true });
   }
@@ -122,7 +123,10 @@ export function openDb(dbPath, { readonly = false } = {}) {
   }
   loadSqliteVec(db);
   if (!readonly) {
-    ensureSchemaV9(db);
+    const force =
+      forceMigrate === true ||
+      process.env.GIT_GRASP_FORCE_MIGRATE === '1';
+    ensureSchemaV9(db, { forceMigrate: force });
   }
   return db;
 }
@@ -164,8 +168,9 @@ function dropAllCatalogTables(db) {
   }
 }
 
-function ensureSchemaV9(db) {
+function ensureSchemaV9(db, { forceMigrate = false } = {}) {
   const tables = tableNames(db);
+  const empty = tables.length === 0;
   const hasRecipes = tables.includes('recipes');
   const hasVec = tables.includes('vec_recipes');
   const hasLegacy =
@@ -175,8 +180,16 @@ function ensureSchemaV9(db) {
     tables.includes('search_intents') ||
     tables.includes('git_commands');
 
-  if (hasLegacy || !hasRecipes || !hasVec) {
-    dropAllCatalogTables(db);
+  const needsWipe =
+    !empty && (hasLegacy || !hasRecipes || !hasVec);
+
+  let verMismatch = false;
+  if (hasRecipes && hasVec && !hasLegacy) {
+    const ver = db.prepare("SELECT value FROM meta WHERE key = 'schema_version'").get();
+    verMismatch = !ver || Number(ver.value) !== SCHEMA_VERSION;
+  }
+
+  if (empty) {
     db.exec(DDL);
     db.prepare('INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)').run(
       'schema_version',
@@ -185,8 +198,18 @@ function ensureSchemaV9(db) {
     return;
   }
 
-  const ver = db.prepare("SELECT value FROM meta WHERE key = 'schema_version'").get();
-  if (!ver || Number(ver.value) !== SCHEMA_VERSION) {
+  if (needsWipe || verMismatch) {
+    if (!forceMigrate) {
+      const ver = db.prepare("SELECT value FROM meta WHERE key = 'schema_version'").get();
+      const found = ver?.value ?? 'missing';
+      const err = new Error(
+        `Catalog schema mismatch (found schema_version=${found}, code=${SCHEMA_VERSION}` +
+          `${hasLegacy ? ', legacy tables present' : ''}). ` +
+          `Refusing to wipe. Pass forceMigrate or GIT_GRASP_FORCE_MIGRATE=1 after backup.`,
+      );
+      err.code = 'SCHEMA_MISMATCH';
+      throw err;
+    }
     dropAllCatalogTables(db);
     db.exec(DDL);
     db.prepare('INSERT OR REPLACE INTO meta (key, value) VALUES (?, ?)').run(
@@ -632,6 +655,22 @@ export function loadAllRows(clientOrCatalog) {
 
 export function promoteStagingDb(stagingPath, prodPath) {
   mkdirSync(path.dirname(prodPath), { recursive: true });
+  // Assert staging schema before promoting (open readonly — no migrate).
+  {
+    const staging = openDb(stagingPath, { readonly: true });
+    try {
+      const ver = getMetaValue(staging, 'schema_version');
+      if (Number(ver) !== SCHEMA_VERSION) {
+        const err = new Error(
+          `Cannot promote: staging schema_version=${ver} code=${SCHEMA_VERSION}`,
+        );
+        err.code = 'SCHEMA_MISMATCH';
+        throw err;
+      }
+    } finally {
+      staging.close();
+    }
+  }
   if (existsSync(prodPath)) unlinkSync(prodPath);
   copyFileSync(stagingPath, prodPath);
   const db = openDb(prodPath);
@@ -640,6 +679,8 @@ export function promoteStagingDb(stagingPath, prodPath) {
   } finally {
     db.close();
   }
+  // Search requires checksum — always write after promote.
+  writeChecksumFile(prodPath);
   return prodPath;
 }
 

@@ -116,9 +116,21 @@ describe('improve triage helpers', () => {
   });
 
   it('heuristic buckets', () => {
-    expect(classifyMissHeuristic({ correctExists: true, hit: false }).bucket).toBe(1);
-    expect(classifyMissHeuristic({ leafId: 'x' }).bucket).toBe(2);
-    expect(classifyMissHeuristic({}).bucket).toBe(3);
+    expect(
+      classifyMissHeuristic({
+        correctExists: true,
+        expectedId: 'r1',
+        displayedIds: ['r2'],
+        hit: false,
+      }).bucket,
+    ).toBe(1);
+    expect(
+      classifyMissHeuristic({ leafId: 'x', displayedIds: [] }).bucket,
+    ).toBe(2);
+    expect(classifyMissHeuristic({ displayedIds: ['r9'] }).bucket).toBe(3);
+    expect(
+      classifyMissHeuristic({ leafId: 'x', displayedIds: ['r9'] }).bucket,
+    ).toBe(2);
   });
 });
 

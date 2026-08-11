@@ -13,6 +13,7 @@ Composition rules:
 - Mentioning a git subcommand is optional; prefer a goal-shaped ask a user would type.
 - Do NOT write a query that fits a bare single-command sibling of only the primary verb.
 - Include ONE short cue grounded in the title or initial_state (situation: remote / dirty tree / detached, or plain-language outcome) so THIS multi-step recipe is distinguishable.
+- Asymmetry vs rewrite-eval-golden: generation here is goal-first; bank rewrite still nudges primary-verb tokens on single-intent misses.
 {{/is_composition}}
 {{^is_composition}}
 Ground / single-step rules:

@@ -38,21 +38,12 @@ jobs:
       - name: CI audit
         run: bun common/scripts/ci-audit.ts
 
-      - name: Require DeepSeek secret
+      - name: Regression eval
         env:
-          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-        run: |
-          if [ -z "$DEEPSEEK_API_KEY" ]; then
-            echo "DEEPSEEK_API_KEY secret is required for the main gate" >&2
-            exit 1
-          fi
-
-      - name: Golden eval
-        env:
-          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           GIT_GRASP_SKIP_POSTINSTALL: '1'
-          GIT_GRASP_MOCK_EMBEDDINGS: '1'
-        run: bun run eval -- --min-pass-rate=0.9
+          # Real embeddings required — mock KNN cannot meet the 0.95 regression gate.
+          GIT_GRASP_MOCK_EMBEDDINGS: '0'
+        run: bun run eval:regression
 
       - name: Export web pack
         run: bun run web:pack
@@ -140,6 +131,38 @@ jobs:
         env:
           GIT_GRASP_SKIP_POSTINSTALL: '1'
 
+      - name: Smoke unzip + doctor (unix)
+        if: runner.os != 'Windows'
+        env:
+          GIT_GRASP_MOCK_EMBEDDINGS: '1'
+        run: |
+          set -euo pipefail
+          SMOKE="dist-release/smoke-${{ matrix.slug }}"
+          rm -rf "$SMOKE"
+          mkdir -p "$SMOKE"
+          unzip -q "dist-release/git-grasp-${{ matrix.slug }}.zip" -d "$SMOKE"
+          BIN="$SMOKE/git-grasp"
+          chmod +x "$BIN"
+          (cd "$SMOKE" && ./git-grasp doctor)
+
+      - name: Smoke unzip + doctor (windows)
+        if: runner.os == 'Windows'
+        env:
+          GIT_GRASP_MOCK_EMBEDDINGS: '1'
+        shell: pwsh
+        run: |
+          $smoke = "dist-release/smoke-${{ matrix.slug }}"
+          if (Test-Path $smoke) { Remove-Item -Recurse -Force $smoke }
+          New-Item -ItemType Directory -Path $smoke | Out-Null
+          Expand-Archive -Path "dist-release/git-grasp-${{ matrix.slug }}.zip" -DestinationPath $smoke -Force
+          Push-Location $smoke
+          try {
+            & .\git-grasp.exe doctor
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          } finally {
+            Pop-Location
+          }
+
       - name: Upload zip artifact
         uses: actions/upload-artifact@v4
         with:
@@ -163,19 +186,28 @@ jobs:
           merge-multiple: true
           path: release-assets
 
+      - name: Attach SHA256SUMS
+        run: |
+          set -euo pipefail
+          cd release-assets
+          sha256sum *.zip > SHA256SUMS
+          cat SHA256SUMS
+
       - name: Create GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           TAG="${GITHUB_REF_NAME}"
-          gh release create "$TAG" release-assets/*.zip \
+          gh release create "$TAG" release-assets/*.zip release-assets/SHA256SUMS \
             --title "$TAG" \
-            --notes "git-grasp $TAG — CLI binaries (unzip and run \`./git-grasp\` from the extracted folder). Bun users: \`bun add -g git-grasp\`." \
+            --notes "git-grasp $TAG — CLI binaries.
+
+          Unzip, keep \`common/\` beside the binary, then run \`./git-grasp\` (Windows: \`git-grasp.exe\`) from the extracted folder. Optional: set \`GIT_GRASP_ROOT\` to that folder. Bun users: \`bun add -g git-grasp\`." \
             --verify-tag
 
   npm-publish:
-    needs: [gate]
+    needs: [gate, binaries]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     permissions:

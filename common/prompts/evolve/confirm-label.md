@@ -9,8 +9,8 @@ Allowed labels: satisfied, weak, miss, abandon.
 Return JSON: { "label": "...", "reason": "..." }
 
 ## user
-Final query: {{query}}
-Journey: {{journey}}
+Final query: {{{query}}}
+Journey: {{{journey}}}
 Response status: {{status}}
 Confidence: {{confidence}}
 Display count: {{display_count}}

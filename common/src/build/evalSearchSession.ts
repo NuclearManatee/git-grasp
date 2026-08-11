@@ -5,7 +5,7 @@
  */
 import {
   openDb,
-  getCommand,
+  getRecipe,
   knnRecall,
   ftsRecall,
   loadGitVerbs,
@@ -17,6 +17,7 @@ import { getEmbedder } from '../search/embed.js';
 import { parseCommands, primaryCommand, renderSnippet } from '../db/recipeFormat.js';
 import { searchHybrid } from '../search/hybrid.js';
 import { loadThresholds } from '../search/index.js';
+import { recipeIdOf } from './evalGate.js';
 
 /** Serialize async work (bun:sqlite connection is not concurrent-safe). */
 function createAsyncMutex() {
@@ -109,13 +110,22 @@ export async function makeEvalSearchSession(dbPath, opts = {}) {
         fts: (q, k) => ftsRecall(db, q, k),
         hydrate: (ids) =>
           ids.map((id) => {
-            const row = getCommand(db, id);
+            const row = getRecipe(db, id);
             if (!row) {
-              return { command_id: id, commands: [], example: '', snippet: '', risk: 0 };
+              return {
+                command_id: String(id),
+                recipe_id: String(id),
+                commands: [],
+                example: '',
+                snippet: '',
+                risk: 0,
+              };
             }
-            const commands = parseCommands(row.command_recipe);
+            const commands = parseCommands(row.commands);
+            const rid = recipeIdOf(row);
             return {
-              command_id: Number(row.row_id),
+              command_id: rid,
+              recipe_id: rid,
               commands,
               example: primaryCommand(commands) || '',
               snippet: renderSnippet(commands),

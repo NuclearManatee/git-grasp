@@ -84,7 +84,7 @@ git-grasp/
 │   │       └── eval/      # eval harnesses
 │   └── web/           # Landing with in-browser playground
 ├── common/            # Shared code
-├── docs/              # Phylosofy, Architecture, Specs, Performance benchmarks, Security Assessments
+├── docs/              # Philosophy, Architecture, Specs, Performance benchmarks, Security Assessments
 ├── test/              # Unit, Integration, Performance tests
 └── .github/           # CI and release workflows
 ```
@@ -117,7 +117,12 @@ bun link
 | macOS Intel | https://github.com/cremaschi/git-grasp/releases/latest/download/git-grasp-darwin-x64.zip |
 | Windows x64 | https://github.com/cremaschi/git-grasp/releases/latest/download/git-grasp-windows-x64.zip |
 
-Building: [docs/building-binaries.md](docs/building-binaries.md).
+1. **Unzip** the asset for your OS (keep the folder layout intact).
+2. Keep **`common/`** beside the binary (`git-grasp` or Windows **`git-grasp.exe`**).
+3. Run from the extracted folder: `./git-grasp "…"` / `.\git-grasp.exe "…"`.
+4. Optional: set **`GIT_GRASP_ROOT`** to that folder if you move the binary.
+
+Checksums: `SHA256SUMS` on each GitHub Release. Building: [docs/building-binaries.md](docs/building-binaries.md).
 
 Prefer not to install? Use the [web playground](https://git-grasp.cremaschi.dev).
 

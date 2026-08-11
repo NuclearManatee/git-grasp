@@ -24,6 +24,16 @@ const glossaryPath = path.join(catalogDir(), 'glossary.json');
 const outDir = path.join(PACKAGE_ROOT, 'local', 'eval');
 mkdirSync(outDir, { recursive: true });
 
+if (!existsSync(goldenPath)) {
+  console.error(
+    `Golden cases missing: ${goldenPath}\n` +
+      'This LLM-judge eval bank is optional / local. For CI and release gates, run:\n' +
+      '  bun run eval:regression\n' +
+      '(apps/pipeline/src/eval/regression-gate.ts — uses common/data/eval/regression.json).',
+  );
+  process.exit(2);
+}
+
 const glossary = existsSync(glossaryPath)
   ? JSON.parse(readFileSync(glossaryPath, 'utf8'))
   : DEFAULT_GLOSSARY;

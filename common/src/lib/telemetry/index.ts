@@ -18,10 +18,19 @@ export function mintTelemetrySessionId() {
 
 /**
  * Ensure config has a session id when enabling telemetry; clear when disabling.
+ * Hard-off env refuses persist-on. Explicit off dismisses the soft invite.
  * @param {boolean} on
+ * @param {NodeJS.ProcessEnv} [env]
  */
-export function setTelemetryEnabled(on) {
+export function setTelemetryEnabled(on, env = process.env) {
   if (on) {
+    if (isHardOff(env)) {
+      const err = new Error(
+        'Telemetry hard-off (DO_NOT_TRACK=1 or GIT_GRASP_TELEMETRY=0); cannot enable',
+      );
+      err.code = 'TELEMETRY_HARD_OFF';
+      throw err;
+    }
     const prev = readConfig();
     const sessionId = prev.telemetrySessionId || mintTelemetrySessionId();
     return writeConfig({
@@ -30,7 +39,11 @@ export function setTelemetryEnabled(on) {
       telemetrySessionId: sessionId,
     });
   }
-  return writeConfig({ telemetry: false, telemetrySessionId: null });
+  return writeConfig({
+    telemetry: false,
+    telemetryInvite: 'dismissed',
+    telemetrySessionId: null,
+  });
 }
 
 export {
@@ -60,11 +73,12 @@ export function telemetryStatus(cfg = readConfig(), env = process.env) {
 
 export function telemetryStatusDetail(cfg = readConfig(), env = process.env) {
   const enabled = isTelemetryEnabled(cfg, env);
+  const hardOff = isHardOff(env);
   return {
     enabled,
     telemetry: cfg.telemetry ?? null,
     invite: cfg.telemetryInvite ?? 'pending',
-    hardOff: !enabled && cfg.telemetry === true,
+    hardOff,
     label: enabled ? 'on' : 'off',
   };
 }
@@ -87,6 +101,7 @@ export async function maybeRunTelemetryInvite(opts = {}) {
   });
 
   if (choice === 'enable') {
+    if (isHardOff()) return false;
     const sessionId = mintTelemetrySessionId();
     writeConfig({
       telemetry: true,
@@ -106,7 +121,7 @@ export async function maybeRunTelemetryInvite(opts = {}) {
     return false;
   }
   if (choice === 'disable') {
-    writeConfig({ telemetry: false, telemetrySessionId: null });
+    writeConfig({ telemetry: false, telemetryInvite: 'dismissed', telemetrySessionId: null });
     return false;
   }
   return false;

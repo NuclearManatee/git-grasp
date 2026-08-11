@@ -17,11 +17,38 @@ import {
   getMetaValue,
   openDb,
   doctorPaint,
+  telemetryStatusDetail,
 } from '@git-grasp/common/cli';
+
+/** Maintainer rebuild tips — not for npm/binary product installs. */
+function showMaintainerFix() {
+  if (process.env.GIT_GRASP_DEV === '1') return true;
+  try {
+    const pkgPath = path.join(PACKAGE_ROOT, 'package.json');
+    if (!existsSync(pkgPath)) return false;
+    const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
+    if (!pkg.workspaces) return false;
+    // Binary zips may ship root package.json (with workspaces); require source tree.
+    return (
+      existsSync(path.join(PACKAGE_ROOT, 'common', 'src'))
+      || existsSync(path.join(PACKAGE_ROOT, 'apps', 'pipeline'))
+    );
+  } catch {
+    return false;
+  }
+}
 
 export function doctor() {
   const lines = [];
-  let ok = true;
+  const failures = {
+    runtime: false,
+    vec: false,
+    db: false,
+    model: false,
+    config: false,
+    thresholds: false,
+  };
+  const maintainer = showMaintainerFix();
 
   lines.push(...formatVersionReport().split('\n'));
 
@@ -29,15 +56,19 @@ export function doctor() {
   if (bunVersion) {
     lines.push(`Runtime: Bun ${bunVersion}`);
   } else {
-    ok = false;
+    failures.runtime = true;
     lines.push('Runtime: FAIL — Bun is required (bun:sqlite + sqlite-vec)');
   }
 
   const vec = smokeTestSqliteVec();
   if (!vec.ok) {
-    ok = false;
+    failures.vec = true;
     lines.push(`sqlite-vec: FAIL (${vec.reason})`);
-    lines.push('  Fix: bun install (postinstall must resolve platform natives)');
+    lines.push(
+      maintainer
+        ? '  Fix: bun install (postinstall must resolve platform natives)'
+        : '  Fix: reinstall git-grasp (npm or release zip) so platform natives are restored',
+    );
   } else {
     lines.push(`sqlite-vec: OK (vec_version=${vec.version})`);
   }
@@ -45,9 +76,13 @@ export function doctor() {
   const dbPath = defaultDbPath();
   const dbCheck = verifyFileChecksum(dbPath);
   if (!dbCheck.ok) {
-    ok = false;
+    failures.db = true;
     lines.push(`DB: FAIL (${dbCheck.reason}) at ${dbPath}`);
-    lines.push('  Fix: bun run rebuild && bun run seed');
+    lines.push(
+      maintainer
+        ? '  Fix: bun run rebuild && bun run seed'
+        : '  Fix: reinstall git-grasp (npm) or re-download the release zip — catalog DB failed integrity checks',
+    );
   } else {
     let corpusMeta = '';
     try {
@@ -84,7 +119,7 @@ export function doctor() {
     || hfCandidates.some((p) => existsSync(p))
     || process.env.GIT_GRASP_MOCK_EMBEDDINGS === '1';
   if (!hasModel) {
-    ok = false;
+    failures.model = true;
     lines.push('Model: MISSING — run git-grasp init (or search once) to download Xenova/bge-small-en-v1.5');
   } else if (process.env.GIT_GRASP_MOCK_EMBEDDINGS === '1') {
     lines.push('Model: OK (mock embeddings)');
@@ -95,14 +130,17 @@ export function doctor() {
   try {
     const cfg = readConfig();
     const skill = cfg.skillLevel == null ? 'off' : cfg.skillLevel;
-    const tel = cfg.telemetry === true ? 'on' : 'off';
+    const telDetail = telemetryStatusDetail(cfg);
+    const tel = telDetail.hardOff
+      ? `off (hard-off; config=${JSON.stringify(cfg.telemetry)})`
+      : telDetail.label;
     const invite = cfg.telemetryInvite || 'pending';
     const upd = cfg.updateCheck === true ? 'on' : 'off';
     lines.push(
       `Config: OK (skillLevel=${skill}, telemetry=${tel}, invite=${invite}, updateCheck=${upd}) at ${configFilePath()}`,
     );
   } catch (e) {
-    ok = false;
+    failures.config = true;
     lines.push(`Config: FAIL — ${e.message}`);
   }
 
@@ -110,9 +148,10 @@ export function doctor() {
     JSON.parse(readFileSync(defaultThresholdsPath(), 'utf8'));
     lines.push(`Thresholds: OK (${path.relative(PACKAGE_ROOT, defaultThresholdsPath()) || 'common/config/thresholds.json'})`);
   } catch {
-    ok = false;
+    failures.thresholds = true;
     lines.push('Thresholds: FAIL');
   }
 
-  return { ok, lines: lines.map(doctorPaint) };
+  const ok = !Object.values(failures).some(Boolean);
+  return { ok, failures, lines: lines.map(doctorPaint) };
 }

@@ -86,6 +86,7 @@ export const EvolveStatsSchema = z.object({
       corpus_version: z.union([z.number(), z.string(), z.null()]).optional(),
       shipped: z.boolean().optional(),
       error: z.string().optional(),
+      ship_gates: z.record(z.string(), z.unknown()).optional(),
     })
     .optional(),
 });

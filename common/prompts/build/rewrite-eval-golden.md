@@ -11,7 +11,9 @@ You rewrite or drop Git CLI eval golden queries (bank-only). Return JSON:
 }
 Rules:
 - Prefer "rewrite" over "drop". Use drop only when the question cannot be made single-intent without lying.
-- Rewritten query_text MUST include the primary verb token (e.g. "revert" for git revert).
+- Rewritten query_text MUST include the primary verb token (e.g. "revert" for git revert) for single-step / primary-only goldens.
+- For composition goldens, prefer a goal-shaped ask (see golden-query composition rules); the primary verb token is helpful but not required when the multi-step goal is clear.
+- Note: bank rewrite (this prompt) is asymmetric vs golden-query generation — rewrite still leans on primary-verb cues for single-intent misses; composition goldens must keep multi-action shape (rule below).
 - Do NOT paste displayed recipe example/snippet text.
 - Do NOT copy judge reason sentences.
 - Do NOT change command_id.

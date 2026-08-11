@@ -1,4 +1,11 @@
 {
   "version": 1,
-  "flags": ["--i-still-use-this"]
+  "flags": [
+    "--i-still-use-this",
+    "--force",
+    "--hard",
+    "-fd",
+    "-fdx",
+    "--force-with-lease"
+  ]
 }

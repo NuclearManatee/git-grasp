@@ -189,6 +189,14 @@ export async function resolveCoverageVerbs(miss, opts = {}) {
  * @returns {Promise<{ insertedIds: number[], attempts: object[], birthQueries: object[] }>}
  */
 export async function generateCoverageGapComposites(coverageGapMisses, opts) {
+  const { assertV9IntentQuarantine } = await import('../evalQuarantine.js');
+  assertV9IntentQuarantine();
+  void coverageGapMisses;
+  void opts;
+  return { insertedIds: [], attempts: [], birthQueries: [] };
+}
+
+async function _generateCoverageGapCompositesLegacy(coverageGapMisses, opts) {
   const log = opts.log || (() => {});
   const maxInserts = opts.maxInserts ?? EVAL_COVERAGE_MAX_INSERTS;
   const ownsDb = !opts.db;

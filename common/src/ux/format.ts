@@ -77,7 +77,7 @@ export function formatSearchResult(result, { verbose = false } = {}) {
   }
 
   const topRisk = Number(shown[0]?.risk ?? 0);
-  if (topRisk > 0.7) {
+  if (topRisk >= 0.7) {
     lines.push(cautionLine(`High-risk recipe (${topRisk.toFixed(2)}) — review before running.`));
   }
 

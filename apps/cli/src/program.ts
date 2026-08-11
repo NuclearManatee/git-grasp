@@ -14,6 +14,7 @@ import {
   SKILL_MIN,
   SKILL_MAX,
   maybeInviteAndTrackSearch,
+  isHardOff,
   setTelemetryEnabled,
   telemetryStatusDetail,
   buildCliOptInEvent,
@@ -178,6 +179,15 @@ export function buildProgram() {
       const a = String(action || '').toLowerCase();
       try {
         if (a === 'on') {
+          if (isHardOff()) {
+            console.error(
+              errorLine(
+                'Telemetry hard-off (DO_NOT_TRACK=1 or GIT_GRASP_TELEMETRY=0); cannot enable.',
+              ),
+            );
+            process.exitCode = 1;
+            return;
+          }
           setTelemetryEnabled(true);
           const ev = buildCliOptInEvent();
           await sendUmamiEvent({ ...ev, verbose: false });
@@ -264,7 +274,13 @@ export function buildProgram() {
       const { doctor } = await import('./doctor.js');
       const d = doctor();
       for (const line of d.lines) console.log(line);
-      if (!d.ok) {
+      // Model missing alone is OK — init's job is to download/warm it.
+      const f = d.failures || {};
+      const hardFail = Boolean(
+        f.runtime || f.vec || f.db || f.config || f.thresholds
+        || (!d.failures && !d.ok),
+      );
+      if (hardFail) {
         process.exitCode = 2;
         return;
       }
