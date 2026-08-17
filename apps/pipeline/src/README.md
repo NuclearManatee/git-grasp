@@ -117,8 +117,7 @@ From the repo root (`bun run …`):
 | `tools:pipeline` | This runner |
 | `prepare:scrape` / `prepare:goals` | `--only=prepareScrape` / `prepareGoals` |
 | `generate` | `--only=generate` |
-| `expand` | `--only=expand` (`--fresh` also runs generate) |
-| `expand:retry` | EXPAND with `--retry-leaves=<file>` |
+| `expand` | `--only=expand` (`--fresh` also runs generate; `--retry-leaves=<file>` retries listed leaves) |
 | `rebuild` | `--from=generate --fresh` |
 | `ship` / `ship:dedupe` | `--only=ship` / `shipDedupe` |
 | `evolve` | `--only=evolve` |

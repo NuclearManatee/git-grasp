@@ -1,39 +1,30 @@
+# Secrets & local scratch
 .env
 .env.local
 local/
 .cursor/
+.npmrc
+
+# Dependencies & build
 node_modules/
 coverage/
-*.log
-.DS_Store
-*.bak
-test/tmp-checksum/
+.tsbuild/
+*.tsbuildinfo
+dist-release/
 apps/web/dist/
 apps/web/.astro/
 apps/web/test-results/
 apps/web/playwright-report/
 apps/web/.env
+
+# SQLite sidecars
 *.db-wal
 *.db-shm
-.tsbuild/
-*.tsbuildinfo
-local/bench/results*.json
-local/bench/install-last.json
-local/bench/git-grasp
-local/bench/git-grasp.exe
-local/bench/git-help
-local/bench/git-help.exe
-local/bench/git-help-compile.exe
-dist-release/
-.npmrc
-test/.tmp-*/
-eval-last-out.txt
-common/data/catalog/*.raw.*
-common/data/catalog/*.enriched.*
-common/data/catalog/*.familied.*
-common/data/catalog/drops.*
-common/data/catalog/commands.extracted.json
-common/data/catalog/commands.grouped.json
-common/data/catalog/manifest.step1.json
-
 *.db-journal
+
+# Tests / OS
+test/tmp-checksum/
+test/.tmp-*/
+*.log
+*.bak
+.DS_Store

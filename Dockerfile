@@ -1,6 +1,6 @@
 # git-grasp search / install bench images (Bun + sqlite-vec)
 # Build: docker compose build gate
-FROM oven/bun:1.2-debian AS base
+FROM oven/bun:1.3.14-debian AS base
 
 WORKDIR /app
 
@@ -36,7 +36,7 @@ ENV LD_LIBRARY_PATH=/app/node_modules/onnxruntime-node/bin/napi-v3/linux/x64
 CMD ["bun", "run", "bench", "--", "--synthetic", "--json", "--out", "local/bench/results-docker.json"]
 
 # --- install bench (needs network + tc) ---
-FROM oven/bun:1.2-debian AS install
+FROM oven/bun:1.3.14-debian AS install
 WORKDIR /src
 RUN apt-get update \
   && apt-get install -y --no-install-recommends iproute2 ca-certificates \

@@ -67,7 +67,7 @@ bun run evolve -- --no-chain   # or full chain
 bun run evolve:render-latest
 \`\`\`
 
-See [architecture.md](../architecture.md#evolve) and [`apps/pipeline/src/README.md`](../../apps/pipeline/src/README.md).
+See [architecture.md](../architecture.md#evolve) and [\`apps/pipeline/src/README.md\`](../../apps/pipeline/src/README.md).
 `;
   const out = evolveDocsLatestPath(root);
   mkdirSync(path.dirname(out), { recursive: true });

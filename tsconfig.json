@@ -1,32 +1,20 @@
 {
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "noEmit": true,
-    "allowImportingTsExtensions": true,
     "paths": {
       "@git-grasp/common": ["./common/src/index.ts"],
-      "@git-grasp/common/*": ["./common/src/*"],
-      "@git-grasp/common/lib/*": ["./common/src/lib/*"],
-      "@git-grasp/common/catalog/*": ["./common/src/catalog/*"],
-      "@git-grasp/common/eval/*": ["./common/src/eval/*"],
-      "@git-grasp/common/schemas": ["./common/src/schemas/index.ts"],
-      "@git-grasp/common/search": ["./common/src/search/index.ts"],
-      "@git-grasp/common/search/*": ["./common/src/search/*"],
-      "@git-grasp/common/adapter": ["./common/src/db/adapter.ts"],
-      "@git-grasp/common/db": ["./common/src/db/schema.ts"],
-      "@git-grasp/common/ux/*": ["./common/src/ux/*"]
+      "@git-grasp/common/*": ["./common/src/*"]
     }
   },
   "include": [
     "common/src/**/*.ts",
+    "common/scripts/**/*.ts",
     "apps/cli/**/*.ts",
     "apps/pipeline/**/*.ts",
     "apps/web/src/**/*.ts",
     "apps/web/src/**/*.tsx",
     "apps/web/e2e/**/*.ts",
-    "apps/web/playwright.config.ts",
-    "apps/web/env.d.ts",
-    "scripts/**/*.ts"
+    "apps/web/playwright.config.ts"
   ],
   "exclude": [
     "**/node_modules",
