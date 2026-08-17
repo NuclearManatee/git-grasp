@@ -3,21 +3,36 @@
   "version": "0.1.0",
   "type": "module",
   "private": true,
+  "engines": {
+    "bun": "1.3.14"
+  },
   "dependencies": {
-    "@git-grasp/common": "workspace:*"
+    "@git-grasp/common": "workspace:*",
+    "@js-temporal/polyfill": "^0.5.1"
+  },
+  "devDependencies": {
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "@types/bun": "^1.3.14",
+    "@typescript-eslint/eslint-plugin": "^8.67.0",
+    "@typescript-eslint/parser": "^8.67.0",
+    "eslint": "^10.8.1",
+    "eslint-plugin-unicorn": "^65.0.1"
   },
   "scripts": {
-    "prepare:scrape": "bun ./src/prepare/scrape.ts",
-    "prepare:goals": "bun ./src/prepare/goals.ts",
-    "generate": "bun ./src/generate/ground.ts",
-    "expand": "bun ./src/expand/loop.ts",
-    "expand:retry": "bun ./src/expand/holdout-retry.ts",
-    "evolve": "bun ./src/evolve/run.ts",
+    "tools:pipeline": "bun ./src/index.ts",
+    "prepare:scrape": "bun ./src/index.ts -- --only=prepareScrape",
+    "prepare:goals": "bun ./src/index.ts -- --only=prepareGoals",
+    "generate": "bun ./src/index.ts -- --only=generate",
+    "expand": "bun ./src/index.ts -- --only=expand",
+    "expand:retry": "bun ./src/index.ts -- --only=expand",
+    "evolve": "bun ./src/index.ts -- --only=evolve",
     "evolve:seed-umami": "bun ./src/evolve/seed-umami-e2e.ts",
-    "ship": "bun ./src/ship/seed.ts",
-    "ship:dedupe": "bun ./src/ship/corpus-dedupe.ts",
+    "ship": "bun ./src/index.ts -- --only=ship",
+    "ship:dedupe": "bun ./src/index.ts -- --only=shipDedupe",
     "eval": "bun ./src/eval/run.ts",
-    "eval:regression": "bun ./src/eval/regression-gate.ts",
-    "loop": "bun ./src/eval/loop.ts"
+    "eval:regression": "bun ./src/index.ts -- --only=evalRegression",
+    "loop": "bun ./src/eval/loop.ts",
+    "lint": "eslint --no-error-on-unmatched-pattern --config ../../.cursor/script-forge/skills/anvil/assets/eslint.tooling.js src/index.ts src/commons/argv.ts src/commons/compose.ts src/commons/errors.ts src/commons/paths.ts src/steps/**/*.ts src/tests/**/*.ts",
+    "test": "bun test ./src/tests/bun"
   }
 }

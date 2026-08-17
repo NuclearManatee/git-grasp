@@ -33,8 +33,8 @@ flowchart TB
 
 | Path | Role |
 |------|------|
-| `apps/pipeline/src/ship/seed.ts` | Seed entry |
-| `apps/pipeline/src/ship/corpus-dedupe.ts` | Offline merge |
+| `apps/pipeline/src/steps/ship.ts` | Seed step |
+| `apps/pipeline/src/steps/shipDedupe.ts` | Offline merge |
 | `common/src/ship/` | Stage facade |
 | `common/src/seed.ts` | Embed + write DB |
 | `common/src/build/corpusVersion.ts` | Version writer |
@@ -42,8 +42,4 @@ flowchart TB
 
 ## Run
 
-```bash
-bun run ship
-bun run ship:dedupe -- --seed
-bun run web:pack    # after seed, for playground
-```
+See [`apps/pipeline/src/README.md`](../apps/pipeline/src/README.md). Shims: `bun run ship`, `bun run ship:dedupe`. `bun run web:pack` stays a web script after seed.

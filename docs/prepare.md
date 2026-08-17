@@ -22,11 +22,14 @@ flowchart TB
 
 | Path | Role |
 |------|------|
-| `apps/pipeline/src/prepare/` | CLI entrypoints |
+| `apps/pipeline/src/steps/prepareScrape.ts` | PREPARE scrape step |
+| `apps/pipeline/src/steps/prepareGoals.ts` | PREPARE goals step |
 | `common/src/prepare/` | Stage facade |
 | `common/src/build/taxonomyScrape.ts` | Parse/probe help |
 | `common/src/build/goalTaxonomy.ts` | LLM taxonomy builder |
 | `common/prompts/taxonomy/` | Brainstorm / decompose / map / reflect / cover |
+
+How to run: [`apps/pipeline/src/README.md`](../apps/pipeline/src/README.md) (`prepare:scrape` / `prepare:goals` shims).
 
 ## Outputs
 

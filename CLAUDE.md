@@ -16,7 +16,7 @@ The shipped Git catalog is **LLM-built from `git help` + a goal taxonomy**, not 
 
 - **Runtime:** Bun (`bun:sqlite` + `sqlite-vec`).
 - **Monorepo:** `common`, `apps/cli`, `apps/pipeline`, `apps/web`.
-- **Pipeline layout:** `apps/pipeline/src/{prepare,generate,expand,ship,evolve,eval}/`; stage facades `common/src/{prepare,…,evolve}/`.
+- **Pipeline layout:** `apps/pipeline/src/` is the Anvil catalog script (`index.ts`, `commons/`, `steps/`, `tests/bun/`, `README.md`); stage facades `common/src/{prepare,…,evolve}/`.
 - **Search:** Hybrid description KNN (`vec_recipes`) + FTS5 (`recipes_fts`) → fixed-blend fusion + confidence-gated display. **No LLM at query time.** Schema **v9**.
 - **Catalog:** code on `feature/*`; versioned `recipes.json` / seeded DB on `improve/*` after regression + held-out gates.
 - **LLM prompts:** `common/prompts/<area>/<name>.md` via `renderPrompt` / `renderPromptRole`.

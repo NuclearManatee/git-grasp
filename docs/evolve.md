@@ -50,27 +50,13 @@ Corpus version bump uses integer `vN` via `writeCorpusVersion` when chaining wit
 
 ## Run
 
-```bash
-# Local Umami (e2e)
-docker compose -f apps/web/docker-compose.umami.yml --profile e2e up -d
-bun run evolve:seed-umami
-export GIT_GRASP_UMAMI_HOST=http://127.0.0.1:3001
-# …website id + token from seed output
-
-bun run evolve -- --no-chain
-bun run evolve                    # feeder + EXPAND triage chain
-bun run evolve -- --ship          # chain + promote when held-out/regression green
-bun run evolve -- --ship-unsafe   # promote without catalog gates
-bun run evolve:render-latest
-```
-
-Flags: `--no-chain`, `--llm-label`, `--ship`, `--ship-unsafe`, `--catalog-version=N`.
+See [`apps/pipeline/src/README.md`](../apps/pipeline/src/README.md). Shim: `bun run evolve`. Local Umami e2e still uses `bun run evolve:seed-umami` (one-off, not a runner step).
 
 ## Code
 
 | Path | Role |
 |------|------|
-| `apps/pipeline/src/evolve/run.ts` | CLI entry |
+| `apps/pipeline/src/steps/evolve.ts` | EVOLVE step |
 | `common/src/evolve/` | PULL / FILTER / THREAD / feeder / chain |
 | `common/prompts/evolve/confirm-label.md` | Optional label confirm |
 | `test/unit/evolve-*.test.ts` | Unit |

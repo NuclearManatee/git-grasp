@@ -38,8 +38,7 @@ Miss triage must **not** invent `expectedId` / `correctExists` for unknown recip
 
 | Path | Role |
 |------|------|
-| `apps/pipeline/src/expand/loop.ts` | Full loop (optional GENERATE first via `--fresh`) |
-| `apps/pipeline/src/expand/holdout-retry.ts` | Retry failed leaves |
+| `apps/pipeline/src/steps/expand.ts` | EXPAND step (optional `--retry-leaves`) |
 | `common/src/expand/` | Stage facade |
 | `common/src/build/leafHoldout.ts` | Hit@10 gate |
 | `common/src/build/improveTriage.ts` | Buckets 1/2/3 |
@@ -48,12 +47,7 @@ Miss triage must **not** invent `expectedId` / `correctExists` for unknown recip
 
 ## Run
 
-```bash
-bun run expand -- --fresh          # GENERATE then EXPAND
-bun run expand                     # EXPAND on existing staging
-bun run expand -- --force-broadcast  # opt-in paraphrase broadcast
-bun run expand:retry -- local/holdout-failed-leaves.txt
-```
+See [`apps/pipeline/src/README.md`](../apps/pipeline/src/README.md). Shims: `bun run expand`, `bun run expand:retry -- <leaf-ids-file>`. `--fresh` on expand still runs GENERATE then EXPAND.
 
 ## Relation to EVOLVE
 

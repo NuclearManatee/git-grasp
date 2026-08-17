@@ -3,7 +3,7 @@
 | Path | Purpose |
 |------|---------|
 | `apps/cli` | CLI — **SEARCH** + **OBSERVE** |
-| `apps/pipeline` | Batch stages — `src/{prepare,generate,expand,evolve,ship,eval}/` |
+| `apps/pipeline` | Catalog Anvil script — `src/{index.ts,commons,steps,tests,README.md}` plus eval/evolve one-offs |
 | `apps/web` | Astro site + playground — **SEARCH** + **OBSERVE** |
 | `common/` | Shared library + **shipped** `data/` and `config/` |
 | `common/src/{prepare,generate,expand,ship,observe,evolve}/` | Stage facades / stage impl |

@@ -29,7 +29,7 @@ if (!existsSync(goldenPath)) {
     `Golden cases missing: ${goldenPath}\n` +
       'This LLM-judge eval bank is optional / local. For CI and release gates, run:\n' +
       '  bun run eval:regression\n' +
-      '(apps/pipeline/src/eval/regression-gate.ts — uses common/data/eval/regression.json).',
+      '(bun run eval:regression — uses common/data/eval/regression.json).',
   );
   process.exit(2);
 }

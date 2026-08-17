@@ -29,7 +29,7 @@ flowchart TB
 
 | Path | Role |
 |------|------|
-| `apps/pipeline/src/generate/ground.ts` | Parallel leaf ground |
+| `apps/pipeline/src/steps/generate.ts` | GENERATE step |
 | `common/src/generate/` | Stage facade |
 | `common/src/build/leafGenerate.ts` | Batch generate |
 | `common/src/build/recipeValidate.ts` | Validation chain |
@@ -40,9 +40,4 @@ flowchart TB
 
 ## Run
 
-```bash
-bun run generate -- --max-leaves=20 --max-batches=5   # smoke
-bun run generate                                      # all leaves
-```
-
-Flags: `--max-leaves=N`, `--max-batches=N`, `--skip-sandbox`. Staging DB: `local/cache/build/staging.db`.
+See [`apps/pipeline/src/README.md`](../apps/pipeline/src/README.md). Shim: `bun run generate`. Flags: `--max-leaves=N`, `--max-batches=N`, `--skip-sandbox`. Staging DB: `local/cache/build/staging.db`.

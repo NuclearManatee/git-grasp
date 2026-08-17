@@ -2,6 +2,8 @@
 
 How git-grasp builds and ships its offline Git recipe catalog.
 
+**Operator runbook:** [`apps/pipeline/src/README.md`](../apps/pipeline/src/README.md) (Anvil colocated README — steps, rollback, flags). This page is the lifecycle map for SEARCH/OBSERVE, which are not pipeline steps.
+
 **Philosophy** ([CLAUDE.md](../CLAUDE.md)): models derive catalog **content** from `git help` + an LLM goal taxonomy. Code constrains (Zod, caps, sandbox). Hand-authored goldens are not the normal path.
 
 Schema **v9**: `recipes` + `vec_recipes` (description embeddings) + `recipes_fts`.
@@ -45,7 +47,7 @@ flowchart TB
 
 | Stage | Doc | Script |
 |-------|-----|--------|
-| PREPARE | [prepare.md](prepare.md) | `prepare:scrape`, `prepare:goals` |
+| PREPARE | [prepare.md](prepare.md) | `prepare:scrape`, `prepare:goals` (shims of `tools:pipeline`) |
 | GENERATE | [generate.md](generate.md) | `generate` |
 | EXPAND | [expand.md](expand.md) | `expand` |
 | SHIP | [ship.md](ship.md) | `ship` |
@@ -53,7 +55,7 @@ flowchart TB
 | OBSERVE | [observe.md](observe.md) | `telemetry` |
 | EVOLVE | [evolve.md](evolve.md) | `evolve` |
 
-Apps layout: `apps/pipeline/src/{prepare,generate,expand,ship,evolve,eval}/`. Shared libs still live under `common/src/build/` with stage facades in `common/src/{prepare,…,evolve}/`.
+One Anvil script: `bun run tools:pipeline`. Layout: `apps/pipeline/src/{index.ts,commons,steps,tests,README.md}`. Shared libs still live under `common/src/build/` with stage facades in `common/src/{prepare,…,evolve}/`.
 
 ## Recipe model (shared)
 

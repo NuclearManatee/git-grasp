@@ -40,7 +40,7 @@
     "zod": "^4.4.3"
   },
   "scripts": {
-    "test": "bunx vitest run test/unit && bun test ./test/integration",
+    "test": "bunx vitest run test/unit && bun test ./test/integration && bun --filter @git-grasp/pipeline test",
     "test:unit": "bunx vitest run test/unit",
     "test:integration": "bun test ./test/integration",
     "test:telemetry-e2e": "bun test ./test/integration/cli-telemetry-umami.test.ts",
@@ -61,10 +61,11 @@
     "evolve:seed-umami": "bun --filter @git-grasp/pipeline evolve:seed-umami",
     "ship": "bun --filter @git-grasp/pipeline ship",
     "ship:dedupe": "bun --filter @git-grasp/pipeline ship:dedupe",
-    "rebuild": "bun run expand -- --fresh && bun run ship",
+    "rebuild": "bun --filter @git-grasp/pipeline tools:pipeline -- --from=generate --fresh",
     "eval": "bun --filter @git-grasp/pipeline eval",
     "eval:regression": "bun --filter @git-grasp/pipeline eval:regression",
     "eval:loop": "bun --filter @git-grasp/pipeline loop",
+    "tools:pipeline": "bun --filter @git-grasp/pipeline tools:pipeline",
     "web:dev": "bun --filter @git-grasp/web dev",
     "web:build": "bun --filter @git-grasp/web build",
     "web:pack": "bun apps/web/scripts/export-web-pack.ts",
