@@ -1,6 +1,6 @@
 // @ts-nocheck
 /**
- * Pure recipe command helpers (no bun:sqlite) â€” safe for Vitest.
+ * Pure recipe command helpers (no bun:sqlite).
  * Schema v6 steps use `command`; legacy `run` is accepted and normalized.
  */
 

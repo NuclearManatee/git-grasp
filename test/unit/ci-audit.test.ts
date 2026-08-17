@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, mock } from 'bun:test';
 import {
   parseAuditOutput,
   collectFindings,
@@ -149,7 +149,7 @@ describe('format helpers', () => {
 
 describe('runAuditGate', () => {
   it('happy: empty report → pass + log', () => {
-    const log = { log: vi.fn(), warn: vi.fn(), error: vi.fn() };
+    const log = { log: mock(), warn: mock(), error: mock() };
     const code = runAuditGate({
       runAudit: () => '{}',
       log,
@@ -163,13 +163,13 @@ describe('runAuditGate', () => {
     const code = runAuditGate({
       runAudit: () =>
         JSON.stringify({ pkg: [{ severity: 'moderate', title: 'm' }] }),
-      log: { log: vi.fn(), warn: vi.fn(), error: vi.fn() },
+      log: { log: mock(), warn: mock(), error: mock() },
     });
     expect(code).toBe(0);
   });
 
   it('edge: allowlisted high warns and passes', () => {
-    const log = { log: vi.fn(), warn: vi.fn(), error: vi.fn() };
+    const log = { log: mock(), warn: mock(), error: mock() };
     const code = runAuditGate({
       runAudit: () =>
         JSON.stringify({
@@ -186,13 +186,13 @@ describe('runAuditGate', () => {
   it('edge: banner before JSON still evaluates', () => {
     const code = runAuditGate({
       runAudit: () => 'bun 1.3\n{}',
-      log: { log: vi.fn(), warn: vi.fn(), error: vi.fn() },
+      log: { log: mock(), warn: mock(), error: mock() },
     });
     expect(code).toBe(0);
   });
 
   it('negative: unexpected high → exit 1', () => {
-    const log = { log: vi.fn(), warn: vi.fn(), error: vi.fn() };
+    const log = { log: mock(), warn: mock(), error: mock() };
     const code = runAuditGate({
       runAudit: () =>
         JSON.stringify({ evil: [{ severity: 'high', title: 'RCE' }] }),
@@ -204,7 +204,7 @@ describe('runAuditGate', () => {
   });
 
   it('fault: runAudit throws with empty stdout → parse fail exit 1', () => {
-    const log = { log: vi.fn(), warn: vi.fn(), error: vi.fn() };
+    const log = { log: mock(), warn: mock(), error: mock() };
     const code = runAuditGate({
       runAudit: () => {
         const err = new Error('audit failed') as Error & { stdout?: string };
@@ -218,7 +218,7 @@ describe('runAuditGate', () => {
   });
 
   it('fault: runAudit throws but stdout has JSON → still evaluate', () => {
-    const log = { log: vi.fn(), warn: vi.fn(), error: vi.fn() };
+    const log = { log: mock(), warn: mock(), error: mock() };
     const code = runAuditGate({
       runAudit: () => {
         const err = new Error('non-zero') as Error & { stdout?: string };
@@ -234,7 +234,7 @@ describe('runAuditGate', () => {
   });
 
   it('fault: runAudit throws with Buffer stdout → still evaluate pass', () => {
-    const log = { log: vi.fn(), warn: vi.fn(), error: vi.fn() };
+    const log = { log: mock(), warn: mock(), error: mock() };
     const code = runAuditGate({
       runAudit: () => {
         const err = new Error('non-zero') as Error & { stdout?: Buffer };

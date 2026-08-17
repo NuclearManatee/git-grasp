@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
 import { stripAnsi } from '../../common/src/lib/ansi.js';
 import { PRIVACY_URL } from '../../common/src/lib/telemetry/defaults.js';
 import {

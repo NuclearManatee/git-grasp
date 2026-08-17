@@ -26,8 +26,7 @@
     "apps/web/e2e/**/*.ts",
     "apps/web/playwright.config.ts",
     "apps/web/env.d.ts",
-    "scripts/**/*.ts",
-    "vitest.config.ts"
+    "scripts/**/*.ts"
   ],
   "exclude": [
     "**/node_modules",

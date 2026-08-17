@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'bun:test';
 import { filterSearchEvents, piiOrJunkReason } from '../../common/src/evolve/filter.js';
 
 function ev(partial) {

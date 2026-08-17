@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'bun:test';
 import { cosineSimilarity, jsKnn } from '../../../common/src/search/jsKnn.ts';
 
 describe('jsKnn', () => {

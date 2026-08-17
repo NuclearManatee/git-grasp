@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, spyOn } from 'bun:test';
 import { mkdirSync, rmSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -127,7 +127,7 @@ describe('update-check', () => {
       ok: true,
       json: async () => ({ version: '99.0.0' }),
     });
-    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const errSpy = spyOn(console, 'error').mockImplementation(() => {});
     try {
       const out = await maybeNotifyUpdate({ force: true, fetchImpl, quiet: false });
       expect(out.notified).toBe(true);

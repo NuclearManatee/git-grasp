@@ -1,6 +1,6 @@
 // @ts-nocheck
 /**
- * FTS5 query helpers (pure â€” safe for Vitest).
+ * FTS5 query helpers (pure — no bun:sqlite).
  */
 
 /** Tokenize for FTS AND query; strip FTS specials. */

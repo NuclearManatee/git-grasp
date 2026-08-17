@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, mock } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -59,7 +59,7 @@ describe('runCi', () => {
   });
 
   it('edge: empty step list → 0 (no-op)', () => {
-    const runStep = vi.fn(() => 0);
+    const runStep = mock(() => 0);
     expect(runCi({ steps: [], runStep })).toBe(0);
     expect(runStep).not.toHaveBeenCalled();
   });

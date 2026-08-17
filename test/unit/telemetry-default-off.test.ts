@@ -2,7 +2,7 @@
 /**
  * Default-off regression: every case must leave fetch untouched.
  */
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, mock } from 'bun:test';
 import { mkdirSync, rmSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -83,7 +83,7 @@ describe('telemetry default-off regression', () => {
     it(`must not fetch: ${c.name}`, async () => {
       for (const [k, v] of Object.entries(c.env)) process.env[k] = v;
       c.setup();
-      const fetchImpl = vi.fn(async () => ({ ok: true }));
+      const fetchImpl = mock(async () => ({ ok: true }));
       const out = await maybeInviteAndTrackSearch({
         query: 'must not track',
         result: { status: 'ok', results: [] },

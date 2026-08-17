@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'bun:test';
 import {
   PRIMARY_VERB_BOOST,
   VERB_COVERAGE_BOOST_PER,

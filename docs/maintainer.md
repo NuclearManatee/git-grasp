@@ -35,7 +35,7 @@ Catalog and product scripts for contributors. End users only need [Install](../R
 | `bun run doctor` | Install / DB / schema / telemetry health |
 | `bun run typecheck` | `tsc --noEmit` |
 | `bun run ci` | Local CI script (unit + integration; mock embeddings) |
-| `bun test` / `test:unit` / `test:integration` | Vitest unit + Bun integration |
+| `bun test` / `test:unit` / `test:integration` | Bun test (unit + integration + pipeline) |
 | `bun run test:telemetry-e2e` / `test:evolve-e2e` | Optional Umami e2e |
 | `bun run web:dev` / `web:build` / `web:pack` / `web:e2e` / `web:e2e:dev` | Site + playground |
 | `bun run bench` / `bench:install` / `bench:render-latest` | Perf harnesses + commit snapshot |

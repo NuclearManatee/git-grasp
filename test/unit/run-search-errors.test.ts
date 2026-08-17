@@ -1,10 +1,10 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, spyOn } from 'bun:test';
 import { runCliSearch } from '../../apps/cli/src/runSearch.js';
 import { infoLine, errorLine } from '../../common/src/ux/cliStyle.js';
 
 describe('runCliSearch hard-error tip', () => {
-  const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-  const logSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+  const errSpy = spyOn(console, 'error').mockImplementation(() => {});
+  const logSpy = spyOn(console, 'log').mockImplementation(() => {});
 
   beforeEach(() => {
     errSpy.mockClear();

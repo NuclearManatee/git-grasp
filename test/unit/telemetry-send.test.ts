@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, mock, spyOn } from 'bun:test';
 import { mkdirSync, rmSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -55,7 +55,7 @@ describe('telemetry send + invite', () => {
 
   it('skips send when website id explicitly empty', async () => {
     process.env.GIT_GRASP_UMAMI_WEBSITE_ID = '';
-    const fetchImpl = vi.fn();
+    const fetchImpl = mock();
     const r = await sendUmamiEvent({
       name: 'cli_search',
       data: {},
@@ -69,7 +69,7 @@ describe('telemetry send + invite', () => {
   it('uses baked website id when env unset', async () => {
     delete process.env.GIT_GRASP_UMAMI_WEBSITE_ID;
     process.env.GIT_GRASP_UMAMI_HOST = 'http://127.0.0.1:3999';
-    const fetchImpl = vi.fn(async () => ({ ok: true }));
+    const fetchImpl = mock(async () => ({ ok: true }));
     const r = await sendUmamiEvent({
       name: 'cli_opt_in',
       data: { source: 'cli' },
@@ -81,14 +81,14 @@ describe('telemetry send + invite', () => {
   });
 
   it('posts to /api/send when enabled path calls send', async () => {
-    const fetchImpl = vi.fn(async () => ({ ok: true }));
+    const fetchImpl = mock(async () => ({ ok: true }));
     const r = await sendUmamiEvent({
       name: 'cli_opt_in',
       data: { source: 'cli' },
       fetchImpl,
     });
     expect(r.ok).toBe(true);
-    expect(fetchImpl).toHaveBeenCalledOnce();
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
     const [url, init] = fetchImpl.mock.calls[0];
     expect(url).toBe('http://127.0.0.1:3999/api/send');
     expect(init.method).toBe('POST');
@@ -99,8 +99,8 @@ describe('telemetry send + invite', () => {
   });
 
   it('verbose failure does not include query payload', async () => {
-    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    const fetchImpl = vi.fn(async () => {
+    const errSpy = spyOn(console, 'error').mockImplementation(() => {});
+    const fetchImpl = mock(async () => {
       throw new Error('network down');
     });
     await sendUmamiEvent({
@@ -116,8 +116,8 @@ describe('telemetry send + invite', () => {
   });
 
   it('http error surfaces only status in verbose', async () => {
-    const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-    const fetchImpl = vi.fn(async () => ({ ok: false, status: 500 }));
+    const errSpy = spyOn(console, 'error').mockImplementation(() => {});
+    const fetchImpl = mock(async () => ({ ok: false, status: 500 }));
     await sendUmamiEvent({
       name: 'cli_search',
       data: { query: 'undo last commit keep files' },
@@ -130,7 +130,7 @@ describe('telemetry send + invite', () => {
 
   it('invite Yes enables and tracks this search', async () => {
     delete process.env.CI;
-    const fetchImpl = vi.fn(async () => ({ ok: true }));
+    const fetchImpl = mock(async () => ({ ok: true }));
     const out = await maybeInviteAndTrackSearch({
       query: 'undo commit',
       result: { status: 'ok', confidence: 'high', results: [], advanced: null },
@@ -149,7 +149,7 @@ describe('telemetry send + invite', () => {
 
   it('invite dismiss persists and does not send', async () => {
     delete process.env.CI;
-    const fetchImpl = vi.fn(async () => ({ ok: true }));
+    const fetchImpl = mock(async () => ({ ok: true }));
     await maybeInviteAndTrackSearch({
       query: 'x',
       result: { status: 'ok', results: [] },
@@ -164,7 +164,7 @@ describe('telemetry send + invite', () => {
 
   it('invite No sets telemetry false', async () => {
     delete process.env.CI;
-    const fetchImpl = vi.fn();
+    const fetchImpl = mock();
     await maybeInviteAndTrackSearch({
       query: 'x',
       result: { status: 'ok', results: [] },
@@ -186,7 +186,7 @@ describe('telemetry send + invite', () => {
 
   it('hard-off no-ops send and refuses enable', async () => {
     process.env.DO_NOT_TRACK = '1';
-    const fetchImpl = vi.fn();
+    const fetchImpl = mock();
     const r = await sendUmamiEvent({
       name: 'cli_search',
       data: { query: 'status' },
@@ -199,7 +199,7 @@ describe('telemetry send + invite', () => {
   });
 
   it('scrubs PII queries before send', async () => {
-    const fetchImpl = vi.fn(async () => ({ ok: true }));
+    const fetchImpl = mock(async () => ({ ok: true }));
     const r = await sendUmamiEvent({
       name: 'cli_search',
       data: { query: 'mail me at a@b.com please' },

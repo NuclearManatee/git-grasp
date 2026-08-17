@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'bun:test';
 import { stripAnsi, sanitizeField } from '../../common/src/lib/ansi.js';
 
 describe('stripAnsi', () => {

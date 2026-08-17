@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'bun:test';
 import {
   normalizeArgvLine,
   rewriteLiteralsToPlaceholders,
@@ -10,6 +10,17 @@ import { mergeRecipesByStructuralFingerprint } from '../../../common/src/build/m
 import { recipeFingerprint } from '../../../common/src/search/fusion.ts';
 
 describe('argvNormalize', () => {
+  it('collapses generic checkout placeholders to <branch>', () => {
+    expect(normalizeArgvLine('git checkout <name>')).toBe(
+      normalizeArgvLine('git checkout <branch>'),
+    );
+    expect(
+      structuralCommandFingerprint([{ command: 'git checkout <name>' }]),
+    ).toBe(
+      structuralCommandFingerprint([{ command: 'git checkout <branch>' }]),
+    );
+  });
+
   it('collapses email placeholder and demo literal to same structure', () => {
     const a = 'git config user.email "<email>"';
     const b = 'git config user.email "you@example.com"';

@@ -61,7 +61,7 @@ Description KNN (`sqlite-vec` / JS KNN on web) + recipe FTS5 BM25 → fixed α/�
 
 ## Tests
 
-- `test/unit` — Vitest
+- `test/unit` — Bun test
 - `test/integration` — Bun test
 - `test/performance` — latency harnesses
 

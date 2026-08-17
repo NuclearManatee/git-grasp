@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'bun:test';
 import { gradeCase, migrateGoldenCase, normalizeSkillBand } from '../../common/src/eval/judge.js';
 
 describe('gradeCase', () => {

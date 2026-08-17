@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'bun:test';
 import { shouldAutoLoadPlayground } from '../../apps/web/src/lib/connection.js';
 
 describe('shouldAutoLoadPlayground', () => {

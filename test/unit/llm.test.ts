@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { describe, it, expect, afterEach } from 'vitest';
+import { describe, it, expect, afterEach } from 'bun:test';
 import { z } from 'zod';
 import { PROVIDERS, getProvider, resolveProviderId, chatCompletionsUrl } from '../../common/src/lib/providers.js';
 import { llmChat, llmJsonObject, LlmError, resetLlmRateLimiterForTests } from '../../common/src/lib/llm.js';

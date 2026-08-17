@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'bun:test';
 import path from 'node:path';
 import { resolveUnderRoot, PACKAGE_ROOT } from '../../common/src/lib/paths.js';
 

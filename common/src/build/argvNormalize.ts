@@ -173,9 +173,23 @@ export function normalizeArgvLine(line) {
       continue;
     }
 
-    // Already a placeholder
+    // Already a placeholder — recanonicalize generic slots on branchy verbs
     if (/^<[^>]+>$/.test(tok)) {
-      out.push(tok.toLowerCase().replace(/^<(.+)>$/, (_, k) => `<${k}>`));
+      let slot = tok.toLowerCase().replace(/^<(.+)>$/, '$1');
+      if (BRANCHY_VERBS.has(verb) && i > verbIdx) {
+        const typed = new Set([
+          'branch',
+          'file',
+          'remote',
+          'tag',
+          'commit',
+          'url',
+          'directory',
+          'path',
+        ]);
+        if (!typed.has(slot)) slot = 'branch';
+      }
+      out.push(`<${slot}>`);
       continue;
     }
 

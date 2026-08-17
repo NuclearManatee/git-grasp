@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from 'bun:test';
 import { createHash } from 'node:crypto';
 import { sha256Hex } from '../../common/src/lib/sha256Sync.js';
 

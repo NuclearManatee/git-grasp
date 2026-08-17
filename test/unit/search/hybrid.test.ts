@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, mock } from 'bun:test';
 import { searchHybrid, DEFAULT_ALPHA, DEFAULT_BETA } from '../../../common/src/search/hybrid.ts';
 
 const thr = {
@@ -13,8 +13,8 @@ const thr = {
 
 describe('searchHybrid', () => {
   it('returns results with title+description and fixed blend', async () => {
-    const embed = vi.fn(async () => new Float32Array(384));
-    const knn = vi.fn(async () => [
+    const embed = mock(async () => new Float32Array(384));
+    const knn = mock(async () => [
       {
         command_id: 'r1',
         title: 'Soft reset',
@@ -36,11 +36,11 @@ describe('searchHybrid', () => {
         snippet: 'git status',
       },
     ]);
-    const fts = vi.fn(async () => [
+    const fts = mock(async () => [
       { command_id: 'r1', bm25: -8 },
       { command_id: 'r2', bm25: -1 },
     ]);
-    const hydrate = vi.fn(async (ids: (string | number)[]) =>
+    const hydrate = mock(async (ids: (string | number)[]) =>
       ids.map((id) => ({
         command_id: id,
         commands: [{ command: id === 'r1' ? 'git reset --soft HEAD~1' : 'git status' }],
