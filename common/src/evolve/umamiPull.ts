@@ -4,7 +4,7 @@
  * prod overrides via GIT_GRASP_UMAMI_* / GIT_GRASP_UMAMI_TOKEN / login env.
  *
  * Note: OBSERVE send defaults to Umami Cloud; EVOLVE pull defaults to loopback.
- * See docs/evolve.md + docs/observe.md env callout.
+ * See apps/pipeline/src/README.md + docs/observe.md env callout.
  */
 import { DEFAULT_UMAMI_HOST } from '../lib/telemetry/defaults.js';
 

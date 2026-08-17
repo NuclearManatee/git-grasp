@@ -4,7 +4,7 @@ Local Bun CLI for semantic Git-recipe search. Never executes Git for the user.
 
 Lifecycle: **SEARCH** ([search.md](search.md)) + **OBSERVE** ([observe.md](observe.md)).
 
-Short “common path” examples live in the root [README Usage](../README.md#usage). This page is the full reference. Copy and chalk styling: [cli-ux.md](cli-ux.md). The [web playground](web.md) mirrors search chrome (`formatSearchResult`) and shows `MSG.telemetry.on` on Start; full command surface (doctor, update-check, completion, …) remains CLI-only.
+Short “common path” examples live in the root [README Usage](../README.md#usage). This page is the full reference. Copy and chalk styling: [cli-ux.md](cli-ux.md). The [web playground](../apps/web/README.md) mirrors search chrome (`formatSearchResult`) and shows `MSG.telemetry.on` on Start; full command surface (doctor, update-check, completion, …) remains CLI-only.
 
 ## Install
 

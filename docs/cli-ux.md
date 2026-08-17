@@ -427,7 +427,7 @@ Model: MISSING — …
 | Copy / update notice | `apps/cli/src/runSearch.ts`, `common/src/lib/updateCheck.ts` |
 | Invite | `common/src/lib/telemetry/invite.ts` |
 | Doctor | `apps/cli/src/doctor.ts` |
-| Web playground mirror | `apps/web/src/components/playground/Playground.tsx` — see [web.md](web.md) |
+| Web playground mirror | `apps/web/src/components/playground/Playground.tsx` — [apps/web/README.md](../apps/web/README.md) |
 
 ## Web playground mirror
 
@@ -443,7 +443,7 @@ The marketing playground reuses search formatting and shared MSG helpers:
 | `telemetry status` | Always **on** after Start |
 | Doctor / update-check / completion / invite | CLI-only |
 
-Details and e2e: [web.md](web.md).
+Details and e2e: [apps/web/README.md](../apps/web/README.md).
 
 ## Visual review gallery
 

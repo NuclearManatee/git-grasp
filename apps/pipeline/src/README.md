@@ -107,5 +107,30 @@ flowchart TD
 - Non-standard dependencies (via `common/`, authorized for this product catalog): `@huggingface/transformers` (BGE embeddings at generate/ship), `sqlite-vec` (KNN), `mustache` (existing `common/prompts` renderer), `p-limit` (leaf concurrency), `@js-temporal/polyfill` (this script’s timestamps).
 - Raw dumps: scrape probe JSON under `local/prepare/` (gitignored). Staging DB under `local/cache/build/`. Run-state SQLite: `local/cache/build/pipeline-state.sqlite`. No `local/raw_data/pipeline/input/` drop is required — live `git help` is the source.
 - Resume: re-run the same composition without `--fresh` to skip `done` steps. `--confirm-orphans` if the step list changed. Orphaned rows abort by default.
-- One-offs not in this runner: `bun run eval` (optional LLM golden judge), `bun run eval:loop`, `bun run evolve:seed-umami`.
-- Product notes (gates, buckets): `docs/prepare.md`, `docs/generate.md`, `docs/expand.md`, `docs/ship.md`, `docs/evolve.md`.
+
+## Shims
+
+From the repo root (`bun run …`):
+
+| Script | What |
+|--------|------|
+| `tools:pipeline` | This runner |
+| `prepare:scrape` / `prepare:goals` | `--only=prepareScrape` / `prepareGoals` |
+| `generate` | `--only=generate` |
+| `expand` | `--only=expand` (`--fresh` also runs generate) |
+| `expand:retry` | EXPAND with `--retry-leaves=<file>` |
+| `rebuild` | `--from=generate --fresh` |
+| `ship` / `ship:dedupe` | `--only=ship` / `shipDedupe` |
+| `evolve` | `--only=evolve` |
+| `eval:regression` | `--only=evalRegression` |
+
+One-offs (not runner steps): `eval` (optional LLM golden judge; exits 2 if cases missing), `eval:loop`, `evolve:seed-umami`, `evolve:render-latest` (writes `docs/evolve/latest.md`).
+
+## Operator gates
+
+Numbers you run against. *Why* Hit@10 ≠ SEARCH Hit@display: [docs/architecture.md](../../../docs/architecture.md).
+
+- **GENERATE:** checkpoint coverage ≥ **90%** of leaves and error rate ≤ **10%** (not merely “any leaf has recipes”).
+- **EXPAND:** per-leaf held-out **Hit@10** (display ∪ top-10) ≥ **0.95** for **2** consecutive rounds (`HELDOUT_*`), full query count (default **12**). Thin LLM drafts do not count. Corpus promote also needs **≥80%** eligible leaves passing held-out (`minHoldoutLeafRate`) **and** a green regression set. `--force-broadcast` is off unless passed. WIDTH (taxonomy-gap) proposals are **advisory** this release.
+- **SHIP:** prefer re-seed over `promoteStagingDb`. Writable opens refuse schema wipe unless `GIT_GRASP_FORCE_MIGRATE=1`. After seed, `bun run web:pack` for the playground.
+- **EVOLVE:** default chains into EXPAND triage. `--no-chain` stops at the feeder. `--llm-label` is the only way to LLM-confirm weak/abandon labels (a bare API key does not auto-enable). `--ship` bumps corpus / promotes only after held-out + regression (or caller-supplied `heldoutOk`). `--ship-unsafe` skips those gates — do not use for catalog merges that must meet CLAUDE.md.

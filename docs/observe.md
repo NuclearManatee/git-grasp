@@ -39,11 +39,11 @@ flowchart TB
 - **On after Start** (consent). In-terminal notice uses `MSG.telemetry.on` ([cli-ux.md](cli-ux.md)).
 - Withdrawal: leave the playground / use the CLI with telemetry left off (default). No mid-session opt-out.
 - Events: `web_cli_load`, `web_cli_search` (include `schema_version` / `catalog_version` when the catalog is open). THREAD uses Umami session/visit/visitor ids.
-- Details: [web.md](web.md), site `/privacy` §5.
+- Playground how-to: [apps/web/README.md](../apps/web/README.md). Privacy: site `/privacy` §5.
 
 ## Cloud send vs local pull
 
-OBSERVE **send** defaults to Umami Cloud. EVOLVE **pull** defaults to `http://127.0.0.1:3001`. Same env var names (`GIT_GRASP_UMAMI_*`) — set them explicitly when pulling from Cloud. See [evolve.md](evolve.md).
+OBSERVE **send** defaults to Umami Cloud. EVOLVE **pull** defaults to `http://127.0.0.1:3001`. Same env var names (`GIT_GRASP_UMAMI_*`) — set them explicitly when pulling from Cloud. Do not assume send and pull share a host. Operator flags: [`apps/pipeline/src/README.md`](../apps/pipeline/src/README.md). Feeder decisions: [architecture.md](architecture.md#evolve).
 
 ## Code
 
@@ -62,4 +62,4 @@ git-grasp telemetry status
 git-grasp telemetry on
 ```
 
-Downstream: [evolve.md](evolve.md).
+Downstream EVOLVE: [architecture.md](architecture.md#evolve), [`apps/pipeline/src/README.md`](../apps/pipeline/src/README.md).

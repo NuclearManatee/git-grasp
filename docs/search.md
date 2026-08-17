@@ -25,7 +25,7 @@ flowchart TB
 | Surface | How |
 |---------|-----|
 | CLI | `bun add -g git-grasp` or a [release binary](../README.md#binaries-latest-github-release) — full reference [cli.md](cli.md) |
-| Web | [git-grasp.cremaschi.dev](https://git-grasp.cremaschi.dev) playground — see [web.md](web.md) |
+| Web | [git-grasp.cremaschi.dev](https://git-grasp.cremaschi.dev) playground — [apps/web/README.md](../apps/web/README.md) |
 
 ## What it does
 
@@ -48,7 +48,7 @@ Thresholds live in `common/config/thresholds.json` (`schemaVersion` there is the
 | `confidenceMedium` | Present in config for compatibility — **not** used by the gate |
 | Absolute abstain (red / 0) | Only when top cosine is weak **and** no BM25 **and** no verb boost |
 
-Near-ties widen display; crowded ≠ absent. Eval “Hit@display” uses the gated set; leaf held-out also accepts top-10 (see [expand.md](expand.md)).
+Near-ties widen display; crowded ≠ absent. Eval “Hit@display” uses the gated set; leaf held-out also accepts top-10 (see [architecture.md](architecture.md#expand)).
 
 ## Code
 
@@ -58,11 +58,3 @@ Near-ties widen display; crowded ≠ absent. Eval “Hit@display” uses the gat
 | `apps/web` | Playground (sql.js pack) |
 | `common/src/search/` | Hybrid, fusion, verb boost, embed, FTS |
 | `common/src/cli-api.ts` | Shared search facade |
-
-## Run
-
-```bash
-bun run cli -- "undo last commit keep files"
-bun run doctor
-git-grasp --json "undo last commit keep files"
-```

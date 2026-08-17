@@ -35,4 +35,4 @@ Leaf held-out (**Hit@10** ≥0.95 ×2 — display hits ∪ top-10) + regression 
 
 Create/merge `improve/*` locally after held-out + regression are green — GitHub Actions does not commit catalog changes. See [ci.md](ci.md).
 
-See also [CLAUDE.md](../CLAUDE.md), [expand.md](expand.md).
+See also [CLAUDE.md](../CLAUDE.md), [architecture.md](architecture.md#expand).

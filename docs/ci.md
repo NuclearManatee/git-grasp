@@ -11,7 +11,7 @@
 
 Catalog **EXPAND** / leaf held-out and `improve/*` merges stay **local** (`bun run expand`, then `eval:regression`) — there is no CI job that commits catalog changes.
 
-Regression gate: `bun run eval:regression` (`tools:pipeline -- --only=evalRegression`). **eval-main** and **release** run it with **real** embeddings (`GIT_GRASP_MOCK_EMBEDDINGS=0`) so hybrid KNN can meet the 0.95 accuracy gate. The default **CI** workflow uses mock embeddings for unit/integration only. The optional LLM golden judge (`bun run eval`) looks for `common/data/eval/golden/cases.json` and exits 2 if missing — **not wired in any GitHub workflow**; use `eval:regression` for catalog gates. See [maintainer.md](maintainer.md).
+Regression gate: `bun run eval:regression` (`tools:pipeline -- --only=evalRegression`). **eval-main** and **release** run it with **real** embeddings (`GIT_GRASP_MOCK_EMBEDDINGS=0`) so hybrid KNN can meet the 0.95 accuracy gate. The default **CI** workflow uses mock embeddings for unit/integration only. The optional LLM golden judge (`bun run eval`) looks for `common/data/eval/golden/cases.json` and exits 2 if missing — **not wired in any GitHub workflow**; use `eval:regression` for catalog gates. Pipeline scripts: [`apps/pipeline/src/README.md`](../apps/pipeline/src/README.md).
 
 ## Secrets
 
@@ -22,4 +22,4 @@ Regression gate: `bun run eval:regression` (`tools:pipeline -- --only=evalRegres
 
 Pages and GitHub Releases use the built-in `GITHUB_TOKEN` (workflow permissions).
 
-Workflows live under `.github/`. Maintainer commands: [maintainer.md](maintainer.md).
+Workflows live under `.github/`. Catalog runner: [`apps/pipeline/src/README.md`](../apps/pipeline/src/README.md). Web e2e: [`apps/web/README.md`](../apps/web/README.md).

@@ -52,15 +52,15 @@ flowchart TB
 
 | Stage | Meaning |
 |-------|---------|
-| [PREPARE](docs/prepare.md) | Decide what Git can do and how user goals should be organized around it. |
-| [GENERATE](docs/generate.md) | Invent recipes for each goal and keep only those that hold up under checks. |
-| [EXPAND](docs/expand.md) | Test hard questions, classify misses, fill gaps (density / width / depth), retest until strong. |
-| [SHIP](docs/ship.md) | Freeze a trusted catalog so every user gets the same offline answers. |
+| [PREPARE](docs/architecture.md#prepare) | Decide what Git can do and how user goals should be organized around it. |
+| [GENERATE](docs/architecture.md#generate) | Invent recipes for each goal and keep only those that hold up under checks. |
+| [EXPAND](docs/architecture.md#expand) | Test hard questions, classify misses, fill gaps (density / width / depth), retest until strong. |
+| [SHIP](docs/architecture.md#ship) | Freeze a trusted catalog so every user gets the same offline answers. |
 | [SEARCH](docs/search.md) | Ask in plain language — install the CLI or use the web playground. |
 | [OBSERVE](docs/observe.md) | Optionally notice how people actually ask (privacy-first, off by default). |
-| [EVOLVE](docs/evolve.md) | Turn real usage into the next better catalog (Umami pull → feeder → EXPAND). |
+| [EVOLVE](docs/architecture.md#evolve) | Turn real usage into the next better catalog (Umami pull → feeder → EXPAND). |
 
-Stage details: [docs/pipeline.md](docs/pipeline.md).
+Catalog operator runbook: [`apps/pipeline/src/README.md`](apps/pipeline/src/README.md). Decisions: [docs/architecture.md](docs/architecture.md).
 
 ## Performance
 
@@ -73,19 +73,13 @@ Protocol and targets: [docs/perf.md](docs/perf.md). Snapshot archive: [docs/benc
 ```text
 git-grasp/
 ├── apps/
-│   ├── cli/           # Bun CLI
-│   ├── pipeline/      # Catalog batch jobs
-│   │   └── src/
-│   │       ├── prepare/   # scrape git help, build goal taxonomy
-│   │       ├── generate/  # ground leaves (generate → validate → saturate)
-│   │       ├── expand/    # held-out, triage, regression loop
-│   │       ├── ship/      # version corpus, seed product DB
-│   │       ├── evolve/    # OBSERVE pull → feeder → EXPAND chain
-│   │       └── eval/      # eval harnesses
-│   └── web/           # Landing with in-browser playground
-├── common/            # Shared code
-├── docs/              # Stage docs, architecture, CLI/web, CI, security
-├── test/              # Unit, Integration, Performance tests
+│   ├── cli/           # Bun CLI (product — this README + docs/cli.md)
+│   ├── pipeline/      # Catalog Anvil script
+│   │   └── src/       # index.ts, commons/, steps/, tests/, README.md
+│   └── web/           # Site + playground — apps/web/README.md
+├── common/            # Shared library, shipped data/ + config/
+├── docs/              # Philosophy and architectural decisions
+├── test/              # Unit, integration, performance
 └── .github/           # CI and release workflows
 ```
 
@@ -155,18 +149,24 @@ Details: [docs/observe.md](docs/observe.md), [Privacy](https://git-grasp.cremasc
 
 ### Further reading
 
-| Topic | Doc |
-|-------|-----|
-| Pipeline index | [docs/pipeline.md](docs/pipeline.md) |
-| Product goals | [docs/goals.md](docs/goals.md) |
-| Repo layout | [docs/layout.md](docs/layout.md) |
-| CLI (full reference) | [docs/cli.md](docs/cli.md) |
-| CLI UX copy & chalk (V1 chalk-only) | [docs/cli-ux.md](docs/cli-ux.md) |
-| Web playground | [docs/web.md](docs/web.md) |
-| Search algorithm | [docs/search.md](docs/search.md) |
-| Maintainer scripts | [docs/maintainer.md](docs/maintainer.md) |
+| Topic | Where |
+|-------|-------|
+| Catalog pipeline (run) | [apps/pipeline/src/README.md](apps/pipeline/src/README.md) |
+| Web playground (run) | [apps/web/README.md](apps/web/README.md) |
+| CLI reference | [docs/cli.md](docs/cli.md) |
 | Architecture | [docs/architecture.md](docs/architecture.md) |
-| Git flow | [docs/git-flow.md](docs/git-flow.md) |
-| CI workflows & secrets | [docs/ci.md](docs/ci.md) |
-| Security | [docs/security.md](docs/security.md) |
-| Latest EVOLVE stats | [docs/evolve/latest.md](docs/evolve/latest.md) |
+| Search algorithm | [docs/search.md](docs/search.md) |
+
+### Contributor scripts
+
+| Script | Role |
+|--------|------|
+| `bun run cli` / `doctor` | CLI entry / health |
+| `bun run typecheck` | `tsc --noEmit` |
+| `bun run ci` | Local CI (typecheck → unit/integration → audit; mock embeddings) |
+| `bun test` / `test:unit` / `test:integration` | Bun test (unit + integration + pipeline) |
+| `bun run test:telemetry-e2e` / `test:evolve-e2e` | Optional Umami e2e |
+| `bun run bench` / `bench:install` / `bench:render-latest` | Perf harnesses + commit snapshot |
+| `bun run build:cli` / `build:release` | Compile CLI / release zip |
+
+Pipeline and web scripts live in those READMEs. CI workflows and secrets: [docs/ci.md](docs/ci.md).

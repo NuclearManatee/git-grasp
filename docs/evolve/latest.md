@@ -41,4 +41,4 @@ bun run evolve -- --no-chain   # or full chain
 bun run evolve:render-latest
 ```
 
-See [evolve.md](../evolve.md).
+See [architecture.md](../architecture.md#evolve) and [`apps/pipeline/src/README.md`](../../apps/pipeline/src/README.md).
