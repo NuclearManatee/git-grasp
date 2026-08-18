@@ -66,7 +66,7 @@ test.describe('web CLI tracking', () => {
       (typeof window.__ghPlaygroundDump === 'function' ? window.__ghPlaygroundDump() : ''),
     );
     expect(dump).toMatch(/Telemetry is enabled/);
-    expect(dump).toMatch(/git-grasp\.cremaschi\.dev\/\s*privacy/);
+    expect(dump.replace(/\s+/g, '')).toContain('git-grasp.cremaschi.dev/privacy');
   });
 
   test('Docker PostHog proxy is up when snippet host is local e2e', async ({ request }) => {

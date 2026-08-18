@@ -49,7 +49,7 @@ test.describe('playground UX parity', () => {
       .toMatch(/Telemetry is enabled/);
 
     const dump = await terminalDump(page);
-    expect(dump).toMatch(/git-grasp\.cremaschi\.dev\/\s*privacy/);
+    expect(dump.replace(/\s+/g, '')).toContain('git-grasp.cremaschi.dev/privacy');
     expect(dump).toContain('Ready. Search will use the local model and catalog.');
   });
 
