@@ -1,12 +1,14 @@
 # Security
 
+End-user threat model and maintainer boundaries. Finding tracker: [OWASPREPORT.md](OWASPREPORT.md).
+
 ## End-user search
 
 - No API key required for CLI or web search.
 - Seeded DB checksum is verified on every search; CLI and web also check `schema_version` / `search_algorithm_version`.
 - The tool **never executes** Git recipes for the user.
 - High-risk recipes (**risk ≥ 0.7**) show a CLI caution banner; generation denylists destructive flags such as `--force`, `--hard`, `-fd` / `-fdx`, and `--force-with-lease` (`common/taxonomy/flag_denylist.json`).
-- **CLI** telemetry is **opt-in** (default off); hard off via `DO_NOT_TRACK=1` or `GIT_GRASP_TELEMETRY=0`. **Playground** telemetry is on after Start (session consent). See [observe.md](observe.md).
+- **CLI** telemetry is **opt-in** (default off); hard off via `DO_NOT_TRACK=1` or `GIT_GRASP_TELEMETRY=0`. **Playground** telemetry is on after Start (session consent). See [OBSERVE.md](../OBSERVE.md).
 - Optional npm **update-check** is off by default; version strings are semver-sanitized before display.
 
 ## Build / catalog (maintainers)
@@ -20,7 +22,7 @@
 
 - Playground packs a checksummed catalog; sql.js WASM is integrity-checked where shipped.
 - CSP is set in the Astro layout; deploy hosts should also apply `apps/web/public/_headers.example`.
-- Release CI runs `ci-audit` before binaries / npm publish. See [ci.md](ci.md).
+- Release CI runs `ci-audit` before binaries / npm publish. See [.github/README.md](../../.github/README.md).
 
 ## Threat model (brief)
 

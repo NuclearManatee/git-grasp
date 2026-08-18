@@ -58,7 +58,7 @@ Common commands:
   git-grasp update-check status
   git-grasp completion bash
 
-Full reference: docs/cli.md`;
+Full reference: apps/cli/README.md`;
 
 const SEARCH_DEPS = {
   search,

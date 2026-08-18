@@ -36,14 +36,14 @@ flowchart TB
 
 ## Web playground
 
-- **On after Start** (consent). In-terminal notice uses `MSG.telemetry.on` ([cli-ux.md](cli-ux.md)).
+- **On after Start** (consent). In-terminal notice uses `MSG.telemetry.on` ([apps/cli/README.md#ux](../apps/cli/README.md#ux)).
 - Withdrawal: leave the playground / use the CLI with telemetry left off (default). No mid-session opt-out.
 - Events: `web_cli_load`, `web_cli_search` (include `schema_version` / `catalog_version` when the catalog is open). THREAD uses `session_id` or PostHog cookieless `distinct_id`.
 - Playground how-to: [apps/web/README.md](../apps/web/README.md). Privacy: site `/privacy` §5.
 
 ## Capture vs query host
 
-OBSERVE **send** posts to the ingest host (`eu.i.posthog.com`). EVOLVE **pull** queries the app API (`eu.posthog.com`) with a personal API key + project id. Do not assume send and pull share a host. Operator flags: [`apps/pipeline/src/README.md`](../apps/pipeline/src/README.md). Feeder decisions: [architecture.md](architecture.md#evolve).
+OBSERVE **send** posts to the ingest host (`eu.i.posthog.com`). EVOLVE **pull** queries the app API (`eu.posthog.com`) with a personal API key + project id. Do not assume send and pull share a host. Operator flags: [`apps/pipeline/src/README.md`](../apps/pipeline/src/README.md). Feeder decisions: [ARCHITECTURE.md](ARCHITECTURE.md#evolve).
 
 ## Local Docker e2e
 
@@ -65,7 +65,7 @@ Self-host uses the same host for send and pull. Seed prints `GIT_GRASP_POSTHOG_*
 | `common/src/observe/` | Stage facade |
 | `common/src/lib/telemetry/` | Gate, invite, scrub, PostHog send, session id |
 | `common/src/ux/messages.ts` | Shared telemetry / skill / init copy |
-| `apps/cli` | `telemetry on\|off\|status` — full CLI reference: [cli.md](cli.md) |
+| `apps/cli` | `telemetry on\|off\|status` — full CLI reference: [apps/cli/README.md](../apps/cli/README.md) |
 | `apps/web` | Snippet + playground events |
 
 ## Run
@@ -75,4 +75,4 @@ git-grasp telemetry status
 git-grasp telemetry on
 ```
 
-Downstream EVOLVE: [architecture.md](architecture.md#evolve), [`apps/pipeline/src/README.md`](../apps/pipeline/src/README.md).
+Downstream EVOLVE: [ARCHITECTURE.md](ARCHITECTURE.md#evolve), [`apps/pipeline/src/README.md`](../apps/pipeline/src/README.md).

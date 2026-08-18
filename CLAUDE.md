@@ -20,7 +20,7 @@ The shipped Git catalog is **LLM-built from `git help` + a goal taxonomy**, not 
 - **Search:** Hybrid description KNN (`vec_recipes`) + FTS5 (`recipes_fts`) → fixed-blend fusion + confidence-gated display. **No LLM at query time.** Schema **v9**.
 - **Catalog:** code on `feature/*`; versioned `recipes.json` / seeded DB on `improve/*` after regression + held-out gates.
 - **LLM prompts:** `common/prompts/<area>/<name>.md` via `renderPrompt` / `renderPromptRole`.
-- **Docs:** runbooks in app READMEs (`apps/pipeline/src/README.md`, `apps/web/README.md`); philosophy and architectural decisions in `docs/`. Index: [docs/architecture.md](docs/architecture.md).
+- **Docs:** runbooks in app READMEs (`apps/cli/README.md`, `apps/pipeline/src/README.md`, `apps/web/README.md`); philosophy and architectural decisions in `docs/`. Index: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Branch policy: [docs/BRANCHING.md](docs/BRANCHING.md).
 - **Layout:** shipped under `common/data` + `common/config`; scratch under `local/`; tests under `test/{unit,integration,performance}`.
 
 ## Git flow (required)

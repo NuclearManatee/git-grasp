@@ -81,7 +81,7 @@ async function main() {
       process.exit(1);
     }
     console.log(msg);
-    console.log('Skipping local install throttle; see docs/perf.md');
+    console.log('Skipping local install throttle; see benchmarks/README.md');
     process.exit(0);
   }
 

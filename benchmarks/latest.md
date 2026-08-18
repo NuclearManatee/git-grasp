@@ -4,7 +4,7 @@
 
 **Date:** 2026-07-26  
 **Catalog (historical):** corpus-era dump with **9925** intents / **342** recipes (~**7.3** intents per skill/example).  
-**Current product DB:** **schema v9** (description KNN + FTS; no intent table; BGE-small). Re-bench before any public latency claim — see [perf.md](../perf.md).
+**Current product DB:** **schema v9** (description KNN + FTS; no intent table; BGE-small). Re-bench before any public latency claim — see [README.md](README.md).
 
 ## How to read
 

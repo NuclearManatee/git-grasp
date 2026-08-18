@@ -1,13 +1,13 @@
 #!/usr/bin/env bun
 /**
- * Render docs/benchmarks/latest.md from local/bench/results-{gate,mid,tiny,host}.json when present.
+ * Render benchmarks/latest.md from local/bench/results-{gate,mid,tiny,host}.json when present.
  */
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const outPath = path.join(root, 'docs', 'benchmarks', 'latest.md');
+const outPath = path.join(root, 'benchmarks', 'latest.md');
 const resultsDir = path.join(root, 'local', 'bench');
 
 const profiles = [
@@ -72,7 +72,7 @@ const md = `# Latest search latency snapshot
 
 **Date:** ${date}  
 ${catalogLine}  
-**Protocol:** 45 queries, MiniLM on disk, \`--synthetic --sticky\`; cold / warm = process-per-call; sticky-warm = in-process \`search()\` with model resident. See [docs/perf.md](../perf.md).
+**Protocol:** 45 queries, MiniLM on disk, \`--synthetic --sticky\`; cold / warm = process-per-call; sticky-warm = in-process \`search()\` with model resident. See [benchmarks/README.md](README.md).
 
 ## How to read
 

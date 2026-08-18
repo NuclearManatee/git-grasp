@@ -1,9 +1,18 @@
 ---
 /**
- * FAQ — first two items are deep-linked from hero trust claims.
- * Content mirrors local/FAQ.md.
+ * FAQ — canonical product copy (hero deep-links first two items).
  */
 const faqs = [
+  {
+    id: 'what-is-git-grasp',
+    q: 'What is git-grasp?',
+    a: `A local-first search tool for validated Git recipes: you ask in plain language and get a title, description, and command snippet — matched with on-device embeddings and full-text search. The catalog is built with a language model, but the tool never runs Git for you.`,
+  },
+  {
+    id: 'what-it-is-not',
+    q: 'What is it not?',
+    a: `Not a Git GUI or command wrapper, not a hosted search service, and not search-time LLM reranking — retrieval is hybrid vec+BM25 only. The marketing site is a playground plus docs; the CLI package path requires Bun.`,
+  },
   {
     id: 'why-git-grasp',
     q: 'Why git-grasp?',

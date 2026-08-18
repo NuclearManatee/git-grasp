@@ -1,6 +1,6 @@
 // @ts-nocheck
 /**
- * CLI chalk + emoji tokens — keep in sync with docs/cli-ux.md
+ * CLI chalk + emoji tokens — keep in sync with apps/cli/README.md#ux
  */
 import chalk from 'chalk';
 

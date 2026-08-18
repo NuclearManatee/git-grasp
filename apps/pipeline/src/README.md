@@ -128,7 +128,7 @@ One-offs (not runner steps): `eval` (optional LLM golden judge; exits 2 if cases
 
 ## Operator gates
 
-Numbers you run against. *Why* Hit@10 ≠ SEARCH Hit@display: [docs/architecture.md](../../../docs/architecture.md).
+Numbers you run against. *Why* Hit@10 ≠ SEARCH Hit@display: [docs/ARCHITECTURE.md](../../../docs/ARCHITECTURE.md).
 
 - **GENERATE:** checkpoint coverage ≥ **90%** of leaves and error rate ≤ **10%** (not merely “any leaf has recipes”).
 - **EXPAND:** per-leaf held-out **Hit@10** (display ∪ top-10) ≥ **0.95** for **2** consecutive rounds (`HELDOUT_*`), full query count (default **12**). Thin LLM drafts do not count. Corpus promote also needs **≥80%** eligible leaves passing held-out (`minHoldoutLeafRate`) **and** a green regression set. `--force-broadcast` is off unless passed. WIDTH (taxonomy-gap) proposals are **advisory** this release.

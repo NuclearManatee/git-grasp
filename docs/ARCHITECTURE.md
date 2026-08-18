@@ -2,7 +2,7 @@
 
 Schema v9: description KNN + FTS5 → fixed-blend fusion → confidence-gated display; **no search-time LLM**. Code on `feature/*`; catalog/DB on `improve/*` after held-out + regression green. Web playground: `web-catalog.db` (sql.js) + Transformers.js BGE-small.
 
-Operator runbook: [`apps/pipeline/src/README.md`](../apps/pipeline/src/README.md). Maintainer scripts and first GitHub publish: [maintainer.md](maintainer.md). Site/playground how-to: [`apps/web/README.md`](../apps/web/README.md). Product search: [search.md](search.md). Telemetry: [observe.md](observe.md). Branch policy: [git-flow.md](git-flow.md).
+Operator runbook: [`apps/pipeline/src/README.md`](../apps/pipeline/src/README.md). Site/playground how-to: [`apps/web/README.md`](../apps/web/README.md). Product search: [SEARCH.md](SEARCH.md). Telemetry: [OBSERVE.md](OBSERVE.md). Branch policy: [BRANCHING.md](BRANCHING.md).
 
 ```mermaid
 flowchart TB
@@ -50,10 +50,11 @@ flowchart LR
 | `common/prompts/` | LLM prompts: `taxonomy/`, `build/`, `improve/`, `evolve/` |
 | `common/taxonomy/` | `git_commands.json`, `goal_taxonomy.json`, `flag_denylist.json` |
 | `docs/` | Philosophy and architectural decisions (`docs/evolve/latest.md` is generated stats) |
+| `benchmarks/` | Performance protocol + committed latency archive |
 | `test/{unit,integration,performance}` | Tests |
 | `local/` | Gitignored scratch — do not put caches under `common/data/` |
 | `common/scripts/` | Hooks (`postinstall`, `ci-audit`, `warm-model`) |
-| `.github/` | CI workflows |
+| `.github/` | CI workflows + [README.md](../.github/README.md) |
 
 ## Data layout
 
@@ -125,11 +126,11 @@ Pull opted-in OBSERVE events, denoise, rebuild search journeys, emit an EXPAND *
 - **Feeder:** miss-like journeys only (`source: 'observe'`, `correctExists: false` when no expected id). **80/20** hash split: train → chain, holdout → post-chain hit-rate stat.
 - `--llm-label` is the only way to LLM-confirm weak/abandon labels.
 
-Send vs pull hosts: [observe.md](observe.md). Stats snapshot: [evolve/latest.md](evolve/latest.md).
+Send vs pull hosts: [OBSERVE.md](OBSERVE.md). Stats snapshot: [evolve/latest.md](evolve/latest.md).
 
 ## Search path
 
-Description KNN (`sqlite-vec` / JS KNN on web) + recipe FTS5 BM25 → fixed α/β fusion (default 0.55/0.45) → soft verb boost → confidence-gated display (1–3) with **title + description**. No search-time LLM. `SEARCH_ALGORITHM_VERSION` = **3**, `SCHEMA_VERSION` = **9**. Details: [search.md](search.md).
+Description KNN (`sqlite-vec` / JS KNN on web) + recipe FTS5 BM25 → fixed α/β fusion (default 0.55/0.45) → soft verb boost → confidence-gated display (1–3) with **title + description**. No search-time LLM. `SEARCH_ALGORITHM_VERSION` = **3**, `SCHEMA_VERSION` = **9**. Details: [SEARCH.md](SEARCH.md) → [apps/cli/README.md#search](../apps/cli/README.md#search).
 
 ## Tests
 
@@ -139,4 +140,4 @@ Description KNN (`sqlite-vec` / JS KNN on web) + recipe FTS5 BM25 → fixed α/�
 - `apps/pipeline/src/tests/bun` — Anvil runner tests
 - `apps/web/e2e` — Playwright (see [web README](../apps/web/README.md))
 
-See also [goals.md](goals.md), [git-flow.md](git-flow.md), [ci.md](ci.md), [maintainer.md](maintainer.md), [security.md](security.md).
+See also [BRANCHING.md](BRANCHING.md), [.github/README.md](../.github/README.md), [security/README.md](security/README.md).

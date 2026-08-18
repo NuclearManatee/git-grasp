@@ -1,9 +1,157 @@
+# CLI (`apps/cli`)
+
+## CLI reference
+
+Local Bun CLI for semantic Git-recipe search. Never executes Git for the user.
+
+Lifecycle: **SEARCH** ([Search](#search)) + **OBSERVE** ([OBSERVE](../../docs/OBSERVE.md)).
+
+Short “common path” examples live in the root [README Usage](../README.md#usage). This page is the full reference. Copy and chalk styling: [UX](#ux). The [web playground](../apps/web/README.md) mirrors search chrome (`formatSearchResult`) and shows `MSG.telemetry.on` on Start; full command surface (doctor, update-check, completion, …) remains CLI-only.
+
+## Install
+
+Requires **Bun ≥ 1.1**.
+
+```bash
+bun add -g git-grasp
+# or from a clone:
+bun install && bun run ship && bun link
+```
+
+Release binaries: [BUILDING-BINARIES](../../docs/BUILDING-BINARIES.md). Package root resolution: `GIT_GRASP_ROOT`, or the directory containing `common/data` + `common/config/thresholds.json` (compiled binary dir / cwd / walk-up).
+
+## Commands
+
+| Command | Purpose |
+|---------|---------|
+| `git-grasp "<query>"` | Default search (fast path) |
+| `git-grasp search [query…]` | Same search via Commander |
+| `git-grasp doctor` | Diagnose DB, model, sqlite-vec, config |
+| `git-grasp init` | Doctor checks + warm embedding model |
+| `git-grasp config show\|path` | Print resolved config JSON or file path |
+| `git-grasp telemetry on\|off\|status` | Opt-in cookieless analytics (default off) |
+| `git-grasp update-check on\|off\|status` | Opt-in npm update notices (default off) |
+| `git-grasp set-level <level>` | **Deprecated/parked** — stores skill preference; **no retrieval effect in schema v9** |
+| `git-grasp completion <shell>` | Print completion script (`bash\|zsh\|fish\|powershell`) |
+| `git-grasp help` | Help |
+| `git-grasp -V` / `--version` | App + catalog identity |
+
+## Search flags
+
+| Flag | Meaning |
+|------|---------|
+| `-v, --verbose` | Confidence / channel scores |
+| `-c, --copy` | Copy winning example to clipboard |
+| `--json` | Machine-readable JSON on stdout only |
+| `-q, --quiet` | No spinner; skip telemetry invite |
+| `-h, --help` | Help |
+| `-V, --version` | Version report |
+
+**stdin:** if there is no query argument and stdin is not a TTY, the piped text is used as the query.
+
+```bash
+echo "undo last commit keep files" | git-grasp
+git-grasp --json "create a branch"
+```
+
+## Version identity
+
+`--version` / doctor print:
+
+```text
+git-grasp 0.1.0
+catalog v5 (941 recipes) · schema v9 · db abcdef012345
+```
+
+Catalog version comes from `common/data/catalog/recipes.latest.json` (also stamped into DB meta as `corpus_version` on seed).
+
+## Config
+
+File: platform user config dir (`%APPDATA%/git-grasp/config.json` on Windows; `~/.config/git-grasp/config.json` on Linux/macOS). Mode/ACL tightened on write.
+
+| Field | Default | Meaning |
+|-------|---------|---------|
+| `schemaVersion` | `4` | Config schema |
+| `skillLevel` | `null` | Parked preference (no retrieval effect in v9) |
+| `telemetry` | `null` | `true` / `false` / unset |
+| `telemetryInvite` | `pending` | Soft invite state |
+| `updateCheck` | `null` | `true` enables npm ping |
+
+```bash
+git-grasp config show
+git-grasp config path
+```
+
+## Update check (npm)
+
+Opt-in. When enabled, after a successful search (and on `doctor` / `update-check status`) the CLI may GET `https://registry.npmjs.org/git-grasp/latest` (≈2.5s timeout). Results cache 24h under the user cache dir (`update-check.json`). Failures are silent. Hard off: `GIT_GRASP_UPDATE_CHECK=0`.
+
+When a newer release is found, a **yellow** notice is printed on stderr (whole line, including the install command).
+
+```bash
+git-grasp update-check on
+git-grasp update-check status
+```
+
+## Help
+
+Bare `git-grasp` / `--help` opens with a short Common commands block (search, doctor, init, config, telemetry, update-check, completion). Voice and chalk rules: [UX](#ux). **V1 product output is chalk-only** (no emoji unless `GIT_GRASP_EMOJI=1`).
+
+## Completions
+
+```bash
+eval "$(git-grasp completion bash)"
+# zsh: eval "$(git-grasp completion zsh)"
+# fish: git-grasp completion fish > ~/.config/fish/completions/git-grasp.fish
+# PowerShell: git-grasp completion powershell | Out-String | Invoke-Expression
+```
+
+## Exit codes
+
+| Code | Meaning |
+|------|---------|
+| `0` | Success |
+| `1` | Generic error |
+| `2` | DB integrity / schema version mismatch (`INTEGRITY` / `VERSION`) |
+| `3` | Config error (`CONFIG` / `CONFIG_INSECURE`) |
+| `5` | Catalog/search version mismatch when distinguished from integrity (`VERSION`) |
+
+`--json` search mode skips telemetry invite/track (see [OBSERVE](../../docs/OBSERVE.md)).
+
+## Environment
+
+| Variable | Role |
+|----------|------|
+| `GIT_GRASP_ROOT` | Force package root |
+| `GIT_GRASP_MOCK_EMBEDDINGS=1` | Deterministic mock embeddings |
+| `GIT_GRASP_TELEMETRY=0` / `DO_NOT_TRACK=1` | Hard-off telemetry (refuse enable + no-op send) |
+| `GIT_GRASP_UPDATE_CHECK=0` | Hard-off npm update check |
+| `GIT_GRASP_INSTALL=binary\|bun` | Hint for update-notice install copy |
+| `GIT_GRASP_BENCH=1` | Print search phase timings on stderr |
+| `NO_COLOR` | Disable chalk colors when set |
+| `GIT_GRASP_EMOJI=1` | Opt-in closed-set emoji glyphs (off by default in V1) |
+| `GIT_GRASP_NO_EMOJI=1` | Hard-off emoji even if `GIT_GRASP_EMOJI=1` |
+| `GIT_GRASP_POSTHOG_HOST` / `GIT_GRASP_POSTHOG_KEY` | Override baked PostHog EU ingest defaults (empty key disables send). Docker e2e uses `http://127.0.0.1:8010` |
+
+## Runtime notes
+
+- Depends on `@git-grasp/common/cli`.
+- Offline after install + seed; embedding model downloads on first real search (or `init`).
+- Telemetry: [OBSERVE](../../docs/OBSERVE.md). Search algorithm: [Search](#search).
+
+```bash
+bun run cli -- "undo last commit but keep my files"
+bun run doctor
+bun run build:release
+```
+
+---
 # CLI UX copy & style
 
 Living **design** spec for product-facing CLI text and chalk styling (and optional emoji).  
 Synced with `common/src/ux/cliStyle.ts` and the CLI apps.
 
-Command reference: [cli.md](cli.md).
+Command reference: [CLI reference](#cli-reference).
 
 **V1 ships chalk-only.** The closed emoji set below is documented for an opt-in preview (`GIT_GRASP_EMOJI=1`); product default output has **no** emoji glyphs.
 
@@ -168,7 +316,7 @@ Grades: **Good** / **Mixed** / **Gap**. Spec actions reflect the locked V1 desig
 | Evidence                                         | Spec action                                       |
 | ------------------------------------------------ | ------------------------------------------------- |
 | Fast path query, `--json`, `--copy`, stdin, `-q` | Keep; no emoji on `--json` stdout                 |
-| Expert env hard-offs                             | Keep undocumented-in-help is fine; live in cli.md |
+| Expert env hard-offs                             | Keep undocumented-in-help is fine; live in [CLI reference](#cli-reference) |
 
 
 
@@ -345,7 +493,7 @@ Common commands:
   git-grasp update-check status
   git-grasp completion bash
 
-Full reference: docs/cli.md
+Full reference: see [CLI reference](#cli-reference) above
 ```
 
 No emoji in the help command list.
@@ -455,3 +603,66 @@ bun local/cli-ux-review/capture.ts
 ```
 
 Screenshots: `local/cli-ux-review/screenshots/`.
+
+---
+# SEARCH
+
+**Summary:** The product. Ask in plain language — **install the CLI** or use the **web playground**. Same hybrid retrieval either way. **No LLM at query time.**
+
+```mermaid
+flowchart TB
+  Q[Query]
+  E[Embed query]
+  K[KNN vec_recipes]
+  F[FTS recipes_fts]
+  X[Fixed-blend fusion]
+  V[Soft verb boost]
+  D[Confidence → display 1–3]
+  U[Title + description + snippet]
+  Q --> E
+  E --> K
+  E --> F
+  K --> X
+  F --> X
+  X --> V --> D --> U
+```
+
+## Surfaces
+
+| Surface | How |
+|---------|-----|
+| CLI | `bun add -g git-grasp` or a [release binary](../README.md#binaries-latest-github-release) — full reference [CLI reference](#cli-reference) |
+| Web | [git-grasp.cremaschi.dev](https://git-grasp.cremaschi.dev) playground — [apps/web/README.md](../apps/web/README.md) |
+
+## What it does
+
+1. Verify DB `.sha256` integrity, then `schema_version` (**9**) + `search_algorithm_version` (**3**) (CLI and web). Mismatch → `VERSION` (doctor tip).
+2. Embed the query (local BGE-small). Recipe embed text is **description + paraphrases**.
+3. Parallel description KNN (`vec_recipes`) + BM25 FTS (`recipes_fts`).
+4. Fixed-blend fusion (default **α=0.55** cosine / **β=0.45** BM25). Single-channel batches collapse to 1/0 or 0/1.
+5. Soft **verb boost** when the query names git verbs (reorders / lifts hybrid scores; also feeds abstain evidence).
+6. Confidence-gated display 1–3 (or abstain), then diversify by **structural** command fingerprint (literal vs `<placeholder>` collapse).
+
+## Display gate (honest)
+
+Thresholds live in `common/config/thresholds.json` (`schemaVersion` there is the **thresholds file** version, not DB v9).
+
+| Signal | Behavior |
+|--------|----------|
+| `confidenceVeryHigh` + exact gap | Show **1**, alert none |
+| `confidenceHigh` + narrow gap | Show **2**, alert yellow |
+| Below that / near-tie | Show up to **3**, alert orange |
+| `confidenceMedium` | Present in config for compatibility — **not** used by the gate |
+| Absolute abstain (red / 0) | Only when top cosine is weak **and** no BM25 **and** no verb boost |
+
+Near-ties widen display; crowded ≠ absent. Eval “Hit@display” uses the gated set; leaf held-out also accepts top-10 (see [ARCHITECTURE](../../docs/ARCHITECTURE.md#expand)).
+
+## Code
+
+| Path | Role |
+|------|------|
+| `apps/cli` | CLI UX |
+| `apps/web` | Playground (sql.js pack) |
+| `common/src/search/` | Hybrid, fusion, verb boost, embed, FTS |
+| `common/src/cli-api.ts` | Shared search facade |
+

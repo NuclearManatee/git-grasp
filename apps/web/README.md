@@ -2,7 +2,7 @@
 
 Astro marketing site plus an in-browser playground (Xterm + sql.js catalog + Transformers.js BGE-small). Pages: `/`, `/examples`, `/privacy`. Same hybrid search as the CLI via `@git-grasp/common/browser`. Search hit chrome reuses `formatSearchResult`.
 
-Algorithm: [docs/search.md](../../docs/search.md). Telemetry consent: [docs/observe.md](../../docs/observe.md) and site `/privacy`. Shared copy: [docs/cli-ux.md](../../docs/cli-ux.md). Catalog build: [pipeline README](../pipeline/src/README.md). Pages deploy: [docs/ci.md](../../docs/ci.md). CSP / WASM integrity: [docs/security.md](../../docs/security.md).
+Algorithm: [docs/SEARCH.md](../../docs/SEARCH.md). Telemetry consent: [docs/OBSERVE.md](../../docs/OBSERVE.md) and site `/privacy`. Shared copy: [CLI UX](../cli/README.md#ux). Catalog build: [pipeline README](../pipeline/src/README.md). Pages deploy: [.github/README.md](../../.github/README.md). CSP / WASM integrity: [docs/security/README.md](../../docs/security/README.md).
 
 ## Run
 
@@ -49,7 +49,7 @@ bun run web:e2e:dev                           # astro dev + hydrate.spec.ts
 
 ## PostHog (optional)
 
-Site snippet env (`PUBLIC_POSTHOG_*` in `.env` — see [`.env.example`](./.env.example)) is the public project key. EVOLVE pull uses `GIT_GRASP_POSTHOG_PROJECT_ID` + `GIT_GRASP_POSTHOG_PERSONAL_API_KEY` against the query API host. Send vs pull: [docs/observe.md](../../docs/observe.md).
+Site snippet env (`PUBLIC_POSTHOG_*` in `.env` — see [`.env.example`](./.env.example)) is the public project key. EVOLVE pull uses `GIT_GRASP_POSTHOG_PROJECT_ID` + `GIT_GRASP_POSTHOG_PERSONAL_API_KEY` against the query API host. Send vs pull: [docs/OBSERVE.md](../../docs/OBSERVE.md).
 
 Without a project key, the site does not load PostHog (same as CLI OBSERVE send).
 

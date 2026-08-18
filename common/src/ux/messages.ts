@@ -1,6 +1,6 @@
 // @ts-nocheck
 /**
- * Shared MSG.* formatters — keep in sync with docs/cli-ux.md
+ * Shared MSG.* formatters — keep in sync with apps/cli/README.md#ux
  */
 import { PRIVACY_URL } from '../lib/telemetry/defaults.js';
 import { skillName } from '../lib/skills.js';

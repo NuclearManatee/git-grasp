@@ -1,4 +1,4 @@
-# Perf budget profiles. Cheap VPS scenario = same caps as `gate` (see docs/perf.md).
+# Perf budget profiles. Cheap VPS scenario = same caps as `gate` (see benchmarks/README.md).
 services:
   gate:
     profiles: ["gate"]

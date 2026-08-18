@@ -4,7 +4,7 @@
 [![Bun](https://img.shields.io/badge/runtime-Bun-black)](https://bun.sh)
 [![npm](https://img.shields.io/npm/v/git-grasp)](https://www.npmjs.com/package/git-grasp)
 [![Local-first](https://img.shields.io/badge/local--first-yes-0a7)](https://git-grasp.cremaschi.dev)
-[![Search-time LLM](https://img.shields.io/badge/search--time%20LLM-none-0a7)](docs/search.md)
+[![Search-time LLM](https://img.shields.io/badge/search--time%20LLM-none-0a7)](docs/SEARCH.md)
 [![Site](https://img.shields.io/badge/site-git--grasp.cremaschi.dev-informational)](https://git-grasp.cremaschi.dev)
 
 **git-grasp** turns “how do I … in Git?” into a short, trusted recipe — offline, on your machine.
@@ -52,32 +52,33 @@ flowchart TB
 
 | Stage | Meaning |
 |-------|---------|
-| [PREPARE](docs/architecture.md#prepare) | Decide what Git can do and how user goals should be organized around it. |
-| [GENERATE](docs/architecture.md#generate) | Invent recipes for each goal and keep only those that hold up under checks. |
-| [EXPAND](docs/architecture.md#expand) | Test hard questions, classify misses, fill gaps (density / width / depth), retest until strong. |
-| [SHIP](docs/architecture.md#ship) | Freeze a trusted catalog so every user gets the same offline answers. |
-| [SEARCH](docs/search.md) | Ask in plain language — install the CLI or use the web playground. |
-| [OBSERVE](docs/observe.md) | Optionally notice how people actually ask (privacy-first, off by default). |
-| [EVOLVE](docs/architecture.md#evolve) | Turn real usage into the next better catalog (PostHog pull → feeder → EXPAND). |
+| [PREPARE](docs/ARCHITECTURE.md#prepare) | Decide what Git can do and how user goals should be organized around it. |
+| [GENERATE](docs/ARCHITECTURE.md#generate) | Invent recipes for each goal and keep only those that hold up under checks. |
+| [EXPAND](docs/ARCHITECTURE.md#expand) | Test hard questions, classify misses, fill gaps (density / width / depth), retest until strong. |
+| [SHIP](docs/ARCHITECTURE.md#ship) | Freeze a trusted catalog so every user gets the same offline answers. |
+| [SEARCH](docs/SEARCH.md) | Ask in plain language — install the CLI or use the web playground. |
+| [OBSERVE](docs/OBSERVE.md) | Optionally notice how people actually ask (privacy-first, off by default). |
+| [EVOLVE](docs/ARCHITECTURE.md#evolve) | Turn real usage into the next better catalog (PostHog pull → feeder → EXPAND). |
 
-Catalog operator runbook: [`apps/pipeline/src/README.md`](apps/pipeline/src/README.md). Decisions: [docs/architecture.md](docs/architecture.md).
+Catalog operator runbook: [`apps/pipeline/src/README.md`](apps/pipeline/src/README.md). Decisions: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Performance
 
 > **Historical only** — published latency figures are from a pre–schema-v9 catalog (intents-era). Re-bench on the current description-KNN catalog before citing product numbers.
 
-Protocol and targets: [docs/perf.md](docs/perf.md). Snapshot archive: [docs/benchmarks/latest.md](docs/benchmarks/latest.md).
+Protocol and targets: [benchmarks/README.md](benchmarks/README.md). Snapshot archive: [benchmarks/latest.md](benchmarks/latest.md).
 
 ## Project structure
 
 ```text
 git-grasp/
 ├── apps/
-│   ├── cli/           # Bun CLI (product — this README + docs/cli.md)
+│   ├── cli/           # Bun CLI — apps/cli/README.md
 │   ├── pipeline/      # Catalog Anvil script
 │   │   └── src/       # index.ts, commons/, steps/, tests/, README.md
 │   └── web/           # Site + playground — apps/web/README.md
 ├── common/            # Shared library, shipped data/ + config/
+├── benchmarks/        # Performance protocol + latency archive
 ├── docs/              # Philosophy and architectural decisions
 ├── test/              # Unit, integration, performance
 └── .github/           # CI and release workflows
@@ -116,7 +117,7 @@ bun link
 3. Run from the extracted folder: `./git-grasp "…"` / `.\git-grasp.exe "…"`.
 4. Optional: set **`GIT_GRASP_ROOT`** to that folder if you move the binary.
 
-Checksums: `SHA256SUMS` on each GitHub Release. Building: [docs/building-binaries.md](docs/building-binaries.md).
+Checksums: `SHA256SUMS` on each GitHub Release. Building: [docs/BUILDING-BINARIES.md](docs/BUILDING-BINARIES.md).
 
 Prefer not to install? Use the [web playground](https://git-grasp.cremaschi.dev).
 
@@ -135,7 +136,7 @@ git-grasp --version
 - Offline after install + seed (embedding model downloads on first real search, or run `init`).
 - Optional: `git-grasp telemetry on|off|status` · `git-grasp update-check on|off|status` (both **off** by default).
 
-Full command reference, exit codes, env vars, and completions: [docs/cli.md](docs/cli.md).
+Full command reference, exit codes, env vars, and completions: [apps/cli/README.md](apps/cli/README.md).
 
 ### Telemetry (optional)
 
@@ -145,7 +146,7 @@ Off by default. Soft invite on first interactive search. Hard off: `DO_NOT_TRACK
 git-grasp telemetry on|off|status
 ```
 
-Details: [docs/observe.md](docs/observe.md), [Privacy](https://git-grasp.cremaschi.dev/privacy).
+Details: [docs/OBSERVE.md](docs/OBSERVE.md), [Privacy](https://git-grasp.cremaschi.dev/privacy).
 
 ### Further reading
 
@@ -153,9 +154,9 @@ Details: [docs/observe.md](docs/observe.md), [Privacy](https://git-grasp.cremasc
 |-------|-------|
 | Catalog pipeline (run) | [apps/pipeline/src/README.md](apps/pipeline/src/README.md) |
 | Web playground (run) | [apps/web/README.md](apps/web/README.md) |
-| CLI reference | [docs/cli.md](docs/cli.md) |
-| Architecture | [docs/architecture.md](docs/architecture.md) |
-| Search algorithm | [docs/search.md](docs/search.md) |
+| CLI reference | [apps/cli/README.md](apps/cli/README.md) |
+| Architecture | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) |
+| Search algorithm | [docs/SEARCH.md](docs/SEARCH.md) |
 
 ### Contributor scripts
 
@@ -164,10 +165,9 @@ Details: [docs/observe.md](docs/observe.md), [Privacy](https://git-grasp.cremasc
 | `bun run cli` / `doctor` | CLI entry / health |
 | `bun run typecheck` | `tsc --noEmit` |
 | `bun run ci` | Local CI (typecheck → unit/integration → audit; mock embeddings) |
-| `bun run preflight` | Same as `ci`, then print next maintainer steps |
 | `bun test` / `test:unit` / `test:integration` | Bun test (unit + integration + pipeline) |
 | `bun run test:telemetry-e2e` / `test:evolve-e2e` | Optional local Docker PostHog e2e (skips if `:8010` is down) |
 | `bun run bench` / `bench:install` / `bench:render-latest` | Perf harnesses + commit snapshot |
 | `bun run build:cli` / `build:release` | Compile CLI / release zip |
 
-Pipeline and web scripts live in those READMEs. Maintainer runbook (local CI, publish, secrets): [docs/maintainer.md](docs/maintainer.md). CI workflows: [docs/ci.md](docs/ci.md).
+Pipeline and web scripts live in those READMEs. CI workflows: [.github/README.md](.github/README.md).

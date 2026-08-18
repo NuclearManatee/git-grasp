@@ -73,7 +73,7 @@ The embedding model still downloads on first non-mock search (Hugging Face / Xen
 - No `bun publish` to npm
 - No GitHub Pages deploy
 
-Those run only from [`.github/workflows/release.yml`](../.github/workflows/release.yml) on `main` / `v*` tags after the gate (tests, **regression** eval, web e2e). See [ci.md](ci.md).
+Those run only from [`.github/workflows/release.yml`](../.github/workflows/release.yml) on `main` / `v*` tags after the gate (tests, **regression** eval, web e2e). See [.github/README.md](../.github/README.md).
 
 ## Bench-only compile
 

@@ -1,6 +1,6 @@
 # Performance budget
 
-> **Tombstone (schema v9).** Latency tables and intent-cardinality notes below are a **2026-07-26 historical snapshot** from a pre–v9 intents-era catalog (MiniLM + skill filter). The product DB is now **schema v9** (description KNN + FTS; no intent table; BGE-small). **Do not cite these numbers as current product performance.** Re-bench, then run `bun run bench:render-latest` and replace [benchmarks/latest.md](benchmarks/latest.md).
+> **Tombstone (schema v9).** Latency tables and intent-cardinality notes below are a **2026-07-26 historical snapshot** from a pre–v9 intents-era catalog (MiniLM + skill filter). The product DB is now **schema v9** (description KNN + FTS; no intent table; BGE-small). **Do not cite these numbers as current product performance.** Re-bench, then run `bun run bench:render-latest` and replace [latest.md](latest.md).
 
 Interactive search **target** (unchanged intent): CLI wall-time p95 &lt; 500ms (cold + warm) when the embedding model is already on disk, measured on Docker profile **`gate`** (1 vCPU / 1GB). Cheap-VPS scenario uses the same caps.
 
@@ -45,7 +45,7 @@ Deep profile: `bun --cpu-prof apps/cli/bin/index.ts "…"`.
 
 ## Historical latency table (2026-07-26 — intents catalog, not v9)
 
-Committed archive: **[docs/benchmarks/latest.md](benchmarks/latest.md)**. After a fresh v9 re-bench, run `bun run bench:render-latest` and commit the markdown (`local/bench/results*.json` stays gitignored).
+Committed archive: **[latest.md](latest.md)**. After a fresh v9 re-bench, run `bun run bench:render-latest` and commit the markdown (`local/bench/results*.json` stays gitignored).
 
 ### Docker `mid` (2 vCPU / 4GB) — then low-end claim basis
 
@@ -68,7 +68,7 @@ In-process search after model load was well under 500ms on mid; gate sticky was 
 ## Bottlenecks (still expected on v9)
 
 1. **Per-process embedder ONNX session load** dominates CLI wall time. Product UX is one process per invocation, so cold≈warm for process-per-call.
-2. Bun/CLI startup + barrel imports — mitigated by `@git-grasp/common/cli` slim entry + fast-path `bin/index.ts`.
+2. Bun/CLI startup + barrel imports — mitigated by `@git-grasp/common/cli` export surface + fast-path `bin/index.ts`.
 3. Search path after model load is typically **well under budget** (sqlite-vec / JS KNN + fusion).
 
 Skill-axis hydrate filters are **parked** in v9 (not used for retrieval).
@@ -85,7 +85,7 @@ Skill-axis hydrate filters are **parked** in v9 (not used for retrieval).
 
 ## Intent cardinality (historical)
 
-Synthetic rank-only projection from the intents-era catalog is archived in [benchmarks/latest.md](benchmarks/latest.md). Rank cost was negligible vs embedder process load; v9 has no intent table.
+Synthetic rank-only projection from the intents-era catalog is archived in [latest.md](latest.md). Rank cost was negligible vs embedder process load; v9 has no intent table.
 
 ## Gate verdict (2026-07-26 — historical)
 
@@ -103,7 +103,7 @@ To meet &lt;500ms for **product** CLI on cheap VPS, options include a resident e
 - [ ] Eval / regression as required by change type (`bun run eval:regression` for catalog gates)
 - [ ] `docker compose --profile gate run --rm gate` — record results; note sticky vs process-per-call
 - [ ] Re-run after catalog redesign / ship changes
-- [ ] If latency numbers changed: `bun run bench:render-latest` and commit `docs/benchmarks/latest.md`
+- [ ] If latency numbers changed: `bun run bench:render-latest` and commit `benchmarks/latest.md`
 
 ## Install bench (separate)
 
