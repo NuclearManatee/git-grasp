@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { z } from "zod";
 import { classifyError, EXIT_BY_CATEGORY } from "../../commons/errors.ts";
 import { RunError, StepRunner } from "../../commons/runner.ts";
-import { stepList } from "../../commons/stepSchema.ts";
+import { stepList, type StepContext } from "../../commons/stepSchema.ts";
 
 describe("classifyError", () => {
 	test("maps taxonomy", () => {
@@ -27,7 +27,7 @@ describe("StepRunner resume", () => {
 		const steps = stepList.parse([
 			{
 				name: "ctxProbe",
-				run: async (ctx) => {
+				run: async (ctx: StepContext) => {
 					const set = ctx.set;
 					set("probe", { ok: true });
 					expect(ctx.get("probe")).toEqual({ ok: true });
