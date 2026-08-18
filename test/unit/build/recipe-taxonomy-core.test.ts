@@ -16,6 +16,7 @@ import {
 import {
   addRegressionQueries,
   evaluateRegressionSet,
+  pruneRegressionSet,
 } from '../../../common/src/build/regressionSet.ts';
 import { recipeFtsBody } from '../../../common/src/search/ftsQuery.ts';
 
@@ -135,6 +136,19 @@ describe('improve triage helpers', () => {
 });
 
 describe('regression set', () => {
+  it('pruneRegressionSet drops rows for missing recipe_ids', () => {
+    const set = {
+      version: 1,
+      queries: [
+        { query: 'a', recipe_id: 'r1', source: 'synthetic' as const },
+        { query: 'b', recipe_id: 'r-missing', source: 'synthetic' as const },
+      ],
+    };
+    const pruned = pruneRegressionSet(set, new Set(['r1']));
+    expect(pruned.queries).toHaveLength(1);
+    expect(pruned.queries[0]?.recipe_id).toBe('r1');
+  });
+
   it('evaluates against search stub', async () => {
     let set = { version: 0, queries: [] };
     set = addRegressionQueries(set, [

@@ -1,8 +1,9 @@
 import { existsSync } from "node:fs";
-import { search, defaultDbPath } from "@git-grasp/common";
+import { search, defaultDbPath, openDb, listRecipes } from "@git-grasp/common";
 import {
 	loadRegressionSet,
 	evaluateRegressionSet,
+	pruneRegressionSet,
 	regressionSetPath,
 } from "../../../../common/src/build/regressionSet.ts";
 import { RunError } from "../commons/runner.ts";
@@ -23,9 +24,30 @@ export async function runEvalRegression(ctx: StepContext, flags: PipelineFlags):
 		throw new RunError(`Catalog DB missing: ${dbPath}. Run ship first.`, "environment");
 	}
 
-	const set = loadRegressionSet(setPath);
+	let set = loadRegressionSet(setPath);
 	if (!set.queries?.length) {
 		throw new RunError(`Regression set empty: ${setPath}`, "user");
+	}
+
+	const catalog = openDb(dbPath, { readonly: true });
+	let extantIds: Set<string>;
+	try {
+		extantIds = new Set(listRecipes(catalog).map((row: { id: string | number }) => String(row.id)));
+	} finally {
+		catalog.close();
+	}
+	const before = set.queries.length;
+	set = pruneRegressionSet(set, extantIds);
+	const pruned = before - set.queries.length;
+	if (pruned > 0) {
+		console.log({
+			step: "evalRegression",
+			prunedOrphanRecipeIds: pruned,
+			queries: set.queries.length,
+		});
+	}
+	if (!set.queries.length) {
+		throw new RunError(`Regression set empty after pruning orphaned recipe_ids`, "user");
 	}
 
 	async function searchFn(query: string) {
