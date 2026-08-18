@@ -49,7 +49,6 @@
     "test:evolve-e2e": "bun test ./test/integration/evolve-posthog.test.ts",
     "test:watch": "bun test --watch --timeout 60000 ./test/unit",
     "ci": "bun common/scripts/ci.ts",
-    "preflight": "bun common/scripts/preflight.ts",
     "bench:render-latest": "bun test/performance/render-bench-latest.ts",
     "evolve:render-latest": "bun common/src/evolve/renderLatestCli.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json",
