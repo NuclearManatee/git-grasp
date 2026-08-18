@@ -15,6 +15,8 @@ const outPath = defaultWebCatalogPath();
 const constantsOut = path.join(PACKAGE_ROOT, 'apps', 'web', 'src', 'lib', 'assetSizes.ts');
 const sqlJsVendorDir = path.join(PACKAGE_ROOT, 'apps', 'web', 'public', 'vendor', 'sql.js');
 const sqlJsDist = path.join(PACKAGE_ROOT, 'node_modules', 'sql.js', 'dist');
+const transformersVendorDir = path.join(PACKAGE_ROOT, 'apps', 'web', 'public', 'vendor', 'transformers');
+const transformersDist = path.join(PACKAGE_ROOT, 'node_modules', '@huggingface', 'transformers', 'dist');
 
 if (!existsSync(dbPath)) {
   console.error(`Database missing: ${dbPath}. Run bun run ship first.`);
@@ -60,4 +62,16 @@ for (const name of ['sql-wasm.wasm', 'sql-wasm-browser.wasm']) {
   const dest = path.join(sqlJsVendorDir, name);
   copyFileSync(src, dest);
   console.log(`Vendor WASM → ${dest}`);
+}
+
+mkdirSync(transformersVendorDir, { recursive: true });
+for (const name of ['ort-wasm-simd-threaded.jsep.mjs', 'ort-wasm-simd-threaded.jsep.wasm']) {
+  const src = path.join(transformersDist, name);
+  if (!existsSync(src)) {
+    console.error(`Transformers ONNX runtime missing: ${src}`);
+    process.exit(1);
+  }
+  const dest = path.join(transformersVendorDir, name);
+  copyFileSync(src, dest);
+  console.log(`Vendor ONNX → ${dest}`);
 }

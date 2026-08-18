@@ -7,6 +7,9 @@
 import { EMBEDDING_DIM } from '../db/constants.js';
 import { EMBEDDING_MODEL_ID, EMBEDDING_MODEL_REVISION } from './embeddingModel.js';
 
+/** Same-origin ONNX runtime for Transformers.js (see embed.browser.ts wasmPaths). */
+export const BROWSER_ONNX_WASM_PATH = '/vendor/transformers/';
+
 export const BROWSER_EMBEDDING_MODEL = EMBEDDING_MODEL_ID;
 export const BROWSER_EMBEDDING_REVISION = EMBEDDING_MODEL_REVISION;
 
@@ -68,8 +71,9 @@ export async function getBrowserEmbedder({ forceMock = false, onStatus = undefin
   if (!pipelinePromise) {
     pipelinePromise = (async () => {
       const model = BROWSER_EMBEDDING_MODEL;
-      onStatus?.(`Loading embedding model ${model}@${BROWSER_EMBEDDING_REVISION.slice(0, 7)}ÔÇª`);
-      const { pipeline } = await import('@huggingface/transformers');
+      onStatus?.(`Loading embedding model ${model}@${BROWSER_EMBEDDING_REVISION.slice(0, 7)}…`);
+      const { pipeline, env } = await import('@huggingface/transformers');
+      env.backends.onnx.wasm.wasmPaths = BROWSER_ONNX_WASM_PATH;
       const extractor = await pipeline('feature-extraction', model, {
         dtype: 'fp32',
         revision: BROWSER_EMBEDDING_REVISION,
