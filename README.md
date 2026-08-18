@@ -106,10 +106,10 @@ bun link
 
 | Platform | Download |
 |----------|----------|
-| Linux x64 | https://github.com/cremaschi/git-grasp/releases/latest/download/git-grasp-linux-x64.zip |
-| macOS Apple Silicon | https://github.com/cremaschi/git-grasp/releases/latest/download/git-grasp-darwin-arm64.zip |
-| macOS Intel | https://github.com/cremaschi/git-grasp/releases/latest/download/git-grasp-darwin-x64.zip |
-| Windows x64 | https://github.com/cremaschi/git-grasp/releases/latest/download/git-grasp-windows-x64.zip |
+| Linux x64 | https://github.com/NuclearManatee/git-grasp/releases/latest/download/git-grasp-linux-x64.zip |
+| macOS Apple Silicon | https://github.com/NuclearManatee/git-grasp/releases/latest/download/git-grasp-darwin-arm64.zip |
+| macOS Intel | https://github.com/NuclearManatee/git-grasp/releases/latest/download/git-grasp-darwin-x64.zip |
+| Windows x64 | https://github.com/NuclearManatee/git-grasp/releases/latest/download/git-grasp-windows-x64.zip |
 
 1. **Unzip** the asset for your OS (keep the folder layout intact).
 2. Keep **`common/`** beside the binary (`git-grasp` or Windows **`git-grasp.exe`**).

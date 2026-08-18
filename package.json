@@ -12,11 +12,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cremaschi/git-grasp.git"
+    "url": "git+https://github.com/NuclearManatee/git-grasp.git"
   },
   "homepage": "https://git-grasp.cremaschi.dev",
   "bugs": {
-    "url": "https://github.com/cremaschi/git-grasp/issues"
+    "url": "https://github.com/NuclearManatee/git-grasp/issues"
   },
   "bin": {
     "git-grasp": "./apps/cli/bin/index.ts"

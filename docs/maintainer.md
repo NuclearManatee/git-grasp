@@ -60,11 +60,11 @@ Binaries: [building-binaries.md](building-binaries.md). Workflows: [ci.md](ci.md
 
 ## First GitHub publish
 
-Repo URL: `https://github.com/cremaschi/git-grasp` (public). Default integration branch: **`develop`**.
+Repo URL: `https://github.com/NuclearManatee/git-grasp` (public). Default integration branch: **`develop`**.
 
 ```bash
 gh auth login
-gh repo create cremaschi/git-grasp --public --source=. --remote=origin
+gh repo create NuclearManatee/git-grasp --public --source=. --remote=origin
 git push -u origin develop
 git push -u origin improve/catalog-ays-llm-band improve/catalog-recipes-v5 improve/catalog-ux-v2 improve/usage-confidence-eval
 git push -u origin legacy/v8
