@@ -59,7 +59,8 @@ export class RunContext implements StepContext {
 	constructor(db: Database) {
 		this.db = db;
 	}
-	get(key: string): unknown {
+	/** Arrow fields so zod-parsed `{ get, set }` snapshots stay bound after stepContext validation. */
+	get = (key: string): unknown => {
 		const row = this.db.query("SELECT value FROM ctx WHERE key = ?").get(key) as
 			| { value: string }
 			| null;
@@ -67,14 +68,14 @@ export class RunContext implements StepContext {
 			return undefined;
 		}
 		return JSON.parse(row.value) as unknown;
-	}
-	set(key: string, value: unknown): void {
+	};
+	set = (key: string, value: unknown): void => {
 		this.db
 			.query(
 				"INSERT INTO ctx (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value"
 			)
 			.run(key, JSON.stringify(value));
-	}
+	};
 }
 
 export class StepRunner {

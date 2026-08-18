@@ -21,6 +21,28 @@ describe("classifyError", () => {
 });
 
 describe("StepRunner resume", () => {
+	test("ctx.set stays bound after stepList.parse", async () => {
+		const dir = mkdtempSync(join(tmpdir(), "pipeline-runner-"));
+		const dbPath = join(dir, "state.sqlite");
+		const steps = stepList.parse([
+			{
+				name: "ctxProbe",
+				run: async (ctx) => {
+					const set = ctx.set;
+					set("probe", { ok: true });
+					expect(ctx.get("probe")).toEqual({ ok: true });
+				},
+				rollback: null,
+				rollbackFn: null,
+			},
+		]);
+
+		const runner = new StepRunner(dbPath, steps);
+		await runner.run();
+		runner.close();
+		rmSync(dir, { recursive: true, force: true });
+	});
+
 	test("skips done steps on a second run", async () => {
 		const dir = mkdtempSync(join(tmpdir(), "pipeline-runner-"));
 		const dbPath = join(dir, "state.sqlite");
