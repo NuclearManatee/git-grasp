@@ -12,6 +12,7 @@
     "./lib/llm.js": "./src/lib/llm.ts",
     "./lib/rateLimit.js": "./src/lib/rateLimit.ts",
     "./lib/telemetry/scrub.js": "./src/lib/telemetry/scrub.ts",
+    "./lib/telemetry/defaults.js": "./src/lib/telemetry/defaults.ts",
     "./catalog/step0Glossary.js": "./src/catalog/step0Glossary.ts",
     "./eval/judge.js": "./src/eval/judge.ts",
     "./eval/loop.js": "./src/eval/loop.ts",
