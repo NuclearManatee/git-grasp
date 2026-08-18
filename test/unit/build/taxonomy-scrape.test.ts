@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'bun:test';
-import { readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -70,13 +71,15 @@ describe('probeGitCommandAvailability', () => {
   });
 
   it('classifies standalone when trusted path resolves', () => {
+    const standalone = path.join(mkdtempSync(path.join(tmpdir(), 'git-grasp-gitk-')), 'gitk');
+    writeFileSync(standalone, '');
     const p = probeGitCommandAvailability('gitk', {
       spawnGit: () => ({
         status: 1,
         stdout: '',
         stderr: "git: 'gitk' is not a git command",
       }),
-      resolveStandalone: () => 'C:\\Program Files\\Git\\cmd\\gitk.exe',
+      resolveStandalone: () => standalone,
     });
     expect(p).toMatchObject({ available: true, runner: 'standalone', command: 'gitk' });
   });

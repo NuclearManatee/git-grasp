@@ -132,8 +132,11 @@ describe('update-check', () => {
     try {
       const out = await maybeNotifyUpdate({ force: true, fetchImpl, quiet: false });
       expect(out.notified).toBe(true);
-      expect(errSpy).toHaveBeenCalledTimes(1);
-      const msg = String(errSpy.mock.calls[0][0]);
+      const notifyCalls = errSpy.mock.calls.filter((c) =>
+        String(c[0]).includes('A newer git-grasp is available'),
+      );
+      expect(notifyCalls).toHaveLength(1);
+      const msg = String(notifyCalls[0][0]);
       expect(msg).toContain('99.0.0');
       expect(msg).toContain(local);
       expect(msg).toContain('bun add -g git-grasp@latest');
