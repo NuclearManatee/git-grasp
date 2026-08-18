@@ -19,6 +19,7 @@ Regression gate: `bun run eval:regression` (`tools:pipeline -- --only=evalRegres
 |--------|----------|
 | `DEEPSEEK_API_KEY` | Local pipeline / LLM stages (`prepare:goals`, `generate`, `expand`, optional golden judge) — **not** required by GitHub workflows |
 | `NPM_TOKEN` | Classic npm auth for `bun publish` on `v*` tags (release does not use OIDC trusted publishing) |
+| `PUBLIC_POSTHOG_KEY` | PostHog EU project API key (`phc_…`) baked into Pages at `web:build`. Empty/missing keeps the site snippet off |
 
 Pages and GitHub Releases use the built-in `GITHUB_TOKEN` (workflow permissions).
 

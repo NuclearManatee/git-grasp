@@ -57,6 +57,9 @@ jobs:
 
       - name: Build web
         run: bun run web:build
+        env:
+          PUBLIC_POSTHOG_HOST: https://eu.i.posthog.com
+          PUBLIC_POSTHOG_KEY: ${{ secrets.PUBLIC_POSTHOG_KEY }}
 
       - name: Install Playwright Chromium
         working-directory: apps/web
