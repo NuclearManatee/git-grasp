@@ -1,0 +1,185 @@
+# Local PostHog for telemetry / EVOLVE e2e (not for production).
+# Usage: docker compose -f apps/web/docker-compose.posthog.yml --profile e2e up -d
+# Then: bun run evolve:seed-posthog
+#
+# First boot runs Django + ClickHouse migrations and can take several minutes.
+# Needs ~4GB RAM. Profile `e2e` so it never starts with a bare `docker compose up`.
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: '20m'
+    max-file: '3'
+
+x-posthog-env: &posthog-env
+  SITE_URL: http://127.0.0.1:8010
+  SECRET_KEY: git-grasp-e2e-not-secret
+  ENCRYPTION_SALT_KEYS: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
+  DATABASE_URL: postgres://posthog:posthog@db:5432/posthog
+  REDIS_URL: redis://redis:6379/
+  CLICKHOUSE_HOST: clickhouse
+  CLICKHOUSE_DATABASE: posthog
+  CLICKHOUSE_SECURE: 'false'
+  CLICKHOUSE_VERIFY: 'false'
+  KAFKA_HOSTS: redpanda:9092
+  DISABLE_SECURE_SSL_REDIRECT: 'true'
+  IS_BEHIND_PROXY: 'true'
+  SECURE_COOKIES: 'false'
+  DEBUG: '1'
+  SKIP_SERVICE_VERSION_REQUIREMENTS: '1'
+  POSTHOG_SKIP_MIGRATION_CHECKS: '1'
+  OBJECT_STORAGE_ENABLED: 'false'
+  OPT_OUT_CAPTURE: 'true'
+  DEPLOYMENT: hobby
+
+services:
+  db:
+    profiles: [e2e]
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: posthog
+      POSTGRES_PASSWORD: posthog
+      POSTGRES_DB: posthog
+    volumes:
+      - posthog-e2e-pg:/var/lib/postgresql/data
+    networks: [posthog-e2e]
+    logging: *default-logging
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U posthog -d posthog']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    profiles: [e2e]
+    image: redis:7-alpine
+    networks: [posthog-e2e]
+    logging: *default-logging
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  clickhouse:
+    profiles: [e2e]
+    image: clickhouse/clickhouse-server:24.8-alpine
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    volumes:
+      - posthog-e2e-ch:/var/lib/clickhouse
+    networks: [posthog-e2e]
+    logging: *default-logging
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:8123/ping']
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  redpanda:
+    profiles: [e2e]
+    image: docker.redpanda.com/redpandadata/redpanda:v24.3.8
+    command:
+      - redpanda
+      - start
+      - --mode=dev-container
+      - --smp=1
+      - --memory=512M
+      - --overprovisioned
+      - --kafka-addr=internal://0.0.0.0:9092
+      - --advertise-kafka-addr=internal://redpanda:9092
+    networks: [posthog-e2e]
+    logging: *default-logging
+
+  web:
+    profiles: [e2e]
+    image: posthog/posthog:latest
+    command: ./bin/docker
+    environment:
+      <<: *posthog-env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      clickhouse:
+        condition: service_healthy
+      redpanda:
+        condition: service_started
+    networks: [posthog-e2e]
+    logging: *default-logging
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8000/_health || wget -qO- http://127.0.0.1:8000/ || exit 1']
+      interval: 10s
+      timeout: 5s
+      retries: 60
+      start_period: 90s
+
+  worker:
+    profiles: [e2e]
+    image: posthog/posthog:latest
+    command: ./bin/docker-worker-celery --with-scheduler
+    environment:
+      <<: *posthog-env
+    depends_on:
+      web:
+        condition: service_started
+    networks: [posthog-e2e]
+    logging: *default-logging
+
+  plugins:
+    profiles: [e2e]
+    image: posthog/posthog-node:latest
+    command: node dist/index.js
+    environment:
+      <<: *posthog-env
+      PLUGIN_SERVER_MODE: ingestion-v2-combined
+      COOKIELESS_REDIS_HOST: redis
+      COOKIELESS_REDIS_PORT: '6379'
+    depends_on:
+      web:
+        condition: service_started
+      redpanda:
+        condition: service_started
+    networks: [posthog-e2e]
+    logging: *default-logging
+
+  capture:
+    profiles: [e2e]
+    image: ghcr.io/posthog/posthog/capture:master
+    environment:
+      ADDRESS: '0.0.0.0:3000'
+      KAFKA_HOSTS: redpanda:9092
+      KAFKA_TOPIC: events_plugin_ingestion
+      REDIS_URL: redis://redis:6379/
+      CAPTURE_MODE: events
+      RUST_LOG: 'info,rdkafka=warn'
+    depends_on:
+      redis:
+        condition: service_healthy
+      redpanda:
+        condition: service_started
+    networks: [posthog-e2e]
+    logging: *default-logging
+
+  proxy:
+    profiles: [e2e]
+    image: caddy:2-alpine
+    ports:
+      - '8010:80'
+    volumes:
+      - ./caddy/Caddyfile.posthog-e2e:/etc/caddy/Caddyfile:ro
+    depends_on:
+      - web
+      - capture
+    networks: [posthog-e2e]
+    logging: *default-logging
+
+networks:
+  posthog-e2e:
+
+volumes:
+  posthog-e2e-pg:
+  posthog-e2e-ch:

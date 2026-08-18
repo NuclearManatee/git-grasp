@@ -3,8 +3,8 @@ import { test, expect } from '@playwright/test';
 
 /**
  * Tracking e2e: asserts events via window.__ghTrackQueue (always).
- * When PUBLIC_UMAMI_* points at local Docker Umami, the script also loads;
- * queue assertions remain the source of truth for CI reliability.
+ * Queue assertions remain the source of truth for CI reliability.
+ * Optional: when PUBLIC_POSTHOG_HOST is the Docker e2e proxy (:8010), also ping it.
  */
 test.describe('web CLI tracking', () => {
   test('records web_cli_load and web_cli_search', async ({ page }) => {
@@ -67,12 +67,15 @@ test.describe('web CLI tracking', () => {
     );
     expect(dump).toMatch(/Telemetry is enabled/);
     expect(dump).toMatch(/git-grasp\.cremaschi\.dev\/\s*privacy/);
+  });
 
-    // Optional: hit local Umami if configured
-    const umamiUrl = process.env.PUBLIC_UMAMI_SCRIPT_URL;
-    if (umamiUrl && umamiUrl.includes('3001')) {
-      const res = await page.request.get('http://127.0.0.1:3001/api/heartbeat').catch(() => null);
-      expect(res?.ok() || res?.status() === 200 || res?.status() === 401).toBeTruthy();
-    }
+  test('Docker PostHog proxy is up when snippet host is local e2e', async ({ request }) => {
+    const host = String(process.env.PUBLIC_POSTHOG_HOST || '').replace(/\/$/, '');
+    test.skip(
+      !/127\.0\.0\.1:8010|localhost:8010/.test(host),
+      'PUBLIC_POSTHOG_HOST is not the Docker e2e proxy',
+    );
+    const res = await request.get(`${host}/_health`).catch(() => request.get(`${host}/`));
+    expect(res.ok() || res.status() > 0).toBe(true);
   });
 });

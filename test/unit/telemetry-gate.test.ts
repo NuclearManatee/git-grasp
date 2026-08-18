@@ -26,18 +26,28 @@ describe('telemetry gate', () => {
   });
 
   it('shouldPromptInvite matrix', () => {
-    expect(shouldPromptInvite(baseCfg, {})).toBe(
-      !isNonInteractive({}),
-    );
+    const origStderrTty = process.stderr.isTTY;
+    const origStdinTty = process.stdin.isTTY;
+    try {
+      Object.defineProperty(process.stderr, 'isTTY', { configurable: true, value: true });
+      Object.defineProperty(process.stdin, 'isTTY', { configurable: true, value: true });
+      expect(isNonInteractive({})).toBe(false);
+      expect(shouldPromptInvite(baseCfg, {})).toBe(true);
+      expect(
+        shouldPromptInvite({ telemetry: true, telemetryInvite: 'pending' }, {}),
+      ).toBe(false);
+      expect(
+        shouldPromptInvite({ telemetry: null, telemetryInvite: 'dismissed' }, {}),
+      ).toBe(false);
+      Object.defineProperty(process.stderr, 'isTTY', { configurable: true, value: false });
+      expect(isNonInteractive({})).toBe(true);
+    } finally {
+      Object.defineProperty(process.stderr, 'isTTY', { configurable: true, value: origStderrTty });
+      Object.defineProperty(process.stdin, 'isTTY', { configurable: true, value: origStdinTty });
+    }
     expect(shouldPromptInvite(baseCfg, { CI: '1' })).toBe(false);
     expect(shouldPromptInvite(baseCfg, { GIT_GRASP_BENCH: '1' })).toBe(false);
     expect(shouldPromptInvite(baseCfg, { DO_NOT_TRACK: '1' })).toBe(false);
-    expect(
-      shouldPromptInvite({ telemetry: true, telemetryInvite: 'pending' }, {}),
-    ).toBe(false);
-    expect(
-      shouldPromptInvite({ telemetry: null, telemetryInvite: 'dismissed' }, {}),
-    ).toBe(false);
     expect(
       shouldPromptInvite({ telemetry: false, telemetryInvite: 'pending' }, { CI: '1' }),
     ).toBe(false);

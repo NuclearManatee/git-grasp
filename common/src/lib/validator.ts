@@ -4,14 +4,18 @@ import {
   ALLOWED_SUBCOMMANDS,
   checkCommand,
   checkExample,
+  type ValidateOpts,
+  type ValidateResult,
+} from '../schemas/gitCommand.js';
+import {
   validateRecipeWithZod,
+  type RecipeValidateOpts,
+} from '../schemas/recipe.js';
+import {
   validateSearchIntentWithZod,
   validateIntentRowWithZod,
-  type ValidateOpts,
-  type RecipeValidateOpts,
   type SearchIntentValidateOpts,
-  type ValidateResult,
-} from '../schemas/index.js';
+} from '../schemas/intent.js';
 import { normalizeExample, commandSlug } from './normalizeText.js';
 
 export { normalizeExample, commandSlug };

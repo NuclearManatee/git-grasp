@@ -43,7 +43,7 @@ export {
   isTelemetryEnabled,
   shouldPromptInvite,
   buildCliOptInEvent,
-  sendUmamiEvent,
+  sendPosthogEvent,
   PRIVACY_URL,
 } from './lib/telemetry/index.js';
 export {

@@ -1,7 +1,7 @@
 ---
 title: Catalog pipeline
 purpose: Build and ship the offline Git recipe catalog (PREPARE → GENERATE → EXPAND → SHIP), with optional evalRegression and EVOLVE steps.
-initial input: Live `git help -a` on the operator machine; optional Umami events for evolve.
+initial input: Live `git help -a` on the operator machine; optional PostHog events for evolve.
 final output: Versioned `recipes.vN.json`, seeded `common/data/git-commands.db` + checksum. SEARCH (CLI/web) loads that DB.
 run: tools:pipeline
 namespace: tools
@@ -93,12 +93,13 @@ flowchart TD
 - Conditional: `--eval-regression`. CI/release gate; default min accuracy 0.95.
 
 ### evolve
-- **input:** Umami pull (`GIT_GRASP_UMAMI_*`); optional `--no-chain` / `--llm-label` / `--ship`
+- **input:** PostHog pull (`GIT_GRASP_POSTHOG_*`); optional `--no-chain` / `--llm-label` / `--ship`
 - **output:** `local/evolve/*` feeder + stats; default chains into EXPAND triage
 - **rollback:** restore `local/evolve/cursor.json` from the step snapshot. LLM label spend is not refundable.
 - **rollbackFn:** yes (cursor)
 - **checkpoint key:** `evolve`
-- Conditional: `--evolve` or `--only=evolve`. Umami pull is read-only.
+- Conditional: `--evolve` or `--only=evolve`. PostHog pull is read-only.
+- Local e2e: `docker compose -f apps/web/docker-compose.posthog.yml --profile e2e up -d`, then `bun run evolve:seed-posthog`. `test:telemetry-e2e` / `test:evolve-e2e` skip if `http://127.0.0.1:8010` is down.
 
 ## Requirements
 
@@ -123,7 +124,7 @@ From the repo root (`bun run …`):
 | `evolve` | `--only=evolve` |
 | `eval:regression` | `--only=evalRegression` |
 
-One-offs (not runner steps): `eval` (optional LLM golden judge; exits 2 if cases missing), `eval:loop`, `evolve:seed-umami`, `evolve:render-latest` (writes `docs/evolve/latest.md`).
+One-offs (not runner steps): `eval` (optional LLM golden judge; exits 2 if cases missing), `eval:loop`, `evolve:render-latest` (writes `docs/evolve/latest.md`), `evolve:seed-posthog` (local Docker PostHog).
 
 ## Operator gates
 

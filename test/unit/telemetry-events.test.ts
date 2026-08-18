@@ -5,6 +5,8 @@ import {
   buildCliSearchEvent,
   searchResponseFromResult,
   searchResponseFromError,
+  coarseOs,
+  resolvePosthogEndpoint,
 } from '../../common/src/lib/telemetry/events.js';
 
 describe('telemetry events', () => {
@@ -57,5 +59,25 @@ describe('telemetry events', () => {
       error: 'boom',
       code: 'CONFIG',
     });
+  });
+
+  it('coarseOs and endpoint helpers', () => {
+    expect(typeof coarseOs()).toBe('string');
+    const orig = Object.getOwnPropertyDescriptor(process, 'platform');
+    try {
+      Object.defineProperty(process, 'platform', { configurable: true, value: 'darwin' });
+      expect(coarseOs()).toBe('macos');
+      Object.defineProperty(process, 'platform', { configurable: true, value: 'linux' });
+      expect(coarseOs()).toBe('linux');
+      Object.defineProperty(process, 'platform', { configurable: true, value: 'freebsd' });
+      expect(coarseOs()).toBe('freebsd');
+    } finally {
+      if (orig) Object.defineProperty(process, 'platform', orig);
+    }
+    const ep = resolvePosthogEndpoint({
+      GIT_GRASP_POSTHOG_HOST: 'https://example.test',
+      GIT_GRASP_POSTHOG_KEY: 'phc_x',
+    });
+    expect(ep.host).toContain('example.test');
   });
 });

@@ -1,9 +1,10 @@
 ---
 import '../styles/global.css';
 import {
-  DEFAULT_UMAMI_SCRIPT_URL,
-  DEFAULT_UMAMI_WEBSITE_ID,
+  DEFAULT_POSTHOG_HOST,
+  DEFAULT_POSTHOG_KEY,
 } from '@git-grasp/common/lib/telemetry/defaults.js';
+import { POSTHOG_BROWSER_SNIPPET } from '../lib/posthogSnippet.js';
 
 interface Props {
   title?: string;
@@ -15,9 +16,20 @@ const {
   description = 'Local-first semantic search for Git commands. Ask in natural language — get pasteable answers on your machine.',
 } = Astro.props;
 
-// PUBLIC_* env overrides baked Cloud defaults (local Docker Umami, etc.).
-const umamiScript = import.meta.env.PUBLIC_UMAMI_SCRIPT_URL || DEFAULT_UMAMI_SCRIPT_URL;
-const umamiWebsiteId = import.meta.env.PUBLIC_UMAMI_WEBSITE_ID || DEFAULT_UMAMI_WEBSITE_ID;
+// PUBLIC_* env overrides baked EU Cloud defaults.
+const posthogHost = import.meta.env.PUBLIC_POSTHOG_HOST || DEFAULT_POSTHOG_HOST;
+const posthogKey = import.meta.env.PUBLIC_POSTHOG_KEY || DEFAULT_POSTHOG_KEY;
+
+/** Extra origin for self-hosted / Docker PostHog (Cloud already covered by *.posthog.com). */
+let posthogOrigin = '';
+try {
+  const u = new URL(posthogHost);
+  if (posthogKey && u.hostname && !u.hostname.endsWith('posthog.com')) {
+    posthogOrigin = ` ${u.origin}`;
+  }
+} catch {
+  /* ignore invalid PUBLIC_POSTHOG_HOST */
+}
 
 /** Meta CSP — GitHub Pages cannot set response headers; pair with Cloudflare if possible. */
 const csp = [
@@ -28,8 +40,8 @@ const csp = [
   "font-src 'self' https://fonts.gstatic.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   // Astro islands + Transformers.js WASM need unsafe-inline / wasm-unsafe-eval
-  "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cloud.umami.is https://*.umami.is",
-  "connect-src 'self' https://huggingface.co https://*.huggingface.co https://cdn.jsdelivr.net https://cloud.umami.is https://*.umami.is",
+  `script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://*.i.posthog.com https://*.posthog.com${posthogOrigin}`,
+  `connect-src 'self' https://huggingface.co https://*.huggingface.co https://cdn.jsdelivr.net https://*.i.posthog.com https://*.posthog.com${posthogOrigin}`,
   "worker-src 'self' blob:",
   "form-action 'self'",
   "frame-ancestors 'none'",
@@ -51,12 +63,12 @@ const csp = [
       href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    {umamiScript && umamiWebsiteId && (
+    {posthogKey && posthogHost && (
       <script
-        defer
-        src={umamiScript}
-        data-website-id={umamiWebsiteId}
-        data-auto-track="true"
+        is:inline
+        data-ph-key={posthogKey}
+        data-ph-host={posthogHost}
+        set:html={POSTHOG_BROWSER_SNIPPET}
       />
     )}
   </head>

@@ -4,6 +4,7 @@ import {
   catalogIdentity,
   formatVersionReport,
   collectVersionIdentity,
+  resetAppVersionCacheForTests,
 } from '../../common/src/lib/version.js';
 import { SCHEMA_VERSION } from '../../common/src/db/constants.js';
 
@@ -32,5 +33,15 @@ describe('version identity', () => {
     const id = collectVersionIdentity();
     expect(id.schemaVersion).toBe(SCHEMA_VERSION);
     expect(id.appVersion).toBeTruthy();
+  });
+
+  it('appVersion honors npm_package_version then cache', () => {
+    resetAppVersionCacheForTests();
+    process.env.npm_package_version = '9.9.9-test';
+    expect(appVersion()).toBe('9.9.9-test');
+    expect(appVersion()).toBe('9.9.9-test');
+    delete process.env.npm_package_version;
+    resetAppVersionCacheForTests();
+    expect(appVersion()).toMatch(/^\d+\.\d+\.\d+/);
   });
 });

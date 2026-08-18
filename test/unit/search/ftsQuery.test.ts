@@ -3,6 +3,7 @@ import {
   buildFtsMatchQuery,
   commandFtsBody,
   tokenizeForFts,
+  recipeFtsBody,
 } from '../../../common/src/search/ftsQuery.ts';
 
 describe('ftsQuery', () => {
@@ -28,14 +29,17 @@ describe('ftsQuery', () => {
     ).toContain('keep staged');
   });
 
-  it('builds recipe FTS body with title and description', async () => {
-    const { recipeFtsBody } = await import('../../../common/src/search/ftsQuery.ts');
+  it('builds recipe FTS body with title and description', () => {
     expect(
       recipeFtsBody([{ command: 'git status' }], {
         title: 'Status',
         description: 'show tree',
-        tags: ['inspect'],
+        tags: ['inspect', ''],
+        paraphrases: ['working tree', ''],
       }),
-    ).toContain('show tree');
+    ).toContain('working tree');
+    expect(
+      commandFtsBody([{ command: 'git status' }], ['how do I see status', '']),
+    ).toContain('how do I see status');
   });
 });

@@ -14,19 +14,24 @@ import {
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '../..');
 
 describe('buildCiSteps / CI_STEPS', () => {
-  it('happy: ordered typecheck → test → audit with process.execPath argv prefix', () => {
+  it('happy: ordered typecheck → test:coverage → test:rest → audit with process.execPath argv prefix', () => {
     const bunBin = '/fake/bun';
     const steps = buildCiSteps(bunBin);
-    expect(steps.map((s) => s.id)).toEqual(['typecheck', 'test', 'audit']);
+    expect(steps.map((s) => s.id)).toEqual(['typecheck', 'test:coverage', 'test:rest', 'audit']);
     expect(steps[0].argv).toEqual([bunBin, 'run', 'typecheck']);
-    expect(steps[1].argv).toEqual([bunBin, 'run', 'test']);
-    expect(steps[2].argv).toEqual([bunBin, CI_AUDIT_SCRIPT]);
+    expect(steps[1].argv).toEqual([bunBin, 'run', 'test:coverage']);
+    expect(steps[2].argv).toEqual([bunBin, 'run', 'test:rest']);
+    expect(steps[3].argv).toEqual([bunBin, CI_AUDIT_SCRIPT]);
     expect(steps[0].env).toEqual({ GIT_GRASP_SKIP_POSTINSTALL: '1' });
     expect(steps[1].env).toEqual({
       GIT_GRASP_MOCK_EMBEDDINGS: '1',
       GIT_GRASP_SKIP_POSTINSTALL: '1',
     });
-    expect(steps[2].env).toEqual({});
+    expect(steps[2].env).toEqual({
+      GIT_GRASP_MOCK_EMBEDDINGS: '1',
+      GIT_GRASP_SKIP_POSTINSTALL: '1',
+    });
+    expect(steps[3].env).toEqual({});
   });
 
   it('contract: CI_STEPS argv uses process.execPath as bun binary', () => {
@@ -49,12 +54,14 @@ describe('runCi', () => {
     expect(code).toBe(0);
     expect(calls.map((c) => c.argv)).toEqual([
       ['bun-bin', 'run', 'typecheck'],
-      ['bun-bin', 'run', 'test'],
+      ['bun-bin', 'run', 'test:coverage'],
+      ['bun-bin', 'run', 'test:rest'],
       ['bun-bin', CI_AUDIT_SCRIPT],
     ]);
     expect(calls[0].env.GIT_GRASP_SKIP_POSTINSTALL).toBe('1');
     expect(calls[1].env.GIT_GRASP_MOCK_EMBEDDINGS).toBe('1');
     expect(calls[1].env.GIT_GRASP_SKIP_POSTINSTALL).toBe('1');
+    expect(calls[2].env.GIT_GRASP_MOCK_EMBEDDINGS).toBe('1');
     expect(calls.every((c) => c.cwd === '/repo')).toBe(true);
   });
 
@@ -115,7 +122,7 @@ describe('runCi', () => {
     expect(calls[0]).toContain('typecheck');
   });
 
-  it('negative: test ≠0 → audit skipped', () => {
+  it('negative: test:coverage ≠0 → rest/audit skipped', () => {
     const ids: string[] = [];
     const steps = buildCiSteps('b');
     const code = runCi({
@@ -123,12 +130,12 @@ describe('runCi', () => {
       runStep: (a) => {
         const step = steps.find((s) => s.argv.join(' ') === a.argv.join(' '));
         ids.push(step?.id ?? '?');
-        if (step?.id === 'test') return 3;
+        if (step?.id === 'test:coverage') return 3;
         return 0;
       },
     });
     expect(code).toBe(3);
-    expect(ids).toEqual(['typecheck', 'test']);
+    expect(ids).toEqual(['typecheck', 'test:coverage']);
   });
 
   it('negative: audit ≠0 → overall ≠0', () => {

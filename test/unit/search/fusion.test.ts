@@ -8,6 +8,7 @@ import {
   normalizeBm25Batch,
   nextDistinctRecipeScore,
   recipeFingerprint,
+  resolveDisplayCount,
   weakAbsoluteEvidence,
 } from '../../../common/src/search/fusion.ts';
 import {
@@ -260,5 +261,20 @@ describe('recipe diversity', () => {
       { score: 0.4, commands: [{ command: 'git log' }] },
     ];
     expect(nextDistinctRecipeScore(hits)).toBe(0.4);
+  });
+
+  it('nextDistinctRecipeScore returns null when all clones', () => {
+    expect(
+      nextDistinctRecipeScore([
+        { score: 0.7, commands: [{ command: 'git status' }] },
+        { score: 0.5, commands: [{ command: 'git status' }] },
+      ]),
+    ).toBeNull();
+  });
+
+  it('resolveDisplayCount delegates to displayCountFromConfidence', () => {
+    expect(
+      resolveDisplayCount(0.99, 0.9, 0.2, 3, thr, { topRawCosine: 0.9, topHasBm25: true }),
+    ).toEqual(displayCountFromConfidence(0.99, 0.9, 0.2, 3, thr, { topRawCosine: 0.9, topHasBm25: true }));
   });
 });

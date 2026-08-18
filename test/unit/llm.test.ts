@@ -2,7 +2,7 @@
 import { describe, it, expect, afterEach } from 'bun:test';
 import { z } from 'zod';
 import { PROVIDERS, getProvider, resolveProviderId, chatCompletionsUrl } from '../../common/src/lib/providers.js';
-import { llmChat, llmJsonObject, LlmError, resetLlmRateLimiterForTests } from '../../common/src/lib/llm.js';
+import { llmChat, llmJsonObject, llmJson, LlmError, parseJsonLenient, resetLlmRateLimiterForTests } from '../../common/src/lib/llm.js';
 
 describe('providers', () => {
   const prev = { ...process.env };
@@ -236,5 +236,102 @@ describe('llm client', () => {
     expect(maxInFlight).toBeLessThanOrEqual(2);
     resetLlmRateLimiterForTests();
     delete process.env.GIT_GRASP_LLM_CONCURRENCY;
+  });
+
+  it('parseJsonLenient and llmJson schema required', async () => {
+    expect(parseJsonLenient('```json\n{"ok":true}\n```')).toEqual({ ok: true });
+    expect(() => parseJsonLenient('')).toThrow(/empty JSON/);
+    process.env.DEEPSEEK_API_KEY = 'test-key';
+    await expect(llmJson({ messages: [{ role: 'user', content: 'x' }] })).rejects.toThrow(/Zod schema/);
+    process.env.GIT_GRASP_TLS_INSECURE = '1';
+    process.env.GIT_GRASP_LLM_TIMEOUT_MS = '30';
+    process.env.GIT_GRASP_LLM_FETCH_RETRIES = '1';
+    await expect(
+      llmChat({
+        messages: [{ role: 'user', content: 'x' }],
+        skipRateLimit: true,
+        fetchImpl: () => new Promise(() => {}),
+      }),
+    ).rejects.toBeInstanceOf(LlmError);
+    delete process.env.GIT_GRASP_TLS_INSECURE;
+    delete process.env.GIT_GRASP_LLM_TIMEOUT_MS;
+    delete process.env.GIT_GRASP_LLM_FETCH_RETRIES;
+  });
+
+  it('retries transient fetch errors then succeeds', async () => {
+    process.env.DEEPSEEK_API_KEY = 'test-key';
+    process.env.GIT_GRASP_LLM_FETCH_RETRIES = '3';
+    process.env.GIT_GRASP_LLM_NO_RATE_LIMIT = '1';
+    process.env.GIT_GRASP_LLM_MAX_TOKENS = '128';
+    let calls = 0;
+    const fetchImpl = async () => {
+      calls += 1;
+      if (calls === 1) {
+        const err = new Error('fetch failed');
+        throw err;
+      }
+      return {
+        ok: true,
+        status: 200,
+        headers: { get: () => null },
+        text: async () => 'not-json',
+      };
+    };
+    await expect(
+      llmChat({
+        messages: [{ role: 'user', content: 'x' }],
+        skipRateLimit: true,
+        fetchImpl,
+        thinking: null,
+        maxTokens: 64,
+      }),
+    ).rejects.toMatchObject({ name: 'LlmError' });
+    expect(calls).toBe(2);
+
+    let attempt = 0;
+    const okAfter = async () => {
+      attempt += 1;
+      if (attempt === 1) {
+        const err = new Error('aborted');
+        err.name = 'AbortError';
+        throw err;
+      }
+      return {
+        ok: true,
+        status: 200,
+        headers: { get: () => null },
+        text: async () =>
+          JSON.stringify({ choices: [{ message: { content: 'ok' } }] }),
+      };
+    };
+    const out = await llmChat({
+      messages: [{ role: 'user', content: 'x' }],
+      fetchImpl: okAfter,
+    });
+    expect(out.content).toBe('ok');
+    expect(parseJsonLenient('{"a":1, "b": "unterm')).toEqual({ a: 1, b: '' });
+    delete process.env.GIT_GRASP_LLM_FETCH_RETRIES;
+    delete process.env.GIT_GRASP_LLM_NO_RATE_LIMIT;
+    delete process.env.GIT_GRASP_LLM_MAX_TOKENS;
+  });
+
+  it('hard-timeout wins when fetch ignores abort', async () => {
+    process.env.DEEPSEEK_API_KEY = 'test-key';
+    process.env.GIT_GRASP_LLM_TIMEOUT_MS = '20';
+    process.env.GIT_GRASP_LLM_FETCH_RETRIES = '1';
+    await expect(
+      llmChat({
+        messages: [{ role: 'user', content: 'x' }],
+        skipRateLimit: true,
+        fetchImpl: (_url, init) =>
+          new Promise((_resolve, reject) => {
+            init?.signal?.addEventListener?.('abort', () => {
+              /* ignore abort so hardTimeout can win */
+            });
+          }),
+      }),
+    ).rejects.toBeInstanceOf(LlmError);
+    delete process.env.GIT_GRASP_LLM_TIMEOUT_MS;
+    delete process.env.GIT_GRASP_LLM_FETCH_RETRIES;
   });
 });

@@ -10,7 +10,7 @@ import {
   SerialRateLimiter,
   createRateLimiter,
 } from '../../common/src/lib/rateLimit.js';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 
@@ -218,5 +218,30 @@ describe('createRateLimiter', () => {
   it('unknown provider throws', () => {
     process.env.GIT_GRASP_LLM_PROVIDER = 'groq';
     expect(() => createRateLimiter({})).toThrow(/Unknown LLM provider/);
+  });
+
+  it('loads corrupt day/checkpoint files', () => {
+    const dir = mkdtempSync(path.join(os.tmpdir(), 'gh-rl-bad-'));
+    writeFileSync(path.join(dir, 'day.json'), '{not json');
+    writeFileSync(path.join(dir, 'cp.json'), '{not json');
+    const lim = new ConcurrencyRateLimiter({
+      statePath: path.join(dir, 'day.json'),
+      checkpointPath: path.join(dir, 'cp.json'),
+      now: () => Date.now(),
+      sleep: async () => {},
+      limits: { rpm: 0, rpd: 0, tpm: 0, tpd: 0 },
+    });
+    expect(lim.getCursor()).toBe(0);
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  it('uses default sleep for minInterval', async () => {
+    const lim = new ConcurrencyRateLimiter({
+      concurrency: 1,
+      minIntervalMs: 1,
+      limits: { rpm: 0, rpd: 0, tpm: 0, tpd: 0 },
+    });
+    expect(await lim.schedule(async () => 1)).toBe(1);
+    expect(await lim.schedule(async () => 2)).toBe(2);
   });
 });

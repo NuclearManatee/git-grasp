@@ -1,0 +1,11 @@
+:80 {
+	@capture {
+		path /e /e/ /e/* /i/v0 /i/v0/ /i/v0/* /batch /batch/ /batch/* /capture /capture/ /capture/*
+	}
+	handle @capture {
+		reverse_proxy capture:3000
+	}
+	handle {
+		reverse_proxy web:8000
+	}
+}

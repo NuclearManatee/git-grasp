@@ -22,7 +22,8 @@ import {
   benchStoreLast,
   benchEnabled,
 } from './benchTiming.js';
-import { parseJson, ThresholdsSchema } from '../schemas/index.js';
+import { parseJson } from '../schemas/io.js';
+import { ThresholdsSchema } from '../schemas/thresholds.js';
 
 export function loadThresholds(path = defaultThresholdsPath()) {
   return parseJson(readFileSync(path, 'utf8'), ThresholdsSchema);

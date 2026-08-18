@@ -37,8 +37,16 @@ export function buildCiSteps(bunBin: string = process.execPath): CiStep[] {
       env: { GIT_GRASP_SKIP_POSTINSTALL: '1' },
     },
     {
-      id: 'test',
-      argv: [bunBin, 'run', 'test'],
+      id: 'test:coverage',
+      argv: [bunBin, 'run', 'test:coverage'],
+      env: {
+        GIT_GRASP_MOCK_EMBEDDINGS: '1',
+        GIT_GRASP_SKIP_POSTINSTALL: '1',
+      },
+    },
+    {
+      id: 'test:rest',
+      argv: [bunBin, 'run', 'test:rest'],
       env: {
         GIT_GRASP_MOCK_EMBEDDINGS: '1',
         GIT_GRASP_SKIP_POSTINSTALL: '1',

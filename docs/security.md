@@ -26,7 +26,7 @@
 
 | Actor | Assets | Boundary |
 |-------|--------|----------|
-| End user (CLI) | Local DB, config, clipboard, queries | Offline search; optional Umami; optional update check |
-| End user (web) | Browser, queries after Start | Static + sql.js + HF model; Umami |
+| End user (CLI) | Local DB, config, clipboard, queries | Offline search; optional PostHog; optional update check |
+| End user (web) | Browser, queries after Start | Static + sql.js + HF model; PostHog |
 | Maintainer / CI | Host + LLM keys | Sandbox validates recipes at build time |
 | Attacker | Tampered catalog/WASM, MITM registry, poisoned advice | GH Pages + npm + HF CDNs |

@@ -8,6 +8,11 @@ import { style } from '../ux/cliStyle.js';
 
 let cachedAppVersion = null;
 
+/** Test helper: drop memoized package version. */
+export function resetAppVersionCacheForTests() {
+  cachedAppVersion = null;
+}
+
 /**
  * Resolve published package version from package.json (root, then apps/cli).
  */

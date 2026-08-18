@@ -1,5 +1,5 @@
 // @ts-nocheck
-/** OBSERVE — optional CLI/web telemetry (Umami). Opt-in only. */
+/** OBSERVE — optional CLI/web telemetry (PostHog). Opt-in only. */
 export {
   isHardOff,
   isTelemetryEnabled,
@@ -8,7 +8,7 @@ export {
   setTelemetryEnabled,
   mintTelemetrySessionId,
   maybeInviteAndTrackSearch,
-  sendUmamiEvent,
+  sendPosthogEvent,
   buildCliSearchEvent,
   buildCliOptInEvent,
 } from '../lib/telemetry/index.js';

@@ -129,7 +129,7 @@ eval "$(git-grasp completion bash)"
 | `NO_COLOR` | Disable chalk colors when set |
 | `GIT_GRASP_EMOJI=1` | Opt-in closed-set emoji glyphs (off by default in V1) |
 | `GIT_GRASP_NO_EMOJI=1` | Hard-off emoji even if `GIT_GRASP_EMOJI=1` |
-| `GIT_GRASP_UMAMI_HOST` / `GIT_GRASP_UMAMI_WEBSITE_ID` | Override baked Umami Cloud defaults (empty website id disables send) |
+| `GIT_GRASP_POSTHOG_HOST` / `GIT_GRASP_POSTHOG_KEY` | Override baked PostHog EU ingest defaults (empty key disables send). Docker e2e uses `http://127.0.0.1:8010` |
 
 ## Runtime notes
 

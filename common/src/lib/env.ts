@@ -4,7 +4,7 @@ import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { PACKAGE_ROOT } from './paths.js';
 import { getProvider, resolveProviderId } from './providers.js';
-import { parseLlmEnv } from '../schemas/index.js';
+import { parseLlmEnv } from '../schemas/env.js';
 
 let loaded = false;
 

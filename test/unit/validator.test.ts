@@ -4,13 +4,22 @@ import {
   validateCommand,
   validateIntentRow,
   validateExample,
+  validateRecipe,
+  validateSearchIntent,
   makeRowId,
+  makeIntentId,
+  recipeSlugFromTitle,
+  commandSlug,
   normalizeExample,
 } from '../../common/src/lib/validator.js';
 import {
   parseSkillLevel,
   skillName,
   skillAtMost,
+  isValidSkillLevel,
+  coerceSkillBandValue,
+  skillPromptList,
+  normalizeSkillLevelText,
   SKILL_MAX,
 } from '../../common/src/lib/skills.js';
 
@@ -64,6 +73,26 @@ describe('validateIntentRow', () => {
 describe('makeRowId', () => {
   it('includes skill and intent index', () => {
     expect(makeRowId('git reset --soft HEAD~1', 2, 1)).toBe('git-reset-soft-head-1:2:1');
+    expect(makeIntentId('rec', 3, 2)).toBe('rec:3:2');
+    expect(recipeSlugFromTitle('Show Status')).toBe('show-status');
+    expect(recipeSlugFromTitle('')).toBe('recipe');
+    expect(commandSlug('Git Status')).toBe('git-status');
+  });
+});
+
+describe('validateRecipe / validateSearchIntent', () => {
+  it('delegates to zod helpers', () => {
+    expect(validateRecipe({ id: 'r', title: 'Status', commands: [{ command: 'git status' }] }).ok).toBe(
+      true,
+    );
+    expect(
+      validateSearchIntent({
+        id: 'i',
+        recipe_id: 'r',
+        intent_text: 'show status',
+        skill_level: 2,
+      }).ok,
+    ).toBe(true);
   });
 });
 
@@ -79,5 +108,17 @@ describe('skills', () => {
     expect(skillAtMost(1, 2)).toBe(true);
     expect(skillAtMost(3, 2)).toBe(false);
     expect(skillAtMost(4, null)).toBe(true);
+    expect(skillAtMost('beginner', 'expert')).toBe(true);
+    expect(isValidSkillLevel(3)).toBe(true);
+    expect(isValidSkillLevel('nope')).toBe(false);
+    expect(isValidSkillLevel('beginner')).toBe(true);
+    expect(coerceSkillBandValue(5)).toBe(4);
+    expect(coerceSkillBandValue('intermediate')).toBe(3);
+    expect(() => coerceSkillBandValue(9)).toThrow();
+    expect(() => coerceSkillBandValue('clear')).toThrow();
+    expect(skillPromptList()).toContain('beginner');
+    expect(normalizeSkillLevelText('non-technical')).toBe('nontechnical');
+    expect(skillName('nope')).toBe('nope');
+    expect(skillName(99)).toBe('99');
   });
 });

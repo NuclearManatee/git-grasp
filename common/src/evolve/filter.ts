@@ -23,7 +23,8 @@ function createdAtMs(raw) {
 
 function threadKeyFor(raw, data) {
   if (data.session_id) return `sid:${data.session_id}`;
-  if (raw.sessionId) return `umami:${raw.sessionId}`;
+  if (raw.sessionId) return `ph:${raw.sessionId}`;
+  if (raw.distinctId) return `ph:${raw.distinctId}`;
   if (raw.visitId) return `visit:${raw.visitId}`;
   if (raw.visitorId) return `visitor:${raw.visitorId}`;
   return `anon:${raw.id || createdAtMs(raw)}`;

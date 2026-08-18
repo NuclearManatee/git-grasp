@@ -1,17 +1,21 @@
 // @ts-nocheck
 /**
- * Baked Umami Cloud defaults (same property as the marketing Site).
- * Website ID is public (embedded in the Site script tag). Override for tests/self-host:
- *   GIT_GRASP_UMAMI_HOST, GIT_GRASP_UMAMI_WEBSITE_ID
- * Web overrides via PUBLIC_UMAMI_SCRIPT_URL / PUBLIC_UMAMI_WEBSITE_ID.
+ * Baked PostHog EU Cloud defaults (same project as the marketing Site).
+ * Project API key is public (embedded in the Site snippet). Empty key disables send
+ * until a project is created. Override for tests:
+ *   GIT_GRASP_POSTHOG_HOST, GIT_GRASP_POSTHOG_KEY
+ * Web overrides via PUBLIC_POSTHOG_HOST / PUBLIC_POSTHOG_KEY.
+ * EVOLVE pull uses GIT_GRASP_POSTHOG_API_HOST + PROJECT_ID + PERSONAL_API_KEY.
  */
-export const DEFAULT_UMAMI_HOST = 'https://cloud.umami.is';
+export const DEFAULT_POSTHOG_HOST = 'https://eu.i.posthog.com';
 
-/** Script URL used by the Site (`data-website-id` companion). */
-export const DEFAULT_UMAMI_SCRIPT_URL = `${DEFAULT_UMAMI_HOST}/script.js`;
+export const DEFAULT_POSTHOG_API_HOST = 'https://eu.posthog.com';
 
-/** Match PUBLIC_UMAMI_WEBSITE_ID used by apps/web in production. */
-export const DEFAULT_UMAMI_WEBSITE_ID = 'de9735ab-4e95-479d-abf8-c52f7979e2aa';
+/** Public project API key (`phc_…`). Empty until the PostHog project is created. */
+export const DEFAULT_POSTHOG_KEY = '';
+
+/** Local Docker PostHog for telemetry / EVOLVE e2e (`apps/web/docker-compose.posthog.yml`). */
+export const DEFAULT_POSTHOG_E2E_HOST = 'http://127.0.0.1:8010';
 
 export const TELEMETRY_TIMEOUT_MS = 2000;
 

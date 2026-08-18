@@ -18,7 +18,7 @@
     "generate": "bun ./src/index.ts -- --only=generate",
     "expand": "bun ./src/index.ts -- --only=expand",
     "evolve": "bun ./src/index.ts -- --only=evolve",
-    "evolve:seed-umami": "bun ./src/evolve/seed-umami-e2e.ts",
+    "evolve:seed-posthog": "bun ./src/evolve/seed-posthog-e2e.ts",
     "ship": "bun ./src/index.ts -- --only=ship",
     "ship:dedupe": "bun ./src/index.ts -- --only=shipDedupe",
     "eval": "bun ./src/eval/run.ts",

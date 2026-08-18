@@ -1,81 +1,89 @@
 #!/usr/bin/env bun
 // @ts-nocheck
 /**
- * EVOLVE ↔ local Umami e2e: inject junk + signal, pull, filter, thread, feeder (--no-chain).
+ * EVOLVE ↔ local Docker PostHog e2e: inject junk + signal, pull, filter, thread, feeder (--no-chain).
  *
  * Requires:
- *   docker compose -f apps/web/docker-compose.umami.yml --profile e2e up -d
- *   bun run evolve:seed-umami   # sets website id (or export GIT_GRASP_UMAMI_WEBSITE_ID)
+ *   docker compose -f apps/web/docker-compose.posthog.yml --profile e2e up -d
+ *   bun run evolve:seed-posthog
  *
  * Run: bun run test:evolve-e2e
- * Skips cleanly when Umami unreachable or website id unset.
+ * Skips cleanly when PostHog is unreachable.
  */
 import { describe, it, expect, beforeAll, afterAll } from 'bun:test';
 import { mkdirSync, rmSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { sendUmamiEvent } from '../../common/src/lib/telemetry/send.js';
+import { DEFAULT_POSTHOG_E2E_HOST } from '../../common/src/lib/telemetry/defaults.js';
+import { sendPosthogEvent } from '../../common/src/lib/telemetry/send.js';
 import {
-  resolveUmamiPullConfig,
-  resolveUmamiAuthToken,
-  pullUmamiEvents,
+  resolvePosthogPullConfig,
+  pullPosthogEvents,
+  posthogReachable,
   runEvolve,
 } from '../../common/src/evolve/index.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const tmpRoot = path.join(__dirname, '../.tmp-evolve-umami-e2e');
-const UMAMI_HOST = process.env.GIT_GRASP_UMAMI_HOST || 'http://127.0.0.1:3001';
+const tmpRoot = path.join(__dirname, '../.tmp-evolve-posthog-e2e');
+const POSTHOG_HOST = process.env.GIT_GRASP_POSTHOG_HOST || DEFAULT_POSTHOG_E2E_HOST;
 
-async function umamiReachable() {
-  try {
-    const res = await fetch(`${UMAMI_HOST}/`, { signal: AbortSignal.timeout(2000) });
-    return res.status > 0;
-  } catch {
-    return false;
-  }
+function applySeedExports(stdout) {
+  const text = String(stdout || '');
+  const grab = (name) => {
+    const m = text.match(new RegExp(`GIT_GRASP_${name}=([^\\s]+)`));
+    return m ? m[1] : '';
+  };
+  const key = grab('POSTHOG_KEY');
+  const projectId = grab('POSTHOG_PROJECT_ID');
+  const pat = grab('POSTHOG_PERSONAL_API_KEY');
+  const host = grab('POSTHOG_HOST');
+  const apiHost = grab('POSTHOG_API_HOST');
+  if (host) process.env.GIT_GRASP_POSTHOG_HOST = host;
+  if (apiHost) process.env.GIT_GRASP_POSTHOG_API_HOST = apiHost;
+  if (key) process.env.GIT_GRASP_POSTHOG_KEY = key;
+  if (projectId) process.env.GIT_GRASP_POSTHOG_PROJECT_ID = projectId;
+  if (pat) process.env.GIT_GRASP_POSTHOG_PERSONAL_API_KEY = pat;
 }
 
-describe('evolve umami e2e', () => {
+describe('evolve posthog e2e', () => {
   let available = false;
-  let websiteId = process.env.GIT_GRASP_UMAMI_WEBSITE_ID || '';
   const saved = {};
 
   beforeAll(async () => {
-    available = await umamiReachable();
     for (const k of [
-      'GIT_GRASP_UMAMI_HOST',
-      'GIT_GRASP_UMAMI_WEBSITE_ID',
-      'GIT_GRASP_UMAMI_TOKEN',
+      'GIT_GRASP_POSTHOG_HOST',
+      'GIT_GRASP_POSTHOG_API_HOST',
+      'GIT_GRASP_POSTHOG_KEY',
+      'GIT_GRASP_POSTHOG_PROJECT_ID',
+      'GIT_GRASP_POSTHOG_PERSONAL_API_KEY',
       'OPENAI_API_KEY',
     ]) {
       saved[k] = process.env[k];
     }
-    process.env.GIT_GRASP_UMAMI_HOST = UMAMI_HOST;
     delete process.env.OPENAI_API_KEY;
+    process.env.GIT_GRASP_POSTHOG_HOST = POSTHOG_HOST;
+    process.env.GIT_GRASP_POSTHOG_API_HOST = POSTHOG_HOST;
     rmSync(tmpRoot, { recursive: true, force: true });
     mkdirSync(tmpRoot, { recursive: true });
 
-    if (available && !websiteId) {
-      try {
-        const { spawnSync } = await import('node:child_process');
-        const r = spawnSync('bun', ['run', 'evolve:seed-umami'], {
-          encoding: 'utf8',
-          cwd: path.join(__dirname, '../..'),
-          env: process.env,
-        });
-        const m = String(r.stdout || '').match(/GIT_GRASP_UMAMI_WEBSITE_ID=([^\s]+)/);
-        if (m) {
-          websiteId = m[1];
-          process.env.GIT_GRASP_UMAMI_WEBSITE_ID = websiteId;
-        }
-        const tok = String(r.stdout || '').match(/GIT_GRASP_UMAMI_TOKEN=([^\s]+)/);
-        if (tok) process.env.GIT_GRASP_UMAMI_TOKEN = tok[1];
-      } catch {
-        /* leave unset → skip */
-      }
-    } else if (websiteId) {
-      process.env.GIT_GRASP_UMAMI_WEBSITE_ID = websiteId;
+    available = await posthogReachable(POSTHOG_HOST);
+    if (available && (!process.env.GIT_GRASP_POSTHOG_KEY || !process.env.GIT_GRASP_POSTHOG_PERSONAL_API_KEY)) {
+      const seed = path.join(__dirname, '../../apps/pipeline/src/evolve/seed-posthog-e2e.ts');
+      const r = spawnSync(process.execPath, [seed], {
+        encoding: 'utf8',
+        cwd: path.join(__dirname, '../..'),
+        env: process.env,
+      });
+      applySeedExports(r.stdout);
     }
+    available =
+      available &&
+      Boolean(
+        process.env.GIT_GRASP_POSTHOG_KEY &&
+          process.env.GIT_GRASP_POSTHOG_PROJECT_ID &&
+          process.env.GIT_GRASP_POSTHOG_PERSONAL_API_KEY,
+      );
   });
 
   afterAll(() => {
@@ -87,8 +95,8 @@ describe('evolve umami e2e', () => {
   });
 
   it('inject → pull → filter junk → feeder', async () => {
-    if (!available || !process.env.GIT_GRASP_UMAMI_WEBSITE_ID) {
-      console.warn('skip: Umami not ready or website id missing');
+    if (!available) {
+      console.warn('skip: local PostHog not ready at', POSTHOG_HOST);
       return;
     }
 
@@ -127,7 +135,7 @@ describe('evolve umami e2e', () => {
     ];
 
     for (const p of payloads) {
-      const send = await sendUmamiEvent({
+      const send = await sendPosthogEvent({
         ...p,
         env: process.env,
         verbose: true,
@@ -135,39 +143,24 @@ describe('evolve umami e2e', () => {
       expect(send.ok || send.skipped).toBeTruthy();
     }
 
-    // Give Umami a moment to persist
-    await Bun.sleep(1500);
+    await Bun.sleep(2500);
 
-    const cfg = resolveUmamiPullConfig(process.env);
-    let token = process.env.GIT_GRASP_UMAMI_TOKEN;
-    try {
-      token = await resolveUmamiAuthToken({
-        host: cfg.host,
-        token,
-        username: cfg.username,
-        password: cfg.password,
-      });
-    } catch (err) {
-      console.warn('skip: umami auth failed', err?.message || err);
-      return;
-    }
-
+    const cfg = resolvePosthogPullConfig(process.env);
     let pulled;
     try {
-      pulled = await pullUmamiEvents({
-        host: cfg.host,
-        websiteId: process.env.GIT_GRASP_UMAMI_WEBSITE_ID,
-        token,
+      pulled = await pullPosthogEvents({
+        apiHost: cfg.apiHost,
+        projectId: cfg.projectId,
+        personalApiKey: cfg.personalApiKey,
         sinceIso: new Date(Date.now() - 3600_000).toISOString(),
       });
     } catch (err) {
-      console.warn('skip: umami pull failed', err?.message || err);
+      console.warn('skip: posthog pull failed', err?.message || err);
       return;
     }
 
     expect(pulled.events.length).toBeGreaterThanOrEqual(0);
 
-    // Prefer fixture-shaped events if pull schema differs; still exercise runEvolve path
     const events =
       pulled.events.length > 0
         ? pulled.events

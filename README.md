@@ -58,7 +58,7 @@ flowchart TB
 | [SHIP](docs/architecture.md#ship) | Freeze a trusted catalog so every user gets the same offline answers. |
 | [SEARCH](docs/search.md) | Ask in plain language — install the CLI or use the web playground. |
 | [OBSERVE](docs/observe.md) | Optionally notice how people actually ask (privacy-first, off by default). |
-| [EVOLVE](docs/architecture.md#evolve) | Turn real usage into the next better catalog (Umami pull → feeder → EXPAND). |
+| [EVOLVE](docs/architecture.md#evolve) | Turn real usage into the next better catalog (PostHog pull → feeder → EXPAND). |
 
 Catalog operator runbook: [`apps/pipeline/src/README.md`](apps/pipeline/src/README.md). Decisions: [docs/architecture.md](docs/architecture.md).
 
@@ -165,7 +165,7 @@ Details: [docs/observe.md](docs/observe.md), [Privacy](https://git-grasp.cremasc
 | `bun run typecheck` | `tsc --noEmit` |
 | `bun run ci` | Local CI (typecheck → unit/integration → audit; mock embeddings) |
 | `bun test` / `test:unit` / `test:integration` | Bun test (unit + integration + pipeline) |
-| `bun run test:telemetry-e2e` / `test:evolve-e2e` | Optional Umami e2e |
+| `bun run test:telemetry-e2e` / `test:evolve-e2e` | Optional local Docker PostHog e2e (skips if `:8010` is down) |
 | `bun run bench` / `bench:install` / `bench:render-latest` | Perf harnesses + commit snapshot |
 | `bun run build:cli` / `build:release` | Compile CLI / release zip |
 

@@ -4,7 +4,7 @@ import { writeFileSync, mkdirSync, rmSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  sha256Buffer, writeChecksumFile, verifyFileChecksum,
+  sha256Buffer, writeChecksumFile, verifyFileChecksum, readChecksumFile,
 } from '../../common/src/lib/checksum.js';
 
 const tmp = path.join(path.dirname(fileURLToPath(import.meta.url)), '../tmp-checksum');
@@ -30,6 +30,18 @@ describe('checksum', () => {
     writeChecksumFile(f);
     writeFileSync(f, 'HELLO');
     expect(verifyFileChecksum(f).ok).toBe(false);
+    rmSync(tmp, { recursive: true, force: true });
+  });
+
+  it('reports missing file/checksum and invalid hash', () => {
+    mkdirSync(tmp, { recursive: true });
+    expect(verifyFileChecksum(path.join(tmp, 'nope.bin')).reason).toBe('missing_file');
+    const f = path.join(tmp, 'c.bin');
+    writeFileSync(f, 'x');
+    expect(verifyFileChecksum(f).reason).toBe('missing_checksum');
+    const bad = path.join(tmp, 'c.bin.sha256');
+    writeFileSync(bad, 'not-a-hash\n');
+    expect(() => readChecksumFile(bad)).toThrow(/Invalid checksum file/);
     rmSync(tmp, { recursive: true, force: true });
   });
 });

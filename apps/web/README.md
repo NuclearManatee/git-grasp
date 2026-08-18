@@ -47,14 +47,19 @@ bun run web:e2e:dev                           # astro dev + hydrate.spec.ts
 
 `reuseExistingServer` is **off** so a broken local `astro dev` cannot silently satisfy preview e2e.
 
-## Local Umami (optional)
+## PostHog (optional)
 
-Site script env (`PUBLIC_UMAMI_*` in `.env` — see [`.env.example`](./.env.example)) is not the same as EVOLVE pull (`GIT_GRASP_UMAMI_*`). Send vs pull: [docs/observe.md](../../docs/observe.md).
+Site snippet env (`PUBLIC_POSTHOG_*` in `.env` — see [`.env.example`](./.env.example)) is the public project key. EVOLVE pull uses `GIT_GRASP_POSTHOG_PROJECT_ID` + `GIT_GRASP_POSTHOG_PERSONAL_API_KEY` against the query API host. Send vs pull: [docs/observe.md](../../docs/observe.md).
+
+Without a project key, the site does not load PostHog (same as CLI OBSERVE send).
+
+Local telemetry / EVOLVE e2e uses Docker PostHog (not Cloud):
 
 ```bash
-docker compose -f apps/web/docker-compose.umami.yml --profile e2e up -d
-# PUBLIC_UMAMI_SCRIPT_URL=http://127.0.0.1:3001/script.js
-# PUBLIC_UMAMI_WEBSITE_ID=<id from bun run evolve:seed-umami>
+docker compose -f apps/web/docker-compose.posthog.yml --profile e2e up -d
+bun run evolve:seed-posthog
+bun run test:telemetry-e2e
+bun run test:evolve-e2e
 ```
 
-Without overrides, the site uses baked Cloud script + website id (same as CLI OBSERVE send defaults).
+Playwright `tracking.spec.ts` still asserts `window.__ghTrackQueue` (CI does not start PostHog). Point `PUBLIC_POSTHOG_HOST` at `http://127.0.0.1:8010` only when you want the playground snippet to hit the local stack.

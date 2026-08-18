@@ -121,7 +121,7 @@ Pull opted-in OBSERVE events, denoise, rebuild search journeys, emit an EXPAND *
 
 - **PULL** cursor advances **only after** a durable feeder/stats write (`last_event_id` for boundary dedupe).
 - **FILTER** keeps `cli_search` / `web_cli_search`; one `catalog_version` per run.
-- **THREAD** groups by CLI `session_id` or Umami session/visit/visitor.
+- **THREAD** groups by CLI `session_id` or PostHog cookieless `distinct_id`.
 - **Feeder:** miss-like journeys only (`source: 'observe'`, `correctExists: false` when no expected id). **80/20** hash split: train → chain, holdout → post-chain hit-rate stat.
 - `--llm-label` is the only way to LLM-confirm weak/abandon labels.
 

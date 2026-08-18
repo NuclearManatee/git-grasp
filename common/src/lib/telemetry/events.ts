@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { DEFAULT_UMAMI_HOST, DEFAULT_UMAMI_WEBSITE_ID } from './defaults.js';
+import { DEFAULT_POSTHOG_HOST, DEFAULT_POSTHOG_KEY } from './defaults.js';
 import { appVersion, catalogIdentity } from '../version.js';
 import { SCHEMA_VERSION } from '../../db/constants.js';
 import { readConfig } from '../config.js';
@@ -112,12 +112,12 @@ export function searchResponseFromError(err) {
   };
 }
 
-export function resolveUmamiEndpoint(env = process.env) {
-  const host = (env.GIT_GRASP_UMAMI_HOST || DEFAULT_UMAMI_HOST || '').replace(/\/$/, '');
+export function resolvePosthogEndpoint(env = process.env) {
+  const host = (env.GIT_GRASP_POSTHOG_HOST || DEFAULT_POSTHOG_HOST || '').replace(/\/$/, '');
   // Explicit empty string disables send (tests / hard off). Unset → baked default.
-  const websiteId =
-    'GIT_GRASP_UMAMI_WEBSITE_ID' in env
-      ? String(env.GIT_GRASP_UMAMI_WEBSITE_ID || '')
-      : DEFAULT_UMAMI_WEBSITE_ID || '';
-  return { host, websiteId };
+  const projectApiKey =
+    'GIT_GRASP_POSTHOG_KEY' in env
+      ? String(env.GIT_GRASP_POSTHOG_KEY || '')
+      : DEFAULT_POSTHOG_KEY || '';
+  return { host, projectApiKey };
 }

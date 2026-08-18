@@ -12,6 +12,7 @@ import {
   writeUpdateCache,
   readUpdateCache,
   updateInstallHint,
+  updateCheckStatusDetail,
   UPDATE_CHECK_TTL_MS,
 } from '../../common/src/lib/updateCheck.js';
 import { writeConfig, readConfig } from '../../common/src/lib/config.js';
@@ -145,6 +146,37 @@ describe('update-check', () => {
   it('updateInstallHint branches binary vs bun', () => {
     expect(updateInstallHint({ GIT_GRASP_INSTALL: 'bun' })).toMatch(/bun add -g/);
     expect(updateInstallHint({ GIT_GRASP_INSTALL: 'binary' })).toMatch(/release zip/i);
+  });
+
+  it('updateCheckStatusDetail and remaining helpers', async () => {
+    expect(updateCheckStatusDetail(readConfig(), {}).label).toBe('off');
+    setUpdateCheckEnabled(true);
+    writeUpdateCache({
+      latest: '99.0.0',
+      local: '0.1.0',
+      checkedAt: new Date().toISOString(),
+    });
+    const cached = await checkForUpdate({
+      force: false,
+      fetchImpl: async () => {
+        throw new Error('no');
+      },
+    });
+    expect(cached.enabled).toBe(true);
+    const out = await maybeNotifyUpdate({
+      force: true,
+      quiet: true,
+      fetchImpl: async () => ({ ok: true, json: async () => ({ version: '99.0.0' }) }),
+    });
+    expect(out.notified).toBe(true);
+    const { fetchNpmLatestVersion, isCompiledBinaryInstall, isUpdateCheckHardOff, updateCachePath } =
+      await import('../../common/src/lib/updateCheck.js');
+    expect(isCompiledBinaryInstall({ GIT_GRASP_INSTALL: 'binary' })).toBe(true);
+    expect(isUpdateCheckHardOff({ GIT_GRASP_UPDATE_CHECK: '0' })).toBe(true);
+    expect(updateCachePath()).toContain('update-check');
+    expect(await fetchNpmLatestVersion({
+      fetchImpl: async () => ({ ok: false, json: async () => ({}) }),
+    })).toBeNull();
   });
 });
 

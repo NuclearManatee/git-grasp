@@ -17,12 +17,12 @@ const cases = [
   {
     name: 'telemetry null dismissed',
     setup: () => writeConfig({ telemetry: null, telemetryInvite: 'dismissed' }),
-    env: {},
+    env: { CI: '1' },
   },
   {
     name: 'telemetry false',
     setup: () => writeConfig({ telemetry: false }),
-    env: {},
+    env: { CI: '1' },
   },
   {
     name: 'telemetry true but DNT',
@@ -59,16 +59,16 @@ describe('telemetry default-off regression', () => {
       'GIT_GRASP_TELEMETRY',
       'CI',
       'GIT_GRASP_BENCH',
-      'GIT_GRASP_UMAMI_HOST',
-      'GIT_GRASP_UMAMI_WEBSITE_ID',
+      'GIT_GRASP_POSTHOG_HOST',
+      'GIT_GRASP_POSTHOG_KEY',
     ]) {
       saved[k] = process.env[k];
       delete process.env[k];
     }
     if (process.platform === 'win32') process.env.APPDATA = tmpRoot;
     else process.env.XDG_CONFIG_HOME = tmpRoot;
-    process.env.GIT_GRASP_UMAMI_HOST = 'http://127.0.0.1:3999';
-    process.env.GIT_GRASP_UMAMI_WEBSITE_ID = 'test-website-id';
+    process.env.GIT_GRASP_POSTHOG_HOST = 'http://127.0.0.1:3999';
+    process.env.GIT_GRASP_POSTHOG_KEY = 'phc_test_key';
   });
 
   afterEach(() => {

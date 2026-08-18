@@ -36,7 +36,7 @@ import {
   PLAYGROUND_DOWNLOAD_LABEL,
 } from '../../lib/assetSizes.js';
 import { shouldAutoLoadPlayground, readConnection, deviceInfo } from '../../lib/connection.js';
-import { trackWebCliLoad, trackWebCliSearch } from '../../lib/umami.js';
+import { trackWebCliLoad, trackWebCliSearch } from '../../lib/posthog.js';
 
 const SKILL_KEY = 'git-grasp.skillLevel';
 const PACK_URL = typeof WEB_CATALOG_URL === 'string' ? WEB_CATALOG_URL : '/catalog/web-catalog.db';

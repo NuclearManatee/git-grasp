@@ -6,6 +6,7 @@ import {
   formatUsageFrame,
   parseUsage,
   formatSnippetBlock,
+  formatConfidenceLine,
   SEARCH_FALLBACK_MESSAGE,
 } from '../../common/src/ux/format.js';
 
@@ -129,5 +130,34 @@ describe('parseUsage / snippet', () => {
       commands: [{ command: 'git reset --soft HEAD~1', comment: 'keep' }],
     });
     expect(lines.join('\n')).toMatch(/git reset/);
+    expect(formatSnippetBlock({ snippet: 'git status\ngit diff' }).join('\n')).toMatch(/git status/);
+    expect(parseUsage({ example: 'git status', usage: 'just a blurb' }).blurb).toBe('just a blurb');
+    expect(parseUsage({ example: 'git status', usage: 'git status' }).commandLine).toBe('git status');
+  });
+});
+
+describe('verbose confidence', () => {
+  it('formats confidence line when verbose', () => {
+    expect(
+      formatConfidenceLine({
+        confidence: 0.9,
+        alert: 'yellow',
+        blend: { alpha: 0.7, beta: 0.3 },
+        displayResults: [{ score: 0.8, score_cosine: 0.7, score_bm25: 0.1 }],
+      }, { verbose: true }),
+    ).toMatch(/confidence/);
+    expect(formatConfidenceLine({}, { verbose: false })).toBe('');
+    const text = formatSearchResult({
+      status: 'ok',
+      confidence: 0.9,
+      alert: 'none',
+      displayResults: [{
+        example: 'git status',
+        intent_text: 'show status',
+        skill_level: 'beginner',
+        commands: [{ command: 'git status' }],
+      }],
+    }, { verbose: true });
+    expect(text).toMatch(/beginner/);
   });
 });

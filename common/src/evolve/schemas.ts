@@ -5,7 +5,7 @@ export const SEARCH_EVENT_NAMES = new Set(['cli_search', 'web_cli_search']);
 
 export const OutcomeLabelSchema = z.enum(['satisfied', 'weak', 'miss', 'abandon']);
 
-export const RawUmamiEventSchema = z.object({
+export const RawObserveEventSchema = z.object({
   id: z.string().optional(),
   eventId: z.string().optional(),
   name: z.string(),
@@ -14,6 +14,7 @@ export const RawUmamiEventSchema = z.object({
   sessionId: z.string().nullable().optional(),
   visitId: z.string().nullable().optional(),
   visitorId: z.string().nullable().optional(),
+  distinctId: z.string().nullable().optional(),
   data: z.record(z.string(), z.unknown()).optional(),
   eventData: z.record(z.string(), z.unknown()).optional(),
 });

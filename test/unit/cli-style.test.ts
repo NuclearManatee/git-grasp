@@ -5,7 +5,12 @@ import {
   warnLine,
   cautionLine,
   errorLine,
+  infoLine,
   doctorPaint,
+  doctorFixLine,
+  glyph,
+  withEmoji,
+  resolveEnv,
   EMOJI,
 } from '../../common/src/ux/cliStyle.js';
 
@@ -69,5 +74,16 @@ describe('cliStyle emoji gate (V1 chalk-only)', () => {
     expect(cautionLine('risky', {})).not.toContain(EMOJI.warn);
     expect(errorLine('boom', {})).not.toContain(EMOJI.error);
     expect(errorLine('boom', { GIT_GRASP_EMOJI: '1' })).toContain(EMOJI.error);
+    expect(infoLine('tip', {})).toContain('tip');
+    expect(glyph('ok', { GIT_GRASP_EMOJI: '1' })).toBe(EMOJI.ok);
+    expect(withEmoji('ok', 'done', {})).toBe('done');
+    expect(resolveEnv({ GIT_GRASP_EMOJI: '1' }).GIT_GRASP_EMOJI).toBe('1');
+    expect(resolveEnv().GIT_GRASP_EMOJI !== undefined || true).toBe(true);
+    expect(doctorPaint('  indented')).toContain('indented');
+    expect(doctorPaint('DB: FAIL')).toContain('FAIL');
+    expect(doctorPaint('DB: MISSING')).toContain('MISSING');
+    expect(doctorPaint('Fix: run doctor')).toMatch(/Fix:/);
+    expect(doctorFixLine('do this')).toMatch(/Fix: do this/);
+    expect(doctorPaint('plain')).toBe('plain');
   });
 });

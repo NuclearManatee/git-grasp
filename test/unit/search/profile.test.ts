@@ -3,8 +3,14 @@ import {
   blendWeightsForSkill,
   heuristicSkillLevel,
   profileQuery,
+  skillRankDistance,
 } from '../../../common/src/search/profile.ts';
-import { parseGitVerbsMeta, serializeGitVerbsMeta } from '../../../common/src/search/gitVerbs.ts';
+import {
+  parseGitVerbsMeta,
+  serializeGitVerbsMeta,
+  extractVerbFromCommand,
+  collectGitVerbsFromRecipes,
+} from '../../../common/src/search/gitVerbs.ts';
 
 const VERBS = ['status', 'commit', 'reset', 'rebase', 'stash', 'checkout', 'merge', 'push', 'pull'];
 
@@ -57,6 +63,12 @@ describe('profileQuery', () => {
     expect(p.preferredSkill).toBe('intermediate');
     expect(p.alpha).toBe(0.3);
   });
+
+  it('accepts numeric preferred skill and rank distance', () => {
+    expect(profileQuery('anything', { preferredSkill: 4, verbs: VERBS }).preferredSkill).toBe('expert');
+    expect(skillRankDistance('beginner', 'expert')).toBe(2);
+    expect(skillRankDistance(1, 4)).toBe(3);
+  });
 });
 
 describe('gitVerbs meta', () => {
@@ -68,5 +80,19 @@ describe('gitVerbs meta', () => {
   it('returns empty on bad meta', () => {
     expect(parseGitVerbsMeta(null)).toEqual([]);
     expect(parseGitVerbsMeta('not-json')).toEqual([]);
+    expect(parseGitVerbsMeta({ nope: true })).toEqual([]);
+  });
+
+  it('extracts verbs from commands and recipes', () => {
+    expect(extractVerbFromCommand('git reset --hard')).toBe('reset');
+    expect(extractVerbFromCommand('reset --hard')).toBe('reset');
+    expect(extractVerbFromCommand('')).toBeNull();
+    expect(extractVerbFromCommand('git --version')).toBeNull();
+    expect(
+      collectGitVerbsFromRecipes([
+        'git status',
+        { commands: [{ command: 'git commit -m x' }] },
+      ]),
+    ).toEqual(['commit', 'status']);
   });
 });

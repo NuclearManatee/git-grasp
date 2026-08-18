@@ -1,8 +1,8 @@
 /// <reference types="astro/client" />
 
 interface ImportMetaEnv {
-  readonly PUBLIC_UMAMI_SCRIPT_URL?: string;
-  readonly PUBLIC_UMAMI_WEBSITE_ID?: string;
+  readonly PUBLIC_POSTHOG_HOST?: string;
+  readonly PUBLIC_POSTHOG_KEY?: string;
 }
 
 interface ImportMeta {
@@ -18,5 +18,5 @@ interface GhTrackEvent {
 interface Window {
   __ghTrackQueue?: GhTrackEvent[];
   __ghPlaygroundDump?: () => string;
-  umami?: { track: (name: string, data?: Record<string, unknown>) => void };
+  posthog?: { capture: (name: string, data?: Record<string, unknown>) => void };
 }

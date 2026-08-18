@@ -4,7 +4,7 @@ import {
   cheapPlausibilityCheck,
   validateRecipeCandidate,
 } from '../../../common/src/build/recipeValidate.ts';
-import { commandFingerprint } from '../../../common/src/db/schema.ts';
+import { structuralCommandFingerprint } from '../../../common/src/build/argvNormalize.ts';
 import {
   isDiscoveryBatchFlat,
 } from '../../../common/src/build/leafSaturate.ts';
@@ -76,10 +76,10 @@ describe('validateRecipeCandidate gate order', () => {
   });
 });
 
-describe('commandFingerprint', () => {
+describe('structuralCommandFingerprint', () => {
   it('normalizes placeholders', () => {
-    const a = commandFingerprint([{ command: 'git checkout <branch>' }]);
-    const b = commandFingerprint([{ command: 'git checkout <name>' }]);
+    const a = structuralCommandFingerprint([{ command: 'git checkout <branch>' }]);
+    const b = structuralCommandFingerprint([{ command: 'git checkout <name>' }]);
     expect(a).toBe(b);
   });
 });

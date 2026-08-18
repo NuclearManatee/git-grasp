@@ -4,7 +4,8 @@ import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import { userPaths } from './paths.js';
 import { isValidSkillLevel, parseSkillLevel, SKILL_MAX, SKILL_MIN } from './skills.js';
-import { parseJson, UserConfigSchema } from '../schemas/index.js';
+import { parseJson } from '../schemas/io.js';
+import { UserConfigSchema } from '../schemas/config.js';
 
 export const CONFIG_SCHEMA_VERSION = 4;
 

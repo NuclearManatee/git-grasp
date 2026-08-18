@@ -18,7 +18,7 @@ import {
   setTelemetryEnabled,
   telemetryStatusDetail,
   buildCliOptInEvent,
-  sendUmamiEvent,
+  sendPosthogEvent,
   formatVersionReport,
   maybeNotifyUpdate,
   setUpdateCheckEnabled,
@@ -190,7 +190,7 @@ export function buildProgram() {
           }
           setTelemetryEnabled(true);
           const ev = buildCliOptInEvent();
-          await sendUmamiEvent({ ...ev, verbose: false });
+          await sendPosthogEvent({ ...ev, verbose: false });
           console.log(msgTelemetryOn());
           return;
         }

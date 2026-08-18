@@ -9,7 +9,7 @@ import {
   searchResponseFromError,
   searchResponseFromResult,
 } from './events.js';
-import { sendUmamiEvent } from './send.js';
+import { sendPosthogEvent } from './send.js';
 
 /** Mint a new opaque CLI telemetry session id. */
 export function mintTelemetrySessionId() {
@@ -52,16 +52,16 @@ export {
   isTelemetryEnabled,
   shouldPromptInvite,
 } from './gate.js';
-export { sendUmamiEvent } from './send.js';
+export { sendPosthogEvent } from './send.js';
 export {
   buildCliOptInEvent,
   buildCliSearchEvent,
   searchResponseFromError,
   searchResponseFromResult,
-  resolveUmamiEndpoint,
+  resolvePosthogEndpoint,
 } from './events.js';
 export { promptTelemetryInvite } from './invite.js';
-export { PRIVACY_URL, DEFAULT_UMAMI_HOST, DEFAULT_UMAMI_WEBSITE_ID, DEFAULT_UMAMI_SCRIPT_URL } from './defaults.js';
+export { PRIVACY_URL, DEFAULT_POSTHOG_HOST, DEFAULT_POSTHOG_API_HOST, DEFAULT_POSTHOG_KEY, DEFAULT_POSTHOG_E2E_HOST } from './defaults.js';
 
 /**
  * @returns {'on'|'off'} human status for doctor / telemetry status
@@ -109,7 +109,7 @@ export async function maybeRunTelemetryInvite(opts = {}) {
       telemetrySessionId: sessionId,
     });
     const ev = buildCliOptInEvent({ sessionId });
-    await sendUmamiEvent({
+    await sendPosthogEvent({
       ...ev,
       verbose: Boolean(opts.verbose),
       fetchImpl: opts.fetchImpl,
@@ -172,7 +172,7 @@ export async function maybeInviteAndTrackSearch({
     mock,
     sessionId,
   });
-  const sendResult = await sendUmamiEvent({
+  const sendResult = await sendPosthogEvent({
     ...ev,
     verbose,
     fetchImpl,

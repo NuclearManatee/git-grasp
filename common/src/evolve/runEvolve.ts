@@ -9,10 +9,9 @@ import { splitFeederHoldout } from './split.js';
 import { maybeLlmConfirmLabels } from './llmLabel.js';
 import { readEvolveCursor, writeEvolveCursor } from './cursor.js';
 import {
-  resolveUmamiPullConfig,
-  resolveUmamiAuthToken,
-  pullUmamiEvents,
-} from './umamiPull.js';
+  resolvePosthogPullConfig,
+  pullPosthogEvents,
+} from './posthogPull.js';
 import { chainExpandFromFeeder, scoreObserveHoldout } from './chain.js';
 import { FeederItemSchema, EvolveStatsSchema } from './schemas.js';
 import {
@@ -57,25 +56,18 @@ export async function runEvolve(opts = {}) {
     pulled = opts.events;
     pullMeta = { source: 'fixture' };
   } else {
-    const cfg = resolveUmamiPullConfig(env);
+    const cfg = resolvePosthogPullConfig(env);
     const cursor = readEvolveCursor(root);
-    const token = await resolveUmamiAuthToken({
-      host: cfg.host,
-      token: cfg.token,
-      username: cfg.username,
-      password: cfg.password,
-      fetchImpl: opts.fetchImpl,
-    });
-    const result = await pullUmamiEvents({
-      host: cfg.host,
-      websiteId: cfg.websiteId || env.GIT_GRASP_UMAMI_WEBSITE_ID,
-      token,
+    const result = await pullPosthogEvents({
+      apiHost: cfg.apiHost,
+      projectId: cfg.projectId || env.GIT_GRASP_POSTHOG_PROJECT_ID,
+      personalApiKey: cfg.personalApiKey,
       sinceIso: cursor.last_pulled_at,
       afterEventId: cursor.last_event_id,
       fetchImpl: opts.fetchImpl,
     });
     pulled = result.events;
-    pullMeta = { source: 'umami', endpoint: result.endpoint, host: cfg.host };
+    pullMeta = { source: 'posthog', endpoint: result.endpoint, host: cfg.apiHost };
     const newest = pulled.reduce((acc, e) => {
       const t = e.createdAt;
       const ms = typeof t === 'number' ? (t < 1e12 ? t * 1000 : t) : Date.parse(String(t));

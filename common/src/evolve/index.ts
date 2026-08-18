@@ -16,15 +16,17 @@ export {
 export { labelFromResponse, isAmbiguousLabel } from './label.js';
 export { splitFeederHoldout, queryHashUnit } from './split.js';
 export {
-  resolveUmamiPullConfig,
-  resolveUmamiAuthToken,
-  pullUmamiEvents,
-  umamiLogin,
-  mapUmamiEventRow,
+  resolvePosthogPullConfig,
+  derivePosthogApiHost,
+  pullPosthogEvents,
+  mapPosthogEventRow,
+  hogqlRowsFromQueryJson,
+  parsePosthogProperties,
   dedupeAfterLastEventId,
-  listUmamiWebsites,
-  createUmamiWebsite,
-} from './umamiPull.js';
+  mergeSetCookie,
+  ensurePosthogE2eProject,
+  posthogReachable,
+} from './posthogPull.js';
 export { readEvolveCursor, writeEvolveCursor } from './cursor.js';
 export {
   chainExpandFromFeeder,

@@ -1,6 +1,6 @@
 // @ts-nocheck
 /**
- * Cookieless Umami event helper. No-ops when script / website id unset.
+ * Cookieless PostHog event helper. No-ops when snippet / project key unset.
  * Drops search events whose query matches shared PII/junk gates.
  */
 import { piiOrJunkReason } from '@git-grasp/common/lib/telemetry/scrub.js';
@@ -11,20 +11,19 @@ import { piiOrJunkReason } from '@git-grasp/common/lib/telemetry/scrub.js';
  */
 export function track(name, data = {}) {
   if (typeof window === 'undefined') return;
-  const umami = /** @type {any} */ (window).umami;
-  if (!umami || typeof umami.track !== 'function') {
+  const posthog = /** @type {any} */ (window).posthog;
+  if (!posthog || typeof posthog.capture !== 'function') {
     if (import.meta.env.DEV) {
-      console.debug('[umami:noop]', name, data);
+      console.debug('[posthog:noop]', name, data);
     }
-    // Expose for Playwright assertions even without Umami
     const q = (window.__ghTrackQueue ||= []);
     q.push({ name, data, ts: Date.now() });
     return;
   }
   try {
-    umami.track(name, data);
+    posthog.capture(name, data);
   } catch (err) {
-    console.warn('umami.track failed', err);
+    console.warn('posthog.capture failed', err);
   }
   const q = (window.__ghTrackQueue ||= []);
   q.push({ name, data, ts: Date.now() });
@@ -43,7 +42,7 @@ export function trackWebCliLoad(payload) {
 export function trackWebCliSearch(payload) {
   if (payload?.query != null && piiOrJunkReason(payload.query)) {
     if (import.meta.env.DEV) {
-      console.debug('[umami:scrub]', payload.query);
+      console.debug('[posthog:scrub]', payload.query);
     }
     return;
   }

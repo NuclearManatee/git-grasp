@@ -4,7 +4,7 @@ import Footer from '../components/Footer.astro';
 ---
 <BaseLayout
   title="Privacy & legal — git-grasp"
-  description="How git-grasp and git-grasp.cremaschi.dev handle personal data: local-first CLI (telemetry off by default), cookieless Umami, and playground telemetry."
+  description="How git-grasp and git-grasp.cremaschi.dev handle personal data: local-first CLI (telemetry off by default), cookieless PostHog, and playground telemetry."
 >
   <main id="main" class="gh-container flex-1 py-16">
     <header class="max-w-3xl">
@@ -16,7 +16,7 @@ import Footer from '../components/Footer.astro';
       <h1 class="mt-3 font-mono text-3xl font-semibold tracking-tight sm:text-4xl">
         Privacy &amp; legal
       </h1>
-      <p class="mt-3 text-sm text-gh-muted">Last updated: 26 July 2026</p>
+        <p class="mt-3 text-sm text-gh-muted">Last updated: 17 August 2026</p>
       <p class="mt-6 text-gh-muted leading-relaxed">
         This notice explains how personal data is handled for <strong class="font-medium text-gh-fg">git-grasp</strong>
         and the website at
@@ -59,7 +59,7 @@ import Footer from '../components/Footer.astro';
             <span class="font-mono text-gh-fg">git-grasp telemetry on</span>).
           </li>
           <li>
-            When enabled, the CLI may send Umami events
+            When enabled, the CLI may send PostHog events
             <span class="font-mono text-gh-fg">cli_opt_in</span> and
             <span class="font-mono text-gh-fg">cli_search</span> (query text, result metadata, latency, app version, coarse
             OS) to the same analytics property as the Site — see §4 and §5a.
@@ -88,7 +88,7 @@ import Footer from '../components/Footer.astro';
         </ul>
         <p class="mt-4">The Site may use:</p>
         <ul class="mt-4 list-disc space-y-2 pl-5">
-          <li><strong class="font-medium text-gh-fg">cookieless analytics</strong> (Umami), when configured;</li>
+          <li><strong class="font-medium text-gh-fg">cookieless analytics</strong> (PostHog), when configured;</li>
           <li>
             <strong class="font-medium text-gh-fg">playground telemetry</strong> (queries and results), when you start and
             use the playground;
@@ -104,14 +104,14 @@ import Footer from '../components/Footer.astro';
         </ul>
       </section>
 
-      <section aria-labelledby="umami">
-        <h2 id="umami" class="font-mono text-xl font-semibold text-gh-fg">4. Website analytics (Umami)</h2>
+      <section aria-labelledby="posthog">
+        <h2 id="posthog" class="font-mono text-xl font-semibold text-gh-fg">4. Website analytics (PostHog)</h2>
         <p class="mt-4">
-          When analytics are configured, the Site uses <strong class="font-medium text-gh-fg">Umami</strong> in cookieless
+          When analytics are configured, the Site uses <strong class="font-medium text-gh-fg">PostHog</strong> in cookieless
           mode (no analytics cookies for tracking).
         </p>
         <h3 class="mt-6 font-mono text-base font-semibold text-gh-fg">What may be collected</h3>
-        <p class="mt-2">Typical Umami page/event data:</p>
+        <p class="mt-2">Typical PostHog page/event data:</p>
         <ul class="mt-4 list-disc space-y-2 pl-5">
           <li>page path / URL of the visit;</li>
           <li>referrer;</li>
@@ -133,7 +133,7 @@ import Footer from '../components/Footer.astro';
         </p>
         <p class="mt-4">
           <strong class="font-medium text-gh-fg">Retention:</strong> events are retained for up to
-          <strong class="font-medium text-gh-fg">360 days</strong>, then deleted or anonymised.
+          <strong class="font-medium text-gh-fg">1 year</strong> (PostHog Cloud free-tier retention), then deleted or anonymised.
         </p>
         <p class="mt-4">
           <strong class="font-medium text-gh-fg">Ads / sale:</strong> none. Analytics data is not sold and not used for
@@ -148,7 +148,7 @@ import Footer from '../components/Footer.astro';
       <section aria-labelledby="cli-telemetry">
         <h2 id="cli-telemetry" class="font-mono text-xl font-semibold text-gh-fg">5a. Optional CLI telemetry</h2>
         <p class="mt-4">
-          When you opt in, the CLI may send the following events to Umami (same store / retention as §4):
+          When you opt in, the CLI may send the following events to PostHog (same store / retention as §4):
         </p>
         <ul class="mt-4 list-disc space-y-2 pl-5">
           <li>
@@ -176,7 +176,7 @@ import Footer from '../components/Footer.astro';
         <h2 id="playground" class="font-mono text-xl font-semibold text-gh-fg">5. Playground telemetry</h2>
         <p class="mt-4">
           The in-browser playground runs search in your browser after you download assets. Separately, when analytics are
-          configured, the Site may send <strong class="font-medium text-gh-fg">playground events</strong> to Umami, including:
+          configured, the Site may send <strong class="font-medium text-gh-fg">playground events</strong> to PostHog, including:
         </p>
         <ul class="mt-4 list-disc space-y-2 pl-5">
           <li>
@@ -273,7 +273,7 @@ import Footer from '../components/Footer.astro';
             </thead>
             <tbody>
               <tr class="border-b border-gh-border/60">
-                <td class="py-2 pr-4 align-top text-gh-fg">Umami (e.g. Umami Cloud / <span class="font-mono">*.umami.is</span>)</td>
+                <td class="py-2 pr-4 align-top text-gh-fg">PostHog (e.g. PostHog EU Cloud / <span class="font-mono">*.posthog.com</span>)</td>
                 <td class="py-2">Cookieless analytics collection and storage</td>
               </tr>
               <tr class="border-b border-gh-border/60">
@@ -347,8 +347,8 @@ import Footer from '../components/Footer.astro';
         <h2 id="retention" class="font-mono text-xl font-semibold text-gh-fg">11. Retention and deletion</h2>
         <ul class="mt-4 list-disc space-y-2 pl-5">
           <li>
-            <strong class="font-medium text-gh-fg">Umami page/analytics events:</strong> retained for up to
-            <strong class="font-medium text-gh-fg">360 days</strong>, then deleted or aggregated so they no longer identify
+            <strong class="font-medium text-gh-fg">PostHog page/analytics events:</strong> retained for up to
+            <strong class="font-medium text-gh-fg">1 year</strong> (PostHog Cloud free-tier retention), then deleted or aggregated so they no longer identify
             a visit, unless a longer period is required for security or legal claims.
           </li>
           <li>

@@ -1,12 +1,13 @@
 // @ts-nocheck
 import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
-import { mkdirSync, rmSync, existsSync } from 'node:fs';
+import { mkdirSync, rmSync, existsSync, chmodSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   writeConfig,
   readConfig,
   defaultConfig,
+  configFilePath,
   CONFIG_SCHEMA_VERSION,
 } from '../../common/src/lib/config.js';
 
@@ -66,5 +67,9 @@ describe('config telemetry schema', () => {
     expect(cfg.skillLevel).toBe(1);
     expect(cfg.telemetry).toBe(false);
     expect(cfg.telemetryInvite).toBe('dismissed');
+  });
+
+  it('rejects invalid skillLevel', () => {
+    expect(() => writeConfig({ skillLevel: 99 })).toThrow(/skillLevel must be/);
   });
 });

@@ -5,7 +5,7 @@
   Copy these values into the edge config — see deploy notes in the security review.
 */
 /*
-  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cloud.umami.is https://*.umami.is; connect-src 'self' https://huggingface.co https://*.huggingface.co https://cdn.jsdelivr.net https://cloud.umami.is https://*.umami.is; worker-src 'self' blob:; form-action 'self'; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; img-src 'self' data: https:; font-src 'self' https://fonts.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://*.i.posthog.com https://*.posthog.com; connect-src 'self' https://huggingface.co https://*.huggingface.co https://cdn.jsdelivr.net https://*.i.posthog.com https://*.posthog.com; worker-src 'self' blob:; form-action 'self'; frame-ancestors 'none'
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
