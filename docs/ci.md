@@ -22,4 +22,4 @@ Regression gate: `bun run eval:regression` (`tools:pipeline -- --only=evalRegres
 
 Pages and GitHub Releases use the built-in `GITHUB_TOKEN` (workflow permissions).
 
-Workflows live under `.github/`. Catalog runner: [`apps/pipeline/src/README.md`](../apps/pipeline/src/README.md). Web e2e: [`apps/web/README.md`](../apps/web/README.md).
+Workflows live under `.github/`. Local mirror and first GitHub publish: [maintainer.md](maintainer.md). Catalog runner: [`apps/pipeline/src/README.md`](../apps/pipeline/src/README.md). Web e2e: [`apps/web/README.md`](../apps/web/README.md).

@@ -33,6 +33,6 @@ flowchart LR
 
 Leaf held-out (**Hit@10** ≥0.95 ×2 — display hits ∪ top-10) + regression set unlock catalog merges. That is broader than SEARCH **Hit@display** (gated 1–3). EXPAND triage buckets 1/2/3 are automated.
 
-Create/merge `improve/*` locally after held-out + regression are green — GitHub Actions does not commit catalog changes. See [ci.md](ci.md).
+Create/merge `improve/*` locally after held-out + regression are green — GitHub Actions does not commit catalog changes. See [ci.md](ci.md). First GitHub publish and local `bun run preflight`: [maintainer.md](maintainer.md).
 
 See also [CLAUDE.md](../CLAUDE.md), [architecture.md](architecture.md#expand).

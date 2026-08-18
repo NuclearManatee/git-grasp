@@ -25,6 +25,7 @@
     "apps/cli/",
     "common/",
     "README.md",
+    "LICENSE",
     "package.json"
   ],
   "dependencies": {
@@ -48,6 +49,7 @@
     "test:evolve-e2e": "bun test ./test/integration/evolve-posthog.test.ts",
     "test:watch": "bun test --watch --timeout 60000 ./test/unit",
     "ci": "bun common/scripts/ci.ts",
+    "preflight": "bun common/scripts/preflight.ts",
     "bench:render-latest": "bun test/performance/render-bench-latest.ts",
     "evolve:render-latest": "bun common/src/evolve/renderLatestCli.ts",
     "typecheck": "tsc --noEmit -p tsconfig.json",
@@ -83,6 +85,8 @@
   },
   "overrides": {
     "sharp": "0.35.0",
-    "cookie": "1.1.1"
+    "cookie": "1.1.1",
+    "js-yaml": "4.3.1",
+    "nanoid": "3.3.18"
   }
 }

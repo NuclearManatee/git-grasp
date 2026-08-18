@@ -164,9 +164,10 @@ Details: [docs/observe.md](docs/observe.md), [Privacy](https://git-grasp.cremasc
 | `bun run cli` / `doctor` | CLI entry / health |
 | `bun run typecheck` | `tsc --noEmit` |
 | `bun run ci` | Local CI (typecheck → unit/integration → audit; mock embeddings) |
+| `bun run preflight` | Same as `ci`, then print next maintainer steps |
 | `bun test` / `test:unit` / `test:integration` | Bun test (unit + integration + pipeline) |
 | `bun run test:telemetry-e2e` / `test:evolve-e2e` | Optional local Docker PostHog e2e (skips if `:8010` is down) |
 | `bun run bench` / `bench:install` / `bench:render-latest` | Perf harnesses + commit snapshot |
 | `bun run build:cli` / `build:release` | Compile CLI / release zip |
 
-Pipeline and web scripts live in those READMEs. CI workflows and secrets: [docs/ci.md](docs/ci.md).
+Pipeline and web scripts live in those READMEs. Maintainer runbook (local CI, publish, secrets): [docs/maintainer.md](docs/maintainer.md). CI workflows: [docs/ci.md](docs/ci.md).

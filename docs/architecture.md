@@ -2,7 +2,7 @@
 
 Schema v9: description KNN + FTS5 → fixed-blend fusion → confidence-gated display; **no search-time LLM**. Code on `feature/*`; catalog/DB on `improve/*` after held-out + regression green. Web playground: `web-catalog.db` (sql.js) + Transformers.js BGE-small.
 
-Operator runbook: [`apps/pipeline/src/README.md`](../apps/pipeline/src/README.md). Site/playground how-to: [`apps/web/README.md`](../apps/web/README.md). Product search: [search.md](search.md). Telemetry: [observe.md](observe.md). Branch policy: [git-flow.md](git-flow.md).
+Operator runbook: [`apps/pipeline/src/README.md`](../apps/pipeline/src/README.md). Maintainer scripts and first GitHub publish: [maintainer.md](maintainer.md). Site/playground how-to: [`apps/web/README.md`](../apps/web/README.md). Product search: [search.md](search.md). Telemetry: [observe.md](observe.md). Branch policy: [git-flow.md](git-flow.md).
 
 ```mermaid
 flowchart TB
@@ -139,4 +139,4 @@ Description KNN (`sqlite-vec` / JS KNN on web) + recipe FTS5 BM25 → fixed α/�
 - `apps/pipeline/src/tests/bun` — Anvil runner tests
 - `apps/web/e2e` — Playwright (see [web README](../apps/web/README.md))
 
-See also [goals.md](goals.md), [git-flow.md](git-flow.md), [ci.md](ci.md), [security.md](security.md).
+See also [goals.md](goals.md), [git-flow.md](git-flow.md), [ci.md](ci.md), [maintainer.md](maintainer.md), [security.md](security.md).
