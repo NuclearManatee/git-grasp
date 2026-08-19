@@ -5,6 +5,11 @@ on:
     branches: [main]
     tags: ['v*']
   workflow_dispatch:
+    inputs:
+      platforms:
+        description: 'Binary slugs (comma-separated). Empty = RELEASE_PLATFORMS secret or all four.'
+        required: false
+        default: ''
 
 concurrency:
   group: release-${{ github.ref }}
@@ -104,21 +109,27 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-  binaries:
+  release-matrix:
     needs: [gate]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    outputs:
+      platforms: ${{ steps.plan.outputs.platforms }}
+    steps:
+      - name: Resolve binary platforms
+        id: plan
+        env:
+          RELEASE_PLATFORMS: ${{ secrets.RELEASE_PLATFORMS }}
+          DISPATCH_PLATFORMS: ${{ github.event.inputs.platforms }}
+        run: bash .github/scripts/release-platforms.sh
+
+  binaries:
+    needs: [gate, release-matrix]
     if: startsWith(github.ref, 'refs/tags/v')
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: ubuntu-latest
-            slug: linux-x64
-          - os: macos-latest
-            slug: darwin-arm64
-          - os: macos-13
-            slug: darwin-x64
-          - os: windows-latest
-            slug: windows-x64
+        include: ${{ fromJson(needs.release-matrix.outputs.platforms) }}
     runs-on: ${{ matrix.os }}
     permissions:
       contents: read
