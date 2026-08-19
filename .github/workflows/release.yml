@@ -270,6 +270,9 @@ jobs:
             exit 1
           fi
 
+      - name: Stage npm readme
+        run: cp README.npm.md README.md
+
       - name: Publish to npm (trusted publisher / OIDC)
         run: |
           set -euo pipefail

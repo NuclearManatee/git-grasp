@@ -33,6 +33,8 @@ Tag releases publish with OIDC (no `NPM_TOKEN` on the publish step). Configure o
 
 Requires npm CLI ≥ 11.5.1 (Release job uses Node 24). `package.json` `repository.url` must match `https://github.com/NuclearManatee/git-grasp`.
 
+The npm package page uses **`README.npm.md`**, copied to `README.md` on the publish runner only (repo `README.md` stays the GitHub/monorepo readme).
+
 If npm has no `git-grasp` package yet, trusted publishing on first publish may still work once the trusted publisher row is saved; if the UI requires an existing package, run one local `npm publish` with 2FA, then add the trusted publisher for CI going forward.
 
 ## Secrets
