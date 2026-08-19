@@ -42,7 +42,7 @@ export async function sendPosthogEvent({
     distinct_id: distinctId,
     properties: {
       ...data,
-      $lib: 'git-grasp-cli',
+      $lib: (typeof data.$lib === 'string' && data.$lib) || 'git-grasp-cli',
       $lib_version: data.app_version || '0.1.0',
       $process_person_profile: false,
       $geoip_disable: true,

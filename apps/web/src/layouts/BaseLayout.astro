@@ -40,8 +40,8 @@ const csp = [
   "font-src 'self' https://fonts.gstatic.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   // Astro islands + Transformers.js WASM need unsafe-inline / wasm-unsafe-eval
-  `script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cdn.jsdelivr.net https://*.i.posthog.com https://*.posthog.com${posthogOrigin}`,
-  `connect-src 'self' https://huggingface.co https://*.huggingface.co https://*.hf.co https://*.aws.cdn.hf.co https://cdn.jsdelivr.net https://*.i.posthog.com https://*.posthog.com${posthogOrigin}`,
+  `script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cdn.jsdelivr.net https://*.i.posthog.com https://*.posthog.com https://eu-assets.posthog.com https://us-assets.posthog.com${posthogOrigin}`,
+  `connect-src 'self' https://huggingface.co https://*.huggingface.co https://*.hf.co https://*.aws.cdn.hf.co https://cdn.jsdelivr.net https://*.i.posthog.com https://*.posthog.com https://eu-assets.posthog.com https://us-assets.posthog.com${posthogOrigin}`,
   "worker-src 'self' blob:",
   "form-action 'self'",
   "frame-ancestors 'none'",

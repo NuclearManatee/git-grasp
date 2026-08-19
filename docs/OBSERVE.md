@@ -36,6 +36,8 @@ flowchart TB
 
 ## Web playground
 
+- Custom events (`web_cli_load`, `web_cli_search`) post directly to the ingest API, not via `posthog.capture` — the CDN snippet often stays on the JS stub under our CSP.
+- **PostHog project:** enable **Cookieless server hash mode** under Project settings → Web analytics, or ingest returns 200 but events are dropped.
 - **On after Start** (consent). In-terminal notice uses `MSG.telemetry.on` ([apps/cli/README.md#ux](../apps/cli/README.md#ux)).
 - Withdrawal: leave the playground / use the CLI with telemetry left off (default). No mid-session opt-out.
 - Events: `web_cli_load`, `web_cli_search` (include `schema_version` / `catalog_version` when the catalog is open). THREAD uses `session_id` or PostHog cookieless `distinct_id`.
