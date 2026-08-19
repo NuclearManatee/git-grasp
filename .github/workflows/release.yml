@@ -116,6 +116,8 @@ jobs:
     outputs:
       platforms: ${{ steps.plan.outputs.platforms }}
     steps:
+      - uses: actions/checkout@v4
+
       - name: Resolve binary platforms
         id: plan
         env:
