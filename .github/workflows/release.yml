@@ -242,6 +242,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v4
 
@@ -251,8 +252,8 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          registry-url: https://registry.npmjs.org
+          node-version: '24'
+          package-manager-cache: false
 
       - name: Install
         run: bun install --frozen-lockfile
@@ -269,13 +270,11 @@ jobs:
             exit 1
           fi
 
-      - name: Publish to npm
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Publish to npm (trusted publisher / OIDC)
         run: |
           set -euo pipefail
-          if [ -z "${NODE_AUTH_TOKEN:-}" ]; then
-            echo "NPM_TOKEN secret is required to publish" >&2
-            exit 1
-          fi
+          node --version
+          npm --version
+          # setup-node registry-url injects an empty _authToken line and blocks OIDC — set registry only.
+          printf '%s\n' 'registry=https://registry.npmjs.org/' > .npmrc
           npm publish --access public
