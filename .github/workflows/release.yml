@@ -249,6 +249,11 @@ jobs:
         with:
           bun-version-file: .bun-version
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: https://registry.npmjs.org
+
       - name: Install
         run: bun install --frozen-lockfile
         env:
@@ -266,18 +271,11 @@ jobs:
 
       - name: Publish to npm
         env:
-          NPM_CONFIG_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           set -euo pipefail
-          if [ -z "${NPM_CONFIG_TOKEN:-}" ]; then
+          if [ -z "${NODE_AUTH_TOKEN:-}" ]; then
             echo "NPM_TOKEN secret is required to publish" >&2
             exit 1
           fi
-          # Bun reads $XDG_CONFIG_HOME/.npmrc on GHA; npm login writes ~/.npmrc — mirror both.
-          printf '%s\n' \
-            "//registry.npmjs.org/:_authToken=${NPM_CONFIG_TOKEN}" \
-            'registry=https://registry.npmjs.org/' \
-            'always-auth=true' > "$HOME/.npmrc"
-          mkdir -p "${XDG_CONFIG_HOME:-$HOME/.config}"
-          cp "$HOME/.npmrc" "${XDG_CONFIG_HOME}/.npmrc"
-          bun publish --access public
+          npm publish --access public
