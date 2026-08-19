@@ -145,6 +145,10 @@ jobs:
         env:
           GIT_GRASP_SKIP_POSTINSTALL: '1'
 
+      - name: Install SQLite (macOS — extension-capable lib for sqlite-vec)
+        if: runner.os == 'macOS'
+        run: brew install sqlite
+
       - name: Build release zip
         run: bun run build:release -- --platform=${{ matrix.slug }}
         env:

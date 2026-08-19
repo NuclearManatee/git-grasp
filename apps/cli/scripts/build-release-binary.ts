@@ -32,6 +32,28 @@ function platformSlug() {
   return `${os}-${arch}`;
 }
 
+/** macOS Bun builds disable extension loading unless we ship a vanilla libsqlite3. */
+function findDarwinSqliteLib() {
+  const candidates = [
+    process.env.GIT_GRASP_SQLITE_LIB,
+    '/opt/homebrew/opt/sqlite/lib/libsqlite3.dylib',
+    '/usr/local/opt/sqlite/lib/libsqlite3.dylib',
+    '/usr/local/opt/sqlite3/lib/libsqlite3.dylib',
+  ].filter(Boolean);
+  const brew = spawnSync('brew', ['--prefix', 'sqlite'], {
+    encoding: 'utf8',
+    shell: process.platform === 'win32',
+  });
+  if (brew.status === 0) {
+    const prefix = brew.stdout.trim();
+    if (prefix) candidates.unshift(path.join(prefix, 'lib', 'libsqlite3.dylib'));
+  }
+  for (const lib of candidates) {
+    if (lib && existsSync(lib)) return lib;
+  }
+  return null;
+}
+
 const outDir = path.resolve(argValue('--out-dir', path.join(PACKAGE_ROOT, 'dist-release')));
 const slug = argValue('--platform', platformSlug());
 const stageDir = path.join(outDir, `stage-${slug}`);
@@ -90,6 +112,21 @@ cpSync(dbPath, path.join(stageDir, 'common', 'data', 'git-commands.db'));
 cpSync(dbSha, path.join(stageDir, 'common', 'data', 'git-commands.db.sha256'));
 cpSync(recipesLatestPath, path.join(stageDir, 'common', 'data', 'catalog', 'recipes.latest.json'));
 cpSync(thresholdsPath, path.join(stageDir, 'common', 'config', 'thresholds.json'));
+
+if (slug.startsWith('darwin-')) {
+  const sqliteLib = findDarwinSqliteLib();
+  if (!sqliteLib) {
+    console.error(
+      'darwin release requires libsqlite3.dylib with extension loading '
+      + '(brew install sqlite, or set GIT_GRASP_SQLITE_LIB).',
+    );
+    process.exit(1);
+  }
+  const libDir = path.join(stageDir, 'common', 'lib');
+  mkdirSync(libDir, { recursive: true });
+  cpSync(sqliteLib, path.join(libDir, 'libsqlite3.dylib'));
+  console.log(`Bundled ${sqliteLib} → common/lib/libsqlite3.dylib`);
+}
 
 mkdirSync(outDir, { recursive: true });
 rmSync(zipPath, { force: true });

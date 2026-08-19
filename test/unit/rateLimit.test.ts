@@ -235,13 +235,75 @@ describe('createRateLimiter', () => {
     rmSync(dir, { recursive: true, force: true });
   });
 
+  it('loads valid day state from disk', () => {
+    const dir = mkdtempSync(path.join(os.tmpdir(), 'gh-rl-day-'));
+    const fixedNow = 1_700_000_000_000;
+    const dayKey = new Date(fixedNow).toISOString().slice(0, 10);
+    writeFileSync(
+      path.join(dir, 'day.json'),
+      JSON.stringify({ day: dayKey, requests: 3, tokens: 42 }),
+    );
+    const lim = new ConcurrencyRateLimiter({
+      statePath: path.join(dir, 'day.json'),
+      now: () => fixedNow,
+      sleep: async () => {},
+      limits: { rpm: 0, rpd: 0, tpm: 0, tpd: 0 },
+    });
+    expect(lim.getDayUsage()).toMatchObject({ requests: 3, tokens: 42, day: dayKey });
+    rmSync(dir, { recursive: true, force: true });
+  });
+
+  it('rolls day counter when UTC day changes', () => {
+    const dir = mkdtempSync(path.join(os.tmpdir(), 'gh-rl-roll-'));
+    const day1 = 1_700_000_000_000;
+    const dayKey1 = new Date(day1).toISOString().slice(0, 10);
+    writeFileSync(
+      path.join(dir, 'day.json'),
+      JSON.stringify({ day: dayKey1, requests: 5, tokens: 10 }),
+    );
+    let now = day1;
+    const lim = new ConcurrencyRateLimiter({
+      statePath: path.join(dir, 'day.json'),
+      now: () => now,
+      sleep: async () => {},
+      limits: { rpm: 0, rpd: 0, tpm: 0, tpd: 0 },
+    });
+    expect(lim.getDayUsage()).toMatchObject({ requests: 5, tokens: 10, day: dayKey1 });
+    now = day1 + 86_400_000;
+    expect(lim.getDayUsage()).toMatchObject({
+      requests: 0,
+      tokens: 0,
+      day: new Date(now).toISOString().slice(0, 10),
+    });
+    rmSync(dir, { recursive: true, force: true });
+  });
+
   it('uses default sleep for minInterval', async () => {
+    let now = 1_700_000_000_000;
     const lim = new ConcurrencyRateLimiter({
       concurrency: 1,
       minIntervalMs: 1,
+      now: () => now,
       limits: { rpm: 0, rpd: 0, tpm: 0, tpd: 0 },
     });
     expect(await lim.schedule(async () => 1)).toBe(1);
     expect(await lim.schedule(async () => 2)).toBe(2);
+  });
+
+  it('queues when concurrency is saturated', async () => {
+    let now = 0;
+    const lim = new ConcurrencyRateLimiter({
+      concurrency: 1,
+      now: () => now,
+      sleep: async (ms) => { now += ms; },
+      limits: { rpm: 0, rpd: 0, tpm: 0, tpd: 0 },
+    });
+    let release;
+    const gate = new Promise((resolve) => { release = resolve; });
+    const first = lim.schedule(async () => { await gate; return 1; });
+    const second = lim.schedule(async () => 2);
+    release();
+    expect(await first).toBe(1);
+    expect(await second).toBe(2);
   });
 });

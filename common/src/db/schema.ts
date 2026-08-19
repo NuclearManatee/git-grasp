@@ -28,6 +28,7 @@ import {
 import { createHash } from 'node:crypto';
 import { structuralCommandFingerprint } from '../build/argvNormalize.js';
 import { writeChecksumFile } from '../lib/checksum.js';
+import { PACKAGE_ROOT } from '../lib/paths.js';
 
 export {
   SCHEMA_VERSION,
@@ -86,6 +87,7 @@ function maybeSetCustomSqlite() {
   if (process.platform !== 'darwin') return;
   const candidates = [
     process.env.GIT_GRASP_SQLITE_LIB,
+    path.join(PACKAGE_ROOT, 'common', 'lib', 'libsqlite3.dylib'),
     '/opt/homebrew/opt/sqlite/lib/libsqlite3.dylib',
     '/usr/local/opt/sqlite/lib/libsqlite3.dylib',
     '/usr/local/opt/sqlite3/lib/libsqlite3.dylib',
