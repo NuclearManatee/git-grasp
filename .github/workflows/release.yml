@@ -224,12 +224,17 @@ jobs:
         run: |
           set -euo pipefail
           TAG="${GITHUB_REF_NAME}"
-          gh release create "$TAG" release-assets/*.zip release-assets/SHA256SUMS \
-            --title "$TAG" \
-            --notes "git-grasp $TAG — CLI binaries.
+          NOTES="git-grasp $TAG — CLI binaries.
 
-          Unzip, keep \`common/\` beside the binary, then run \`./git-grasp\` (Windows: \`git-grasp.exe\`) from the extracted folder. Optional: set \`GIT_GRASP_ROOT\` to that folder. Bun users: \`bun add -g git-grasp\`." \
-            --verify-tag
+          Unzip, keep \`common/\` beside the binary, then run \`./git-grasp\` (Windows: \`git-grasp.exe\`) from the extracted folder. Optional: set \`GIT_GRASP_ROOT\` to that folder. Bun users: \`bun add -g git-grasp\`."
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" release-assets/*.zip release-assets/SHA256SUMS --clobber
+          else
+            gh release create "$TAG" release-assets/*.zip release-assets/SHA256SUMS \
+              --title "$TAG" \
+              --notes "$NOTES" \
+              --verify-tag
+          fi
 
   npm-publish:
     needs: [gate, binaries]
@@ -261,12 +266,18 @@ jobs:
 
       - name: Publish to npm
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           set -euo pipefail
-          if [ -z "${NPM_TOKEN:-}" ]; then
+          if [ -z "${NPM_CONFIG_TOKEN:-}" ]; then
             echo "NPM_TOKEN secret is required to publish" >&2
             exit 1
           fi
-          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+          # Bun reads $XDG_CONFIG_HOME/.npmrc on GHA; npm login writes ~/.npmrc — mirror both.
+          printf '%s\n' \
+            "//registry.npmjs.org/:_authToken=${NPM_CONFIG_TOKEN}" \
+            'registry=https://registry.npmjs.org/' \
+            'always-auth=true' > "$HOME/.npmrc"
+          mkdir -p "${XDG_CONFIG_HOME:-$HOME/.config}"
+          cp "$HOME/.npmrc" "${XDG_CONFIG_HOME}/.npmrc"
           bun publish --access public
