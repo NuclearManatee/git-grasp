@@ -18,7 +18,7 @@ Regression gate: `bun run eval:regression` (`tools:pipeline -- --only=evalRegres
 | Secret | Used for |
 |--------|----------|
 | `DEEPSEEK_API_KEY` | Local pipeline / LLM stages (`prepare:goals`, `generate`, `expand`, optional golden judge) — **not** required by GitHub workflows |
-| `NPM_TOKEN` | Classic npm auth for `bun publish` on `v*` tags (release does not use OIDC trusted publishing) |
+| `NPM_TOKEN` | Classic npm auth for `npm publish` on `v*` tags (release does not use OIDC trusted publishing). Must be an **Automation**-type token (classic automation token or granular token with **Publish** + **Bypass 2FA for automation**). Publish-only tokens that require OTP will fail with `EOTP` in CI. |
 | `PUBLIC_POSTHOG_KEY` | PostHog EU project API key (`phc_…`) baked into Pages at `web:build`. Empty/missing keeps the site snippet off |
 | `RELEASE_PLATFORMS` | Optional comma-separated binary slugs for `v*` tag releases: `linux-x64`, `darwin-arm64`, `darwin-x64`, `windows-x64`. Default (unset): all four. Example without macOS: `linux-x64,windows-x64`. macOS zips bundle `common/lib/libsqlite3.dylib` (Homebrew build) so sqlite-vec works without a local `brew install sqlite`. |
 
